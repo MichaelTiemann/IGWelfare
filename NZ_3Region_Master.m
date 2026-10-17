@@ -20,10 +20,34 @@ PTypeDistParamNames = {'PTypeWeights'};
 Params.PTypeWeights = [0.180; 0.414; 0.306; ... % HH_Rural, HH_Urban, HH_Auckland
                        0.020; 0.046; 0.034];    % Firm_Rural, Firm_Urban, Firm_Auckland
 
+%% ENABLE VFI TOOLKIT EXPERIENCE ASSET FOR ADULT HUMAN CAPITAL (h)
 for r_idx = 1:3
-    reg = Regions{r_idx};
-    N_j.(['HH_', reg])   = 16;  % Finite horizon: 5-yr age brackets 20-24 (j=1) to 95-99 (j=16)
-    N_j.(['Firm_', reg]) = Inf; % Infinite horizon entrepreneurial firms
+    hh_type   = ['HH_', Regions{r_idx}];
+    firm_type = ['Firm_', Regions{r_idx}];
+    
+    % Enable experienceasset for Finite-Horizon Households, disable for Infinite-Horizon Firms
+    vfoptions.experienceasset.(hh_type)   = 1;
+    simoptions.experienceasset.(hh_type)  = 1;
+    vfoptions.experienceasset.(firm_type) = 0;
+    simoptions.experienceasset.(firm_type)= 0;
+    
+    % Decisions d: [d1 = Labor (l), d2 = Ben-Porath Training (Ih), d3 = Child Investment (ic)]
+    % Note: In VFI Toolkit experienceasset, the decision variables that affect h' 
+    % are passed to aprimeFn. Here both l (d1) and Ih (d2) govern h'.
+    n_d.(hh_type) = [4, 5, 7]; 
+    d_grid.(hh_type) = [[0; 0.5; 0.8; 1.0]; linspace(0, 0.35, 5)'; linspace(0, 0.50, 7)'];
+    
+    % Endogenous states a: [Standard Asset a (Net Worth), Experience Asset h (Human Capital)]
+    % Because h' is no longer searched over on a 2D grid, we can increase h_grid from 7 to 21 points!
+    n_a.(hh_type) = [81, 21];
+    a_grid_assets = 25 * (linspace(0, 1, n_a.(hh_type)(1)).^3)';
+    a_grid_hc     = linspace(0.40, 2.20, n_a.(hh_type)(2))';
+    a_grid.(hh_type) = [a_grid_assets; a_grid_hc];
+    
+    % Define aprimeFn for the Experience Asset h' = f(l, Ih, h, delta_hc, alpha_I, alpha_H, agej, Jr)
+    vfoptions.aprimeFn.(hh_type) = @(l, Ih, h, delta_hc, alpha_I, alpha_H, agej, Jr) ...
+        BenPorath_aprimeFn(l, Ih, h, delta_hc, alpha_I, alpha_H, agej, Jr);
+    simoptions.aprimeFn.(hh_type) = vfoptions.aprimeFn.(hh_type);
 end
 
 Params.J    = 16;

@@ -1,24 +1,19 @@
-function F = ReturnFn_SpatialHH(l, Ih, ic, aprime, hprime, a, h, z, ...
+function F = ReturnFn_SpatialHH(l, Ih, ic, aprime, a, h, z, ...
     w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
     Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, omega_ic, ...
-    delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
-    tau_l, tau_c, tau_k, tau_b, agej, Jr, sj)
-%% FINITE-HORIZON HOUSEHOLD WITH REGIONAL HOUSING, TENURE CHOICE & BEQUESTS
+    b1_beq, b2_beq, YouthGrant, tau_l, tau_c, tau_k, tau_b, agej, Jr, sj)
+%% FINITE-HORIZON HOUSEHOLD RETURN FUNCTION WITH EXPERIENCE ASSET (h)
+% Notice: 'hprime' is no longer in the argument list! VFI Toolkit only searches
+% over standard next-period asset 'aprime' (Net Worth) and uses aprimeFn for h'.
 
 F = -Inf;
 
-% 1. HUMAN CAPITAL EVOLUTION (Ben-Porath, Source 11)
-if agej < Jr
-    if l > 0
-        h_expected = (1 - delta_hc) * h + (Ih^alpha_I) * (h^alpha_H);
-    else
-        if Ih > 0; return; end
-        h_expected = (1 - delta_hc) * h;
-    end
-    if abs(hprime - h_expected) > 0.18; return; end
-else
-    if l > 0 || Ih > 0 || ic > 0; return; end
-    if abs(hprime - h) > 1e-4; return; end
+% Prevent positive on-the-job training Ih when not working (l == 0)
+if l == 0 && Ih > 0
+    return;
+end
+if agej >= Jr && (l > 0 || Ih > 0 || ic > 0)
+    return;
 end
 
 % 2. REGIONAL HOUSING FUNDAMENTALS & TENURE CHOICE (Kiyotaki et al. Source 1, Eq 2, 6, 9, 14)
