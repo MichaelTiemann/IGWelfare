@@ -168,6 +168,7 @@ To understand how an economy simultaneously generates child poverty, working-age
 |   * $1.6T Property Estate Transfer (Taxed at tau_b) ------------+                 |  
 |   * Guvenen "Use-It-or-Lose-It" Wealth Tax (tau_a) -> Reallocates K to z_h Firms  |  
 +-----------------------------------------------------------------------------------+
+```
 
 ### **Lens 1: Child Welfare & The Technology of Skill Formation (First 1000/2000 Days)**
 
