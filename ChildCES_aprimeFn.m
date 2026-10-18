@@ -24,19 +24,20 @@ if whicha == 1
 
 else
     %% EXPERIENCE ASSET 2: TWO-STAGE CUNHA-HECKMAN-SCHENNACH CHILD SKILL (theta_c -> theta_c_prime)
+    psi_inv = 7.8; % Normalizes 5-yr budget flow (ic + G_ece + gbar ~ 0.13) to skill index units (~1.0)
     if agej == 3
         % Stage 1 (Ages 0-5 / First 2000 Days): High substitutability (phi1_ces > 0)
-        I_stage1 = max(0.05, ic + G_ece_stage1 + gbar_ece);
+        I_stage1 = psi_inv * max(0.04, ic + G_ece_stage1 + gbar_ece);
         a2prime  = ( gamma1_self * (theta_c  ^ phi1_ces) ...
-                   + gamma1_inv  * (I_stage1 ^ phi1_ces) ...
-                   + gamma1_par  * (h        ^ phi1_ces) ) ^ (1 / phi1_ces);
+            + gamma1_inv  * (I_stage1 ^ phi1_ces) ...
+            + gamma1_par  * (h        ^ phi1_ces) ) ^ (1 / phi1_ces);
 
     elseif agej == 4
         % Stage 2 (Ages 6-17 / School-Age): Strong dynamic complementarity (phi2_ces < 0)
-        I_stage2 = max(0.05, ic + G_ece_stage2 + gbar_ece);
+        I_stage2 = psi_inv * max(0.04, ic + G_ece_stage2 + gbar_ece);
         a2prime  = ( gamma2_self * (theta_c  ^ phi2_ces) ...
-                   + gamma2_inv  * (I_stage2 ^ phi2_ces) ...
-                   + gamma2_par  * (h        ^ phi2_ces) ) ^ (1 / phi2_ces);
+            + gamma2_inv  * (I_stage2 ^ phi2_ces) ...
+            + gamma2_par  * (h        ^ phi2_ces) ) ^ (1 / phi2_ces);
 
     else
         % Pre-parenting (j = 1, 2) and post-childhood (j >= 5): preserve state

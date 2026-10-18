@@ -140,8 +140,9 @@ if N_reg == 4
 else
     kappa_mat = [0.00, 0.12, 0.25; 0.10, 0.00, 0.18; 0.08, 0.08, 0.00];
 end
-varrho_gumbel = 0.45;
-MigMatrix     = zeros(N_reg, N_reg);
+varrho_gumbel   = 0.75;
+home_stay_bonus = 0.95; % Psychic/social attachment to home origin region (matches 88-92% 5-yr retention)
+MigMatrix       = zeros(N_reg, N_reg);
 
 jequaloneDist_new = struct();
 for r_dest = 1:N_reg
@@ -164,7 +165,7 @@ for r_orig = 1:N_reg
 
         V1_d    = V1_cpu.(dest_type)(ia_dest_mat(:, r_dest), :, :, :);
         V_slice = -1e4 * ones(n_a1, n_h, n_th, n_z1);
-        V_slice(feas_vec, :, :, :) = V1_d(feas_vec, :, :, :);
+        V_slice(feas_vec, :, :, :) = V1_d(feas_vec, :, :, :) + (r_dest == r_orig) * home_stay_bonus;
         V_dest_all(:, :, :, :, r_dest) = V_slice;
     end
 

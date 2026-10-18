@@ -164,7 +164,7 @@ Params.Transfer_Geo.HH_Auckland = 0.014;
 Params.gamma1_self = 0.53; Params.gamma1_inv = 0.24; Params.gamma1_par = 0.23; Params.phi1_ces = 0.35;
 Params.gamma2_self = 0.87; Params.gamma2_inv = 0.07; Params.gamma2_par = 0.06; Params.phi2_ces = -0.95;
 Params.G_ece_stage1 = 0.045; Params.G_ece_stage2 = 0.065; Params.gbar_ece = 0.020;
-Params.s_sub = 0.100; Params.omega_ic = 0.420; Params.h_par_mean = 1.000;
+Params.s_sub = 0.100; Params.omega_ic = 0.850; Params.h_par_mean = 1.000;
 
 Params.phi_nd = 0.80; Params.mu_maint = 0.04; Params.upsilon_h = 0.008; Params.chi_bar = 2.55;
 Params.delta_hc = 0.087; Params.alpha_I = 0.090; Params.alpha_H = 0.064;
@@ -191,7 +191,7 @@ for r_idx = 1:N_reg
         ReturnFn_Firm(aprime, a, z, w_reg, r, alpha_k, lambda_col, delta_k, tau_k, tau_a);
 end
 
-vfoptions.verbose = 1; simoptions.verbose = 1;
+vfoptions.verbose = 0; simoptions.verbose = 0;
 [V, Policy] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
     d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, ...
     DiscountFactorParamNames, vfoptions);

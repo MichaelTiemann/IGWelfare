@@ -152,7 +152,7 @@ for k_f = {'Firm_Rural', 'Firm_Urban'}
         ReturnFn_Firm(aprime, a, z, w_reg, r, alpha_k, lambda_col, delta_k, tau_k, tau_a);
 end
 
-vfoptions.verbose = 1;
+vfoptions.verbose = 0;
 [V, Policy] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
               d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, ...
               DiscountFactorParamNames, vfoptions);

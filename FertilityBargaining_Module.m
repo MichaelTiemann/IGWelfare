@@ -14,18 +14,18 @@
 N_reg = length(Regions); % Automatically = 4: {'Rural', 'Small', 'Large', 'Auckland'}
 
 %% 1. ADD FERTILITY & BARGAINING PARAMETERS TO PARAMS
-Params.nu_m          = 0.42; % Male partner preference for children (Source 14)
-Params.nu_f          = 0.42; % Female partner preference for children (Source 14)
-Params.gender_gap_wf = 0.88; % Relative female wage wf / wm in couple
-Params.chi_f_share   = 0.72; % Share of unsubsidized childcare time borne by mother (Source 14)
-Params.commit_degree = 0.65; % Degree of intra-household intertemporal commitment (Source 14)
+Params.nu_m          = 0.135; % Male partner preference for children (calibrated to NZ TFR ~ 1.69)
+Params.nu_f          = 0.135; % Female partner preference for children
+Params.gender_gap_wf = 0.88;  % Relative female wage wf / wm in couple
+Params.chi_f_share   = 0.72;  % Share of unsubsidized childcare time borne by mother
+Params.commit_degree = 0.65;  % Degree of intra-household intertemporal commitment
 
-Params.beta_hyp      = 0.82; % Present-bias hyperbolic factor beta in [0, 1] (Source 18)
-Params.eps_fert      = 0.65; % Curvature epsilon in altruism function Phi(n) (Source 18)
-Params.x_time_child  = 0.14; % Per-child parental time cost fraction x (Source 7 & Source 18)
-Params.phi_space_kid = 0.08; % Additional housing space cost per child
+Params.beta_hyp      = 0.82;  % Present-bias hyperbolic factor beta in [0, 1]
+Params.eps_fert      = 0.85;  % Curvature epsilon in altruism function Phi(n)
+Params.x_time_child  = 0.14;  % Per-child parental time cost fraction x
+Params.phi_space_kid = 0.08;  % Additional housing space cost per child
 
-vfoptions.verbose=1;
+vfoptions.verbose=0;
 
 %% 2. COMPARE 4 FERTILITY & CHILDCARE POLICY SCENARIOS ACROSS ALL 4 REGIONS
 FertScenarios = { ...
@@ -182,7 +182,7 @@ for r_idx = 1:N_reg
     w_hat_phi       = Params.commit_degree .* coop_cost ...
         + (1 - Params.commit_degree) .* (2.0 .* maternal_burden);
 
-    psi_child_4d = max(0.04, w_hat_phi + Params.phi_space_kid * p_H_k ...
+    psi_child_4d = max(0.06, 0.065 + w_hat_phi + Params.phi_space_kid * p_H_k ...
         + (1 - Params.s_sub) .* ic_val_4d);
 
     % 2. Vectorized Commitment vs Hyperbolic Fertility (Source 18)
@@ -199,7 +199,8 @@ for r_idx = 1:N_reg
     mass_by_z     = squeeze(sum(m_p_4d,       [1, 2, 3]));
 
     % 3. Vectorized Differential Fertility-Weighted Child Skill (Source 7)
-    I_s2_4d  = max(0.05, ic_j4_4d + Params.G_ece_stage2 + Params.gbar_ece);
+    % Use the same psi_inv = 7.8 normalization in Stage-2 CES skill check:
+    I_s2_4d  = 7.8 * max(0.04, ic_j4_4d + Params.G_ece_stage2 + Params.gbar_ece);
     th_3_4d  = ( Params.gamma2_self .* (th_4d   .^ Params.phi2_ces) ...
         + Params.gamma2_inv  .* (I_s2_4d .^ Params.phi2_ces) ...
         + Params.gamma2_par  .* (h_4d    .^ Params.phi2_ces) ) .^ (1 / Params.phi2_ces);
