@@ -84,3 +84,87 @@ Tracking the $4 \times 5$ Gumbel migration matrix (**Rural**, **Small**, **Large
    * **Wave 1 (Years 0–5):** Cooling **Auckland** ($-7.5\%$) and **Large** metro ($-5.0\%$) house prices plus the Youth Grant $E$ immediately cuts the age 20–35 emigration rate to Australia/OECD by **~35%–40%**, with the sharpest drop in Auckland and Large cities.  
    * **Wave 2 (Years 5–20):** Wealth-tax-driven capital reallocation toward $z_h$ firms lifts domestic wages ($+3.2\%$ in Rural to $+5.5\%$ in Auckland), closing another **~35%** of the high-skill ($h_6 \mathrm{--} h_7$) outflow.  
    * **Wave 3 (Year 20+ Inflection):** When Cohort $c = 0$ (raised under expanded First-2000-Days $G_{\mathrm{ECE}}$) enters the 20–35 migration window at Year 20, domestic stunting falls toward 2%–4%, replacement migration churn drops, the **Social Cohesion Index ($S_t$)** rises from 100 to ~118+, and the **Effective Tax Base per 65+ Retiree** expands by over 20%.
+
+## **Part IV: Methodological Defense & Mathematical Appendix**
+
+This appendix provides the formal mathematical defense of the modeling choices, identification strategies, and computational reductions used to construct the New Zealand 4-Region Intergenerational Suite.
+
+### **A.1 Defending the Mixed Finite/Infinite-Horizon PType Architecture**
+
+**The Critique:** *Why not model entrepreneurs as finite-horizon life-cycle households, or model all households as infinitely lived dynastic agents?*  
+**The Defense:**
+
+1. In standard Aiyagari life-cycle models, households save in a single risk-free bond/capital pool rented to a static representative firm ($Y = Z K^\alpha L^{1-\alpha}$). In that setup, individual portfolio returns are identical ($r$), so a book-value wealth tax $\tau_a$ and a capital income tax $\tau_k$ are mathematically isomorphic ($\tau_a = r \tau_k$), completely missing the **Guvenen et al. (2023) capital misallocation channel**.  
+2. Conversely, if heterogeneous entrepreneurial returns $R(z_f)$ are attached directly to finite-horizon households, retirees at ages 75–95 are forced to operate collateral-constrained firms, confounding life-cycle retirement decumulation (Fan, Seshadri, & Taber; De Nardi, 2004) with corporate equity dynamics.  
+3. By partitioning the economy in the VFI Toolkit into Names_i = {'HH_Rural', 'HH_Small', 'HH_Large', 'HH_Auckland', 'Firm_Rural', 'Firm_Small', 'Firm_Large', 'Firm_Auckland'} with N_j.HH_k = 16 and N_j.Firm_k = Inf, finite-horizon households supply labor and bond/mutual-fund savings (a_h), while infinite-horizon firms face persistent productivity shocks $z_f \in \lbrace z_{\ell,k}, z_{h,k} \rbrace$, borrow up to collateral limit $k \le \lambda_{\mathrm{col}} a_f$, and solve:  
+
+$$
+V_{F,k}(a_f, z_f) = \max_{a^{\prime}_f \in \lbrack 0, R_k(z_f)a_f \rbrack} \left\lbrace \ln\left\lparen R_k(z_f) a_f - a^{\prime}_f \right\rparen + \beta_{\mathrm{firm}} \sum_{z^{\prime}_f} \Pi_{f,k}(z^{\prime}_f \mid z_f) V_{F,k}(a^{\prime}_f, z^{\prime}_f) \right\rbrace
+$$
+
+where:
+
+$$
+R_k(z_f) = (1 - \tau_a)^5 + (1 - \tau_k) \left\lparen r + \max \left\lbrace 0, \alpha_k \left\lparen \frac{1-\alpha_k}{w_k} \right\rparen^{\frac{1-\alpha_k}{\alpha_k}} z_f - (r + \delta_k) \right\rbrace \lambda_{\mathrm{col}} \right\rparen
+$$
+
+Because VFI Toolkit loops over Names_i sequentially on the GPU, this mixed-horizon synthesis adds **zero state variables** to the household grid while preserving the exact analytical properties of Guvenen et al.
+
+### **A.2 Defending the Nonparametric Skill Anchoring & Luxury In-Kind Specification**
+
+**The Critique:** *Early childhood test scores have arbitrary scales and are ridden with measurement error; furthermore, standard benefit-incidence studies value public ECE at \$1 per \$1 of spending, which overstates welfare gains for cash-poor families.*  
+**The Defense:**
+
+1. **Adult Outcome Anchoring & Measurement Error Correction:** Following Cunha, Heckman, and Schennach (2010), latent childhood skills $\theta_{k,t}$ are anchored directly in cardinal adult earnings/schooling outcomes $g_{k,j}(\theta_{k,t})$ ($h \in H$ at age 20). As Cunha et al. demonstrate in Tables I–III, ignoring measurement error in early skill proxies severely attenuates Stage 1 investment loadings and overstates late-stage substitutability; our calibration directly adopts their measurement-error-corrected factor loadings ($\gamma_{1,C,1} = 0.487, \gamma_{2,C,1} = 0.902$).
+
+**Welfare-Based In-Kind Imputation ($\omega_i$):** Following Ferriere et al. (2025), standard monetary imputation values public in-kind spending $G_{\mathrm{ECE}}$ at full cost across all deciles, overstating redistributive compression by up to 50% because constrained families at the corner solution $i_c = 0$ have a high marginal utility of cash $\partial u_i / \partial y_i$. In Calibrate_NZ_Moments.m, we discipline the Stone-Geary luxury parameter $\bar{g}_{\mathrm{ECE}}$ against the empirical share $S = \Pr(i_c = 0) \approx 0.25$ of fertile households making zero private top-ups, and apply Ferriere et's exact welfare-based imputation weight:
+
+$$
+\omega_i = \frac{\partial u_i / \partial G_{\mathrm{ECE}}}{\partial u_i / \partial y_i} = \min \left\lbrace \frac{y_i / \bar{y}}{F^{-1}(S)}, 1 \right\rbrace
+$$
+
+2. Even under this strict discounting of direct utility ($\omega_i < 1$ in $Q_1, Q_2$), public $G_{\mathrm{ECE}}$ generates massive positive welfare gains (CE % > 0) via the concave societal externality $X_t$ and the intergenerational human capital transition matrix $Q_h$.
+
+### **A.3 Defending the Spatial & Housing Dimensionality Reductions**
+
+**The Critique:** *Modeling 4 regions (Rural, Small, Large, Auckland), liquid bonds $b$, physical housing stock $H$, and binary tenure choice (Rent vs. Own) would normally multiply the endogenous state space by $4 \times N_H \times 2$, causing GPU memory overflow.*  
+**The Defense:**  
+We achieve exact spatial and housing representation with **zero extra endogenous grid states** via three structural reductions:
+
+1. **Horizontal Spatial Partitioning (Names_i):** Mapping $k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace$ to VFI Toolkit Permanent Types (Names_i) means each region is solved sequentially on the GPU with its own local wage $w_k$, house price $Q_k$, income dispersion $\sigma_z(k)$, and mandatory fuel/transport subsistence $\bar{e}_k$.  
+2. **Net-Worth Consolidation ($a = Q_k h_{\mathrm{house}} - b_{\mathrm{debt}}$):** Following Kiyotaki, Michaelides, and Nikolov (2024), when young homeowners borrow up to the collateral limit, financial debt $b$ and physical housing $h_{\mathrm{house}}$ consolidate into a single state variable: net worth $a \ge 0$. Intra-period expenditure $e_{\mathrm{tot}}$ splits analytically between non-durable consumption (share $\phi_{\mathrm{nd}}$) and housing space (share $1 - \phi_{\mathrm{nd}}$).
+
+**Closed-Form Tenure Cutoff ($\xi_k$) & Unbalanced Growth Bubble ($G_k$):** Given regional trend growth $G_k$ (Hirano & Toda, 2025), local rental yields:
+ 
+$$
+rr_k = \left\lparen 1 + \mu_{\mathrm{maint}} - \frac{G_k}{(1+r)^{1/5}} \right\rparen Q_k
+$$
+
+and homeowner user costs:
+
+$$
+rh_k = \left\lparen 1 + \mu_{\mathrm{maint}} - \upsilon_h - \frac{G_k}{(1+r)^{1/5}} \right\rparen Q_k
+$$
+
+pin down the exact fraction of young households choosing leveraged ownership via the uniform preference draw $\chi \sim U \lbrack 0, \bar{\chi} \rbrack$:
+
+$$
+\xi_k = \min \left\lbrace 1, \frac{1}{\bar{\chi}} \left\lparen \frac{rr_k}{rh_k} \right\rparen \right\rbrace
+$$
+
+3. Regional housing markets clear in General Equilibrium against elastic supply $HS(k) = H_k (Q_k)^{\delta_{H,k}}$, where $\delta_{H,\mathrm{Auckland}} = 0.10 < \delta_{H,\mathrm{Large}} = 0.18 < \delta_{H,\mathrm{Small}} = 0.28 < \delta_{H,\mathrm{Rural}} = 0.35$.
+
+### **A.4 Defending Warm-Glow + Transition Matrix vs. Explicit Dynastic VFI**
+
+**The Critique:** *Why use a warm-glow bequest function $u_{\mathrm{beq}}(a^{\prime})$ and log child-skill payoff $\omega_{ic} \ln(h_{\mathrm{child}})$ inside the household Bellman equation rather than solving an outer Barro–Becker Dynastic VFI loop over $V_{\mathrm{child}}$?*  
+**The Defense:**
+
+1. **Distributional Equivalence:** As De Nardi (2004) establishes, embedding a child's full multi-dimensional state vector inside the parent's Bellman equation expands the state space and introduces strategic parent–child gaming, whereas a two-parameter luxury warm-glow function $(b_1, b_2)$ accurately reproduces the upper tail of the estate distribution and old-age saving profiles.  
+2. **Capturing the 75% Intergenerational Multiplier:** In Daruich (2018, Section 6), three-fourths of the long-run welfare gain from early-childhood policy operates through the shift in the **stationary distribution of parent states $\mu(a, h, z)$** across generations, rather than changes in the curvature of the continuation value function. Because Build_IntergenTransitionMatrix.m maps the exact optimal child investments $i_c^{\ast}(a_p, h_p, z_p, k)$ and net-of-tax estates $(1 - \tau_b) a_j^{\prime \ast}(k)$ into the next generation's initial distribution jequaloneDist ($\mu_{1,k}(a_1, h_1, z_1)$), our architecture captures 100% of this macroeconomic dynastic feedback loop.  
+3. **Optional 2-Parameter Dynastic Slope Toggle:** Because a newborn's expected value function $E_{a_1, z_1} \lbrack V_k(a_1, h_1, z_1, 1) \rbrack$ in a CRRA economy is smooth and concave in initial human capital $h_1$, our log-skill payoff $\omega_{ic} \ln(h_{\mathrm{child}})$ is a tight functional proxy for $E \lbrack V_1 \rbrack$. When evaluating reforms that drastically alter future adult tax progressivity (where farsighted parents might adjust $i_c$ in anticipation of their child's altered after-tax return to skill), one can toggle on a 4-iteration outer loop fitting:
+
+$$
+E_{a_1, z_1} \lbrack V_k(a_1, h_1, z_1, 1) \rbrack \approx \hat{\alpha}_{0,k} + \hat{\alpha}_{1,k} \frac{h_1^{1-\eta_{\mathrm{dyn}}}}{1-\eta_{\mathrm{dyn}}}
+$$
+
+(following Lee & Seshadri's $V_4^n \rightarrow V_4^{n+1}$ contraction) with zero change to grid dimensions.
