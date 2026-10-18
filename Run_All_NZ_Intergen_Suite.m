@@ -8,6 +8,10 @@
 %   Step 4: Optional SMM Calibration & In-Kind Imputation Check (Calibrate_NZ_Moments.m)
 %   Step 5: 4-Region Welfare Decomposition (WelfareDecomposition_4Region.m)
 %   Step 6: 60-Year Non-Linear Transition Path (TransPath_4Region_Master.m)
+% Parameterized by period length dt (in years):
+%   dt = 5 -> J = 16, Jr = 10, T_trans = 12 (Default 5-year benchmark)
+%   dt = 3 -> J = 27, Jr = 16, T_trans = 20 (Granular 3-year benchmark)
+%   dt = 2 -> J = 40, Jr = 23, T_trans = 30 (High-res 2-year benchmark)
 
 clear; clc; close all;
 suite_timer = tic;
@@ -21,6 +25,8 @@ Run_Fertility_Module  = true;  % true = Run Intra-Household Bargaining & Differe
 Run_Transition_Path   = true;  % true = Run 60-year shooting algorithm (TransPath_4Region_Master.m)
 Export_Tables_Figures = true;  % true = Save all CSV tables, 300-DPI PNGs, .fig, and .mat workspace
 
+dt = 3; % <--- Switch between 5, 4, 3, 2, or 1 here!
+
 OutputDir = fullfile(pwd, 'Output_NZ_4Region_Intergen');
 if Export_Tables_Figures && ~exist(OutputDir, 'dir')
     mkdir(OutputDir);
@@ -29,6 +35,7 @@ end
 fprintf('=========================================================================================\n');
 fprintf('  STARTING NEW ZEALAND 4-REGION INTERGENERATIONAL WELFARE SUITE (VFI TOOLKIT 5D)\n');
 fprintf('  Regions: Rural (16.0%%) | Small (24.0%%) | Large (25.9%%) | Auckland (34.1%%)\n');
+fprintf('  (dt = %d yr)\n', dt);
 fprintf('=========================================================================================\n');
 
 if gpuDeviceCount > 0
@@ -38,6 +45,15 @@ if gpuDeviceCount > 0
 else
     warning('No CUDA GPU detected. VFI Toolkit will fall back to CPU execution.\n');
 end
+
+Params = struct();
+Params = Configure_TimeGrid_Params(Params, dt);
+
+fprintf('\n[Step 0] Horizon J = %d (Ages 20-99), Retirement Jr = %d (Age 65)\n', Params.J, Params.Jr);
+fprintf('         Stage 1 (Ages 0-5): j = %d..%d (%d steps)\n', ...
+    Params.j_child_s1_start, Params.j_child_s1_end, Params.n_stage1_steps);
+fprintf('         Stage 2 (Ages 6-17): j = %d..%d (%d steps), Launch j = %d\n', ...
+    Params.j_child_s2_start, Params.j_child_s2_end, Params.n_stage2_steps, Params.j_child_launch);
 
 %% STEP 1: SOLVE BASELINE 4-REGION STEADY STATE (SS0)
 fprintf('>>> [STEP 1/6] Solving Baseline 4-Region Steady State (NZ_4Region_Master.m)...\n');
