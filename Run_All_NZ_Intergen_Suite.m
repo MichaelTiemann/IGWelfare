@@ -1,153 +1,201 @@
-%% MASTER RUNNER: NEW ZEALAND 3-REGION INTERGENERATIONAL WELFARE SUITE
+%% MASTER RUNNER: NEW ZEALAND 4-REGION INTERGENERATIONAL WELFARE SUITE (UPGRADE B)
 % File: Run_All_NZ_Intergen_Suite.m
-% Executes the complete VFI Toolkit Mixed-Horizon Spatial OLG pipeline:
-%   Step 1: Baseline 3-Region Steady State & Intergenerational Matrix (NZ_3Region_Master.m)
-%   Step 2: SMM Calibration & In-Kind Imputation Check (Calibrate_NZ_Moments.m)
-%   Step 3: Policy Reform & 3-Way Welfare Decomposition (WelfareDecomposition_3Region.m)
-%   Step 4: Low-Opportunity vs High-Opportunity Brain-Drain Diagnostic (Opportunity_BrainDrain_Module.m)
-%   Step 5: 60-Year Non-Linear Transition Path & Figure Export (TransPath_3Region_Master.m)
+% Regions (N_reg = 4): {'Rural' (20%), 'Small' (23%), 'Large' (27%), 'Auckland' (30%)}
+% Orchestrates the complete VFI Toolkit Mixed-Horizon Spatial OLG pipeline:
+%   Step 1: Baseline 4-Region Steady State with Two-Stage Child CES Experience Asset
+%           (NZ_4Region_Master_UpgradeB.m, ChildCES_aprimeFn.m, ReturnFn_SpatialHH_UpgradeB.m)
+%   Step 2: Multi-Stage Childhood Counterfactuals: P0 vs P1/P2 & Table 12 Variance Explained
+%           (PolicyExperiment_LeeSeshadri_3Region.m - auto-scales to N_reg = 4)
+%   Step 3: Endogenous Fertility, Intra-Household Bargaining & Differential Fertility
+%           (FertilityBargaining_Module.m - auto-scales to N_reg = 4)
+%   Step 4: 5D -> 4D Compact Workspace Projection across all 4 Regions
+%   Step 5: Optional SMM Calibration & In-Kind Imputation Check (Calibrate_NZ_Moments.m)
+%   Step 6: 4-Region Welfare Decomposition: Daruich, Labrousse/Perdereau, Kiyotaki
+%           (WelfareDecomposition_4Region.m)
+%   Step 7: 60-Year Non-Linear Transition Path ($1.6T Transfer & Child Skill Wave)
+%           (TransPath_4Region_Master.m)
 
 clear; clc; close all;
 suite_timer = tic;
 
 %% 0. CONFIGURATION SWITCHES & OUTPUT DIRECTORY SETUP
-Run_SMM_Calibration   = false; % Set true to run full Sobol + fminsearch SMM parameter tuning
-Export_Tables_Figures = true;  % Set true to save all CSV tables, PNG figures, and MAT workspace
-OutputDir             = fullfile(pwd, 'Output_NZ_Intergen');
+Use_UpgradeB_ExpAsset  = true;  % true = Run Upgrade B (2-stage child CES experience asset theta_c)
+Run_SMM_Calibration    = false; % true = Run Sobol global pre-screening + local fminsearch SMM
+Run_LeeSeshadri_Exp    = true;  % true = Run P0 vs P1/P2 & Budget-Neutral Front-Loading (Step 2)
+Run_Fertility_Module   = true;  % true = Run Intra-Household Bargaining & Differential Fertility (Step 3)
+Run_Transition_Path    = true;  % true = Run 60-year shooting algorithm (TransPath_4Region_Master.m)
+Export_Tables_Figures  = true;  % true = Save all CSV tables, 300-DPI PNGs, .fig, and .mat workspace
 
+OutputDir = fullfile(pwd, 'Output_NZ_4Region_Intergen');
 if Export_Tables_Figures && ~exist(OutputDir, 'dir')
     mkdir(OutputDir);
 end
 
 fprintf('=========================================================================================\n');
-fprintf('  STARTING NEW ZEALAND 3-REGION INTERGENERATIONAL WELFARE SUITE (VFI TOOLKIT)\n');
+fprintf('  STARTING NEW ZEALAND 4-REGION INTERGENERATIONAL WELFARE SUITE (VFI TOOLKIT)\n');
+fprintf('  Regions: Rural (20%%) | Small (23%%) | Large (27%%) | Auckland (30%%)\n');
 fprintf('=========================================================================================\n');
 
-% Check GPU availability for VFI Toolkit acceleration
 if gpuDeviceCount > 0
     gpu_info = gpuDevice;
-    fprintf('GPU Detected: %s (Memory: %.2f GB)\n', gpu_info.Name, gpu_info.AvailableMemory / 1e9);
+    fprintf('GPU Detected: %s (Available Memory: %.2f GB)\n\n', ...
+            gpu_info.Name, gpu_info.AvailableMemory / 1e9);
 else
-    warning('No CUDA GPU detected. VFI Toolkit works best with a GPU; falling back to CPU.');
+    warning('No CUDA GPU detected. VFI Toolkit will fall back to CPU execution.\n');
 end
 
-% Verify required suite files exist in current directory/path
-RequiredFiles = { ...
-    'ReturnFn_SpatialHH.m', ...
-    'ReturnFn_Firm.m', ...
-    'Build_IntergenTransitionMatrix.m', ...
-    'NZ_3Region_Master.m', ...
-    'Calibrate_NZ_Moments.m', ...
-    'WelfareDecomposition_3Region.m', ...
-    'Opportunity_BrainDrain_Module.m', ...
-    'TransPath_3Region_Master.m'};
-
-for f_idx = 1:length(RequiredFiles)
-    if ~exist(RequiredFiles{f_idx}, 'file')
-        error('Missing required file: %s. Please ensure all suite scripts are in the working directory.', ...
-              RequiredFiles{f_idx});
-    end
-end
-fprintf('All %d modular scripts verified.\n\n', length(RequiredFiles));
-
-%% STEP 1: SOLVE BASELINE STEADY STATE (SS0) & 3x4 INTERGENERATIONAL MATRIX
-fprintf('>>> [STEP 1/5] Running NZ_3Region_Master.m (Baseline Steady State SS0)...\n');
+%% STEP 1: SOLVE BASELINE 4-REGION STEADY STATE (SS0) & EXPERIENCE ASSET MATRIX
+fprintf('>>> [STEP 1/7] Solving Baseline 4-Region Steady State (NZ_4Region_Master_UpgradeB.m)...\n');
 step1_timer = tic;
-run('NZ_3Region_Master.m');
+run('NZ_4Region_Master_UpgradeB.m');
+
+% Store full 5D Upgrade B objects ([a, h, theta_c, z, j]) across all 4 regions
+N_reg                   = length(Regions);
+V_UpgradeB_BM           = V;
+Policy_UpgradeB_BM      = Policy;
+StationaryDist_UpgradeB = StationaryDist;
+jequaloneDist_UpgradeB  = jequaloneDist;
+n_d_UpgradeB            = n_d;
+n_a_UpgradeB            = n_a;
+d_grid_UpgradeB         = d_grid;
+a_grid_UpgradeB         = a_grid;
+ReturnFn_UpgradeB       = ReturnFn;
+vfoptions_UpgradeB      = vfoptions;
+simoptions_UpgradeB     = simoptions;
+IG_Diag_UpgradeB_BM     = IG_Diagnostics;
 fprintf('    Step 1 completed in %.2f seconds.\n\n', toc(step1_timer));
 
-%% STEP 2: OPTIONAL SMM CALIBRATION & FERRIERE ET AL. IMPUTATION WEIGHTS
-if Run_SMM_Calibration
-    fprintf('>>> [STEP 2/5] Running Calibrate_NZ_Moments.m (Sobol Pre-Screening + SMM)...\n');
+%% STEP 2: MULTI-STAGE CHILDHOOD COUNTERFACTUALS (LEE & SESHADRI 2019 / CUNHA ET AL. 2010)
+if Use_UpgradeB_ExpAsset && Run_LeeSeshadri_Exp && exist('PolicyExperiment_LeeSeshadri_3Region.m', 'file')
+    fprintf('>>> [STEP 2/7] Running Multi-Stage Childhood Counterfactuals across 4 Regions...\n');
     step2_timer = tic;
-    run('Calibrate_NZ_Moments.m');
-    % Update baseline Params with calibrated vector
-    Params = Params_Calibrated;
+    run('PolicyExperiment_LeeSeshadri_3Region.m');
     fprintf('    Step 2 completed in %.2f seconds.\n\n', toc(step2_timer));
-else
-    fprintf('>>> [STEP 2/5] Skipping full SMM optimization (using pre-calibrated parameters in Params).\n');
-    fprintf('               (Set Run_SMM_Calibration = true in Run_All_NZ_Intergen_Suite.m to re-estimate.)\n\n');
 end
 
-%% STEP 3: POLICY REFORM STEADY STATE (SS1) & WELFARE DECOMPOSITION TABLES
-% Note: BecauseNZ_3Region_Master.m clears workspace at its top if run standalone,
-% we ensure config flags persist across scripts.
-Export_Tables_Figures = true;
-OutputDir             = fullfile(pwd, 'Output_NZ_Intergen');
+%% STEP 3: ENDOGENOUS FERTILITY, BARGAINING & DIFFERENTIAL FERTILITY MODULE
+if Use_UpgradeB_ExpAsset && Run_Fertility_Module && exist('FertilityBargaining_Module.m', 'file')
+    fprintf('>>> [STEP 3/7] Running Endogenous Fertility & Bargaining Module across 4 Regions...\n');
+    step3_timer = tic;
+    V              = V_UpgradeB_BM;
+    Policy         = Policy_UpgradeB_BM;
+    StationaryDist = StationaryDist_UpgradeB;
+    jequaloneDist  = jequaloneDist_UpgradeB;
+    run('FertilityBargaining_Module.m');
+    fprintf('    Step 3 completed in %.2f seconds.\n\n', toc(step3_timer));
+end
 
-fprintf('>>> [STEP 3/5] Running WelfareDecomposition_3Region.m (PE vs GE & Spatial Quintiles)...\n');
-step3_timer = tic;
-run('WelfareDecomposition_3Region.m');
-fprintf('    Step 3 completed in %.2f seconds.\n\n', toc(step3_timer));
+%% STEP 4: 5D -> 4D COMPACT PROJECTION ACROSS ALL 4 REGIONS (FOR DECOMPOSITION & TRANSITION)
+if Use_UpgradeB_ExpAsset && exist('ReturnFn_SpatialHH.m', 'file')
+    fprintf('>>> [STEP 4/7] Projecting 5D Experience-Asset State Space to Compact 4D across %d Regions...\n', N_reg);
+    step4_timer = tic;
+    if isfield(vfoptions, 'aprimeFn');  vfoptions  = rmfield(vfoptions, 'aprimeFn');  end
+    if isfield(simoptions, 'aprimeFn'); simoptions = rmfield(simoptions, 'aprimeFn'); end
+    
+    for r_idx = 1:N_reg
+        hh_type = ['HH_', Regions{r_idx}];
+        
+        vfoptions.experienceasset.(hh_type)  = 0;
+        simoptions.experienceasset.(hh_type) = 0;
+        
+        n_d.(hh_type)    = [4, 3, 7];
+        d_grid.(hh_type) = [[0; 0.5; 0.8; 1.0]; linspace(0, 0.30, 3)'; linspace(0, 0.50, 7)'];
+        n_a.(hh_type)    = [n_a_UpgradeB.(hh_type)(1), n_a_UpgradeB.(hh_type)(2)];
+        a_grid.(hh_type) = a_grid_UpgradeB.(hh_type)(1 : sum(n_a.(hh_type)));
+        
+        ReturnFn.(hh_type) = @(l, Ih, ic, aprime, hprime, a, h, z, ...
+            w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
+            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, omega_ic, ...
+            delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
+            tau_l, tau_c, tau_k, tau_b, agej, Jr, sj) ...
+            ReturnFn_SpatialHH(l, Ih, ic, aprime, hprime, a, h, z, ...
+            w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
+            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, omega_ic, ...
+            delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
+            tau_l, tau_c, tau_k, tau_b, agej, Jr, sj);
+        
+        jequaloneDist.(hh_type) = squeeze(sum(jequaloneDist_UpgradeB.(hh_type), 3));
+        jequaloneDist.(hh_type) = jequaloneDist.(hh_type) / sum(jequaloneDist.(hh_type)(:));
+    end
+    Params.G_ece     = Params.G_ece_stage1;
+    Params.rho_hc_ig = 0.40;
+    Params.gamma_ic  = 0.35;
+    
+    [V, Policy] = ValueFnIter_PType(n_d, n_a, n_z, N_j, Names_i, ...
+        d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, DiscountFactorParamNames, vfoptions);
+    StationaryDist = StationaryDist_PType(jequaloneDist, AgeWeightsParamNames, ...
+        PTypeDistParamNames, Policy, n_d, n_a, n_z, N_j, Names_i, ...
+        d_grid, a_grid, z_grid, pi_z, Params, simoptions);
+    fprintf('    Step 4 completed in %.2f seconds.\n\n', toc(step4_timer));
+end
 
-%% STEP 4: STATIC LOW-OPPORTUNITY vs. HIGH-OPPORTUNITY BRAIN DRAIN COMPARISON
-fprintf('>>> [STEP 4/5] Running Opportunity_BrainDrain_Module.m (Brain Drain & Social Cohesion)...\n');
-step4_timer = tic;
-run('Opportunity_BrainDrain_Module.m');
-fprintf('    Step 4 completed in %.2f seconds.\n\n', toc(step4_timer));
+%% STEP 5: OPTIONAL SMM CALIBRATION & FERRIERE ET AL. IMPUTATION WEIGHTS
+if Run_SMM_Calibration && exist('Calibrate_NZ_Moments.m', 'file')
+    fprintf('>>> [STEP 5/7] Running Calibrate_NZ_Moments.m...\n');
+    step5_timer = tic;
+    run('Calibrate_NZ_Moments.m');
+    Params = Params_Calibrated;
+    fprintf('    Step 5 completed in %.2f seconds.\n\n', toc(step5_timer));
+else
+    fprintf('>>> [STEP 5/7] Skipping SMM Re-Calibration.\n\n');
+end
 
-%% STEP 5: 60-YEAR TRANSITION PATH ($1.6T TRANSFER, CHILD WAVE & BRAIN DRAIN CLOSURE)
-fprintf('>>> [STEP 5/5] Running TransPath_3Region_Master.m (60-Year Transition Path)...\n');
-step5_timer = tic;
-run('TransPath_3Region_Master.m');
-fprintf('    Step 5 completed in %.2f seconds.\n\n', toc(step5_timer));
+%% STEP 6: 4-REGION POLICY REFORM STEADY STATE (SS1) & WELFARE DECOMPOSITION TABLES
+if exist('WelfareDecomposition_4Region.m', 'file')
+    fprintf('>>> [STEP 6/7] Running WelfareDecomposition_4Region.m...\n');
+    step6_timer = tic;
+    run('WelfareDecomposition_4Region.m');
+    fprintf('    Step 6 completed in %.2f seconds.\n\n', toc(step6_timer));
+end
 
-%% 6. EXPORT ALL TABLES (.CSV), FIGURES (.PNG/.FIG), AND WORKSPACE (.MAT)
+%% STEP 7: 60-YEAR 4-REGION TRANSITION PATH ($1.6T TRANSFER & CHILD WAVE)
+if Run_Transition_Path && exist('TransPath_4Region_Master.m', 'file')
+    fprintf('>>> [STEP 7/7] Running TransPath_4Region_Master.m (60-Year Transition Path)...\n');
+    step7_timer = tic;
+    run('TransPath_4Region_Master.m');
+    fprintf('    Step 7 completed in %.2f seconds.\n\n', toc(step7_timer));
+end
+
+%% 8. EXPORT ALL 4-REGION TABLES (.CSV), FIGURES (.PNG/.FIG), AND WORKSPACE (.MAT)
 if Export_Tables_Figures
     fprintf('=========================================================================================\n');
-    fprintf('  EXPORTING PUBLICATION TABLES & FIGURES TO: %s\n', OutputDir);
+    fprintf('  EXPORTING 4-REGION TABLES & FIGURES TO: %s\n', OutputDir);
     fprintf('=========================================================================================\n');
     
-    % Export Tables to CSV (including RowNames)
     if exist('T1', 'var')
-        writetable(T1, fullfile(OutputDir, 'Table1_Daruich_LeeSeshadri_Decomposition.csv'), 'WriteRowNames', true);
+        writetable(T1, fullfile(OutputDir, 'Table1_4Region_Daruich_LeeSeshadri_Decomposition.csv'), 'WriteRowNames', true);
     end
     if exist('T2', 'var')
-        writetable(T2, fullfile(OutputDir, 'Table2_LabroussePerdereau_SpatialQuintiles.csv'), 'WriteRowNames', true);
+        writetable(T2, fullfile(OutputDir, 'Table2_4Region_LabroussePerdereau_SpatialQuintiles.csv'), 'WriteRowNames', true);
     end
     if exist('T3', 'var')
-        writetable(T3, fullfile(OutputDir, 'Table3_Kiyotaki_TenureGenerationalCleavage.csv'), 'WriteRowNames', true);
+        writetable(T3, fullfile(OutputDir, 'Table3_4Region_Kiyotaki_TenureGenerationalCleavage.csv'), 'WriteRowNames', true);
     end
-    if exist('T_Opportunity', 'var')
-        writetable(T_Opportunity, fullfile(OutputDir, 'Table4_Low_vs_High_Opportunity_BrainDrain.csv'));
+    if exist('T_IGE', 'var')
+        writetable(T_IGE,     fullfile(OutputDir, 'Table4_4Region_LeeSeshadri_IGE.csv'), 'WriteRowNames', true);
+        writetable(T_Out,     fullfile(OutputDir, 'Table5_4Region_LeeSeshadri_Output_Welfare.csv'), 'WriteRowNames', true);
+        writetable(T_VarExpl, fullfile(OutputDir, 'Table6_4Region_LeeSeshadri_Table12_VarianceExplained.csv'), 'WriteRowNames', true);
     end
-    if exist('T_BrainDrain_Path', 'var')
-        writetable(T_BrainDrain_Path, fullfile(OutputDir, 'Table5_TransitionPath_BrainDrain_SocialCohesion.csv'));
-    end
-    if exist('T_Params', 'var')
-        writetable(T_Params, fullfile(OutputDir, 'TableA_Calibrated_Parameters.csv'));
-        writetable(T_Moments, fullfile(OutputDir, 'TableB_Calibration_Moment_Fit.csv'));
-        writetable(T_Impute, fullfile(OutputDir, 'TableC_Ferriere_InKind_Imputation_Weights.csv'), 'WriteRowNames', true);
+    if exist('T_Fert1', 'var')
+        writetable(T_Fert1, fullfile(OutputDir, 'Table7_4Region_Endogenous_TFR_DiffFertility.csv'), 'WriteRowNames', true);
+        writetable(T_Fert2, fullfile(OutputDir, 'Table8_4Region_Fertility_Stunting_NZSuperTax.csv'), 'WriteRowNames', true);
     end
     
-    % Export all open Figures as high-resolution PNG (300 DPI) and MATLAB .fig
     fig_handles = findall(0, 'Type', 'figure');
     for f_i = 1:length(fig_handles)
-        fig_h    = fig_handles(f_i);
-        fig_name = get(fig_h, 'Name');
-        if isempty(fig_name)
-            clean_name = sprintf('Figure_%d', f_i);
-        else
-            clean_name = regexprep(fig_name, '[^a-zA-Z0-9_]', '_');
-            clean_name = regexprep(clean_name, '_+', '_');
-            clean_name = clean_name(1:min(45, length(clean_name)));
-        end
-        png_path = fullfile(OutputDir, [clean_name, '.png']);
-        fig_path = fullfile(OutputDir, [clean_name, '.fig']);
-        exportgraphics(fig_h, png_path, 'Resolution', 300);
-        savefig(fig_h, fig_path);
+        fig_h      = fig_handles(f_i);
+        fig_name   = get(fig_h, 'Name');
+        clean_name = regexprep(fig_name, '[^a-zA-Z0-9_]', '_');
+        clean_name = clean_name(1:min(45, length(clean_name)));
+        exportgraphics(fig_h, fullfile(OutputDir, [clean_name, '.png']), 'Resolution', 300);
+        savefig(fig_h, fullfile(OutputDir, [clean_name, '.fig']));
         fprintf('  Saved Figure: %s.png\n', clean_name);
     end
     
-    % Save converged steady states & transition trajectories to .mat checkpoint
-    save(fullfile(OutputDir, 'NZ_Intergen_Suite_Results.mat'), ...
-        'Params_Base', 'Params_GE', 'V_Base', 'V_GE_Endo', ...
-        'StatDist_Base', 'StatDist_GE_Endo', 'IG_Diag_Base', 'IG_Diag_Reform', ...
-        'T1', 'T2', 'T3', 'T_Opportunity', 'T_BrainDrain_Path', ...
-        'CE_Cohort_Path', 'IRF_HousePrice', 'IRF_RentalPrice', 'IRF_EstateFlow');
-    fprintf('  Saved Workspace Checkpoint: NZ_Intergen_Suite_Results.mat\n');
+    save(fullfile(OutputDir, 'NZ_4Region_Intergen_Complete_Results.mat'));
+    fprintf('  Saved Full Workspace Checkpoint: NZ_4Region_Intergen_Complete_Results.mat\n');
 end
 
 fprintf('\n=========================================================================================\n');
-fprintf('  SUITE EXECUTION COMPLETE! Total Runtime: %.2f minutes.\n', toc(suite_timer)/60);
+fprintf('  4-REGION SUITE EXECUTION COMPLETE! Total Runtime: %.2f minutes.\n', toc(suite_timer)/60);
 fprintf('=========================================================================================\n');

@@ -1,4 +1,4 @@
-%% CALIBRATE_NZ_MOMENTS.M: SMM CALIBRATION FOR 3-REGION MIXED-HORIZON MODEL
+%% CALIBRATE_NZ_MOMENTS.M: SMM CALIBRATION FOR MULTI-REGION MIXED-HORIZON MODEL
 % Uses VFI Toolkit's PType statistical evaluation and calibration architecture
 % to discipline structural parameters against New Zealand & OECD moments:
 %   1. Cunha, Heckman & Schennach (2010) / Daruich (2018): Early skill & Q5/Q1 investment
@@ -7,13 +7,13 @@
 %   4. Kiyotaki, Michaelides & Nikolov (2024, Source 10): Homeownership age profile
 %   5. De Nardi (2004, Source 5) & Labrousse/Perdereau (Source 1): Bequests & Spatial Rural/Auckland gaps
 
-% Prerequisite: Run NZ_3Region_Master.m to initialize grids (n_d, n_a, n_z, N_j, Names_i)
+% Prerequisite: Run NZ_MultiRegion_Master.m to initialize grids (n_d, n_a, n_z, N_j, Names_i)
 % and baseline structures (ReturnFn, Params, DiscountFactorParamNames, jequaloneDist).
 
 %% 1. DEFINE MOMENT EVALUATION FUNCTIONS (FnsToEvaluate FOR CALIBRATION)
 FnsToEvalCalib = struct();
 
-for r_idx = 1:3
+for r_idx = 1:length(Regions)
     reg     = Regions{r_idx};
     hh_type = ['HH_', reg];
     firm_tp = ['Firm_', reg];
@@ -147,7 +147,7 @@ theta_calibrated  = fwd_logit(x_opt);
 
 %% 6. DISPLAY CALIBRATED PARAMETERS, MOMENT FIT, & FERRIERE ET AL. IMPUTATION WEIGHTS
 fprintf('\n=========================================================================\n');
-fprintf('TABLE A: CALIBRATED STRUCTURAL PARAMETERS (3-REGION NZ OLG MODEL)\n');
+fprintf('TABLE A: CALIBRATED STRUCTURAL PARAMETERS (MULTI-REGION NZ OLG MODEL)\n');
 fprintf('=========================================================================\n');
 T_Params = table(CalibParamNames', theta_init, theta_calibrated, lb, ub, ...
     'VariableNames', {'Parameter', 'Initial_Guess', 'Calibrated_Value', 'Lower_Bound', 'Upper_Bound'});
@@ -204,12 +204,17 @@ AggVars_cal = EvalFnOnAgentDist_AggVars_PType(StatDist_cal, Policy_cal, FnsToEva
     Params_Out, n_d, n_a, n_z, N_j, Names_i, d_grid, a_grid, z_grid, simoptions);
 
 % Extract Model Counterparts to the 10 Target Moments
-pop_weights = Params_Out.PTypeWeights(1:3) / sum(Params_Out.PTypeWeights(1:3));
-
-% Moment 1: National Stunted Share (weighted across Rural, Urban, Auckland)
-m_stunted = pop_weights(1)*IG_Diag_cal.StuntedShare.Rural + ...
-            pop_weights(2)*IG_Diag_cal.StuntedShare.Urban + ...
-            pop_weights(3)*IG_Diag_cal.StuntedShare.Auckland;
+N_reg = length(Regions);
+pop_weights  = Params_Out.PTypeWeights(1:N_reg) / sum(Params_Out.PTypeWeights(1:N_reg));
+m_stunted    = 0;
+mean_beq_nat = 0;
+for r_idx = 1:N_reg
+    reg          = Regions{r_idx};
+    % Moment 1: National Stunted Share (weighted across regions)
+    m_stunted    = m_stunted    + pop_weights(r_idx) * IG_Diag_cal.StuntedShare.(reg);
+    % Moment 10: Annualized Property Estate Flow to Output Ratio ($1.6T Transfer)
+    mean_beq_nat = mean_beq_nat + pop_weights(r_idx) * IG_Diag_cal.MeanBequest.(reg);
+end
 
 % Moment 2: Share S of Fertile Households with Zero Private Child Top-Up (Source 2, Eq 3)
 fertile_mass = sum(Params_Out.mewj(3:4));
@@ -241,10 +246,7 @@ Q_urb    = Params_Out.Q_reg.HH_Urban;
 m_ho_j2  = sum(D_urb(a_vec > 0.08*Q_urb, :, :, 2), 'all') / max(1e-8, sum(D_urb(:,:,:,2), 'all'));
 m_ho_j10 = 0.80 * (1 / (1 + 0.2*(Params_Out.chi_bar - 2.55)));
 
-% Moment 10: Annualized Property Estate Flow to Output Ratio ($1.6T Transfer)
-mean_beq_nat = pop_weights(1)*IG_Diag_cal.MeanBequest.Rural + ...
-               pop_weights(2)*IG_Diag_cal.MeanBequest.Urban + ...
-               pop_weights(3)*IG_Diag_cal.MeanBequest.Auckland;
+% Results of Moment 10
 m_estate_gdp = mean_beq_nat / max(0.1, m_L_fte * 2.5);
 
 ModelVec = [m_stunted; m_zero_ic; m_ic_ratio; m_L_fte; m_L_pt; ...

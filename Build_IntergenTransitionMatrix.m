@@ -1,266 +1,197 @@
-%% OPPORTUNITY_BRAINDRAIN_MODULE.M
-% Extends the 3-Region (Rural, Urban, Auckland) VFI Toolkit OLG Model to evaluate:
-%   1. Endogenous Youth Emigration (Ages 20-35 "Brain Drain" to Australia/OECD, Source 1 Fig 5)
-%   2. Replacement Immigration Churn & Social Cohesion Stock (S_t)
-%   3. Parental Relational Disappointment ("Children Forced to Leave") vs Thriving Proximity
-%   4. Macro Comparison: Low-Opportunity Economy (Status Quo) vs High-Opportunity Economy
+function [jequaloneDist_new, Diag] = Build_IntergenTransitionMatrix( ...
+    StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions)
+%% BUILD_INTERGENTRANSITIONMATRIX (4-REGION COMPACT 4D VERSION)
+% File: Build_IntergenTransitionMatrix.m
+% Regions (N_reg = 4): {'Rural', 'Small', 'Large', 'Auckland'}
+% Implements the 3 coupled transition operators linking Generation t to Generation t+1:
+%   Stage 1 (Heckman / Cunha et al. Source 2 / Daruich Source 16):
+%       Parental investment ic(a_p, h_p, z_p, k) + Public ECE G_ece -> Child Adult Skill h_1
+%   Stage 2 (De Nardi Source 11 / Piketty & Saez Source 12):
+%       Retiree property estates (1 - tau_b)*a'_j(k) + Youth Grant E -> Child Initial Wealth a_1
+%   Stage 3 (Labrousse & Perdereau Source 17):
+%       4x4 Spatial Migration Matrix Pi_mig(k -> k' | a_1, h_1, z_1) across
+%       Rural, Small, Large, and Auckland
 
-% Prerequisite: Run NZ_3Region_Master.m and WelfareDecomposition_3Region.m so both
-% Baseline (Low-Opportunity: V_Base, StatDist_Base, Params_Base, IG_Diag_Base) and
-% Reform (High-Opportunity: V_GE_Endo, StatDist_GE_Endo, Params_GE, IG_Diag_Reform) are in workspace.
+N_reg  = length(Regions);
+n_a1   = n_a.HH_Rural(1);
+n_h    = n_a.HH_Rural(2);
+n_z1   = n_z.HH_Rural;
 
-%% 1. CALIBRATE OUTSIDE OPTION ("ABROAD / AUSTRALIA") & SOCIAL COHESION PARAMETERS
-% Foreign benchmark (Australia / OECD): ~22% higher real wage, lower housing price-to-income
-Params_Mig = struct();
-Params_Mig.w_Abroad        = 1.32; % Foreign skill wage rate (relative to NZ Urban = 1.00)
-Params_Mig.Q_Abroad        = 2.15; % Foreign house price index (lower than Auckland 3.10)
-Params_Mig.kappa_emig      = 0.14; % Fixed international moving cost (flights, visa, setup)
-Params_Mig.tau_home_amenity= 0.85; % Native home-attachment / whanau amenity premium in NZ (Source 1)
-Params_Mig.varrho_gumbel   = 0.45; % Gumbel migration elasticity scale parameter
+a_vec  = a_grid.HH_Rural(1 : n_a1);
+h_vec  = a_grid.HH_Rural(n_a1+1 : n_a1+n_h);
+ic_vec = d_grid.HH_Rural(n_d.HH_Rural(1)+n_d.HH_Rural(2)+1 : end);
 
-% Social Cohesion & Replacement Immigration Parameters
-Params_Mig.Target_NetMig   = 0.025; % Stats NZ 25,000/yr net migration target (scaled to pop, Source 1)
-Params_Mig.nu_retention    = 0.40;  % Elasticity of social cohesion wrt native youth retention
-Params_Mig.nu_churn        = 0.35;  % Social cohesion penalty from replacement migration churn
-Params_Mig.gamma_proximity = 0.45;  % Parental utility weight on children remaining in NZ
-Params_Mig.gamma_thrive    = 0.35;  % Parental utility weight on children thriving (non-stunted)
+% Fallback defaults if called directly without compact projection parameters
+if ~isfield(Params, 'G_ece') && isfield(Params, 'G_ece_stage1')
+    Params.G_ece = Params.G_ece_stage1;
+end
+if ~isfield(Params, 'rho_hc_ig'); Params.rho_hc_ig = 0.40; end
+if ~isfield(Params, 'gamma_ic');  Params.gamma_ic  = 0.35; end
 
-%% 2. EVALUATE ENDOGENOUS EMIGRATION, CHURN & SOCIAL COHESION ACROSS REGIMES
-[Macro_LowOpp] = Evaluate_Opportunity_Regime( ...
-    V_Base, StatDist_Base, Policy_Base, Params_Base, IG_Diag_Base, ...
-    n_a, n_z, a_grid, Regions, Params_Mig, 'Low-Opportunity (Status Quo)');
+NewbornDist_PreMig = struct();
 
-[Macro_HighOpp] = Evaluate_Opportunity_Regime( ...
-    V_GE_Endo, StatDist_GE_Endo, Policy_GE_Exo, Params_GE, IG_Diag_Reform, ...
-    n_a, n_z, a_grid, Regions, Params_Mig, 'High-Opportunity (Reform)');
-
-%% 3. DISPLAY MACRO-SCALE COMPARISON TABLE
-fprintf('\n=========================================================================================\n');
-fprintf('MACRO-SCALE CONSEQUENCES: LOW-OPPORTUNITY vs. HIGH-OPPORTUNITY ECONOMY (NZ OLG MODEL)\n');
-fprintf('=========================================================================================\n');
-
-MetricNames = { ...
-    '1. Youth Emigration Rate (Ages 20-34 Brain Drain, %)', ...
-    '2. High-Skill Share of Emigrants (Thriving Tiers h5-h7, %)', ...
-    '3. Lost Public Human Capital Investment (Fiscal Drain % GDP)', ...
-    '4. Replacement Immigration Required for Pop Target (% Pop)', ...
-    '5. Demographic Turnover / Churn Index (Emig + Immig)', ...
-    '6. Social Cohesion & Community Trust Index (S_t, Base=100)', ...
-    '7. Parental Relational Well-Being (Proximity + Thriving CE %)', ...
-    '8. Effective Tax Base per 65+ Retiree (Normalized Index)', ...
-    '9. Net Macroeconomic Output / GDP Gain (% vs Status Quo)'};
-
-LowOpp_Vals = [ ...
-    100 * Macro_LowOpp.EmigRate_Youth; ...
-    100 * Macro_LowOpp.HighSkill_EmigShare; ...
-    100 * Macro_LowOpp.FiscalBrainDrain_GDP; ...
-    100 * Macro_LowOpp.ReplacementImmig_Rate; ...
-    100 * Macro_LowOpp.Churn_Rate; ...
-    Macro_LowOpp.SocialCohesion_Index; ...
-    Macro_LowOpp.ParentalRelational_CE; ...
-    Macro_LowOpp.TaxBase_Per_Retiree; ...
-    0.00];
-
-HighOpp_Vals = [ ...
-    100 * Macro_HighOpp.EmigRate_Youth; ...
-    100 * Macro_HighOpp.HighSkill_EmigShare; ...
-    100 * Macro_HighOpp.FiscalBrainDrain_GDP; ...
-    100 * Macro_HighOpp.ReplacementImmig_Rate; ...
-    100 * Macro_HighOpp.Churn_Rate; ...
-    Macro_HighOpp.SocialCohesion_Index; ...
-    Macro_HighOpp.ParentalRelational_CE; ...
-    Macro_HighOpp.TaxBase_Per_Retiree; ...
-    Macro_HighOpp.Net_GDP_Gain_Pct];
-
-Diff_Vals = HighOpp_Vals - LowOpp_Vals;
-
-T_Opportunity = table(MetricNames', LowOpp_Vals, HighOpp_Vals, Diff_Vals, ...
-    'VariableNames', {'Macroeconomic_Indicator', 'Low_Opportunity_StatusQuo', 'High_Opportunity_Reform', 'Net_Shift'});
-disp(T_Opportunity);
-
-%% 4. PLOT BRAIN DRAIN BY SKILL TIER & REGIONAL RETENTION (4-PANEL FIGURE)
-h_vec = a_grid.HH_Auckland(n_a.HH_Auckland(1)+1 : end);
-
-figure('Name', 'High-Opportunity vs Low-Opportunity Economy: Brain Drain & Social Cohesion', ...
-       'Color', 'w', 'Position', [100, 100, 1100, 560]);
-
-% Panel A: Emigration Probability by Human Capital Tier (Positive Selection Brain Drain)
-subplot(2, 2, 1);
-bar_data = 100 * [Macro_LowOpp.Emig_By_SkillTier, Macro_HighOpp.Emig_By_SkillTier];
-b = bar(1:length(h_vec), bar_data, 'grouped');
-b(1).FaceColor = [0.80 0.25 0.25]; b(2).FaceColor = [0.15 0.55 0.35];
-xticks(1:length(h_vec));
-xticklabels({'h1 (Stunted)', 'h2', 'h3', 'h4 (Med)', 'h5', 'h6', 'h7 (Thriving)'});
-ylabel('5-Yr Emigration Prob (%)');
-title('A. Youth Brain Drain by Human Capital Tier (Ages 20-34)');
-legend({'Low-Opportunity (Status Quo)', 'High-Opportunity (Reform)'}, 'Location', 'northwest');
-grid on;
-
-% Panel B: Emigration Rate by Region of Origin (Rural, Urban, Auckland)
-subplot(2, 2, 2);
-reg_emig = 100 * [Macro_LowOpp.Emig_By_Region; Macro_HighOpp.Emig_By_Region]';
-b2 = bar(reg_emig, 'grouped');
-b2(1).FaceColor = [0.80 0.25 0.25]; b2(2).FaceColor = [0.15 0.55 0.35];
-xticklabels(Regions); ylabel('Youth Emigration Rate (%)');
-title('B. Brain Drain by Origin Region (Housing Squeeze Effect)');
-legend({'Low-Opportunity', 'High-Opportunity'}, 'Location', 'northeast');
-grid on;
-
-% Panel C: Net Migration Age Profile (Replicating Treasury Source 1 Fig 5)
-subplot(2, 2, 3);
-age_centers = 22.5 : 5 : 97.5;
-plot(age_centers, Macro_LowOpp.NetMig_AgeProfile, '-r', 'LineWidth', 2.0); hold on;
-plot(age_centers, Macro_HighOpp.NetMig_AgeProfile, '-g', 'LineWidth', 2.0);
-yline(0, '--k'); grid on;
-xlabel('Age'); ylabel('Net Migration Rate (% of Cohort)');
-title('C. Age Profile of Net Migration (Treasury Fig 5 Benchmark)');
-legend({'Low-Opp (Deep 20-35 Brain Drain)', 'High-Opp (Retained Youth)'}, 'Location', 'southeast');
-
-% Panel D: Social Cohesion, Fiscal Tax Base & Parental Well-Being
-subplot(2, 2, 4);
-cat_vals = [Macro_LowOpp.SocialCohesion_Index, Macro_HighOpp.SocialCohesion_Index; ...
-            Macro_LowOpp.TaxBase_Per_Retiree,  Macro_HighOpp.TaxBase_Per_Retiree];
-b4 = bar(cat_vals, 'grouped');
-b4(1).FaceColor = [0.80 0.25 0.25]; b4(2).FaceColor = [0.15 0.55 0.35];
-xticklabels({'Social Cohesion (S_t)', 'Tax Base per 65+ Retiree'});
-ylabel('Index (Status Quo = 100)'); ylim([70 135]); yline(100, '--k');
-title('D. Macro Social Cohesion & Superannuation Sustainability');
-grid on;
-
-
-%% ========================================================================
-%  LOCAL HELPER: EVALUATE_OPPORTUNITY_REGIME (3x4 DOMESTIC + ABROAD MATRIX)
-%  ========================================================================
-function [Out] = Evaluate_Opportunity_Regime( ...
-    V_reg, StatDist_reg, Policy_reg, Params_reg, IG_Diag_reg, ...
-    n_a, n_z, a_grid, Regions, Params_Mig, RegimeLabel)
-
-n_a1  = n_a.HH_Rural(1);
-n_h   = n_a.HH_Rural(2);
-n_z1  = n_z.HH_Rural;
-a_vec = a_grid.HH_Rural(1:n_a1);
-h_vec = a_grid.HH_Rural(n_a1+1:end);
-
-% Domestic moving cost matrix kappa(origin, dest) across Rural, Urban, Auckland
-kappa_dom = [0.00, 0.12, 0.25; 
-             0.10, 0.00, 0.18; 
-             0.08, 0.08, 0.00];
-
-Emig_By_Skill_Num = zeros(n_h, 1);
-Emig_By_Skill_Den = zeros(n_h, 1);
-Emig_By_Reg_Num   = zeros(1, 3);
-Emig_By_Reg_Den   = zeros(1, 3);
-
-pop_weights = Params_reg.PTypeWeights(1:3) / sum(Params_reg.PTypeWeights(1:3));
-
-% Evaluate emigration decisions of young educated cohorts (j = 1, 2: Ages 20-29)
-for r_orig = 1:3
-    orig_reg  = Regions{r_orig};
-    orig_type = ['HH_', orig_reg];
-    Dist_k    = StatDist_reg.(orig_type);
-    w_k       = pop_weights(r_orig);
+%% STAGE 1 & 2: WITHIN-REGION SKILL FORMATION (Q_h) & PROPERTY INHERITANCE (Q_a)
+for r_idx = 1:N_reg
+    reg     = Regions{r_idx};
+    hh_type = ['HH_', reg];
     
-    for jj = [1, 2] % Ages 20-29 (Peak outflow window in Treasury Source 1 Fig 5)
+    Dist_k  = StationaryDist.(hh_type); % Dimensions: [n_a1, n_h, n_z1, J]
+    Pol_k   = Policy.(hh_type);         % Dimensions: [5, n_a1, n_h, n_z1, J]
+    Q_house = Params.Q_reg.(hh_type);
+    
+    % --- A. SKILL TRANSITION MATRIX: Parents at Fertile Ages j = 3, 4 (Ages 30-39) ---
+    Prob_h_child = zeros(n_h, 1);
+    parent_mass  = 0;
+    
+    % Crowding / housing stress penalty in high-price regions for low-asset renters
+    housing_stress_penalty = 0.08 * log(max(1.0, Q_house));
+    
+    for jf = [3, 4]
         for ia = 1:n_a1
             for ih = 1:n_h
                 for iz = 1:n_z1
-                    mass = w_k * Dist_k(ia, ih, iz, jj);
-                    if mass > 1e-12
-                        % 1. Best Domestic Value across Rural, Urban, Auckland
-                        V_dom = -1e4 * ones(1, 3);
-                        for r_dest = 1:3
-                            dest_type = ['HH_', Regions{r_dest}];
-                            net_a_dom = a_vec(ia) - kappa_dom(r_orig, r_dest);
-                            if net_a_dom >= 0
-                                [~, ia_d] = min(abs(a_vec - net_a_dom));
-                                V_dom(r_dest) = V_reg.(dest_type)(ia_d, ih, iz, jj);
-                            end
-                        end
+                    mass_p = Dist_k(ia, ih, iz, jf);
+                    if mass_p > 1e-12
+                        parent_mass = parent_mass + mass_p;
                         
-                        % 2. Outside Option Value: Emigrating Abroad (Australia / OECD)
-                        % Higher foreign wage (w_Abroad) & lower housing burden (Q_Abroad)
-                        % vs. fixed moving cost (kappa_emig) and loss of whanau/home amenity
-                        net_a_abroad = a_vec(ia) - Params_Mig.kappa_emig;
-                        if net_a_abroad >= 0
-                            [~, ia_ab] = min(abs(a_vec - net_a_abroad));
-                            % Foreign value scales Auckland value by wage premium & housing relief
-                            wage_gain_abroad = (Params_Mig.w_Abroad / Params_reg.w_reg.HH_Auckland) ...
-                                             * (0.85 + 0.25 * (h_vec(ih) / h_vec(4)));
-                            housing_relief   = (Params_reg.Q_reg.HH_Auckland / Params_Mig.Q_Abroad)^0.20;
-                            
-                            % Note: Under CRRA = 2, V < 0, so higher utility means less negative V
-                            V_Auckland_ref = V_reg.HH_Auckland(ia_ab, ih, iz, jj);
-                            V_Abroad = (V_Auckland_ref / (wage_gain_abroad * housing_relief)) ...
-                                     - Params_Mig.tau_home_amenity;
-                        else
-                            V_Abroad = -1e4; % Liquidity-constrained youth cannot afford international move
-                        end
+                        % Extract parent's optimal child investment choice ic (d3)
+                        d_ic_idx = min(length(ic_vec), max(1, Pol_k(3, ia, ih, iz, jf)));
+                        ic_val   = ic_vec(d_ic_idx);
+                        h_parent = h_vec(ih);
                         
-                        % 3. Gumbel Choice Probability over 4 Options: [Rural, Urban, Auckland, Abroad]
-                        V_all = [V_dom, V_Abroad];
-                        max_V = max(V_all);
-                        exp_V = exp((V_all - max_V) / Params_Mig.varrho_gumbel);
-                        probs = exp_V / sum(exp_V);
-                        prob_emig = probs(4);
+                        % Low-asset families in expensive housing markets suffer crowding penalty
+                        is_hardship = (a_vec(ia) < 0.05 * Q_house);
                         
-                        Emig_By_Skill_Num(ih)   = Emig_By_Skill_Num(ih)   + mass * prob_emig;
-                        Emig_By_Skill_Den(ih)   = Emig_By_Skill_Den(ih)   + mass;
-                        Emig_By_Reg_Num(r_orig) = Emig_By_Reg_Num(r_orig) + mass * prob_emig;
-                        Emig_By_Reg_Den(r_orig) = Emig_By_Reg_Den(r_orig) + mass;
+                        % Cunha, Heckman, Schennach (Source 2) & Daruich (Source 16) Skill Anchoring:
+                        log_h_mean = Params.rho_hc_ig * log(h_parent) ...
+                                   + Params.gamma_ic * log(1 + ic_val + Params.G_ece) ...
+                                   - housing_stress_penalty * is_hardship;
+                        
+                        % Project continuous log_h_mean onto discrete h_vec grid
+                        trans_probs = normpdf(log(h_vec), log_h_mean, Params.sigma_hc_ig);
+                        trans_probs = trans_probs / sum(trans_probs);
+                        
+                        Prob_h_child = Prob_h_child + mass_p * trans_probs;
                     end
                 end
             end
         end
     end
+    Prob_h_child = Prob_h_child / max(1e-12, parent_mass);
+    
+    % --- B. $1.6T PROPERTY BEQUEST TRANSITION (De Nardi Source 11): Dying Retirees j >= Jr ---
+    Prob_a_child      = zeros(n_a1, 1);
+    bequest_mass      = 0;
+    total_bequest_val = 0;
+    
+    for jr = Params.Jr : Params.J
+        mort_prob = 1 - Params.sj(jr);
+        for ia = 1:n_a1
+            for ih = 1:n_h
+                for iz = 1:n_z1
+                    mass_ret = Dist_k(ia, ih, iz, jr) * mort_prob;
+                    if mass_ret > 1e-12
+                        bequest_mass = bequest_mass + mass_ret;
+                        ap_idx       = min(n_a1, max(1, Pol_k(4, ia, ih, iz, jr)));
+                        estate_net   = (1 - Params.tau_b) * a_vec(ap_idx) + Params.YouthGrant;
+                        total_bequest_val = total_bequest_val + mass_ret * estate_net;
+                        
+                        [~, a_child_idx] = min(abs(a_vec - estate_net));
+                        Prob_a_child(a_child_idx) = Prob_a_child(a_child_idx) + mass_ret;
+                    end
+                end
+            end
+        end
+    end
+    Prob_a_child = Prob_a_child / max(1e-12, bequest_mass);
+    
+    % Stationary initial productivity draw z_1 in region k
+    stat_z = (pi_z.(hh_type)^50)';
+    stat_z = stat_z(:, 1);
+    
+    % Combine into Pre-Migration Newborn Distribution for Region k: [n_a1, n_h, n_z1]
+    NewbornDist_PreMig.(reg) = zeros(n_a1, n_h, n_z1);
+    for ia = 1:n_a1
+        for ih = 1:n_h
+            for iz = 1:n_z1
+                NewbornDist_PreMig.(reg)(ia, ih, iz) = Prob_a_child(ia) * Prob_h_child(ih) * stat_z(iz);
+            end
+        end
+    end
+    
+    % Store region-specific diagnostics
+    Diag.StuntedShare.(reg)  = sum(Prob_h_child(1:2)); % Lowest 2 human capital tiers
+    Diag.ThrivingShare.(reg) = sum(Prob_h_child(max(1, end-1):end)); % Top 2 tiers
+    Diag.MeanBequest.(reg)   = total_bequest_val / max(1e-12, bequest_mass);
 end
 
-Out.Emig_By_SkillTier  = Emig_By_Skill_Num ./ max(1e-12, Emig_By_Skill_Den);
-Out.Emig_By_Region     = Emig_By_Reg_Num   ./ max(1e-12, Emig_By_Reg_Den);
-Out.EmigRate_Youth     = sum(Emig_By_Reg_Num) / max(1e-12, sum(Emig_By_Reg_Den));
-
-% Share of emigrants coming from top 3 thriving human capital tiers (h5, h6, h7)
-Out.HighSkill_EmigShare = sum(Emig_By_Skill_Num(5:7)) / max(1e-12, sum(Emig_By_Skill_Num));
-
-% Lost Public ECE + Schooling Investment carried abroad by emigrating youth (% of GDP)
-avg_public_hc_cost = Params_reg.G_ece + 0.08; % Cumulative public early-years + schooling cost
-Out.FiscalBrainDrain_GDP = Out.EmigRate_Youth * avg_public_hc_cost * (1 + 0.5 * Out.HighSkill_EmigShare);
-
-% Replacement Immigration needed to maintain Stats NZ +25k/yr net migration target (Source 1)
-Out.ReplacementImmig_Rate = Params_Mig.Target_NetMig + Out.EmigRate_Youth * 0.35;
-Out.Churn_Rate            = Out.EmigRate_Youth * 0.35 + Out.ReplacementImmig_Rate;
-
-% Social Cohesion Stock S_t (Normalized so Low-Opportunity Status Quo = 100)
-raw_S = ((1 - Out.EmigRate_Youth)^Params_Mig.nu_retention) ...
-      * ((1 + Out.Churn_Rate)^(-Params_Mig.nu_churn));
-if contains(RegimeLabel, 'Low')
-    Out.raw_S_base = raw_S;
-    Out.SocialCohesion_Index = 100.0;
+%% STAGE 3: 4x4 SPATIAL MIGRATION MATRIX (Rural, Small, Large, Auckland)
+% Fixed 5-yr migration cost matrix kappa_mat(origin, destination)
+% Moving into Large metros and Auckland requires overcoming higher housing/deposit barriers
+if N_reg == 4
+    kappa_mat = [ ...
+        0.00, 0.08, 0.15, 0.28;  % From Rural    -> [Rural, Small, Large, Auckland]
+        0.07, 0.00, 0.12, 0.24;  % From Small    -> [Rural, Small, Large, Auckland]
+        0.09, 0.07, 0.00, 0.16;  % From Large    -> [Rural, Small, Large, Auckland]
+        0.08, 0.07, 0.06, 0.00]; % From Auckland -> [Rural, Small, Large, Auckland]
 else
-    % Scale relative to baseline cohesion
-    Out.SocialCohesion_Index = 100.0 * (raw_S / 0.885);
+    % Automatic fallback if N_reg == 3
+    kappa_mat = [0.00, 0.12, 0.25; 0.10, 0.00, 0.18; 0.08, 0.08, 0.00];
+end
+varrho_gumbel = 0.45;
+
+for r_dest = 1:N_reg
+    jequaloneDist_new.(['HH_', Regions{r_dest}]) = zeros(n_a1, n_h, n_z1);
+end
+MigMatrix = zeros(N_reg, N_reg);
+
+for r_orig = 1:N_reg
+    orig_reg  = Regions{r_orig};
+    Dist_orig = NewbornDist_PreMig.(orig_reg);
+    
+    for ia = 1:n_a1
+        for ih = 1:n_h
+            for iz = 1:n_z1
+                mass_youth = Dist_orig(ia, ih, iz);
+                if mass_youth > 1e-12
+                    % Evaluate young adult's value V_1(a_1 - kappa, h_1, z_1) in each destination k'
+                    V_dest = -1e4 * ones(1, N_reg);
+                    for r_dest = 1:N_reg
+                        dest_type = ['HH_', Regions{r_dest}];
+                        net_a_after_move = a_vec(ia) - kappa_mat(r_orig, r_dest);
+                        if net_a_after_move >= 0
+                            [~, ia_dest] = min(abs(a_vec - net_a_after_move));
+                            V_dest(r_dest) = V.(dest_type)(ia_dest, ih, iz, 1);
+                        end
+                    end
+                    
+                    % Closed-form Gumbel logit probabilities
+                    max_V     = max(V_dest);
+                    exp_V     = exp((V_dest - max_V) / varrho_gumbel);
+                    prob_move = exp_V / sum(exp_V);
+                    
+                    MigMatrix(r_orig, :) = MigMatrix(r_orig, :) + mass_youth * prob_move;
+                    
+                    % Allocate migrating youth to destination jequaloneDist_new
+                    for r_dest = 1:N_reg
+                        dest_type = ['HH_', Regions{r_dest}];
+                        net_a_after_move = max(0, a_vec(ia) - kappa_mat(r_orig, r_dest));
+                        [~, ia_dest] = min(abs(a_vec - net_a_after_move));
+                        jequaloneDist_new.(dest_type)(ia_dest, ih, iz) = ...
+                            jequaloneDist_new.(dest_type)(ia_dest, ih, iz) + mass_youth * prob_move(r_dest);
+                    end
+                end
+            end
+        end
+    end
+    MigMatrix(r_orig, :) = MigMatrix(r_orig, :) / max(1e-12, sum(MigMatrix(r_orig, :)));
 end
 
-% Parental Relational Utility (Thriving Children + Children Staying in NZ, CE %)
-nat_stunted = pop_weights(1)*IG_Diag_reg.StuntedShare.Rural + ...
-              pop_weights(2)*IG_Diag_reg.StuntedShare.Urban + ...
-              pop_weights(3)*IG_Diag_reg.StuntedShare.Auckland;
-rel_util = Params_Mig.gamma_thrive * log(1 - nat_stunted) ...
-         + Params_Mig.gamma_proximity * log(1 - Out.EmigRate_Youth);
-Out.ParentalRelational_CE = 100 * (exp(rel_util + 0.22) - 1);
-
-% Effective Tax Base per 65+ Retiree & Net Output Gain (including Social Cohesion TFP effect)
-retained_skill_index = sum((Emig_By_Skill_Den - Emig_By_Skill_Num) .* h_vec) / sum(Emig_By_Skill_Den);
-if contains(RegimeLabel, 'Low')
-    Out.TaxBase_Per_Retiree = 100.0;
-    Out.Net_GDP_Gain_Pct    = 0.0;
-else
-    Out.TaxBase_Per_Retiree = 100.0 * (retained_skill_index / 0.92) * (Out.SocialCohesion_Index / 100)^0.15;
-    Out.Net_GDP_Gain_Pct    = (Out.TaxBase_Per_Retiree - 100.0) * 0.85;
+% Normalize each region's newborn distribution to sum to 1
+for r_dest = 1:N_reg
+    dest_type = ['HH_', Regions{r_dest}];
+    jequaloneDist_new.(dest_type) = jequaloneDist_new.(dest_type) / sum(jequaloneDist_new.(dest_type)(:));
 end
-
-% Age Profile of Net Migration (Replicating Treasury Analytical Note 24/08 Fig 5)
-base_profile = [0.8, -1.8*Out.EmigRate_Youth/0.18, -1.2*Out.EmigRate_Youth/0.18, ...
-                0.9, 0.7, 0.4, 0.2, 0.1, zeros(1, 8)];
-Out.NetMig_AgeProfile = base_profile;
+Diag.MigrationMatrix = MigMatrix;
 
 end
