@@ -93,7 +93,7 @@ for path_iter = 1:max_path_iter
         end
         
         % Solve period-tt Bellman equations across all 6 PTypes
-        [V_path{tt}, Policy_path{tt}] = ValueFnIter_PType(n_d, n_a, n_z, N_j, Names_i, ...
+        [V_path{tt}, Policy_path{tt}] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
             d_grid, a_grid, z_grid, pi_z, ReturnFn, Params_t, DiscountFactorParamNames, vfoptions);
     end
     
@@ -115,7 +115,7 @@ for path_iter = 1:max_path_iter
             d_grid, a_grid, z_grid, pi_z, Params_t, Regions, Params_Mig);
         
         % 2. Advance existing cohorts (j -> j+1) and infinite-horizon firm distributions
-        Dist_next = StationaryDist_PType(jequalone_next, AgeWeightsParamNames, ...
+        Dist_next = StationaryDist_Case1_FHorz_PType(jequalone_next, AgeWeightsParamNames, ...
             PTypeDistParamNames, Policy_path{tt}, n_d, n_a, n_z, N_j, Names_i, ...
             d_grid, a_grid, z_grid, pi_z, Params_t, simoptions);
         

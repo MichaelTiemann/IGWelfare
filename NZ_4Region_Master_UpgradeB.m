@@ -16,7 +16,7 @@
 Regions = {'Rural', 'Small', 'Large', 'Auckland'};
 N_reg   = length(Regions);
 Names_i = {'HH_Rural',   'HH_Small',   'HH_Large',   'HH_Auckland', ...
-           'Firm_Rural', 'Firm_Small', 'Firm_Large', 'Firm_Auckland'};
+    'Firm_Rural', 'Firm_Small', 'Firm_Large', 'Firm_Auckland'};
 PTypeDistParamNames = {'PTypeWeights'};
 
 % Stats NZ Subnational Population Shares (30 June 2025: Auckland = 1.816M / 5.325M = 34.1%)
@@ -30,7 +30,7 @@ Reg_Pop_Shares  = [0.160; 0.240; 0.259; 0.341];
 Reg_Firm_Shares = [0.150; 0.230; 0.269; 0.351];
 
 Params.PTypeWeights = [0.90 * Reg_Pop_Shares; ...  % HH_Rural, HH_Small, HH_Large, HH_Auckland
-                       0.10 * Reg_Firm_Shares];    % Firm_Rural, Firm_Small, Firm_Large, Firm_Auckland
+    0.10 * Reg_Firm_Shares];    % Firm_Rural, Firm_Small, Firm_Large, Firm_Auckland
 
 for r_idx = 1:N_reg
     reg = Regions{r_idx};
@@ -41,7 +41,7 @@ Params.J = 16; Params.Jr = 10; Params.agej = 1:Params.J;
 
 %% 2. TREASURY OLG DEMOGRAPHIC TRANSITION MATRIX (Binning et al. 2024, Source 3)
 Params.sj = [0.995, 0.994, 0.993, 0.991, 0.988, 0.983, 0.975, 0.962, ...
-             0.942, 0.910, 0.860, 0.780, 0.660, 0.500, 0.300, 0.000];
+    0.942, 0.910, 0.860, 0.780, 0.660, 0.500, 0.300, 0.000];
 Params.fj = [0.15, 0.65, 0.65, 0.20, zeros(1, 12)];
 Params.mig_rate_j = [0.018, -0.012, -0.005, 0.015, 0.010, 0.006, 0.003, zeros(1, 9)];
 
@@ -54,51 +54,60 @@ for iter = 1:200
 end
 AgeWeightsParamNames = {'mewj'}; Params.mewj = N_pop';
 
-%% 3. CONFIGURE GRIDS & ENABLE VFI TOOLKIT EXPERIENCE ASSET (theta_c) ACROSS 4 REGIONS
+%% 3. CONFIGURE GRIDS & ENABLE TWO EXPERIENCE ASSETS (h, theta_c) ACROSS 4 REGIONS
 for r_idx = 1:N_reg
-    hh_type   = ['HH_', Regions{r_idx}];
+    hh_type   = ['HH_',   Regions{r_idx}];
     firm_type = ['Firm_', Regions{r_idx}];
-    
-    vfoptions.experienceasset.(hh_type)    = 1;
-    simoptions.experienceasset.(hh_type)   = 1;
-    vfoptions.experienceasset.(firm_type)  = 0;
-    simoptions.experienceasset.(firm_type) = 0;
-    
-    % Decisions d: [d1 = ic (Child Inv -> aprimeFn), d2 = l (Labor), d3 = Ih (Ben-Porath)]
-    n_d.(hh_type)    = [7, 4, 3];
-    d_grid_ic        = linspace(0, 0.50, 7)';
+
+    % Two Experience Assets (a2_1 = h, a2_2 = theta_c) driven by Two Decisions (d2_1 = Ih, d2_2 = ic)
+    vfoptions.experienceasset.(hh_type)      = 2;
+    simoptions.experienceasset.(hh_type)     = 2;
+    vfoptions.l_dexperienceasset.(hh_type)   = 2;
+    simoptions.l_dexperienceasset.(hh_type)  = 2;
+
+    vfoptions.experienceasset.(firm_type)    = 0;
+    simoptions.experienceasset.(firm_type)   = 0;
+
+    % Decisions d: [d1 = l (4) | d2_1 = Ih (3), d2_2 = ic (7)]
+    n_d.(hh_type)    = [4, 3, 7];
     d_grid_l         = [0; 0.5; 0.8; 1.0];
     d_grid_Ih        = linspace(0, 0.30, 3)';
-    d_grid.(hh_type) = [d_grid_ic; d_grid_l; d_grid_Ih];
-    
-    % Endogenous States a: [a1 = Net Worth (a), a2 = Adult HC (h), a3 = Child Skill Experience Asset (theta_c)]
+    d_grid_ic        = linspace(0, 0.50, 7)';
+    d_grid.(hh_type) = [d_grid_l; d_grid_Ih; d_grid_ic];
+
+    % Endogenous States a: [a1 = Net Worth (61) | a2_1 = Adult HC h (7), a2_2 = Child Skill theta_c (9)]
     n_a.(hh_type)    = [61, 7, 9];
     a_grid_assets    = 25 * (linspace(0, 1, n_a.(hh_type)(1)).^3)';
     a_grid_hc        = [0.45; 0.65; 0.85; 1.00; 1.20; 1.45; 1.80];
     a_grid_thetac    = linspace(0.45, 1.85, n_a.(hh_type)(3))';
     a_grid.(hh_type) = [a_grid_assets; a_grid_hc; a_grid_thetac];
-    
+
     n_z.(hh_type) = 5;
-    
-    vfoptions.aprimeFn.(hh_type) = @(ic, theta_c, G_ece_stage1, G_ece_stage2, gbar_ece, ...
+
+    % Dual Experience Asset aprimeFn: (Ih, ic, h, theta_c, whicha, <params>)
+    vfoptions.aprimeFn.(hh_type) = @(Ih, ic, h, theta_c, whicha, ...
+        delta_hc, alpha_I, alpha_H, ...
+        G_ece_stage1, G_ece_stage2, gbar_ece, ...
         gamma1_self, gamma1_inv, gamma1_par, phi1_ces, ...
-        gamma2_self, gamma2_inv, gamma2_par, phi2_ces, h_par_mean, agej) ...
-        ChildCES_aprimeFn(ic, theta_c, G_ece_stage1, G_ece_stage2, gbar_ece, ...
+        gamma2_self, gamma2_inv, gamma2_par, phi2_ces, agej, Jr) ...
+        ChildCES_aprimeFn(Ih, ic, h, theta_c, whicha, ...
+        delta_hc, alpha_I, alpha_H, ...
+        G_ece_stage1, G_ece_stage2, gbar_ece, ...
         gamma1_self, gamma1_inv, gamma1_par, phi1_ces, ...
-        gamma2_self, gamma2_inv, gamma2_par, phi2_ces, h_par_mean, agej);
+        gamma2_self, gamma2_inv, gamma2_par, phi2_ces, agej, Jr);
     simoptions.aprimeFn.(hh_type) = vfoptions.aprimeFn.(hh_type);
-    
+
     % Infinite-Horizon Firm Grids
-    n_d.(firm_type) = 0; d_grid.(firm_type) = [];
+    n_d.(firm_type) = 0;  d_grid.(firm_type) = [];
     n_a.(firm_type) = 81; a_grid.(firm_type) = 30 * (linspace(0.001, 1, 81).^2.5)';
     n_z.(firm_type) = 2;  pi_z.(firm_type)   = [0.85, 0.15; 0.15, 0.85];
 end
 
 % 4-Region Income Process Calibration (Labrousse & Perdereau Source 4: Rural/Small compressed, Large/Auckland wider)
-[z_grid.HH_Rural,    pi_z.HH_Rural]    = discretizeAR1_Tauchen(-0.06, 0.85, 0.11, 5);
-[z_grid.HH_Small,    pi_z.HH_Small]    = discretizeAR1_Tauchen(-0.01, 0.85, 0.14, 5);
-[z_grid.HH_Large,    pi_z.HH_Large]    = discretizeAR1_Tauchen( 0.06, 0.85, 0.18, 5);
-[z_grid.HH_Auckland, pi_z.HH_Auckland] = discretizeAR1_Tauchen( 0.15, 0.85, 0.24, 5);
+[z_grid.HH_Rural,    pi_z.HH_Rural]    = discretizeAR1_Tauchen(-0.06, 0.85, 0.11, 5, 3.0);
+[z_grid.HH_Small,    pi_z.HH_Small]    = discretizeAR1_Tauchen(-0.01, 0.85, 0.14, 5, 3.0);
+[z_grid.HH_Large,    pi_z.HH_Large]    = discretizeAR1_Tauchen( 0.06, 0.85, 0.18, 5, 3.0);
+[z_grid.HH_Auckland, pi_z.HH_Auckland] = discretizeAR1_Tauchen( 0.15, 0.85, 0.24, 5, 3.0);
 for r_idx = 1:N_reg
     hh_type = ['HH_', Regions{r_idx}];
     z_grid.(hh_type) = exp(z_grid.(hh_type));
@@ -109,6 +118,10 @@ z_grid.Firm_Rural    = [0.70; 1.15];
 z_grid.Firm_Small    = [0.75; 1.28];
 z_grid.Firm_Large    = [0.83; 1.50];
 z_grid.Firm_Auckland = [0.90; 1.75];
+
+simoptions.d_grid.(hh_type) = d_grid.(hh_type);
+simoptions.a_grid.(hh_type) = a_grid.(hh_type);
+% simoptions.z_grid.(hh_type) = z_grid.(hh_type);
 
 %% 4. 4-REGION SPATIAL HOUSING, ENERGY, & INTERGENERATIONAL PARAMETERS
 for r_idx = 1:N_reg
@@ -163,29 +176,26 @@ Params.sigma_hc_ig = 0.18;
 
 %% 5. SOLVE VFI & 4-REGION INTERGENERATIONAL TRANSITION LOOP
 for r_idx = 1:N_reg
-    hh_type   = ['HH_', Regions{r_idx}];
+    hh_type   = ['HH_',   Regions{r_idx}];
     firm_type = ['Firm_', Regions{r_idx}];
-    ReturnFn.(hh_type) = @(ic, l, Ih, aprime, hprime, a, h, theta_c, z, ...
+
+    ReturnFn.(hh_type) = @(l, Ih, ic, aprime, a, h, theta_c, z, ...
         w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
-        Transfer_Geo, p_super, c_floor, G_ece_stage1, G_ece_stage2, gbar_ece, s_sub, ...
-        omega_ic, gamma2_self, gamma2_inv, gamma2_par, phi2_ces, ...
-        delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
-        tau_l, tau_c, tau_k, tau_b, agej, Jr, sj) ...
-        ReturnFn_SpatialHH_UpgradeB(ic, l, Ih, aprime, hprime, a, h, theta_c, z, ...
+        Transfer_Geo, p_super, c_floor, G_ece_stage1, G_ece_stage2, s_sub, omega_ic, ...
+        b1_beq, b2_beq, YouthGrant, tau_l, tau_c, tau_k, tau_b, agej, Jr, sj) ...
+        ReturnFn_SpatialHH_UpgradeB(l, Ih, ic, aprime, a, h, theta_c, z, ...
         w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
-        Transfer_Geo, p_super, c_floor, G_ece_stage1, G_ece_stage2, gbar_ece, s_sub, ...
-        omega_ic, gamma2_self, gamma2_inv, gamma2_par, phi2_ces, ...
-        delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
-        tau_l, tau_c, tau_k, tau_b, agej, Jr, sj);
-    
+        Transfer_Geo, p_super, c_floor, G_ece_stage1, G_ece_stage2, s_sub, omega_ic, ...
+        b1_beq, b2_beq, YouthGrant, tau_l, tau_c, tau_k, tau_b, agej, Jr, sj);
+
     ReturnFn.(firm_type) = @(aprime, a, z, w_reg, r, alpha_k, lambda_col, delta_k, tau_k, tau_a) ...
         ReturnFn_Firm(aprime, a, z, w_reg, r, alpha_k, lambda_col, delta_k, tau_k, tau_a);
 end
 
-vfoptions.verbose = 0; simoptions.verbose = 0;
-[V, Policy] = ValueFnIter_PType(n_d, n_a, n_z, N_j, Names_i, ...
-              d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, ...
-              DiscountFactorParamNames, vfoptions);
+vfoptions.verbose = 1; simoptions.verbose = 1;
+[V, Policy] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
+    d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, ...
+    DiscountFactorParamNames, vfoptions);
 
 for r_idx = 1:N_reg
     hh_type = ['HH_', Regions{r_idx}];
@@ -193,13 +203,13 @@ for r_idx = 1:N_reg
 end
 
 for ig_iter = 1:12
-    StationaryDist = StationaryDist_PType(jequaloneDist, AgeWeightsParamNames, ...
-                     PTypeDistParamNames, Policy, n_d, n_a, n_z, N_j, Names_i, ...
-                     d_grid, a_grid, z_grid, pi_z, Params, simoptions);
-                 
+    StationaryDist = StationaryDist_MixHorz_PType(jequaloneDist, AgeWeightsParamNames, ...
+        PTypeDistParamNames, Policy, n_d, n_a, n_z, N_j, Names_i, ...
+        pi_z, Params, simoptions);
+
     [jequaloneDist_new, IG_Diagnostics] = Build_IntergenTransitionMatrix_UpgradeB( ...
         StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions);
-    
+
     diff_ig = max(abs(jequaloneDist_new.HH_Auckland(:) - jequaloneDist.HH_Auckland(:)));
     jequaloneDist = jequaloneDist_new;
     if diff_ig < 1e-5; break; end
