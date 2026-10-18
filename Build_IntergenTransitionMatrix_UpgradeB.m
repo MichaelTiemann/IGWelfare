@@ -1,5 +1,5 @@
 function [jequaloneDist_new, Diag] = Build_IntergenTransitionMatrix_UpgradeB( ...
-    StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions)
+    StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions, vfoptions)
 %% UPGRADE B INTERGENERATIONAL TRANSITION MATRIX (4 REGIONS: RURAL, SMALL, LARGE, AUCKLAND)
 % File: Build_IntergenTransitionMatrix_UpgradeB.m
 % Directly extracts the distribution of the Experience Asset theta_c at:
@@ -24,6 +24,9 @@ NewbornDist_PreMig = struct();
 for r_idx = 1:N_reg
     reg     = Regions{r_idx};
     hh_type = ['HH_', reg];
+    if vfoptions.verbose==1
+        fprintf("Building Intergen Transition Matrix for region %s \n", reg);
+    end
     
     % StationaryDist dimensions with experience asset: [n_a1, n_h, n_th, n_z1, J]
     Dist_k  = StationaryDist.(hh_type);

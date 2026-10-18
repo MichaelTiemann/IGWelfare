@@ -34,6 +34,8 @@ StatDist_BM  = StationaryDist;
 Ebar_BM_SR   = zeros(1, N_reg);
 Ebar_BM_LR   = zeros(1, N_reg);
 
+vfoptions.verbose=1;
+
 %% 1. LOOP OVER LEE & SESHADRI POLICY REGIMES ACROSS ALL 4 REGIONS
 delta_G = 0.045; % Fiscal expansion size (Barnardos First-2000-Days lever, Source 13)
 
@@ -102,7 +104,7 @@ for p_idx = 1:N_pol
             PTypeDistParamNames, Policy_LR, n_d, n_a, n_z, N_j, Names_i, ...
             d_grid, a_grid, z_grid, pi_z, Params_LR, simoptions);
         [jequalone_LR, ~] = Build_IntergenTransitionMatrix_UpgradeB( ...
-            StatDist_LR, Policy_LR, V_LR, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params_LR, Regions);
+            StatDist_LR, Policy_LR, V_LR, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params_LR, Regions, vfoptions);
     end
     
     [~, Diag_LR] = Compute_IGE_And_Moments(StatDist_LR, Policy_LR, V_LR, ...

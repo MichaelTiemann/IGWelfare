@@ -96,6 +96,9 @@ for r_idx = 1:N_reg
         gamma1_self, gamma1_inv, gamma1_par, phi1_ces, ...
         gamma2_self, gamma2_inv, gamma2_par, phi2_ces, agej, Jr);
     simoptions.aprimeFn.(hh_type) = vfoptions.aprimeFn.(hh_type);
+    simoptions.d_grid.(hh_type) = d_grid.(hh_type);
+    simoptions.a_grid.(hh_type) = a_grid.(hh_type);
+    % simoptions.z_grid.(hh_type) = z_grid.(hh_type);
 
     % Infinite-Horizon Firm Grids
     n_d.(firm_type) = 0;  d_grid.(firm_type) = [];
@@ -118,10 +121,6 @@ z_grid.Firm_Rural    = [0.70; 1.15];
 z_grid.Firm_Small    = [0.75; 1.28];
 z_grid.Firm_Large    = [0.83; 1.50];
 z_grid.Firm_Auckland = [0.90; 1.75];
-
-simoptions.d_grid.(hh_type) = d_grid.(hh_type);
-simoptions.a_grid.(hh_type) = a_grid.(hh_type);
-% simoptions.z_grid.(hh_type) = z_grid.(hh_type);
 
 %% 4. 4-REGION SPATIAL HOUSING, ENERGY, & INTERGENERATIONAL PARAMETERS
 for r_idx = 1:N_reg
@@ -208,7 +207,7 @@ for ig_iter = 1:12
         pi_z, Params, simoptions);
 
     [jequaloneDist_new, IG_Diagnostics] = Build_IntergenTransitionMatrix_UpgradeB( ...
-        StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions);
+        StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions, vfoptions);
 
     diff_ig = max(abs(jequaloneDist_new.HH_Auckland(:) - jequaloneDist.HH_Auckland(:)));
     jequaloneDist = jequaloneDist_new;
