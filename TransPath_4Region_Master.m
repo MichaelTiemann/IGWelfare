@@ -283,3 +283,69 @@ bar(Years_vec, 100 * Reg_HH_Share_Path, 'stacked'); grid on;
 ylim([0, 100]); xlabel('Years from Reform'); ylabel('Cumulative Share of NZ Population (%)');
 title('B. 4-Region Composition (Rural, Small, Large, Auckland)');
 legend(Regions, 'Location', 'southoutside', 'Orientation', 'horizontal');
+
+%% OPTIONAL SECTION: 4+1 DYNAMIC BRAIN DRAIN, CHURN, & SOCIAL COHESION TRAJECTORIES
+if isfield(Params_BM_Master, 'Enable_Abroad_Option') && Params_BM_Master.Enable_Abroad_Option
+    Path_Emig_National  = zeros(T_trans, 1);
+    Path_Emig_ByRegion  = zeros(T_trans, N_reg); % Cols: [Rural, Small, Large, Auckland]
+    Path_Emig_HighSkill = zeros(T_trans, 1);     % Emigration rate of top thriving tiers (h6, h7)
+    Path_ChurnRate      = zeros(T_trans, 1);
+    Path_SocialCohesion = zeros(T_trans, 1);
+    Path_ParentalRel_CE = zeros(T_trans, 1);
+
+    for tt = 1:T_trans
+        Diag_t = IG_Diag_path{tt};
+        Path_Emig_National(tt)    = 100 * Diag_t.EmigRate_Youth;
+        Path_Emig_ByRegion(tt, :) = 100 * Diag_t.Emig_By_Region;
+        Path_Emig_HighSkill(tt)   = 100 * mean(Diag_t.Emig_By_SkillTier(max(1, end-1):end));
+        Path_ChurnRate(tt)        = 100 * Diag_t.Churn_Rate;
+        Path_SocialCohesion(tt)   = Diag_t.SocialCohesion_Index;
+        Path_ParentalRel_CE(tt)   = Diag_t.ParentalRelational_CE;
+    end
+
+    fprintf('\n=========================================================================================\n');
+    fprintf('4+1 DYNAMIC CLOSURE OF THE AGE 20-35 BRAIN DRAIN & SOCIAL COHESION RECOVERY (YEARS 0-55)\n');
+    fprintf('=========================================================================================\n');
+    T_BrainDrain_Path = table(Years_vec', Path_Emig_National, ...
+        Path_Emig_ByRegion(:, 1), Path_Emig_ByRegion(:, 2), ...
+        Path_Emig_ByRegion(:, 3), Path_Emig_ByRegion(:, 4), ...
+        Path_Emig_HighSkill, Path_ChurnRate, Path_SocialCohesion, Path_ParentalRel_CE, ...
+        'VariableNames', {'Year', 'Nat_EmigRate_Pct', ...
+        'Rural_Emig_Pct', 'Small_Emig_Pct', 'Large_Emig_Pct', 'Auckland_Emig_Pct', ...
+        'Thriving_h6h7_Emig_Pct', 'Mig_Churn_Pct', 'SocialCohesion_St', 'Parent_Rel_CE_Pct'});
+    disp(T_BrainDrain_Path);
+
+    figure('Name', '40-Year Transition: Closing the NZ 4-Region Youth Brain Drain & Restoring Social Cohesion', ...
+           'Color', 'w', 'Position', [140, 140, 1120, 560]);
+
+    subplot(2, 2, 1);
+    plot(Years_vec, Path_Emig_ByRegion(:, 1), '--o', 'LineWidth', 1.5); hold on;
+    plot(Years_vec, Path_Emig_ByRegion(:, 2), '--d', 'LineWidth', 1.5);
+    plot(Years_vec, Path_Emig_ByRegion(:, 3), '--s', 'LineWidth', 1.6);
+    plot(Years_vec, Path_Emig_ByRegion(:, 4), '-^',  'LineWidth', 2.0);
+    plot(Years_vec, Path_Emig_National,       '-k',  'LineWidth', 2.5);
+    xline(20, ':r', '1st Intervened Cohort Enters 20-35', 'LabelVerticalAlignment', 'bottom');
+    grid on; xlabel('Years from Policy Reform'); ylabel('5-Yr Emigration Rate (%)');
+    title('A. Age 20-35 Emigration Rate by Region (4+1)');
+    legend([Regions, {'National Mean'}], 'Location', 'northeast');
+
+    subplot(2, 2, 2);
+    plot(Years_vec, Path_Emig_HighSkill, '-r',  'LineWidth', 2.2); hold on;
+    plot(Years_vec, Path_Emig_National,  '--k', 'LineWidth', 1.8);
+    xline(20, ':r'); grid on;
+    xlabel('Years from Policy Reform'); ylabel('Emigration Probability (%)');
+    title('B. Positive-Selection Brain Drain Closure (Tiers h6-h7)');
+    legend({'High-Skill Youth (h6-h7)', 'All Youth Mean'}, 'Location', 'northeast');
+
+    subplot(2, 2, 3);
+    yyaxis left;  plot(Years_vec, Path_ChurnRate, '-b', 'LineWidth', 2.0); ylabel('Demographic Churn Rate (%)');
+    yyaxis right; plot(Years_vec, Path_SocialCohesion, '-g', 'LineWidth', 2.2); ylabel('Social Cohesion Index (S_t, Base=100)');
+    xline(20, ':r'); grid on; xlabel('Years from Policy Reform');
+    title('C. Replacement Migration Churn vs. Social Cohesion (S_t)');
+
+    subplot(2, 2, 4);
+    plot(Years_vec, Path_ParentalRel_CE, '-m', 'LineWidth', 2.2);
+    yline(0, '--k'); xline(20, ':r'); grid on;
+    xlabel('Years from Policy Reform'); ylabel('Relational Welfare Gain (CE %)');
+    title('D. Parental & Retiree Relational Gain (Proximity + Thriving)');
+end

@@ -172,6 +172,24 @@ Params.p_super = 0.18; Params.c_floor = 0.04; Params.b1_beq = 4.20; Params.b2_be
 Params.r = 0.20; Params.tau_l = 0.22; Params.tau_c = 0.15; Params.tau_k = 0.20; Params.tau_a = 0.005; Params.tau_b = 0.15;
 Params.alpha_k = 0.33; Params.lambda_col = 1.80; Params.delta_k = 1 - (1-0.06)^5;
 Params.sigma_hc_ig = 0.18;
+% --- Optional 4+1 Abroad Migration & Brain-Drain Extension ---
+if ~exist('Enable_Abroad_Option', 'var')
+    Enable_Abroad_Option = false; % Default when running NZ_4Region_Master.m standalone
+end
+Params.Enable_Abroad_Option       = Enable_Abroad_Option;
+Params.Params_Mig                 = struct();
+Params.Params_Mig.Enable_Abroad   = Enable_Abroad_Option;
+Params.Params_Mig.w_Abroad         = 1.32;  % Foreign (OECD/Australia) benchmark skill wage
+Params.Params_Mig.Q_Abroad         = 2.15;  % Foreign house price benchmark (vs Auckland 3.10)
+Params.Params_Mig.kappa_emig       = 0.14;  % Fixed international moving cost
+Params.Params_Mig.tau_home_amenity = 0.85;  % Whanau / native home-attachment amenity in NZ
+Params.Params_Mig.varrho_gumbel    = 0.45;  % Gumbel migration taste shock scale
+Params.Params_Mig.home_stay_bonus  = 0.95;  % Domestic origin-region retention amenity
+Params.Params_Mig.Target_NetMig    = 0.025; % Stats NZ +25k/yr net migration target
+Params.Params_Mig.nu_retention     = 0.40;  % Elasticity of social cohesion S_t wrt native retention
+Params.Params_Mig.nu_churn         = 0.35;  % Social cohesion penalty wrt replacement migration churn
+Params.Params_Mig.gamma_proximity  = 0.45;  % Parental utility weight on children remaining in NZ
+Params.Params_Mig.gamma_thrive     = 0.35;  % Parental utility weight on children thriving
 
 %% 5. SOLVE VFI & 4-REGION INTERGENERATIONAL TRANSITION LOOP
 for r_idx = 1:N_reg
@@ -219,4 +237,14 @@ for r_idx = 1:N_reg
     fprintf('Region: %-9s (Pop %2.0f%%) | Stage-1 Skill: %.3f | Completed Skill: %.3f | Stunted: %4.1f%% | Mean Bequest: %.3f\n', ...
         reg, 100*Reg_Pop_Shares(r_idx), IG_Diagnostics.MeanTheta2.(reg), ...
         IG_Diagnostics.MeanTheta3.(reg), 100*IG_Diagnostics.StuntedShare.(reg), IG_Diagnostics.MeanBequest.(reg));
+end
+
+if Params.Enable_Abroad_Option
+    fprintf('--- 4+1 ABROAD MIGRATION & SOCIAL COHESION DIAGNOSTICS ---\n');
+    fprintf('National Youth Emigration: %4.1f%% | High-Skill (h5-h7) Share: %4.1f%% | Social Cohesion S_t: %5.1f | Parental Rel CE: %+4.2f%%\n', ...
+        100*IG_Diagnostics.EmigRate_Youth, 100*IG_Diagnostics.HighSkill_EmigShare, ...
+        IG_Diagnostics.SocialCohesion_Index, IG_Diagnostics.ParentalRelational_CE);
+    fprintf('Regional Emigration to Abroad: Rural %4.1f%% | Small %4.1f%% | Large %4.1f%% | Auckland %4.1f%%\n', ...
+        100*IG_Diagnostics.Emig_By_Region(1), 100*IG_Diagnostics.Emig_By_Region(2), ...
+        100*IG_Diagnostics.Emig_By_Region(3), 100*IG_Diagnostics.Emig_By_Region(4));
 end

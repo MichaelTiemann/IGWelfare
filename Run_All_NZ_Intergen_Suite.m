@@ -14,6 +14,7 @@ suite_timer = tic;
 
 %% 0. CONFIGURATION SWITCHES & OUTPUT DIRECTORY SETUP
 Force_Recompute_Cache = false; % true = Ignore cached .mat files and recompute from scratch
+Enable_Abroad_Option  = true;  % true = Extend 4-Region model to 4+1 (Rural, Small, Large, Auckland + Abroad)
 Run_SMM_Calibration   = false; % true = Run Sobol global pre-screening + local fminsearch SMM
 Run_LeeSeshadri_Exp   = true;  % true = Run P0 vs P1/P2 & Budget-Neutral Front-Loading
 Run_Fertility_Module  = true;  % true = Run Intra-Household Bargaining & Differential Fertility
@@ -132,6 +133,9 @@ if Export_Tables_Figures
     end
     if exist('T_PopShares', 'var')
         writetable(T_PopShares, fullfile(OutputDir, 'Table9_4Region_Dynamic_Population_Shares.csv'));
+    end
+    if exist('T_BrainDrain_Path', 'var')
+        writetable(T_BrainDrain_Path, fullfile(OutputDir, 'Table10_4Region_Abroad_BrainDrain_Cohesion.csv'));
     end
 
     fig_handles = findall(0, 'Type', 'figure');
