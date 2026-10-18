@@ -39,7 +39,7 @@ fprintf('=======================================================================
 if gpuDeviceCount > 0
     gpu_info = gpuDevice;
     fprintf('GPU Detected: %s (Available Memory: %.2f GB)\n\n', ...
-            gpu_info.Name, gpu_info.AvailableMemory / 1e9);
+        gpu_info.Name, gpu_info.AvailableMemory / 1e9);
 else
     warning('No CUDA GPU detected. VFI Toolkit will fall back to CPU execution.\n');
 end
@@ -85,47 +85,64 @@ if Use_UpgradeB_ExpAsset && Run_Fertility_Module && exist('FertilityBargaining_M
     fprintf('    Step 3 completed in %.2f seconds.\n\n', toc(step3_timer));
 end
 
-%% STEP 4: 5D -> 4D COMPACT PROJECTION ACROSS ALL 4 REGIONS (FOR DECOMPOSITION & TRANSITION)
+%% STEP 4: 5D -> 4D COMPACT PROJECTION ACROSS ALL 4 REGIONS (WITH experienceasset = 1 FOR h)
 if Use_UpgradeB_ExpAsset && exist('ReturnFn_SpatialHH.m', 'file')
-    fprintf('>>> [STEP 4/7] Projecting 5D Experience-Asset State Space to Compact 4D across %d Regions...\n', N_reg);
+    fprintf('>>> [STEP 4/7] Projecting 5D State Space to Compact 4D (experienceasset=1 for h) across %d Regions...\n', N_reg);
     step4_timer = tic;
-    if isfield(vfoptions, 'aprimeFn');  vfoptions  = rmfield(vfoptions, 'aprimeFn');  end
-    if isfield(simoptions, 'aprimeFn'); simoptions = rmfield(simoptions, 'aprimeFn'); end
-    
+
     for r_idx = 1:N_reg
         hh_type = ['HH_', Regions{r_idx}];
-        
-        vfoptions.experienceasset.(hh_type)  = 0;
-        simoptions.experienceasset.(hh_type) = 0;
-        
-        n_d.(hh_type)    = [4, 3, 7];
-        d_grid.(hh_type) = [[0; 0.5; 0.8; 1.0]; linspace(0, 0.30, 3)'; linspace(0, 0.50, 7)'];
-        n_a.(hh_type)    = [n_a_UpgradeB.(hh_type)(1), n_a_UpgradeB.(hh_type)(2)];
+
+        % In 4D compact space [a, h, z, j], Adult HC (h) is 1 Experience Asset driven by 1 decision (Ih)
+        vfoptions.experienceasset.(hh_type)     = 1;
+        simoptions.experienceasset.(hh_type)    = 1;
+        vfoptions.l_dexperienceasset.(hh_type)  = 1;
+        simoptions.l_dexperienceasset.(hh_type) = 1;
+
+        % Put Ih LAST in n_d = [4, 7, 3] ([l, ic, Ih]) so Ih drives AdultHC_aprimeFn!
+        n_d.(hh_type)    = [4, 7, 3];
+        d_grid.(hh_type) = [[0; 0.5; 0.8; 1.0]; linspace(0, 0.50, 7)'; linspace(0, 0.30, 3)'];
+        n_a.(hh_type)    = [n_a_UpgradeB.(hh_type)(1), n_a_UpgradeB.(hh_type)(2)]; % [61, 7]
         a_grid.(hh_type) = a_grid_UpgradeB.(hh_type)(1 : sum(n_a.(hh_type)));
-        
-        ReturnFn.(hh_type) = @(l, Ih, ic, aprime, hprime, a, h, z, ...
+
+        simoptions.d_grid.(hh_type) = d_grid.(hh_type);
+        simoptions.a_grid.(hh_type) = a_grid.(hh_type);
+
+        vfoptions.aprimeFn.(hh_type) = @(Ih, h, delta_hc, alpha_I, alpha_H, agej, Jr) ...
+            AdultHC_aprimeFn(Ih, h, delta_hc, alpha_I, alpha_H, agej, Jr);
+        simoptions.aprimeFn.(hh_type) = vfoptions.aprimeFn.(hh_type);
+
+        ReturnFn.(hh_type) = @(l, ic, Ih, aprime, a, h, z, ...
             w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
-            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, omega_ic, ...
-            delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
-            tau_l, tau_c, tau_k, tau_b, agej, Jr, sj) ...
-            ReturnFn_SpatialHH(l, Ih, ic, aprime, hprime, a, h, z, ...
+            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, s_sub, omega_ic, ...
+            b1_beq, b2_beq, YouthGrant, tau_l, tau_c, tau_k, tau_b, agej, Jr, sj) ...
+            ReturnFn_SpatialHH(l, ic, Ih, aprime, a, h, z, ...
             w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
-            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, omega_ic, ...
-            delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
-            tau_l, tau_c, tau_k, tau_b, agej, Jr, sj);
-        
-        jequaloneDist.(hh_type) = squeeze(sum(jequaloneDist_UpgradeB.(hh_type), 3));
+            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, s_sub, omega_ic, ...
+            b1_beq, b2_beq, YouthGrant, tau_l, tau_c, tau_k, tau_b, agej, Jr, sj);
+
+        jequaloneDist.(hh_type) = squeeze(sum(gather(jequaloneDist_UpgradeB.(hh_type)), 3));
         jequaloneDist.(hh_type) = jequaloneDist.(hh_type) / sum(jequaloneDist.(hh_type)(:));
     end
     Params.G_ece     = Params.G_ece_stage1;
     Params.rho_hc_ig = 0.40;
     Params.gamma_ic  = 0.35;
-    
-    [V, Policy] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
-        d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, DiscountFactorParamNames, vfoptions);
-    StationaryDist = StationaryDist_Case1_FHorz_PType(jequaloneDist, AgeWeightsParamNames, ...
-        PTypeDistParamNames, Policy, n_d, n_a, n_z, N_j, Names_i, ...
-        d_grid, a_grid, z_grid, pi_z, Params, simoptions);
+
+    vfoptions.verbose = 0; simoptions.verbose = 0;
+    if ~exist('Force_Recompute_Cache', 'var'); Force_Recompute_Cache = false; end
+    [cache_s4, hit_s4] = Get_ModelConfigHash('Step4_Compact4D_SS0', Params, n_d, n_a, n_z, N_j, Force_Recompute_Cache);
+
+    if hit_s4
+        fprintf('    [CACHE HIT] Loading Compact 4D Baseline from %s\n', cache_s4);
+        load(cache_s4, 'V', 'Policy', 'StationaryDist');
+    else
+        [V, Policy] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
+            d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, DiscountFactorParamNames, vfoptions);
+        StationaryDist = StationaryDist_MixHorz_PType(jequaloneDist, AgeWeightsParamNames, ...
+            PTypeDistParamNames, Policy, n_d, n_a, n_z, N_j, Names_i, ...
+            pi_z, Params, simoptions);
+        save(cache_s4, 'V', 'Policy', 'StationaryDist', '-v7.3');
+    end
     fprintf('    Step 4 completed in %.2f seconds.\n\n', toc(step4_timer));
 end
 
@@ -161,7 +178,7 @@ if Export_Tables_Figures
     fprintf('=========================================================================================\n');
     fprintf('  EXPORTING 4-REGION TABLES & FIGURES TO: %s\n', OutputDir);
     fprintf('=========================================================================================\n');
-    
+
     if exist('T1', 'var')
         writetable(T1, fullfile(OutputDir, 'Table1_4Region_Daruich_LeeSeshadri_Decomposition.csv'), 'WriteRowNames', true);
     end
@@ -180,7 +197,7 @@ if Export_Tables_Figures
         writetable(T_Fert1, fullfile(OutputDir, 'Table7_4Region_Endogenous_TFR_DiffFertility.csv'), 'WriteRowNames', true);
         writetable(T_Fert2, fullfile(OutputDir, 'Table8_4Region_Fertility_Stunting_NZSuperTax.csv'), 'WriteRowNames', true);
     end
-    
+
     fig_handles = findall(0, 'Type', 'figure');
     for f_i = 1:length(fig_handles)
         fig_h      = fig_handles(f_i);
@@ -191,7 +208,7 @@ if Export_Tables_Figures
         savefig(fig_h, fullfile(OutputDir, [clean_name, '.fig']));
         fprintf('  Saved Figure: %s.png\n', clean_name);
     end
-    
+
     save(fullfile(OutputDir, 'NZ_4Region_Intergen_Complete_Results.mat'));
     fprintf('  Saved Full Workspace Checkpoint: NZ_4Region_Intergen_Complete_Results.mat\n');
 end

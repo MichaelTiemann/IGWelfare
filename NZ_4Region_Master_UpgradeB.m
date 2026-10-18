@@ -206,8 +206,7 @@ for ig_iter = 1:12
         PTypeDistParamNames, Policy, n_d, n_a, n_z, N_j, Names_i, ...
         pi_z, Params, simoptions);
 
-    [jequaloneDist_new, IG_Diagnostics] = Build_IntergenTransitionMatrix_UpgradeB( ...
-        StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions, vfoptions);
+    [jequaloneDist_new, IG_Diagnostics] = Build_IntergenTransitionMatrix(StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions);
 
     diff_ig = max(abs(jequaloneDist_new.HH_Auckland(:) - jequaloneDist.HH_Auckland(:)));
     jequaloneDist = jequaloneDist_new;

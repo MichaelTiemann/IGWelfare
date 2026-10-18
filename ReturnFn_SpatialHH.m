@@ -1,79 +1,85 @@
-function F = ReturnFn_SpatialHH(l, Ih, ic, aprime, a, h, z, ...
+function F = ReturnFn_SpatialHH(l, ic, Ih, aprime, a, h, z, ...
     w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
-    Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, omega_ic, ...
+    Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, s_sub, omega_ic, ...
     b1_beq, b2_beq, YouthGrant, tau_l, tau_c, tau_k, tau_b, agej, Jr, sj)
-%% FINITE-HORIZON HOUSEHOLD RETURN FUNCTION WITH EXPERIENCE ASSET (h)
-% Notice: 'hprime' is no longer in the argument list! VFI Toolkit only searches
-% over standard next-period asset 'aprime' (Net Worth) and uses aprimeFn for h'.
+%% COMPACT 4D RETURN FUNCTION WITH ADULT HC EXPERIENCE ASSET (experienceasset = 1)
+% File: ReturnFn_SpatialHH.m
+% Action Space (l_d + l_aprime = 3 + 1 = 4):
+%   - d      : l (Labor, 4), ic (Child Inv, 7), Ih (Adult Ben-Porath Inv, 3 -> LAST for aprimeFn)
+%   - aprime : aprime (Next-period Net Worth; h evolves via AdultHC_aprimeFn!)
+% State Space (l_a + l_z = 2 + 1 = 3):
+%   - a1     : a (Current Net Worth, 61)
+%   - a2     : h (Current Adult Human Capital Experience Asset, 7)
+%   - z      : z (Idiosyncratic Labor Productivity, 5)
 
 F = -Inf;
 
-% Prevent positive on-the-job training Ih when not working (l == 0)
-if l == 0 && Ih > 0
-    return;
-end
-if agej >= Jr && (l > 0 || Ih > 0 || ic > 0)
-    return;
-end
-
-% 2. REGIONAL HOUSING FUNDAMENTALS & TENURE CHOICE (Kiyotaki et al. Source 1, Eq 2, 6, 9, 14)
-% Annualized gross interest rate R_ann from 5-yr rate r
-R_ann = (1 + r)^(1/5);
-
-% Regional rental price rr(k) and homeowner user cost rh(k) driven by regional growth G_reg
-rr_k = max(0.01, (1 + mu_maint - (G_reg / R_ann)) * Q_reg);
-rh_k = max(0.008, (1 + mu_maint - upsilon_h - (G_reg / R_ann)) * Q_reg);
-
-% Young households (agej < Jr) choose Renter vs Leveraged Owner via cutoff xi_k (Eq 14);
-% Old households (agej >= Jr) all prefer to own (chi_o = 0, Source 1 Sec 2.1)
-if agej < Jr
-    xi_own = min(1.0, (1 / chi_bar) * (rr_k / rh_k));
-    % Composite housing price index across young owners and renters
-    p_housing_eff = xi_own * rh_k + (1 - xi_own) * (rr_k / (0.5 * chi_bar));
-else
-    xi_own = 1.0;
-    p_housing_eff = rh_k;
-end
-
-% 3. CONSOLIDATED NET WORTH BUDGET CONSTRAINT (Sources 1, 2, 7, 9)
-% Net worth a includes home equity + landlord rental equity (for old)
-net_asset_resources = (1 + (1 - tau_k) * r) * a;
-
-if agej < Jr
-    if (agej ~= 3 && agej ~= 4) && ic > 0; return; end
-    grant_E = (agej == 1) * YouthGrant;
-    eff_hours = max(0, l - Ih);
-    net_labor = (1 - tau_l) * w_reg * z * h * eff_hours;
-    
-    % Total expenditure after subsistence rural/urban transport & energy cost ebar_energy (Source 2)
-    total_exp = (net_asset_resources + net_labor + grant_E + Transfer_Geo ...
-                 - ebar_energy - ic - aprime) / (1 + tau_c);
-else
-    % Retirees: NZ Super + Landlord/Home Equity Net Worth - Subsistence Energy
-    total_exp = max(c_floor, (net_asset_resources + p_super + Transfer_Geo ...
-                 - ebar_energy - aprime) / (1 + tau_c));
-end
-
-if total_exp <= 0
-    return;
-end
-
-% 4. INTRA-PERIOD COBB-DOUGLAS SPLIT: NONDURABLE C vs HOUSING H (Kiyotaki et al. Source 1)
-% Indirect utility from total expenditure given local housing user cost / rent:
-u_composite = total_exp * (p_housing_eff^(phi_nd - 1));
-F = ((u_composite^(1 - 2.0)) / (1 - 2.0)) - 1.2 * (l^2) / 2;
-
-% 5. LENS 1: EARLY CHILDHOOD INVESTMENT (Constrained by high Urban housing costs!)
-if agej == 3 || agej == 4
-    F = F + omega_ic * log(ic + G_ece + gbar_ece);
-end
-
-% 6. LENS 3: THE $1.6T PROPERTY WEALTH BEQUEST (De Nardi Source 9 + Piketty/Saez Source 7)
+%% 1. AGE-DEPENDENT ACTION CONSTRAINTS
 if agej >= Jr
-    % Older homeowners hold housing equity (Ho + Hr)*Q_reg inside net worth aprime
-    net_estate = (1 - tau_b) * max(0, aprime);
-    u_beq = (1 - sj) * b1_beq * ((b2_beq + net_estate)^(1 - 2.0)) / (1 - 2.0);
-    F = F + u_beq;
+    if l > 0 || Ih > 0
+        return;
+    end
 end
+
+is_parenting_stage = (agej == 3) || (agej == 4);
+if ~is_parenting_stage && (ic > 0)
+    return;
+end
+
+%% 2. REGIONAL USER COST OF HOUSING & TENURE CHOICE
+R_ann  = (1 + r)^(1/5);
+rr_reg = max(0.010, (1 + mu_maint - (G_reg / R_ann)) * Q_reg);
+rh_reg = max(0.008, (1 + mu_maint - upsilon_h - (G_reg / R_ann)) * Q_reg);
+
+is_owner = (a >= 0.15 * Q_reg);
+if is_owner
+    p_housing = rh_reg;
+    upsilon_b = 0.0;
+else
+    p_housing = rr_reg;
+    upsilon_b = 0.04;
+end
+
+%% 3. HOUSEHOLD BUDGET CONSTRAINT (OBSERVING ADULT HC h)
+if agej < Jr
+    labor_inc   = (1 - tau_l) * w_reg * z * h * l;
+    pension_inc = 0.0;
+else
+    labor_inc   = 0.0;
+    pension_inc = p_super;
+end
+
+cap_inc    = (1 + (1 - tau_k) * r) * a;
+youth_end  = (agej == 1) * YouthGrant;
+child_cost = is_parenting_stage * (1 - s_sub) * ic;
+
+net_resources = labor_inc + pension_inc + cap_inc + Transfer_Geo + youth_end ...
+    - aprime - Ih - child_cost;
+
+c_total = (net_resources / (1 + tau_c)) - ebar_energy;
+if c_total <= 0
+    return;
+end
+
+c_nd   = max(c_floor, phi_nd * c_total);
+h_size = max(0.05, ((1 - phi_nd) * c_total) / p_housing);
+
+%% 4. WITHIN-PERIOD UTILITY + WARM-GLOW CHILD INVESTMENT + BEQUESTS
+eta_c    = 2.0;
+comp_c   = (c_nd ^ phi_nd) * (h_size ^ (1 - phi_nd)) * exp(-upsilon_b) * ((1 - 0.55 * l) ^ 0.35);
+u_period = (comp_c ^ (1 - eta_c)) / (1 - eta_c);
+
+u_child = 0.0;
+if is_parenting_stage
+    u_child = omega_ic * log(max(1e-4, gbar_ece + ic + G_ece));
+end
+
+u_bequest = 0.0;
+if (agej >= Jr) && (aprime > 0)
+    net_estate = (1 - tau_b) * aprime;
+    u_bequest  = (1 - sj) * b1_beq * (((b2_beq + net_estate) ^ (1 - eta_c)) / (1 - eta_c));
+end
+
+F = u_period + u_child + u_bequest;
 
 end
