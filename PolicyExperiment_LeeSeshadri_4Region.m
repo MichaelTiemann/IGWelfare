@@ -67,9 +67,11 @@ for p_idx = 1:N_pol
     % --- 1. SHORT-RUN PARTIAL EQUILIBRIUM (SR: Fixed Newborn Distribution jequaloneDist_5D_BM) ---
     [V_SR, Policy_SR] = ValueFnIter_Case1_FHorz_PType(n_d_5D, n_a_5D, n_z, N_j, Names_i, ...
         d_grid_5D, a_grid_5D, z_grid, pi_z, ReturnFn_5D, Params_p, DiscountFactorParamNames, vfoptions_5D);
+
     StatDist_SR = StationaryDist_Case1_FHorz_PType(jequaloneDist_5D_BM, AgeWeightsParamNames, ...
         PTypeDistParamNames, Policy_SR, n_d_5D, n_a_5D, n_z, N_j, Names_i, ...
         d_grid_5D, a_grid_5D, z_grid, pi_z, Params_p, simoptions_5D);
+
     [~, Diag_SR] = Build_IntergenTransitionMatrix(StatDist_SR, Policy_SR, V_SR, ...
         n_d_5D, n_a_5D, n_z, d_grid_5D, a_grid_5D, z_grid, pi_z, Params_p, Regions);
 
@@ -77,12 +79,15 @@ for p_idx = 1:N_pol
     jDist_LR = jequaloneDist_5D_BM;
     V_LR     = V_SR;
     Pol_LR   = Policy_SR;
+
     for ig_it = 1:10
         StatDist_LR = StationaryDist_Case1_FHorz_PType(jDist_LR, AgeWeightsParamNames, ...
             PTypeDistParamNames, Pol_LR, n_d_5D, n_a_5D, n_z, N_j, Names_i, ...
             d_grid_5D, a_grid_5D, z_grid, pi_z, Params_p, simoptions_5D);
+
         [jDist_LR_new, Diag_LR] = Build_IntergenTransitionMatrix(StatDist_LR, Pol_LR, V_LR, ...
             n_d_5D, n_a_5D, n_z, d_grid_5D, a_grid_5D, z_grid, pi_z, Params_p, Regions);
+
         if max(abs(jDist_LR_new.HH_Auckland(:) - jDist_LR.HH_Auckland(:))) < 1e-5
             jDist_LR = jDist_LR_new;
             break;
@@ -117,14 +122,19 @@ for p_idx = 1:N_pol
                         for iz = 1:n_z1
                             m_sr = Dist_SR_k(ia, ih, ith, iz, jj);
                             m_lr = Dist_LR_k(ia, ih, ith, iz, jj);
-                            l_sr = l_grid(min(4, max(1, round(Pol_SR_k(2, ia, ih, ith, iz, jj)))));
-                            l_lr = l_grid(min(4, max(1, round(Pol_LR_k(2, ia, ih, ith, iz, jj)))));
+
+                            % Index 1 is labor supply 'l' (since d = [l, Ih, ic])
+                            l_sr = l_grid(min(4, max(1, round(Pol_SR_k(1, ia, ih, ith, iz, jj)))));
+                            l_lr = l_grid(min(4, max(1, round(Pol_LR_k(1, ia, ih, ith, iz, jj)))));
+
                             y_sr = w_k * h_vec(ih) * z_vec(iz) * max(0.2, l_sr);
                             y_lr = w_k * h_vec(ih) * z_vec(iz) * max(0.2, l_lr);
+
                             earn_SR_sum  = earn_SR_sum + m_sr * y_sr;
                             mass_SR_work = mass_SR_work + m_sr;
                             earn_LR_sum  = earn_LR_sum + m_lr * y_lr;
                             mass_LR_work = mass_LR_work + m_lr;
+
                             if m_lr > 1e-9
                                 logE_vals(end+1, 1)    = log(max(1e-3, y_lr)); %#ok<SAGROW>
                                 logE_weights(end+1, 1) = m_lr; %#ok<SAGROW>
@@ -150,6 +160,7 @@ for p_idx = 1:N_pol
 
         w_p_sr = Dist_p_SR(:) / max(1e-12, sum(Dist_p_SR(:)));
         w_p_lr = Dist_p_LR(:) / max(1e-12, sum(Dist_p_LR(:)));
+
         cov_sr = sum(w_p_sr .* (H_grid(:) - sum(w_p_sr.*H_grid(:))) .* (TH_grid(:) - sum(w_p_sr.*TH_grid(:))));
         var_sr = sum(w_p_sr .* ((H_grid(:) - sum(w_p_sr.*H_grid(:))).^2));
         cov_lr = sum(w_p_lr .* (H_grid(:) - sum(w_p_lr.*H_grid(:))) .* (TH_grid(:) - sum(w_p_lr.*TH_grid(:))));
@@ -184,25 +195,24 @@ end
 
 %% 4. ASSEMBLE TABLES 12A, 12B, 12C & PLOT 4-PANEL FIGURE E8
 T_IGE = array2table([IGE_SR, IGE_LR], 'RowNames', PolicyNames, ...
-    'VariableNames', {'Rural_SR','Small_SR','Large_SR','Auckland_SR','Rural_LR','Small_LR','Large_LR','Auckland_LR'});
+    'VariableNames', {'Rural_SR', 'Small_SR', 'Large_SR', 'Auckland_SR', 'Rural_LR', 'Small_LR', 'Large_LR', 'Auckland_LR'});
 
 T_VarExpl = array2table([VarExpl_h1, VarExpl_LFE, VarLogE], 'RowNames', PolicyNames, ...
-    'VariableNames', {'VarExpl_h1_Rural','VarExpl_h1_Small','VarExpl_h1_Large','VarExpl_h1_Auckland', ...
-    'VarExpl_LFE_Rural','VarExpl_LFE_Small','VarExpl_LFE_Large','VarExpl_LFE_Auckland', ...
-    'VarLogE_Rural','VarLogE_Small','VarLogE_Large','VarLogE_Auckland'});
+    'VariableNames', {'VarExpl_h1_Rural', 'VarExpl_h1_Small', 'VarExpl_h1_Large', 'VarExpl_h1_Auckland', ...
+    'VarExpl_LFE_Rural', 'VarExpl_LFE_Small', 'VarExpl_LFE_Large', 'VarExpl_LFE_Auckland', ...
+    'VarLogE_Rural', 'VarLogE_Small', 'VarLogE_Large', 'VarLogE_Auckland'});
 
 T_Out = array2table([Ebar_SR, Ebar_LR, CE_LR], 'RowNames', PolicyNames, ...
-    'VariableNames', {'Ebar_SR_Rural','Ebar_SR_Small','Ebar_SR_Large','Ebar_SR_Auckland', ...
-    'Ebar_LR_Rural','Ebar_LR_Small','Ebar_LR_Large','Ebar_LR_Auckland', ...
-    'CE_LR_Rural','CE_LR_Small','CE_LR_Large','CE_LR_Auckland'});
+    'VariableNames', {'Ebar_SR_Rural', 'Ebar_SR_Small', 'Ebar_SR_Large', 'Ebar_SR_Auckland', ...
+    'Ebar_LR_Rural', 'Ebar_LR_Small', 'Ebar_LR_Large', 'Ebar_LR_Auckland', ...
+    'CE_LR_Rural', 'CE_LR_Small', 'CE_LR_Large', 'CE_LR_Auckland'});
 
 figE8 = figure('Name', 'Lee & Seshadri 4-Region Counterfactuals', 'Color', 'w', 'Position', [100, 100, 1200, 750]);
 tiledlayout(2, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
 cats = categorical(PolicyNames, PolicyNames);
 
 nexttile; bar(cats, IGE_LR, 'grouped'); ylabel('Long-Run IGE');
-title('A. Intergenerational Elasticity of Earnings (IGE\_LR)'); grid on;
-legend(Regions, 'Location', 'northwest');
+title('A. Intergenerational Elasticity of Earnings (IGE\_LR)'); grid on; legend(Regions, 'Location', 'northwest');
 
 nexttile; bar(cats, VarExpl_LFE, 'grouped'); ylabel('Variance Explained (%)');
 title('B. Lifetime Earnings Variance Explained by Parents at Age 30-35'); grid on;

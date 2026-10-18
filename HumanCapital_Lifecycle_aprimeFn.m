@@ -1,21 +1,14 @@
-function theta_c_prime = HumanCapital_Lifecycle_aprimeFn(ic, l, Ih, theta_c, ...
+function theta_c_prime = HumanCapital_Lifecycle_aprimeFn(ic, theta_c, ...
     G_ece_stage1, G_ece_stage2, gbar_ece, ...
     gamma1_self, gamma1_inv, gamma1_par, phi1_ces, ...
     gamma2_self, gamma2_inv, gamma2_par, phi2_ces, ...
-    delta_hc, alpha_I, alpha_H, h_par_mean, agej, Jr, dt, ...
+    delta_hc, alpha_I, alpha_H, h_par_mean, Ih_mean, agej, Jr, dt, ...
     j_s1_start, j_s1_end, j_s2_start, j_s2_end, n_stage1_steps, n_stage2_steps)
 %% HUMANCAPITAL_LIFECYCLE_APRIMEFN
-% Models the evolution of human capital across ALL lifecycle ages (j = 1 ... J)
-% and integrates variable period length dt (5, 3, 2, or 1 years):
-%   1. Pre-Fertility Young Adulthood (j < j_s1_start): Prospective child baseline endowment
-%      evolves with young adult Ben-Porath career human capital investment (l, Ih).
-%   2. Stage 1 Early Childhood (j_s1_start <= j <= j_s1_end, Ages 0-5 / First 2000 Days):
-%      Cunha-Heckman-Schennach CES with high substitutability (phi1_ces = 0.35 > 0).
-%   3. Stage 2 Schooling (j_s2_start <= j <= j_s2_end, Ages 6-17):
-%      Cunha-Heckman-Schennach CES with strong dynamic complementarity (phi2_ces = -0.95 < 0).
-%   4. Mature Working Career (j_s2_end < j < Jr): Dynastic human capital stock continues to
-%      accumulate via Ben-Porath on-the-job training (Ih^alpha_I * theta_c^alpha_H) net of delta_hc.
-%   5. Retirement (j >= Jr): Gradual post-retirement skill depreciation.
+% VFI Toolkit experienceasset=1 compliant signature:
+%   Arg 1: ic      (Experience asset decision d_end)
+%   Arg 2: theta_c (Experience asset state a_end)
+%   Arg 3+: Scalar parameters from Params struct
 
 scale_dt = dt / 5;
 th_safe  = max(1e-4, theta_c);
@@ -43,26 +36,16 @@ elseif (agej >= j_s2_start) && (agej <= j_s2_end)
 
 elseif agej < j_s1_start
     % --- PHASE 1: PRE-FERTILITY YOUNG ADULTHOOD (AGES 20-29) ---
-    % Young adult's Ben-Porath career investment builds baseline family skill endowment
-    if l > 0
-        theta_c_prime = (1 - 0.5 * delta_hc) * th_safe + scale_dt * (max(0, Ih) ^ alpha_I) * (th_safe ^ alpha_H);
-    else
-        theta_c_prime = (1 - 0.5 * delta_hc) * th_safe;
-    end
+    theta_c_prime = (1 - 0.5 * delta_hc) * th_safe + scale_dt * (max(0, Ih_mean) ^ alpha_I) * (th_safe ^ alpha_H);
 
 elseif agej < Jr
     % --- PHASE 4: MATURE WORKING CAREER (AGES 40-64) ---
-    % Post-launch Ben-Porath adult human capital evolution (Fan, Seshadri & Taber 2022)
-    if l > 0
-        theta_c_prime = (1 - delta_hc) * th_safe + scale_dt * (max(0, Ih) ^ alpha_I) * (th_safe ^ alpha_H);
-    else
-        theta_c_prime = (1 - delta_hc) * th_safe;
-    end
+    theta_c_prime = (1 - delta_hc) * th_safe + scale_dt * (max(0, Ih_mean) ^ alpha_I) * (th_safe ^ alpha_H);
 
 else
     % --- PHASE 5: RETIREMENT (AGES 65+) ---
-    % Gradual skill atrophy in retirement
     theta_c_prime = (1 - 0.5 * delta_hc) * th_safe;
 end
+
 
 end
