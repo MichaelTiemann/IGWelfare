@@ -67,7 +67,7 @@ $$
 Young working households ($j < J_r$) draw an idiosyncratic rental utility penalty $\chi \sim U[0, \bar{\chi}]$ ($\bar{\chi} = 2.55$), yielding the analytical regional homeownership share $\xi_k$ and composite housing price index $p_{H,k}(j)$:
 
 $$
-\xi_k = \min\left\{ 1, \frac{1}{\bar{\chi}} \left( \frac{rr_k}{rh_k} \right) \right\}
+\xi_k = \min\left\lbrace 1, \frac{1}{\bar{\chi}} \left( \frac{rr_k}{rh_k} \right) \right\rbrace
 $$
 
 $$
