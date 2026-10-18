@@ -58,4 +58,96 @@ $$p_{H,k}(j) = \begin{cases} \xi_k rh_k + (1 - \xi_k) \frac{rr_k}{0.5 \bar{\chi}
 
 ### **3.2 Two-Stage Childhood CES Skill Law of Motion (`ChildCES_aprimeFn.m`) & Adult Ben-Porath Dynamics**
 
-* **Child Experience Asset ($\theta'_c$):** Driven by private investment $i_c$, stage
+* **Child Experience Asset ($\theta'_c$):** Driven by private investment $i_c$, stage-specific public wraparound provision ($G_{\text{ECE},1}$ at $j=3$ vs. $G_{\text{ECE},2}$ at $j=4$), and Stone-Geary luxury floor $\bar{g}_{\text{ECE}} = 0.02$:  
+
+$$\theta'_c = \begin{cases} \left\lbrack \gamma_{1,\text{self}} \theta_c^{\varphi_1} + \gamma_{1,\text{inv}} (i_c + G_{\text{ECE},1} + \bar{g}_{\text{ECE}})^{\varphi_1} + \gamma_{1,\text{par}} \bar{h}_p^{\varphi_1} \right\rbrack^{1/\varphi_1} & \text{if } j = 3 \text{ (First 2000 Days, } \varphi_1 = 0.35\text{)} \\  \left\lbrack \gamma_{2,\text{self}} \theta_c^{\varphi_2} + \gamma_{2,\text{inv}} (i_c + G_{\text{ECE},2} + \bar{g}_{\text{ECE}})^{\varphi_2} + \gamma_{2,\text{par}} \bar{h}_p^{\varphi_2} \right\rbrack^{1/\varphi_2} & \text{if } j = 4 \text{ (School Years, } \varphi_2 = -0.95\text{)} \\  \theta_c & \text{otherwise} \end{cases}$$
+
+* **Adult Ben-Porath Human Capital ($h'$):** During working ages ($j < J_r$), adult skill evolves via $h' = (1 - \delta_{\text{hc}}) h + I_h^{\alpha_I} h^{\alpha_H}$ with $\delta_{\text{hc}} = 0.087, \alpha_I = 0.090, \alpha_H = 0.064$.
+
+### **3.3 Recursive Bellman Equation of the Household**
+
+The value function $V_k(a, h, \theta_c, z, j)$ solves:
+
+$$V_k(a, h, \theta_c, z, j) = \max_{i_c, \ell, I_h, a', h'} \left\lbrace \frac{u_{\text{comp}}^{1 - \eta_c}}{1 - \eta_c} - \psi_l \frac{\ell^2}{2} + X_t + \Phi_{\text{child}}(i_c, \theta'_c, j) + \Phi_{\text{ret}}(a', \text{Frac}_{\text{stunted}}, S_t, j) + \beta_{hh} s_j \sum_{z'} \Pi_{z,k}(z' \mid z) V_k(a', h', \theta'_c, z', j+1) \right\rbrace$$
+
+where composite non-durable and housing consumption $u_{\text{comp}}$ deducts mandatory regional transport/energy subsistence $\bar{e}_k$ and adds the **Income $\times$ Geography** transfer $T_k(y)$, while retirees ($j \ge J_r$) derive relational utility from domestic youth thriving $(1 - \text{Frac}_{\text{stunted}})$, social cohesion / retention $S_t$, and warm-glow luxury bequests over net-of-tax estates $(1 - \tau_b) a'$.
+
+## **4. Infinite-Horizon Firm Sector (The Guvenen et al. Engine Across 4 Regions)**
+
+In each region $k \in \{\text{Rural}, \text{Small}, \text{Large}, \text{Auckland}\}$, a continuum of infinite-horizon entrepreneurs (`Firm_k`, $N_j = \infty$) with persistent talent $z_f \in \{z_{\ell,k}, z_{h,k}\}$ operates a constant-returns technology subject to collateral constraint $k \le \lambda_{\text{col}} a_f$ ($\lambda_{\text{col}} = 1.80$):
+
+$$V_{F,k}(a_f, z_f) = \max_{a'_f} \left\lbrace \ln\left\lparen R_k(z_f; w_k, r, \tau_k, \tau_a) a_f - a'_f \right\rparen + \beta_{\text{firm}} \sum_{z'_f} \Pi_{f,k}(z'_f \mid z_f) V_{F,k}(a'_f, z'_f) \right\rbrace$$
+
+Replacing capital income taxation ($\tau_k$) with a book-value wealth tax ($\tau_a = 0.015$) shifts stationary firm net worth $\Gamma_k(a_f, z_f)$ toward high-talent entrepreneurs $z_{h,k}$—with the largest productivity multiplier occurring in `Firm_Auckland` ($z_h = 1.75$, 35.1% of NZ businesses) and `Firm_Large` ($z_h = 1.50$, 26.9% of NZ businesses).
+
+## **5. The 3-Stage Intergenerational & $4 \times 5$ Abroad Spatial Transition Operator**
+
+The stationary distribution of newborn households entering adulthood at $j=1$ in region $k$, denoted $\mu_{1,k}(a_1, h_1, z_1)$ (`jequaloneDist`), is computed as a fixed point of three coupled operators inside `Build_IntergenTransitionMatrix_UpgradeB.m` (5D) and `Build_IntergenTransitionMatrix.m` (4D):
+
+### **5.1 Stage 1: Completed Childhood Skill Formation ($Q_h$)**
+
+* In the 5D experience-asset model (`UpgradeB`), completed Stage-2 childhood skill $\theta_3 = \theta'_c(j=4)$ is extracted directly from parents reaching $j=5$ and mapped onto the child's adult human capital grid `a_grid_hc`, penalized by metropolitan housing crowding $\psi_{\text{crowd}} \ln(Q_k) \mathbb{I}(a_p < 0.05 Q_k)$.
+
+In the compact 4D projection, expected log skill follows the anchored Cobb-Douglas relation:
+
+$$\ln(h_{\text{child}}) = \rho_{\text{hc}} \ln(h_p) + \gamma_{\text{ic}} \ln\left\lparen 1 + i_c(a_p, h_p, z_p, k) + G_{\text{ECE}} \right\rparen - \psi_{\text{crowd}} \ln(Q_k) \mathbb{I}(a_p < 0.05 Q_k) + \eta_h$$
+
+where $\eta_h \sim \mathcal{N}(0, \sigma_{\text{hc}}^2)$.
+
+### **5.2 Stage 2: The \$1.6T Property Bequest & Youth Grant Operator ($Q_a$)**
+
+Dying retirees ($j \ge J_r$) in region $k$ leave net-of-tax property estates $(1 - \tau_b) a'_j(k)$. Combined with the universal Youth Grant $E$ (`YouthGrant`), this induces the initial wealth distribution $P_{a,k}(a_1)$, where Auckland retirees generate the largest estate flows (`MeanBequest.Auckland`) due to $Q_{\text{Auckland}} = 3.10$.
+
+### **5.3 Stage 3: The $4 \times 5$ Domestic & International (Abroad) Gumbel Youth Sorting Matrix ($\Pi_{\text{mig}}$)**
+
+Before settling into working life at $j=1$ (and early career $j=2$), young adults in origin region $k \in \{\text{Rural}, \text{Small}, \text{Large}, \text{Auckland}\}$ evaluate the 4 domestic regions $m \in \{1, 2, 3, 4\}$ (paying moving/entry cost $\kappa(k, m)$) against the **5th outside option: emigrating to Abroad (Australia/OECD)** with value $V_{\text{Abroad},t}(a_1, h_1, z_1)$:
+
+$$\mathbb{P}_t(k \to m \mid a_1, h_1, z_1) = \frac{\exp\left\lparen V_{m,t}(a_1 - \kappa(k,m), h_1, z_1, 1) / \varrho \right\rparen}{\exp\left\lparen V_{\text{Abroad},t}(a_1, h_1, z_1, 1) / \varrho \right\rparen + \sum_{r=1}^4 \exp\left\lparen V_{r,t}(a_1 - \kappa(k,r), h_1, z_1, 1) / \varrho \right\rparen}$$
+
+$$P_{\text{emig},t}(a_1, h_1, z_1; k) = \frac{\exp\left\lparen V_{\text{Abroad},t}(a_1, h_1, z_1, 1) / \varrho \right\rparen}{\exp\left\lparen V_{\text{Abroad},t}(a_1, h_1, z_1, 1) / \varrho \right\rparen + \sum_{r=1}^4 \exp\left\lparen V_{r,t}(a_1 - \kappa(k,r), h_1, z_1, 1) / \varrho \right\rparen}$$
+
+Each state cell $(a_1, h_1, z_1)$ is weighted by its domestic retention probability $(1 - P_{\text{emig},t})$, capturing both the **Rural/Small $\to$ Large $\to$ Auckland** domestic stepping-stone funnel and the selective brain-drain depletion of high-skill ($h_5 - h_7$), low-asset youth to Australia/OECD.
+
+## **6. Master 4-Region Calibration Table (Stats NZ 2025/2026 & Literature Benchmarks)**
+
+| Parameter | Symbol | Value (Rural, Small, Large, Auckland) | Target / Empirical Source |
+| :--- | :--- | :--- | :--- |
+| **Demographics & Regional Weights** | | | |
+| Model horizon & retirement age | $J, J_r$ | 16, 10 | Ages 20–99 (5-yr brackets); NZ Super at 65. |
+| Regional Household Pop Shares (Base) | $\omega_{HH,k}$ | 0.160, 0.240, 0.259, 0.341 | Stats NZ Subnational Pop Estimates (June 2025: Akl = 34.1%). |
+| Regional Business Firm Shares (Base) | $\omega_{F,k}$ | 0.150, 0.230, 0.269, 0.351 | Stats NZ Business Demography (Feb 2025: Akl = 35.1%). |
+| Intl. Migration Inflow Shares | $m_{\text{intl}}$ | 0.115, 0.210, 0.270, 0.405 | Stats NZ projection (Auckland share rises to ~36.5% by Year 30). |
+| Discount factors & CRRA curvature | $\beta_{hh}, \beta_{\text{firm}}, \eta_c$ | $0.96^5, 0.95^5, 2.0$ | Standard OLG life-cycle benchmark. |
+| **Lens 1: Two-Stage Child Skill Formation** | | | |
+| Stage 1 (Ages 0–5) CES weights & $\varphi_1$ | $\gamma_{1,s}, \gamma_{1,i}, \gamma_{1,p}, \varphi_1$ | 0.53, 0.24, 0.23, 0.35 | Cunha, Heckman, & Schennach (2010) Stage 1 estimates. |
+| Stage 2 (Ages 6–17) CES weights & $\varphi_2$ | $\gamma_{2,s}, \gamma_{2,i}, \gamma_{2,p}, \varphi_2$ | 0.87, 0.07, 0.06, -0.95 | Cunha et al. (2010) Stage 2 dynamic complementarity. |
+| Public ECE Stage 1, Stage 2 & floor | $G_{\text{ECE},1}, G_{\text{ECE},2}, \bar{g}_{\text{ECE}}$ | 0.045, 0.065, 0.020 | Ferriere et al. (2025) luxury floor & NZ ECE baseline. |
+| Baseline stunted cohort share | $\text{Frac}_{\text{stunted}}$ | 0.143 – 0.220 | NZ material hardship & Dunedin Study cohort benchmark. |
+| **Lens 2: 4-Region Wages, Transport & Ben-Porath** | | | |
+| Regional baseline wage levels | $w_k(R, S, L, \text{Akl})$ | 0.85, 0.93, 1.05, 1.18 | Spatial wage gradient across NZ urban/rural hierarchy. |
+| Regional log-income AR(1) dispersion | $\sigma_z(R, S, L, \text{Akl})$ | 0.11, 0.14, 0.18, 0.24 | Labrousse & Perdereau (2025) spatial income variance. |
+| Mandatory transport/energy subsistence | $\bar{e}_k(R, S, L, \text{Akl})$ | 0.048, 0.036, 0.022, 0.016 | Step-down from Rural/Small towns to dense Auckland. |
+| Baseline Income x Geography transfer | $T_k(R, S, L, \text{Akl})$ | 0.025, 0.020, 0.016, 0.014 | Reforms scale to 0.038, 0.031, 0.025, 0.028. |
+| Adult Ben-Porath depreciation & elasticities | $\delta_{\text{hc}}, \alpha_I, \alpha_H$ | 0.087, 0.090, 0.064 | Life-cycle adult human capital estimation. |
+| **Lens 3: 4-Region Housing, Bequests & Firms** | | | |
+| Regional baseline house prices | $Q_k(R, S, L, \text{Akl})$ | 1.05, 1.40, 2.05, 3.10 | Metropolitan land overvaluation gradient. |
+| Regional housing supply elasticity | $\delta_H(R, S, L, \text{Akl})$ | 0.35, 0.28, 0.18, 0.10 | Elastic rural land vs. constrained Auckland supply. |
+| Regional trend growth factors | $G_k(R, S, L, \text{Akl})$ | 1.007, 1.011, 1.018, 1.025 | Hirano & Toda (2025) unbalanced sectoral growth. |
+| Firm productivity ceilings ($z_\ell, z_h$) | $z_{f,k}(R, S, L, \text{Akl})$ | [0.70, 1.15], [0.75, 1.28], [0.83, 1.50], [0.90, 1.75] | Guvenen et al. (2023) heterogeneous firm returns. |
+| Warm-glow bequest & Youth Grant (Base $\to$ Ref) | $b_1, b_2, E$ | $4.20, 0.45, 0.030 \to 0.065$ | De Nardi (2004) & Piketty/Saez youth endowment. |
+
+## **7. Complete 11-File VFI Toolkit Pipeline Manifest (4-Region + Abroad Suite)**
+
+| # | File Name | Role in the 4-Region + Abroad VFI Toolkit Pipeline |
+| :--- | :--- | :--- |
+| **1** | `Run_All_NZ_Intergen_Suite.m` | **Master Runner:** Executes Steps 1–7 across all 4 regions (Rural, Small, Large, Auckland), manages 5D $\to$ 4D projection, and exports all CSV tables (Tables 1–9) and 300-DPI figures. |
+| **2** | `NZ_4Region_Master_UpgradeB.m` | **Upgrade B Baseline Master:** Initializes the 8 PTypes (4 Regions $\times$ Household/Firm) with Stats NZ 2025 weights ([0.160, 0.240, 0.259, 0.341]) and `experienceasset = 1`. |
+| **3** | `ChildCES_aprimeFn.m` | **Experience Asset Law of Motion:** Implements Cunha, Heckman & Schennach's two-stage CES skill production ($\varphi_1 = 0.35, \varphi_2 = -0.95$) across $j=3$ and $j=4$. |
+| **4** | `ReturnFn_SpatialHH_UpgradeB.m` | **5D Household Return Function:** Embeds Kiyotaki tenure choice, 4-region subsistence $\bar{e}_k$, Ben-Porath training, two-stage child altruism, and luxury bequests. |
+| **5** | `Build_IntergenTransitionMatrix_UpgradeB.m` | **5D Intergenerational Operator:** Extracts completed Stage-2 skill $\theta_3$ at $j=5$, maps \$1.6T estates at $j \ge J_r$, and computes $4 \times 5$ domestic/Abroad spatial sorting. |
+| **6** | `PolicyExperiment_LeeSeshadri_4Region.m` | **Stage Counterfactuals:** Runs BM, P0_Early_0to5, P1P2_Late_6to17, BN_FrontLoad, and P0_Plus_GrantE across 4 regions; outputs IGE, Table 12 variance explained, and 4-panel Figure E8. |
+| **7** | `FertilityBargaining_Module.m` | **Fertility & Bargaining:** Evaluates cooperative childcare bargaining, hyperbolic discounting ($\beta_{\text{hyp}}$), differential fertility, and NZ Super tax rates across 4 regions. |
+| **8** | `ReturnFn_SpatialHH.m` & `ReturnFn_Firm.m` | **Compact 4D Household & Firm Return Functions:** Used after Step 4 projection for fast SMM calibration, 3-way decomposition, and the 60-year transition shooting loop. |
+| **9** | `Build_IntergenTransitionMatrix.m` | **Compact $4 \times 5$ Abroad Brain-Drain Operator:** Computes age 20–35 emigration to Australia/OECD, selective $h_6 - h_7$ skill depletion, replacement migration churn, and social cohesion $S_t$. |
+| **10** | `WelfareDecomposition_4Region.m` | **3-Way Welfare Decomposition:** Outputs the 4-region Daruich/Lee–Seshadri (Table 1), Labrousse & Perdereau $4 \times 5$ quintile (Table 2), and Kiyotaki tenure cleavage (Table 3) CE % tables. |
+| **11** | `TransPath_4Region_Master.m` & `Calibrate_NZ_Moments.m` | **60-Year Transition & Dynamic Pop Weights:** Solves the non-linear transition path with endogenous `PTypeWeights_path` (Auckland 34.1% $\to$ 36.5%, Table 9), brain-drain closure, and SMM moment matching. |
