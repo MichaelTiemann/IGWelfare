@@ -14,8 +14,8 @@
 N_reg = length(Regions); % Automatically = 4: {'Rural', 'Small', 'Large', 'Auckland'}
 
 %% 1. ADD FERTILITY & BARGAINING PARAMETERS TO PARAMS
-Params.nu_m          = 0.135; % Male partner preference for children (calibrated to NZ TFR ~ 1.69)
-Params.nu_f          = 0.135; % Female partner preference for children
+Params.nu_m          = 0.22; % Male partner preference for children (calibrated to NZ TFR ~ 1.69)
+Params.nu_f          = 0.22; % Female partner preference for children
 Params.gender_gap_wf = 0.88;  % Relative female wage wf / wm in couple
 Params.chi_f_share   = 0.72;  % Share of unsubsidized childcare time borne by mother
 Params.commit_degree = 0.65;  % Degree of intra-household intertemporal commitment
@@ -182,14 +182,14 @@ for r_idx = 1:N_reg
     w_hat_phi       = Params.commit_degree .* coop_cost ...
         + (1 - Params.commit_degree) .* (2.0 .* maternal_burden);
 
-    psi_child_4d = max(0.06, 0.065 + w_hat_phi + Params.phi_space_kid * p_H_k ...
-        + (1 - Params.s_sub) .* ic_val_4d);
+    psi_child_4d = max(0.08, 0.055 + w_hat_phi + Params.phi_space_kid * p_H_k ...
+        + 0.35 * (1 - Params.s_sub) .* ic_val_4d);
 
     % 2. Vectorized Commitment vs Hyperbolic Fertility (Source 18)
-    tot_child_pref_4d = Params.nu_m + Params.nu_f + 0.15 .* log(1 + th_4d);
+    tot_child_pref_4d = Params.nu_m + Params.nu_f + 0.12 .* log(1 + th_4d);
     n_commit_4d       = (tot_child_pref_4d ./ psi_child_4d) .^ (1 / Params.eps_fert);
     n_realized_4d     = n_commit_4d .* (Params.beta_hyp ^ (1 / Params.eps_fert));
-    n_realized_4d     = min(3.8, max(0.6, n_realized_4d)); % [n_a1, n_h, n_th, n_z1]
+    n_realized_4d     = min(3.2, max(0.85, n_realized_4d));
 
     p_mass        = sum(m_p_4d(:));
     kids_mass_4d  = m_p_4d .* n_realized_4d;
@@ -224,15 +224,15 @@ for r_idx = 1:N_reg
     stunted_nat   = stunted_nat   + pop_weights(r_idx) * Out.StuntedShare_Weighted.(reg);
 end
 
-% 4. Update Macro Demographic Matrix T_demo (Source 10) with Endogenous National TFR
+% 4. Update Macro Demographic Matrix T_demo over the 40-Year Treasury Fiscal Window (8 x 5-yr steps)
 scale_fert    = nat_TFR / 1.65;
 T_demo        = zeros(Params.J, Params.J);
-T_demo(1, :)  = (Params.fj * scale_fert) * 0.5;
+T_demo(1, :)  = (Params.fj * scale_fert) * 0.58; % Includes young-adult cohort replacement
 for jj = 1:(Params.J - 1)
     T_demo(jj+1, jj) = Params.sj(jj);
 end
-N_pop = ones(Params.J, 1) / Params.J;
-for it = 1:200
+N_pop = Params.mewj(:); % Start from current NZ age distribution
+for it = 1:8            % Project forward 40 years (8 five-year periods, matching 2025-2065 LTFS)
     N_pop = T_demo * N_pop + Params.mig_rate_j' .* N_pop;
     N_pop = max(0, N_pop) / sum(max(0, N_pop));
 end

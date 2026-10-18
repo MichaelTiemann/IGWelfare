@@ -32,8 +32,8 @@ Reg_HH_Share_Path(1, :)   = init_hh_shares;
 Reg_Firm_Share_Path(1, :) = init_firm_shares;
 PTypeWeights_path(1, :)   = [0.90 * init_hh_shares, 0.10 * init_firm_shares];
 
-Intl_Inflow_Shares = [0.145, 0.225, 0.255, 0.375];
-zeta_inflow_rate   = 0.045;
+Intl_Inflow_Shares = [0.152, 0.232, 0.254, 0.362];
+zeta_inflow_rate   = 0.035;
 
 if ~exist('Force_Recompute_Cache', 'var'); Force_Recompute_Cache = false; end
 [cache_tp, is_cached_tp] = Get_ModelConfigHash('TransPath_5D', Params_GE, n_d, n_a, n_z, N_j, Force_Recompute_Cache);
@@ -91,8 +91,8 @@ else
                 d_grid, a_grid, z_grid, pi_z, Params_t, Regions);
 
             MigMat_t = IG_Diag_path{tt+1}.MigrationMatrix;
-            domestic_shifted_shares = (1 - 0.04) * Reg_HH_Share_Path(tt, :) ...
-                + 0.04 * (Reg_HH_Share_Path(tt, :) * MigMat_t);
+            domestic_shifted_shares = (1 - 0.015) * Reg_HH_Share_Path(tt, :) ...
+                + 0.015 * (Reg_HH_Share_Path(tt, :) * MigMat_t);
 
             next_hh_shares = (1 - zeta_inflow_rate) * domestic_shifted_shares ...
                 + zeta_inflow_rate * Intl_Inflow_Shares(1:N_reg);

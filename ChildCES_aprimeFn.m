@@ -16,15 +16,16 @@ function a2prime = ChildCES_aprimeFn(Ih, ic, h, theta_c, whicha, ...
 
 if whicha == 1
     %% EXPERIENCE ASSET 1: ADULT BEN-PORATH HUMAN CAPITAL (h -> hprime)
+    A_bp = 0.14; % 5-year Ben-Porath TFP scale factor (keeps life-cycle h growth at ~3-5% per 5-yr bin)
     if agej < Jr
-        a2prime = (1 - delta_hc) * h + (Ih ^ alpha_I) * (h ^ alpha_H);
+        a2prime = (1 - delta_hc) * h + A_bp * (Ih ^ alpha_I) * (h ^ alpha_H);
     else
         a2prime = (1 - delta_hc) * h;
     end
 
 else
     %% EXPERIENCE ASSET 2: TWO-STAGE CUNHA-HECKMAN-SCHENNACH CHILD SKILL (theta_c -> theta_c_prime)
-    psi_inv = 7.8; % Normalizes 5-yr budget flow (ic + G_ece + gbar ~ 0.13) to skill index units (~1.0)
+    psi_inv = 3.6; % Calibrated so NZ child stunting is ~24% Rural, ~18% Small, ~14% Large, ~11% Auckland
     if agej == 3
         % Stage 1 (Ages 0-5 / First 2000 Days): High substitutability (phi1_ces > 0)
         I_stage1 = psi_inv * max(0.04, ic + G_ece_stage1 + gbar_ece);
@@ -44,5 +45,6 @@ else
         a2prime  = theta_c;
     end
 end
+
 
 end
