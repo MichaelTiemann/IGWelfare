@@ -148,6 +148,7 @@ Tracking the $4 \times 5$ Gumbel migration matrix (**Rural**, **Small**, **Large
 
 To understand how an economy simultaneously generates child poverty, working-age housing stress, skilled youth emigration, and retirement insecurity, we must view the macroeconomy through three interconnected life-cycle lenses.
 
+```text
 +-----------------------------------------------------------------------------------+  
 |                        THE UNIFIED INTERGENERATIONAL LOOP                         |  
 |                                                                                   |  
