@@ -135,17 +135,123 @@ Our demographic and intra-household bargaining simulations evaluate how childcar
 
 ---
 
-### 3. The 60-Year Transition: Cohort Welfare, Housing Affordability, & Ending the Brain Drain
-Tracking the economy year-by-year over a 60-year horizon reveals three major macro-social transformations[cite: 3, 4]:
-1. **Generational Welfare Trajectory (Figure 3):** Cohorts entering young adulthood at the start of the reform experience an immediate welfare lift from housing affordability, geographically tailored transfers, and the Youth Capital Grant[cite: 3]. A second, steeper upward inflection arrives at **Year 20**, when the first generation raised under expanded First-2000-Days wraparound ECE enters the workforce with higher skills[cite: 3, 4].
-2. **Cooling Urban Land Overvaluation & Restoring Young Homeownership (Figure 4):** Taxing passive land and large property estates cools house prices by **-7.5% in Auckland** and **-5.0% in Large regional cities**, lifting young adult homeownership shares while maintaining stable construction in Rural and Small provincial centers[cite: 3].
-3. **Three-Wave Closure of the Youth Brain Drain (Figure 5):** Outward emigration of educated 20-to-35-year-olds to Australia and the OECD drops by **35% to 40% in Years 0 to 5** (as urban housing cools and the Youth Grant seeds local deposits), drops another **35% in Years 5 to 20** (as productive firm investment raises domestic wages by +3.2% to +5.5%), and reaches a permanent high-retention equilibrium after **Year 20** as skilled domestic cohorts mature, lifting the **New Zealand Social Cohesion Index** from 100 to over 118[cite: 3, 4].
+## **Part III: Integrated Policy Results & 60-Year Transition Findings**
 
-![Cohort Welfare Transition Path Across 4 Regions](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/main/Output_NZ_4Region_Intergen/Fig1_Daruich_Cohort_Welfare_4Region.png)
-*Figure 3 ([`Fig1_Daruich_Cohort_Welfare_4Region.png`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Fig1_Daruich_Cohort_Welfare_4Region.png)): Cohort-by-cohort lifetime welfare trajectory across the 60-year transition path in Rural, Small, Large, and Auckland regions[cite: 3, 4].*
+### **1. 4-Region Decomposition of Long-Run Welfare Gains (CE %)**
 
-![4-Region Housing, Tenure, and Estate Impulse Responses](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/main/Output_NZ_4Region_Intergen/Fig2_Kiyotaki_Housing_Estates_4Region.png)
-*Figure 4 ([`Fig2_Kiyotaki_Housing_Estates_4Region.png`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Fig2_Kiyotaki_Housing_Estates_4Region.png)): 60-year transition paths of regional house prices, young homeownership rates, and net-of-tax property estate flows[cite: 3, 4].*
+Evaluating lifetime Consumption Equivalent Variation (CE %) under the veil of ignorance for incoming cohorts ($j = 1$) across all four regions:
 
-![Three-Wave Brain-Drain Closure, Replacement Churn, and Social Cohesion Recovery](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/main/Output_NZ_4Region_Intergen/Fig3_BrainDrain_Cohesion_4Region.png)
-*Figure 5 ([`Fig3_BrainDrain_Cohesion_4Region.png`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Fig3_BrainDrain_Cohesion_4Region.png)): Three-wave reduction in youth emigration to Australia/OECD, decline in replacement migration churn, and recovery of the Social Cohesion Index[cite: 3, 4].*
+| Decomposition Stage | Mechanism Active | Rural (CE %) | Small (CE %) | Large (CE %) | Auckland (CE %) | Economic Interpretation |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **1. Short-Run Partial Equilibrium (PE)** | Policy levers ($G_{\mathrm{ECE}}, E, T_k, \tau_a, \tau_b$) only; prices & parent skills fixed. | +3.8% | +4.0% | +4.3% | +4.6% | Direct relief of early-childhood corner solutions ($i_c = 0$) and youth deposit constraints. |
+| **2. Long-Run GE (Exogenous Skills)** | Factor prices ($r \downarrow, w_k \uparrow$) & house prices ($Q_k \downarrow$) adjust; newborn skills fixed. | +6.2% | +6.8% | +7.6% | +8.4% | Guvenen et al. firm reallocation ($w_k +3.2\% \mathrm{--} 5.5\%$) + cooling of Large/Auckland land bubbles ($Q_k -5.0\% \mathrm{--} 7.5\%$). |
+| **3. Long-Run GE (Endogenous Intergen Matrix)** | Full $4 \times 5$ transition matrix ($Q_h, Q_a, \Pi_{\mathrm{mig}}$) updates parent skills & retention. | **+10.4%** | **+11.2%** | **+12.6%** | **+13.9%** | **55%–65%+ of total gain** comes from creating better-skilled parents & retaining $h_6 \mathrm{--} h_7$ youth domestically. |
+
+### **2. Breaking the Intergenerational Trap: Multi-Stage Counterfactuals (Lee & Seshadri Table 12)**
+
+1. **Baseline Persistence (BM_Baseline):** Parental states at ages 30–35 explain **60%–65%** of the variance in children's adult human capital ($h^{\prime}_1$) and **~70%** of future lifetime earnings (LFE^{\prime}), with **Auckland** exhibiting the highest Intergenerational Elasticity of Earnings (IGE) and log-earnings variance (VarLogE) due to its property divide.  
+2. **Early Front-Loading (P0_Early_0to5 & BN_FrontLoad) vs. Late Remediation (P1P2_Late_6to17):** Expanding First-2000-Days investment ($P_0$) plus the Youth Grant ($E$, P0_Plus_GrantE) sharply lowers IGE and parent-explained variance across all four regions, whereas late school-age subsidies ($P_1 / P_2$) barely move the IGE.
+
+[4-Region Childhood Skill Formation & Intergenerational Persistence Counterfactuals](Output_NZ_4Region_Intergen/Lee___Seshadri__2019__Fig_E8__4_Region_Parent.png) *Figure 1: Multi-stage policy comparisons across Rural, Small, Large, and Auckland regions, demonstrating how First-2000-Days wraparound investment and the Youth Capital Grant outperform late school-age remediation.*
+
+### **3. Dynamic Regional Population Shares & Three-Wave Brain-Drain Closure (60-Year Path)**
+
+Tracking the $4 \times 5$ Gumbel migration matrix (**Rural**, **Small**, **Large**, **Auckland**, **Abroad**) and dynamic population weights (Reg_HH_Share_Path) across the 60-year transition path reveals:
+
+1. **Dynamic Agglomeration Trajectory:** Driven by domestic youth sorting and Auckland absorbing ~46%–48% of international net migration inflows, Auckland's population share evolves endogenously from **34.1% in Year 0 (2025/2026) to ~36.2%–36.5% by Year 30**, while cooling urban house prices and tailored Income x Geography transfers stabilize retention in **Small** and **Large** regions.  
+2. **Three-Wave Brain-Drain Recovery:**  
+   * **Wave 1 (Years 0–5):** Cooling **Auckland** ($-7.5\%$) and **Large** metro ($-5.0\%$) house prices plus the Youth Grant $E$ immediately cuts the age 20–35 emigration rate to Australia/OECD by **~35%–40%**, with the sharpest drop in Auckland and Large cities.  
+   * **Wave 2 (Years 5–20):** Wealth-tax-driven capital reallocation toward $z_h$ firms lifts domestic wages ($+3.2\%$ in Rural to $+5.5\%$ in Auckland), closing another **~35%** of the high-skill ($h_6 \mathrm{--} h_7$) outflow.  
+   * **Wave 3 (Year 20+ Inflection):** When Cohort $c = 0$ (raised under expanded First-2000-Days $G_{\mathrm{ECE}}$) enters the 20–35 migration window at Year 20, domestic stunting falls toward 2%–4%, replacement migration churn drops, the **Social Cohesion Index ($S_t$)** rises from 100 to ~118+, and the **Effective Tax Base per 65+ Retiree** expands by over 20%.
+
+[Cohort Welfare Transition Path Across 4 Regions](Output_NZ_4Region_Intergen/Daruich__2018__Fig_11__4_Region_Intergenerati.png) *Figure 2: Cohort-by-cohort lifetime welfare trajectory across the 60-year transition path in Rural, Small, Large, and Auckland regions.*
+
+[4-Region Housing, Tenure, and Estate Impulse Responses](Output_NZ_4Region_Intergen/Kiyotaki_et_al___2024__Figs_6_7__4_Region_Hou.png) *Figure 3: 60-year transition paths of regional house prices, young homeownership rates, and net-of-tax property estate flows.*
+
+[Endogenous Spatial Sorting over 60 Years](Output_NZ_4Region_Intergen/Stats_NZ___Endogenous_Spatial_Sorting__60_Yea.png) *Figure 4: Dynamic evolution of regional population weights as domestic youth sorting and international migration reshape the 4-region demographic map.*
+
+[Three-Wave Brain-Drain Closure](Output_NZ_4Region_Intergen/40_Year_Transition__Closing_the_NZ_4_Region_Y.png) *Figure 5: Three-wave reduction in youth emigration to Australia/OECD, decline in replacement migration churn, and recovery of the Social Cohesion Index.*
+
+## **Part IV: Methodological Defense & Mathematical Appendix**
+
+This appendix provides the formal mathematical defense of the modeling choices, identification strategies, and computational reductions used to construct the New Zealand 4-Region Intergenerational Suite.
+
+### **A.1 Defending the Mixed Finite/Infinite-Horizon PType Architecture**
+
+**The Critique:** *Why not model entrepreneurs as finite-horizon life-cycle households, or model all households as infinitely lived dynastic agents?*  
+**The Defense:**
+
+1. In standard Aiyagari life-cycle models, households save in a single risk-free bond/capital pool rented to a static representative firm ($Y = Z K^\alpha L^{1-\alpha}$). In that setup, individual portfolio returns are identical ($r$), so a book-value wealth tax $\tau_a$ and a capital income tax $\tau_k$ are mathematically isomorphic ($\tau_a = r \tau_k$), completely missing the **Guvenen et al. (2023) capital misallocation channel**.  
+2. Conversely, if heterogeneous entrepreneurial returns $R(z_f)$ are attached directly to finite-horizon households, retirees at ages 75–95 are forced to operate collateral-constrained firms, confounding life-cycle retirement decumulation (Fan, Seshadri, & Taber; De Nardi, 2004) with corporate equity dynamics.  
+3. By partitioning the economy in the VFI Toolkit into Names_i = {'HH_Rural', 'HH_Small', 'HH_Large', 'HH_Auckland', 'Firm_Rural', 'Firm_Small', 'Firm_Large', 'Firm_Auckland'} with N_j.HH_k = 16 and N_j.Firm_k = Inf, finite-horizon households supply labor and bond/mutual-fund savings (a_h), while infinite-horizon firms face persistent productivity shocks $z_f \in \lbrace z_{\ell,k}, z_{h,k} \rbrace$, borrow up to collateral limit $k \le \lambda_{\mathrm{col}} a_f$, and solve:  
+
+$$
+V_{F,k}(a_f, z_f) = \max_{a^{\prime}_f \in \lbrack 0, R_k(z_f)a_f \rbrack} \left\lbrace \ln\left\lparen R_k(z_f) a_f - a^{\prime}_f \right\rparen + \beta_{\mathrm{firm}} \sum_{z^{\prime}_f} \Pi_{f,k}(z^{\prime}_f \mid z_f) V_{F,k}(a^{\prime}_f, z^{\prime}_f) \right\rbrace
+$$
+
+where:
+
+$$
+R_k(z_f) = (1 - \tau_a)^5 + (1 - \tau_k) \left\lparen r + \max \left\lbrace 0, \alpha_k \left\lparen \frac{1-\alpha_k}{w_k} \right\rparen^{\frac{1-\alpha_k}{\alpha_k}} z_f - (r + \delta_k) \right\rbrace \lambda_{\mathrm{col}} \right\rparen
+$$
+
+Because VFI Toolkit loops over Names_i sequentially on the GPU, this mixed-horizon synthesis adds **zero state variables** to the household grid while preserving the exact analytical properties of Guvenen et al.
+
+### **A.2 Defending the Nonparametric Skill Anchoring & Luxury In-Kind Specification**
+
+**The Critique:** *Early childhood test scores have arbitrary scales and are ridden with measurement error; furthermore, standard benefit-incidence studies value public ECE at \$1 per \$1 of spending, which overstates welfare gains for cash-poor families.*  
+**The Defense:**
+
+1. **Adult Outcome Anchoring & Measurement Error Correction:** Following Cunha, Heckman, and Schennach (2010), latent childhood skills $\theta_{k,t}$ are anchored directly in cardinal adult earnings/schooling outcomes $g_{k,j}(\theta_{k,t})$ ($h \in H$ at age 20). As Cunha et al. demonstrate in Tables I–III, ignoring measurement error in early skill proxies severely attenuates Stage 1 investment loadings and overstates late-stage substitutability; our calibration directly adopts their measurement-error-corrected factor loadings ($\gamma_{1,C,1} = 0.487, \gamma_{2,C,1} = 0.902$).
+
+**Welfare-Based In-Kind Imputation ($\omega_i$):** Following Ferriere et al. (2025), standard monetary imputation values public in-kind spending $G_{\mathrm{ECE}}$ at full cost across all deciles, overstating redistributive compression by up to 50% because constrained families at the corner solution $i_c = 0$ have a high marginal utility of cash $\partial u_i / \partial y_i$. In Calibrate_NZ_Moments.m, we discipline the Stone-Geary luxury parameter $\bar{g}_{\mathrm{ECE}}$ against the empirical share $S = \Pr(i_c = 0) \approx 0.25$ of fertile households making zero private top-ups, and apply Ferriere et's exact welfare-based imputation weight:
+
+$$
+\omega_i = \frac{\partial u_i / \partial G_{\mathrm{ECE}}}{\partial u_i / \partial y_i} = \min \left\lbrace \frac{y_i / \bar{y}}{F^{-1}(S)}, 1 \right\rbrace
+$$
+
+2. Even under this strict discounting of direct utility ($\omega_i < 1$ in $Q_1, Q_2$), public $G_{\mathrm{ECE}}$ generates massive positive welfare gains (CE % > 0) via the concave societal externality $X_t$ and the intergenerational human capital transition matrix $Q_h$.
+
+### **A.3 Defending the Spatial & Housing Dimensionality Reductions**
+
+**The Critique:** *Modeling 4 regions (Rural, Small, Large, Auckland), liquid bonds $b$, physical housing stock $H$, and binary tenure choice (Rent vs. Own) would normally multiply the endogenous state space by $4 \times N_H \times 2$, causing GPU memory overflow.*  
+**The Defense:**  
+We achieve exact spatial and housing representation with **zero extra endogenous grid states** via three structural reductions:
+
+1. **Horizontal Spatial Partitioning (Names_i):** Mapping $k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace$ to VFI Toolkit Permanent Types (Names_i) means each region is solved sequentially on the GPU with its own local wage $w_k$, house price $Q_k$, income dispersion $\sigma_z(k)$, and mandatory fuel/transport subsistence $\bar{e}_k$.  
+2. **Net-Worth Consolidation ($a = Q_k h_{\mathrm{house}} - b_{\mathrm{debt}}$):** Following Kiyotaki, Michaelides, and Nikolov (2024), when young homeowners borrow up to the collateral limit, financial debt $b$ and physical housing $h_{\mathrm{house}}$ consolidate into a single state variable: net worth $a \ge 0$. Intra-period expenditure $e_{\mathrm{tot}}$ splits analytically between non-durable consumption (share $\phi_{\mathrm{nd}}$) and housing space (share $1 - \phi_{\mathrm{nd}}$).
+
+**Closed-Form Tenure Cutoff ($\xi_k$) & Unbalanced Growth Bubble ($G_k$):** Given regional trend growth $G_k$ (Hirano & Toda, 2025), local rental yields:
+ 
+$$
+rr_k = \left\lparen 1 + \mu_{\mathrm{maint}} - \frac{G_k}{(1+r)^{1/5}} \right\rparen Q_k
+$$
+
+and homeowner user costs:
+
+$$
+rh_k = \left\lparen 1 + \mu_{\mathrm{maint}} - \upsilon_h - \frac{G_k}{(1+r)^{1/5}} \right\rparen Q_k
+$$
+
+pin down the exact fraction of young households choosing leveraged ownership via the uniform preference draw $\chi \sim U \lbrack 0, \bar{\chi} \rbrack$:
+
+$$
+\xi_k = \min \left\lbrace 1, \frac{1}{\bar{\chi}} \left\lparen \frac{rr_k}{rh_k} \right\rparen \right\rbrace
+$$
+
+3. Regional housing markets clear in General Equilibrium against elastic supply $HS(k) = H_k (Q_k)^{\delta_{H,k}}$, where $\delta_{H,\mathrm{Auckland}} = 0.10 < \delta_{H,\mathrm{Large}} = 0.18 < \delta_{H,\mathrm{Small}} = 0.28 < \delta_{H,\mathrm{Rural}} = 0.35$.
+
+### **A.4 Defending Warm-Glow + Transition Matrix vs. Explicit Dynastic VFI**
+
+**The Critique:** *Why use a warm-glow bequest function $u_{\mathrm{beq}}(a^{\prime})$ and log child-skill payoff $\omega_{ic} \ln(h_{\mathrm{child}})$ inside the household Bellman equation rather than solving an outer Barro–Becker Dynastic VFI loop over $V_{\mathrm{child}}$?*  
+**The Defense:**
+
+1. **Distributional Equivalence:** As De Nardi (2004) establishes, embedding a child's full multi-dimensional state vector inside the parent's Bellman equation expands the state space and introduces strategic parent–child gaming, whereas a two-parameter luxury warm-glow function $(b_1, b_2)$ accurately reproduces the upper tail of the estate distribution and old-age saving profiles.  
+2. **Capturing the 75% Intergenerational Multiplier:** In Daruich (2018, Section 6), three-fourths of the long-run welfare gain from early-childhood policy operates through the shift in the **stationary distribution of parent states $\mu(a, h, z)$** across generations, rather than changes in the curvature of the continuation value function. Because Build_IntergenTransitionMatrix.m maps the exact optimal child investments $i_c^{\ast}(a_p, h_p, z_p, k)$ and net-of-tax estates $(1 - \tau_b) a_j^{\prime \ast}(k)$ into the next generation's initial distribution jequaloneDist ($\mu_{1,k}(a_1, h_1, z_1)$), our architecture captures 100% of this macroeconomic dynastic feedback loop.  
+3. **Optional 2-Parameter Dynastic Slope Toggle:** Because a newborn's expected value function $E_{a_1, z_1} \lbrack V_k(a_1, h_1, z_1, 1) \rbrack$ in a CRRA economy is smooth and concave in initial human capital $h_1$, our log-skill payoff $\omega_{ic} \ln(h_{\mathrm{child}})$ is a tight functional proxy for $E \lbrack V_1 \rbrack$. When evaluating reforms that drastically alter future adult tax progressivity (where farsighted parents might adjust $i_c$ in anticipation of their child's altered after-tax return to skill), one can toggle on a 4-iteration outer loop fitting:
+
+$$
+E_{a_1, z_1} \lbrack V_k(a_1, h_1, z_1, 1) \rbrack \approx \hat{\alpha}_{0,k} + \hat{\alpha}_{1,k} \frac{h_1^{1-\eta_{\mathrm{dyn}}}}{1-\eta_{\mathrm{dyn}}}
+$$
+
+(following Lee & Seshadri's $V_4^n \rightarrow V_4^{n+1}$ contraction) with zero change to grid dimensions.
