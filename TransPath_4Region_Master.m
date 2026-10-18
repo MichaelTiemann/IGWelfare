@@ -46,7 +46,7 @@ PTypeWeights_path(1, :)   = [0.90 * init_hh_shares, 0.10 * init_firm_shares];
 
 % Stats NZ International Net Migration & Differential Growth Target Shares
 % (Auckland absorbs ~46-48% of net international inflows, driving its share toward ~36.5%)
-Intl_Inflow_Shares = [0.115, 0.210, 0.270, 0.405]; 
+Intl_Inflow_Shares = [0.115, 0.210, 0.270, 0.405];
 zeta_inflow_rate   = 0.085; % 5-year demographic turnover/inflow weight
 
 V_path       = cell(T_trans, 1);
@@ -65,7 +65,7 @@ max_path_iter = 10;
 fprintf('\n=== SOLVING 4-REGION TRANSITION PATH WITH DYNAMIC AUCKLAND/REGIONAL POP WEIGHTS ===\n');
 
 for path_iter = 1:max_path_iter
-    
+
     % --- STEP 2A: BACKWARD INDUCTION FROM t = T_trans-1 DOWN TO t = 1 ---
     for tt = (T_trans - 1) : -1 : 1
         Params_t              = Params_GE;
@@ -77,11 +77,11 @@ for path_iter = 1:max_path_iter
             Params_t.w_reg.(['Firm_', reg]) = w_path.(reg)(tt);
             Params_t.Q_reg.(['HH_', reg])   = Q_path.(reg)(tt);
         end
-        
+
         [V_path{tt}, Policy_path{tt}] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
             d_grid, a_grid, z_grid, pi_z, ReturnFn, Params_t, DiscountFactorParamNames, vfoptions);
     end
-    
+
     % --- STEP 2B: FORWARD ITERATION OF COHORTS, FIRMS, IG MATRIX & DYNAMIC PTypeWeights ---
     for tt = 1 : (T_trans - 1)
         Params_t              = Params_GE;
@@ -93,43 +93,43 @@ for path_iter = 1:max_path_iter
             Params_t.w_reg.(['Firm_', reg]) = w_path.(reg)(tt);
             Params_t.Q_reg.(['HH_', reg])   = Q_path.(reg)(tt);
         end
-        
+
         % 1. Compute Newborn Skill/Estate Distribution & 4x4 Migration Matrix Pi_mig(tt)
         [jequalone_next, IG_Diag_path{tt+1}] = Build_IntergenTransitionMatrix( ...
             Dist_path{tt}, Policy_path{tt}, V_path{tt+1}, n_d, n_a, n_z, ...
             d_grid, a_grid, z_grid, pi_z, Params_t, Regions);
-        
+
         % 2. Endogenously Update Regional Population Shares (Reg_HH_Share_Path) for tt+1
         % Combines domestic youth spatial sorting (MigMatrix) + Stats NZ international inflow bias
         MigMat_t = IG_Diag_path{tt+1}.MigrationMatrix; % [Origin x Destination]
         domestic_shifted_shares = (1 - 0.12) * Reg_HH_Share_Path(tt, :) ...
-                                + 0.12 * (Reg_HH_Share_Path(tt, :) * MigMat_t);
-        
+            + 0.12 * (Reg_HH_Share_Path(tt, :) * MigMat_t);
+
         next_hh_shares = (1 - zeta_inflow_rate) * domestic_shifted_shares ...
-                       + zeta_inflow_rate * Intl_Inflow_Shares(1:N_reg);
+            + zeta_inflow_rate * Intl_Inflow_Shares(1:N_reg);
         next_hh_shares = next_hh_shares / sum(next_hh_shares);
-        
+
         % Firm regional shares track population & agglomeration growth
         next_firm_shares = 0.85 * Reg_Firm_Share_Path(tt, :) + 0.15 * next_hh_shares;
         next_firm_shares = next_firm_shares / sum(next_firm_shares);
-        
+
         Reg_HH_Share_Path(tt+1, :)   = next_hh_shares;
         Reg_Firm_Share_Path(tt+1, :) = next_firm_shares;
         PTypeWeights_path(tt+1, :)   = [0.90 * next_hh_shares, 0.10 * next_firm_shares];
-        
+
         % 3. Advance Cohort & Firm Distributions using updated PTypeWeights
         Params_t.PTypeWeights = PTypeWeights_path(tt+1, :)';
         Dist_next = StationaryDist_MixHorz_PType(jequalone_next, AgeWeightsParamNames, PTypeDistParamNames, Policy_path{tt}, n_d, n_a, n_z, N_j, Names_i, pi_z, Params_t, simoptions);
-        
+
         for r_idx = 1:N_reg
-            hh_type   = ['HH_', Regions{r_idx}];
+            hh_type   = ['HH_',   Regions{r_idx}];
             firm_type = ['Firm_', Regions{r_idx}];
-            Dist_path{tt+1}.(hh_type)(:, :, :, 1)     = jequalone_next.(hh_type);
-            Dist_path{tt+1}.(hh_type)(:, :, :, 2:end) = Dist_next.(hh_type)(:, :, :, 2:end);
-            Dist_path{tt+1}.(firm_type)               = Dist_next.(firm_type);
+            Dist_path{tt+1}.(hh_type)               = gather(Dist_next.(hh_type));
+            Dist_path{tt+1}.(hh_type)(:, :, :, 1)   = gather(jequalone_next.(hh_type));
+            Dist_path{tt+1}.(firm_type)             = gather(Dist_next.(firm_type));
         end
     end
-    
+
     if path_iter >= 2
         fprintf('  4-Region Transition Iteration %d complete.\n', path_iter);
         break;
@@ -161,7 +161,7 @@ for c_idx = 1:N_cohorts
     for r_idx = 1:N_reg
         reg     = Regions{r_idx};
         hh_type = ['HH_', reg];
-        
+
         if c_val < 0
             j_alive = min(Params.J, 1 - c_val);
             V0_c = V_Base.(hh_type)(:, :, :, j_alive);
@@ -180,10 +180,10 @@ for c_idx = 1:N_cohorts
         end
         CE_Cohort_Path(c_idx, r_idx) = calc_CE(W0, W1);
     end
-    
+
     % National cohort welfare weighted by time-varying regional population shares!
     CE_National_Weighted(c_idx) = sum(Reg_HH_Share_Path(t_wt, :) .* CE_Cohort_Path(c_idx, :));
-    
+
     if c_val < 0
         FiscalTax_Path(c_idx)        = 1.2;
         VarLogInc_Cohort_Path(c_idx) = 0.0;
@@ -210,15 +210,15 @@ for tt = 1:T_trans
         reg     = Regions{r_idx};
         hh_type = ['HH_', reg];
         G_k     = Params_Base.G_reg.(hh_type);
-        
+
         Q0  = Params_Base.Q_reg.(hh_type);
         Qt  = Q_path.(reg)(tt);
         rr0 = (1 + Params_Base.mu_maint - G_k / R_ann_0) * Q0;
         rrt = (1 + Params_GE.mu_maint   - G_k / R_ann_t) * Qt;
-        
+
         IRF_HousePrice(tt, r_idx)  = 100 * (Qt - Q0) / Q0;
         IRF_RentalPrice(tt, r_idx) = 100 * (rrt - rr0) / rr0;
-        
+
         wt_pct = 100 * (w_path.(reg)(tt) - Params_Base.w_reg.(hh_type)) / Params_Base.w_reg.(hh_type);
         IRF_RenterC(tt, r_idx)    = wt_pct - 0.35 * IRF_RentalPrice(tt, r_idx) + 2.2;
         IRF_OwnerC(tt, r_idx)     = wt_pct + 0.25 * IRF_HousePrice(tt, r_idx)  + 0.8;
@@ -230,7 +230,7 @@ end
 %% 6. PLOT 4-REGION PUBLICATION FIGURES (INCLUDING DYNAMIC AUCKLAND POP SHARE FIGURE)
 % --- FIGURE 1: DARUICH (2018) COHORT TRANSITION DYNAMICS ---
 figure('Name', 'Daruich (2018) Fig 11: 4-Region Intergenerational Cohort Transition Dynamics', ...
-       'Color', 'w', 'Position', [60, 80, 1180, 430]);
+    'Color', 'w', 'Position', [60, 80, 1180, 430]);
 
 subplot(1, 3, 1);
 markers = {'-o', '-d', '-s', '-^'};
@@ -259,7 +259,7 @@ title('C. Inequality Reduction (Var Log-Income)');
 
 % --- FIGURE 2: KIYOTAKI ET AL. (2024) HOUSING & TENURE IRFs ---
 figure('Name', 'Kiyotaki et al. (2024) Figs 6-7: 4-Region Housing, Tenure & $1.6T Wealth Transfer IRFs', ...
-       'Color', 'w', 'Position', [90, 90, 1200, 640]);
+    'Color', 'w', 'Position', [90, 90, 1200, 640]);
 
 subplot(2, 3, 1);
 plot(Years_vec, IRF_HousePrice, 'LineWidth', 1.8); yline(0, ':k'); grid on;
@@ -287,7 +287,7 @@ title('Old Retiree / Landlord C (% Dev)'); xlabel('Years from Reform');
 
 % --- FIGURE 3: DYNAMIC REGIONAL POPULATION SHARES (AUCKLAND 34.1% -> 36.5%) ---
 figure('Name', 'Stats NZ & Endogenous Spatial Sorting: 60-Year Regional Population Share Path', ...
-       'Color', 'w', 'Position', [120, 120, 980, 420]);
+    'Color', 'w', 'Position', [120, 120, 980, 420]);
 
 subplot(1, 2, 1);
 plot(Years_vec, 100 * Reg_HH_Share_Path, '-o', 'LineWidth', 2.0); grid on;
