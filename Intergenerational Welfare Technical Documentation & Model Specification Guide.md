@@ -57,11 +57,11 @@ where $a \in A_{HH}$ (61 points) is consolidated net worth ($Q_k h_{\text{house}
 Following Kiyotaki, Michaelides, and Nikolov (2024) and Hirano and Toda (2025), let $Q_k$ be the regional house price, $R_{\text{ann}} = (1+r)^{1/5}$ the gross annualized interest rate, $\mu_{\text{maint}} = 0.04$ maintenance/rates, $\upsilon_h = 0.008$ the owner-occupied tax subsidy, and $G_k$ the regional trend growth factor ($G_{\text{Auckland}} = 1.025 > G_{\text{Large}} = 1.018 > G_{\text{Small}} = 1.011 > G_{\text{Rural}} = 1.007$):
 
 $$
-rr_k = \left( 1 + \mu_{\text{maint}} - \frac{G_k}{R_{\text{ann}}} \right) Q_k
+rr_k = \left\\( 1 + \mu_{\text{maint}} - \frac{G_k}{R_{\text{ann}}} \right\\) Q_k
 $$
 
 $$
-rh_k = \left( 1 + \mu_{\text{maint}} - \upsilon_h - \frac{G_k}{R_{\text{ann}}} \right) Q_k
+rh_k = \left\\( 1 + \mu_{\text{maint}} - \upsilon_h - \frac{G_k}{R_{\text{ann}}} \right\\) Q_k
 $$
 
 Young working households ($j < J_r$) draw an idiosyncratic rental utility penalty $\chi \sim U[0, \bar{\chi}]$ ($\bar{\chi} = 2.55$), yielding the analytical regional homeownership share $\xi_k$ and composite housing price index $p_{H,k}(j)$:
