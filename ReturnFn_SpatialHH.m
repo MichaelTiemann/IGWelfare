@@ -1,103 +1,101 @@
-function F = ReturnFn_SpatialHH(l, Ih, ic, aprime, a, h, theta_c, z, ...
+function F = ReturnFn_SpatialHH(ic, l, Ih, aprime, hprime, a, h, theta_c, z, ...
     w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
-    Transfer_Geo, p_super, c_floor, G_ece_stage1, G_ece_stage2, s_sub, omega_ic, ...
-    b1_beq, b2_beq, YouthGrant, tau_l, tau_c, tau_k, tau_b, agej, Jr, sj)
-%% RETURN FUNCTION: 4-REGION HOUSEHOLD WITH TWO EXPERIENCE ASSETS
-% File: ReturnFn_SpatialHH.m
-% VFI Toolkit Two-Experience-Asset Architecture (experienceasset = 2, l_dexperienceasset = 2):
-%   Action Space (l_d + l_aprime = 3 + 1 = 4):
-%     - d      : l (Labor), Ih (Adult Ben-Porath Inv -> a2_1), ic (Child Inv -> a2_2)
-%     - aprime : aprime (Next-period Net Worth; h and theta_c have no chosen aprime!)
-%   State Space (l_a + l_z = 3 + 1 = 4):
-%     - a1     : a (Current Net Worth)
-%     - a2     : h (Current Adult Human Capital), theta_c (Current Child Skill Stock)
-%     - z      : z (Idiosyncratic Labor Productivity)
-%
-% Division of Labor with ChildCES_aprimeFn:
-%   - ChildCES_aprimeFn evolves BOTH h (whicha=1) and theta_c (whicha=2).
-%   - ReturnFn_SpatialHH purely OBSERVES h and theta_c and accounts for the
-%     budget costs of Ih and (1 - s_sub)*ic.
+    Transfer_Geo, p_super, c_floor, G_ece_stage1, G_ece_stage2, gbar_ece, s_sub, ...
+    omega_ic, gamma1_self, gamma1_inv, gamma1_par, phi1_ces, ...
+    gamma2_self, gamma2_inv, gamma2_par, phi2_ces, ...
+    delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
+    tau_l, tau_c, tau_k, tau_a, tau_b, agej, Jr, sj, dt, ...
+    j_s1_start, j_s1_end, j_s2_start, j_s2_end, n_stage1_steps, n_stage2_steps)
+%% CANONICAL 5D HOUSEHOLD RETURN FUNCTION (PARAMETERIZED BY PERIOD LENGTH dt)
 
 F = -Inf;
+scale_dt = dt / 5;
 
-%% 1. AGE-DEPENDENT ACTION CONSTRAINTS
-if agej >= Jr
-    % Mandatory retirement at Jr (Age 65): No labor supply or Ben-Porath training
-    if l > 0 || Ih > 0
+%% 1. FULL-LIFECYCLE ADULT BEN-PORATH HUMAN CAPITAL LAW OF MOTION (h -> hprime)
+if agej < Jr
+    if l == 0 && Ih > 0
+        return;
+    end
+    if l > 0
+        h_expected = (1 - delta_hc) * h + scale_dt * (Ih ^ alpha_I) * (h ^ alpha_H);
+    else
+        h_expected = (1 - delta_hc) * h;
+    end
+    if abs(hprime - h_expected) > 0.16
+        return;
+    end
+else
+    if l > 0 || Ih > 0 || ic > 0
+        return;
+    end
+    % In retirement (j >= Jr), adult human capital slowly depreciates or stays adjacent on grid
+    h_expected = (1 - 0.5 * delta_hc) * h;
+    if abs(hprime - h_expected) > 0.22 && abs(hprime - h) > 0.16
         return;
     end
 end
 
-% Active child investment ic is only chosen during Stage 1 (j = 3) and Stage 2 (j = 4)
-is_parenting_stage = (agej == 3) || (agej == 4);
-if ~is_parenting_stage && (ic > 0)
+is_stage1 = (agej >= j_s1_start) && (agej <= j_s1_end);
+is_stage2 = (agej >= j_s2_start) && (agej <= j_s2_end);
+if (~is_stage1 && ~is_stage2) && (ic > 0)
     return;
 end
 
-%% 2. REGIONAL USER COST OF HOUSING & TENURE CHOICE (Kiyotaki et al. 2024 / Hirano & Toda)
-R_ann  = (1 + r)^(1/5);
-rr_reg = max(0.010, (1 + mu_maint - (G_reg / R_ann)) * Q_reg);
-rh_reg = max(0.008, (1 + mu_maint - upsilon_h - (G_reg / R_ann)) * Q_reg);
+%% 2. KIYOTAKI ET AL. (2024) & HIRANO-TODA (2025) HOUSING USER COSTS (SCALED BY dt)
+R_ann  = (1 + r) ^ (1 / dt);
+rr_reg = max(0.010 * Q_reg, (1 + mu_maint - (G_reg / R_ann)) * Q_reg);
+rh_reg = max(0.008 * Q_reg, (1 + mu_maint - upsilon_h - (G_reg / R_ann)) * Q_reg);
 
-is_owner = (a >= 0.15 * Q_reg);
-if is_owner
-    p_housing = rh_reg;
-    upsilon_b = 0.0;
-else
-    p_housing = rr_reg;
-    upsilon_b = 0.04; % Rental utility wedge
-end
-
-%% 3. HOUSEHOLD BUDGET CONSTRAINT (5-YEAR MODEL PERIOD)
+xi_own = min(1.0, (1 / chi_bar) * (rr_reg / rh_reg));
 if agej < Jr
-    % Observe current adult human capital experience asset h
-    labor_inc   = (1 - tau_l) * w_reg * z * h * l;
-    pension_inc = 0.0;
+    p_H = xi_own * rh_reg + (1 - xi_own) * (rr_reg / (0.5 * chi_bar));
 else
-    labor_inc   = 0.0;
-    pension_inc = p_super; % Universal NZ Superannuation
+    p_H = rh_reg;
 end
 
-cap_inc    = (1 + (1 - tau_k) * r) * a;
-youth_end  = (agej == 1) * YouthGrant;
-child_cost = is_parenting_stage * (1 - s_sub) * ic;
+%% 3. BUDGET CONSTRAINT & "INCOME x GEOGRAPHY" TRANSFER RULE
+gross_earn = w_reg * h * z * l;
+T_geo      = Transfer_Geo * exp(-1.8 * gross_earn);
 
-% Net resources after saving aprime and paying for human capital investments Ih and child_cost
-net_resources = labor_inc + pension_inc + cap_inc + Transfer_Geo + youth_end ...
-    - aprime - Ih - child_cost;
+wealth_after_tax = ((1 - tau_a) ^ dt) * a + r * (1 - tau_k) * a;
+youth_endow      = (agej == 1) * YouthGrant;
+pension_inc      = (agej >= Jr) * p_super;
 
-% Subtract mandatory regional fuel/transport subsistence ebar_energy (Labrousse & Perdereau)
-c_total = (net_resources / (1 + tau_c)) - ebar_energy;
-if c_total <= 0
+c_budget = wealth_after_tax + (1 - tau_l) * gross_earn + T_geo + youth_endow + pension_inc ...
+    - aprime - (1 - s_sub) * ic - ebar_energy;
+c_eff    = max(c_floor, c_budget / (1 + tau_c));
+
+if c_budget <= 0 && agej < Jr
     return;
 end
 
-c_nd   = max(c_floor, phi_nd * c_total);
-h_size = max(0.05, ((1 - phi_nd) * c_total) / p_housing);
+%% 4. COMPOSITE CONSUMPTION, LABOR/TRAINING DISUTILITY, & TWO-STAGE CHILD ALTRUISM
+c_nd   = phi_nd * c_eff;
+c_H    = (1 - phi_nd) * c_eff / p_H;
+u_comp = (c_nd ^ phi_nd) * (c_H ^ (1 - phi_nd));
 
-%% 4. WITHIN-PERIOD UTILITY + OBSERVED EXPERIENCE ASSET (theta_c) + WARM-GLOW BEQUESTS
-eta_c    = 2.0;
-comp_c   = (c_nd ^ phi_nd) * (h_size ^ (1 - phi_nd)) * exp(-upsilon_b) * ((1 - 0.55 * l) ^ 0.35);
-u_period = (comp_c ^ (1 - eta_c)) / (1 - eta_c);
+eta_c  = 2.0;
+u_flow = (u_comp ^ (1 - eta_c)) / (1 - eta_c) - 0.85 * ((l + Ih) ^ 1.6) / 1.6;
 
-% --- OBSERVE CHILD SKILL EXPERIENCE ASSET theta_c ---
-u_child_skill = 0.0;
-if agej == 3
-    u_child_skill = 0.05 * omega_ic * log(max(1e-4, theta_c + G_ece_stage1));
-elseif agej == 4
-    u_child_skill = 0.05 * omega_ic * log(max(1e-4, theta_c + G_ece_stage2));
-elseif agej == 5
-    % Child reaches adulthood at j = 5: parent observes completed skill theta_c = theta_3
-    u_child_skill = omega_ic * log(max(1e-4, theta_c));
+u_child = 0;
+if is_stage1
+    I_eff1  = max(1e-4, ic + G_ece_stage1 + gbar_ece);
+    th_2    = (gamma1_self * (max(1e-4, theta_c)^phi1_ces) + gamma1_inv * (I_eff1^phi1_ces) + gamma1_par * (h^phi1_ces)) ^ (1 / phi1_ces);
+    u_child = (omega_ic / max(1, n_stage1_steps)) * log(max(1e-4, th_2));
+elseif is_stage2
+    I_eff2  = max(1e-4, ic + G_ece_stage2 + gbar_ece);
+    th_3    = (gamma2_self * (max(1e-4, theta_c)^phi2_ces) + gamma2_inv * (I_eff2^phi2_ces) + gamma2_par * (h^phi2_ces)) ^ (1 / phi2_ces);
+    u_child = (omega_ic / max(1, n_stage2_steps)) * log(max(1e-4, th_3));
 end
 
-% Luxury Warm-Glow Bequest Utility upon death (1 - sj) in retirement (De Nardi 2004)
-u_bequest = 0.0;
-if (agej >= Jr) && (aprime > 0)
-    net_estate = (1 - tau_b) * aprime;
-    u_bequest  = (1 - sj) * b1_beq * (((b2_beq + net_estate) ^ (1 - eta_c)) / (1 - eta_c));
+%% 5. END-OF-LIFE WARM-GLOW LUXURY BEQUEST (SCALED BY MORTALITY 1 - sj)
+u_beq = 0;
+if agej >= Jr
+    net_estate = (1 - tau_b) * max(0, aprime);
+    u_beq      = (1 - sj) * b1_beq * (((b2_beq + net_estate) ^ (1 - eta_c)) / (1 - eta_c));
 end
 
-F = u_period + u_child_skill + u_bequest;
+F = u_flow + u_child + u_beq;
+
 
 end
