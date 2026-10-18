@@ -122,6 +122,9 @@ if Export_Tables_Figures
     if exist('T3', 'var')
         writetable(T3, fullfile(OutputDir, 'Table3_4Region_Kiyotaki_TenureGenerationalCleavage.csv'), 'WriteRowNames', true);
     end
+    if exist('T_Abroad_SS', 'var')
+        writetable(T_Abroad_SS, fullfile(OutputDir, 'Table3B_4Region_Abroad_SteadyState_Summary.csv'), 'WriteRowNames', true);
+    end
     if exist('T_IGE', 'var')
         writetable(T_IGE,     fullfile(OutputDir, 'Table4_4Region_LeeSeshadri_IGE.csv'), 'WriteRowNames', true);
         writetable(T_Out,     fullfile(OutputDir, 'Table5_4Region_LeeSeshadri_Output_Welfare.csv'), 'WriteRowNames', true);

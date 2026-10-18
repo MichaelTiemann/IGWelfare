@@ -241,8 +241,8 @@ if ~use_abroad
             ia_d_vec = ia_dest_mat(:, r_dest);
             S_map    = sparse(ia_d_vec, 1:n_a1, 1, n_a1, n_a1);
             flow_2d  = reshape(flow_4d, [n_a1, N_hthz]);
-            jequaloneDist_new.(dest_type) = jequaloneDist_new.(dest_type) ...
-                + reshape(full(S_map * flow_2d), [n_a1, n_h, n_th, n_z1]);
+	    jequaloneDist_new.(dest_type) = jequaloneDist_new.(dest_type) ...
+					    + pop_weights(r_orig) * reshape(full(S_map * flow_2d), [n_a1, n_h, n_th, n_z1]);
         end
         MigMatrix(r_orig, :) = MigMatrix(r_orig, :) / max(1e-12, sum(MigMatrix(r_orig, :)));
     end
@@ -341,8 +341,9 @@ else
         Emig_By_Skill_Den = Emig_By_Skill_Den + w_k * orig_by_h(:);
 
         % 5. Allocate Retained Domestic Youth + Replacement Immigrant Inflow to each r_dest
+        S_map_ab         = sparse(ia_ab_vec, 1:n_a1, 1, n_a1, n_a1);
         flow_emig_2d     = reshape(flow_emig_4d, [n_a1, N_hthz]);
-        flow_emig_rep_2d = full(flow_emig_2d * S_rep_hthz); % [n_a1, N_hthz] mapped to (ih_rep, ith_rep)
+        flow_emig_rep_2d = full(S_map_ab * flow_emig_2d * S_rep_hthz);
 
         for r_dest = 1:N_reg
             dest_type = ['HH_', Regions{r_dest}];
@@ -353,9 +354,9 @@ else
             S_map    = sparse(ia_d_vec, 1:n_a1, 1, n_a1, n_a1);
 
             % Retained native youth + replacement immigrant inflow apportioned by pop_weights(r_dest)
-            combined_2d = reshape(flow_dom_4d, [n_a1, N_hthz]) + pop_weights(r_dest) * flow_emig_rep_2d;
+            combined_2d = pop_weights(r_orig) * (reshape(flow_dom_4d, [n_a1, N_hthz]) + pop_weights(r_dest) * flow_emig_rep_2d);
             jequaloneDist_new.(dest_type) = jequaloneDist_new.(dest_type) ...
-                + reshape(full(S_map * combined_2d), [n_a1, n_h, n_th, n_z1]);
+                + reshape(full(S_map * combined_2d) + pop_weights(r_dest) * flow_emig_rep_2d, [n_a1, n_h, n_th, n_z1]);
         end
 
         MigMatrix_4x5(r_orig, :) = MigMatrix_4x5(r_orig, :) / max(1e-12, sum(MigMatrix_4x5(r_orig, :)));
