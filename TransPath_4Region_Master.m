@@ -86,21 +86,21 @@ else
                 Params_t.Q_reg.(['HH_', reg])   = Q_path.(reg)(tt);
             end
 
-	    [jequalone_next, IG_Diag_path{tt+1}] = Build_IntergenTransitionMatrix( ...
+    	    [jequalone_next, IG_Diag_path{tt+1}] = Build_IntergenTransitionMatrix( ...
                 Dist_path{tt}, Policy_path{tt}, V_path{tt+1}, n_d, n_a, n_z, ...
                 d_grid, a_grid, z_grid, pi_z, Params_t, Regions);
 
             MigMat_t = IG_Diag_path{tt+1}.MigrationMatrix;
-	    if isfield(Params_t, 'Enable_Abroad_Option') && Params_t.Enable_Abroad_Option
-		zeta_t = IG_Diag_path{tt+1}.ReplacementImmig_Rate;
-	    else
-		zeta_t = zeta_inflow_rate;
-	    end
+    	    if isfield(Params_t, 'Enable_Abroad_Option') && Params_t.Enable_Abroad_Option
+        		zeta_t = IG_Diag_path{tt+1}.ReplacementImmig_Rate;
+    	    else
+        		zeta_t = zeta_inflow_rate;
+    	    end
 
-	    domestic_shifted_shares = (1 - 0.015) * Reg_HH_Share_Path(tt, :) ...
-				    + 0.015 * (Reg_HH_Share_Path(tt, :) * MigMat_t);
-	    next_hh_shares = (1 - zeta_t) * domestic_shifted_shares ...
-			   + zeta_t * Intl_Inflow_Shares(1:N_reg);
+    	    domestic_shifted_shares = (1 - 0.015) * Reg_HH_Share_Path(tt, :) ...
+                + 0.015 * (Reg_HH_Share_Path(tt, :) * MigMat_t);
+    	    next_hh_shares = (1 - zeta_t) * domestic_shifted_shares ...
+ 			   + zeta_t * Intl_Inflow_Shares(1:N_reg);
             next_hh_shares = next_hh_shares / sum(next_hh_shares);
 
             next_firm_shares = 0.85 * Reg_Firm_Share_Path(tt, :) + 0.15 * next_hh_shares;
@@ -322,7 +322,7 @@ if (isfield(Params_GE, 'Enable_Abroad_Option') && Params_GE.Enable_Abroad_Option
     disp(T_BrainDrain_Path);
 
     figure('Name', '40-Year Transition: Closing the NZ 4-Region Youth Brain Drain & Restoring Social Cohesion', ...
-           'Color', 'w', 'Position', [140, 140, 1120, 560]);
+        'Color', 'w', 'Position', [140, 140, 1120, 560]);
 
     subplot(2, 2, 1);
     plot(Years_vec, Path_Emig_ByRegion(:, 1), '--o', 'LineWidth', 1.5); hold on;

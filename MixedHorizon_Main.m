@@ -2,7 +2,7 @@
 % Permanent Types:
 %   1. 'Household' -> Finite Horizon (N_j = 16): Child investment (Lens 1),
 %                     Ben-Porath/Labor/Fertility (Lens 2), Retirement/Bequests (Lens 3)
-%   2. 'Firm'      -> Infinite Horizon (N_j = Inf): Guvenen et al. (2023) / 
+%   2. 'Firm'      -> Infinite Horizon (N_j = Inf): Guvenen et al. (2023) /
 %                     Ferriere et al. (2025) production, collateral constraints,
 %                     and wealth-tax "use-it-or-lose-it" capital reallocation.
 
@@ -24,7 +24,7 @@ Params.agej = 1:Params.J;
 
 % Survival probabilities (sj) and cohort demographic weights (mewj)
 Params.sj = [0.995, 0.994, 0.993, 0.991, 0.988, 0.983, 0.975, 0.962, ...
-             0.942, 0.910, 0.860, 0.780, 0.660, 0.500, 0.300, 0.000];
+    0.942, 0.910, 0.860, 0.780, 0.660, 0.500, 0.300, 0.000];
 Params.n_pop = 0.005;
 mewj = ones(1, Params.J);
 for jj = 2:Params.J
@@ -63,8 +63,8 @@ a_grid.Firm = 25 * (linspace(0.001, 1, n_a.Firm).^2.5)';
 % Firm Exogenous State z: Persistent Productivity (z_l vs z_h, Guvenen et al. Source 6)
 n_z.Firm = 2;
 z_grid.Firm = [0.75; 1.45]; % Low-productivity vs High-productivity firm technology
-pi_z.Firm   = [0.85, 0.15; 
-               0.15, 0.85]; % First-order Markov transition P(z'|z) (Source 6, App E)
+pi_z.Firm   = [0.85, 0.15;
+    0.15, 0.85]; % First-order Markov transition P(z'|z) (Source 6, App E)
 
 %% 4. CALIBRATED PARAMETERS ACROSS LENSES
 % Discount factors
@@ -124,8 +124,8 @@ ReturnFn.Firm = @(aprime, a, z, w, r, alpha_k, lambda_col, delta_k, tau_k, tau_a
 %% 6. SOLVE VALUE FUNCTIONS (AUTOMATIC FINITE + INFINITE DISPATCH)
 vfoptions.verbose = 0;
 [V, Policy] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
-              d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, ...
-              DiscountFactorParamNames, vfoptions);
+    d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, ...
+    DiscountFactorParamNames, vfoptions);
 
 %% 7. SOLVE STATIONARY DISTRIBUTIONS ACROSS TYPES
 % Initial distribution for newborn Finite-Horizon Households (j=1, Age 20)
@@ -141,8 +141,8 @@ end
 
 simoptions.verbose = 0;
 StationaryDist = StationaryDist_Case1_FHorz_PType(jequaloneDist, AgeWeightsParamNames, ...
-                 PTypeDistParamNames, Policy, n_d, n_a, n_z, N_j, Names_i, ...
-                 d_grid, a_grid, z_grid, pi_z, Params, simoptions);
+    PTypeDistParamNames, Policy, n_d, n_a, n_z, N_j, Names_i, ...
+    d_grid, a_grid, z_grid, pi_z, Params, simoptions);
 
 %% 8. EVALUATE CROSS-SECTOR AGGREGATES & GENERAL EQUILIBRIUM EQUATIONS
 % 1. Effective Labor Supply (Households only)
@@ -162,7 +162,7 @@ FnsToEvaluate.BondNetSupply.Firm = @(aprime, a, z, w, r, alpha_k, lambda_col, de
     a - ((alpha_k * ((1-alpha_k)/w)^((1-alpha_k)/alpha_k) * z > (r + delta_k)) * lambda_col * a);
 
 AggVars = EvalFnOnAgentDist_AggVars_FHorz_Case1_PType(StationaryDist, Policy, FnsToEvaluate, ...
-          Params, n_d, n_a, n_z, N_j, Names_i, d_grid, a_grid, z_grid, simoptions);
+    Params, n_d, n_a, n_z, N_j, Names_i, d_grid, a_grid, z_grid, simoptions);
 
 fprintf('\n=== MIXED FINITE/INFINITE HORIZON DIAGNOSTICS ===\n');
 fprintf('Aggregate Household Effective Labor Supply: %.4f\n', AggVars.L_supply.Mean);

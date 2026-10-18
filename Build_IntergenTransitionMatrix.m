@@ -241,8 +241,8 @@ if ~use_abroad
             ia_d_vec = ia_dest_mat(:, r_dest);
             S_map    = sparse(ia_d_vec, 1:n_a1, 1, n_a1, n_a1);
             flow_2d  = reshape(flow_4d, [n_a1, N_hthz]);
-	    jequaloneDist_new.(dest_type) = jequaloneDist_new.(dest_type) ...
-					    + pop_weights(r_orig) * reshape(full(S_map * flow_2d), [n_a1, n_h, n_th, n_z1]);
+    	    jequaloneDist_new.(dest_type) = jequaloneDist_new.(dest_type) ...
+                + pop_weights(r_orig) * reshape(full(S_map * flow_2d), [n_a1, n_h, n_th, n_z1]);
         end
         MigMatrix(r_orig, :) = MigMatrix(r_orig, :) / max(1e-12, sum(MigMatrix(r_orig, :)));
     end
@@ -278,7 +278,7 @@ else
 
     h_mid_val        = h_vec(min(n_h, 4));
     wage_gain_vec    = (Params_Mig.w_Abroad / Params.w_reg.HH_Auckland) ...
-                       * (0.85 + 0.25 * (h_vec / h_mid_val)); % [n_h, 1]
+        * (0.85 + 0.25 * (h_vec / h_mid_val)); % [n_h, 1]
     housing_relief   = (Params.Q_reg.HH_Auckland / Params_Mig.Q_Abroad)^0.20;
     scale_abroad_4d  = reshape(wage_gain_vec * housing_relief, [1, n_h, 1, 1]);
 
@@ -377,7 +377,7 @@ else
     Diag.Churn_Rate             = 0.35 * Diag.EmigRate_Youth + Diag.ReplacementImmig_Rate;
 
     raw_S = ((1 - Diag.EmigRate_Youth)^Params_Mig.nu_retention) ...
-          * ((1 + Diag.Churn_Rate)^(-Params_Mig.nu_churn));
+        * ((1 + Diag.Churn_Rate)^(-Params_Mig.nu_churn));
     Diag.SocialCohesion_Index   = 100.0 * (raw_S / 0.885);
 
     nat_stunted = 0;
@@ -385,7 +385,7 @@ else
         nat_stunted = nat_stunted + pop_weights(r_i) * Diag.StuntedShare.(Regions{r_i});
     end
     rel_util = Params_Mig.gamma_thrive * log(max(0.01, 1 - nat_stunted)) ...
-             + Params_Mig.gamma_proximity * log(max(0.01, 1 - Diag.EmigRate_Youth));
+        + Params_Mig.gamma_proximity * log(max(0.01, 1 - Diag.EmigRate_Youth));
     Diag.ParentalRelational_CE  = 100 * (exp(rel_util + 0.22) - 1);
 end
 
@@ -404,15 +404,15 @@ end
 end
 
 function [cache_filepath, hash_hex] = local_get_ig_cache_path(Params, n_d, n_a, n_z, fingerprint_vec)
-    CacheDir = fullfile(pwd, 'Cache_NZ_Intergen');
-    if ~exist(CacheDir, 'dir'); mkdir(CacheDir); end
-    state_struct = struct('Params', Params, 'n_d', n_d, 'n_a', n_a, 'n_z', n_z, 'fp', round(fingerprint_vec(:), 6));
-    raw_bytes    = getByteStreamFromArray(state_struct);
-    stride       = max(1, floor(numel(raw_bytes) / 4096));
-    sampled      = double(raw_bytes(1:stride:end));
-    sampled      = sampled(:);
-    weights      = mod((1:numel(sampled))' * 1315423911, 2^31 - 1);
-    hash_val     = mod(sum(sampled .* weights), 2^32);
-    hash_hex     = sprintf('%08X', uint32(hash_val(1)));
-    cache_filepath = fullfile(CacheDir, sprintf('Cache_IGMat_5D_%s.mat', hash_hex));
+CacheDir = fullfile(pwd, 'Cache_NZ_Intergen');
+if ~exist(CacheDir, 'dir'); mkdir(CacheDir); end
+state_struct = struct('Params', Params, 'n_d', n_d, 'n_a', n_a, 'n_z', n_z, 'fp', round(fingerprint_vec(:), 6));
+raw_bytes    = getByteStreamFromArray(state_struct);
+stride       = max(1, floor(numel(raw_bytes) / 4096));
+sampled      = double(raw_bytes(1:stride:end));
+sampled      = sampled(:);
+weights      = mod((1:numel(sampled))' * 1315423911, 2^31 - 1);
+hash_val     = mod(sum(sampled .* weights), 2^32);
+hash_hex     = sprintf('%08X', uint32(hash_val(1)));
+cache_filepath = fullfile(CacheDir, sprintf('Cache_IGMat_5D_%s.mat', hash_hex));
 end

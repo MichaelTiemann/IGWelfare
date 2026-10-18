@@ -34,14 +34,14 @@ if agej < Jr
     if (agej ~= 3 && agej ~= 4) && ic > 0
         return;
     end
-    
+
     % Universal youth grant E at start of economic life (j=1, Source 9)
     grant_E = (agej == 1) * YouthGrant;
-    
+
     % Measured wage is H_t * (1 - I_t) (Source 3, Eq 24)
     effective_hours = max(0, l - Ih);
     net_labor_inc   = (1 - tau_l) * w * z * h * effective_hours;
-    
+
     % Consumption net of subsidized child investment (Source 1) and GST (tau_c)
     c = (net_asset_return + net_labor_inc + grant_E - (1 - s_sub) * ic - aprime) / (1 + tau_c);
 else

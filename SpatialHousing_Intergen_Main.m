@@ -27,7 +27,7 @@ Params.agej = 1:Params.J;
 
 % Demographic survival & cohort weights (NZ Treasury OLG structure, Source 4)
 Params.sj = [0.995, 0.994, 0.993, 0.991, 0.988, 0.983, 0.975, 0.962, ...
-             0.942, 0.910, 0.860, 0.780, 0.660, 0.500, 0.300, 0.000];
+    0.942, 0.910, 0.860, 0.780, 0.660, 0.500, 0.300, 0.000];
 Params.n_pop = 0.005;
 mewj = ones(1, Params.J);
 for jj = 2:Params.J
@@ -42,13 +42,13 @@ for k_hh = {'HH_Rural', 'HH_Urban'}
     type = k_hh{1};
     n_d.(type) = [4, 3, 6];
     d_grid.(type) = [[0; 0.5; 0.8; 1.0]; linspace(0, 0.3, 3)'; linspace(0, 0.4, 6)'];
-    
+
     % Endogenous States a: [Consolidated Net Worth a = Q*h - b, Human Capital h]
     n_a.(type) = [101, 5];
     a_grid_networth = 20 * (linspace(0, 1, n_a.(type)(1)).^3)'; % Reaches high property estates
     a_grid_hc       = linspace(0.6, 1.8, n_a.(type)(2))';
     a_grid.(type)   = [a_grid_networth; a_grid_hc];
-    
+
     % Exogenous Productivity Shock z (Region-specific variance per Labrousse & Perdereau)
     n_z.(type) = 5;
 end
@@ -110,7 +110,7 @@ Params.G_ece      = 0.05;  % Public First-2000-Days wraparound ECE (Ferriere et 
 Params.gbar_ece   = 0.02;  % Luxury shifter on child investment (Source 13)
 Params.omega_ic   = 0.35;  % Parental weight on child skill
 Params.delta_hc   = 0.086; % Adult human capital depreciation (Source 11)
-Params.alpha_I    = 0.098; 
+Params.alpha_I    = 0.098;
 Params.alpha_H    = 0.051;
 Params.p_super    = 0.18;  % Universal NZ Superannuation
 Params.c_floor    = 0.04;  % Retirement consumption floor
@@ -154,8 +154,8 @@ end
 
 vfoptions.verbose = 0;
 [V, Policy] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
-              d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, ...
-              DiscountFactorParamNames, vfoptions);
+    d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, ...
+    DiscountFactorParamNames, vfoptions);
 
 %% 6. STATIONARY DISTRIBUTION & ENDOGENOUS GUMBEL MIGRATION DIAGNOSTIC
 for k_hh = {'HH_Rural', 'HH_Urban'}
@@ -172,8 +172,8 @@ end
 
 simoptions.verbose = 0;
 StationaryDist = StationaryDist_Case1_FHorz_PType(jequaloneDist, AgeWeightsParamNames, ...
-                 PTypeDistParamNames, Policy, n_d, n_a, n_z, N_j, Names_i, ...
-                 d_grid, a_grid, z_grid, pi_z, Params, simoptions);
+    PTypeDistParamNames, Policy, n_d, n_a, n_z, N_j, Names_i, ...
+    d_grid, a_grid, z_grid, pi_z, Params, simoptions);
 
 % Compute Gumbel Migration Pressure between Rural & Urban for Young Cohorts (Source 2, Sec 2.1)
 kappa_mig = 0.15; % Fixed moving cost from Rural to Urban

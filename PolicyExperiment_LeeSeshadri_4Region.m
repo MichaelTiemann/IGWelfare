@@ -315,4 +315,5 @@ hash_hex     = sprintf('%08X', uint32(hash_val(1)));
 clean_tag    = regexprep(pol_label, '[^a-zA-Z0-9_]', '_');
 cache_filepath = fullfile(CacheDir, sprintf('Cache_LeeSeshadri_%s_%s.mat', clean_tag, hash_hex));
 is_cached    = (~ForceRecompute) && (exist(cache_filepath, 'file') == 2);
+
 end

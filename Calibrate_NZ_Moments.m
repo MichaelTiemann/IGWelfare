@@ -17,32 +17,32 @@ for r_idx = 1:length(Regions)
     reg     = Regions{r_idx};
     hh_type = ['HH_', reg];
     firm_tp = ['Firm_', reg];
-    
+
     % 1. Full-Time Equivalent Labor Supply: FT = 1.0, PT = 0.5 (Fan et al. Source 7, Table 6 note d)
     FnsToEvalCalib.L_FTE.(hh_type) = @(l, Ih, ic, aprime, hprime, a, h, z, agej, Jr) ...
         (agej < Jr) * l;
     FnsToEvalCalib.L_FTE.(firm_tp) = @(aprime, a, z) 0;
-    
+
     % 2. Part-Time Work Indicator (l == 0.5, Fan et al. Source 7, Table 6 note e)
     FnsToEvalCalib.L_PT.(hh_type) = @(l, Ih, ic, aprime, hprime, a, h, z, agej, Jr) ...
         (agej < Jr) * (abs(l - 0.5) < 1e-4);
     FnsToEvalCalib.L_PT.(firm_tp) = @(aprime, a, z) 0;
-    
+
     % 3. Log Measured Wage for Working Individuals (Fan et al. Source 7 & Lee/Seshadri Source 4 Eq 18)
     FnsToEvalCalib.LogWage.(hh_type) = @(l, Ih, ic, aprime, hprime, a, h, z, w_reg, agej, Jr) ...
         (agej < Jr && l > 0) * log(max(1e-4, w_reg * z * h * max(0.05, l - Ih)));
     FnsToEvalCalib.LogWage.(firm_tp) = @(aprime, a, z) 0;
-    
+
     % 4. Zero Private Child Top-Up Indicator S = Pr(ic == 0 | fertile age j=3,4) (Source 2, Eq 3)
     FnsToEvalCalib.ZeroChildInv.(hh_type) = @(l, Ih, ic, aprime, hprime, a, h, z, agej) ...
         ((agej == 3) || (agej == 4)) * (ic < 1e-4);
     FnsToEvalCalib.ZeroChildInv.(firm_tp) = @(aprime, a, z) 0;
-    
+
     % 5. Positive Parental Child Investment ic (Daruich Source 6: Q5 vs Q1 ratio)
     FnsToEvalCalib.ChildInv.(hh_type) = @(l, Ih, ic, aprime, hprime, a, h, z, agej) ...
         ((agej == 3) || (agej == 4)) * ic;
     FnsToEvalCalib.ChildInv.(firm_tp) = @(aprime, a, z) 0;
-    
+
     % 6. Homeownership Rate by Age & Region (Kiyotaki et al. Source 10, Fig 2 & Table 2)
     FnsToEvalCalib.Homeowner.(hh_type) = @(l, Ih, ic, aprime, hprime, a, h, z, ...
         r, Q_reg, G_reg, mu_maint, upsilon_h, chi_bar, agej, Jr) ...
@@ -50,7 +50,7 @@ for r_idx = 1:length(Regions)
         max(0.005, 1 + mu_maint - upsilon_h - G_reg/((1+r)^(1/5))))) * (a > 0.08 * Q_reg) ...
         + (agej >= Jr) * 1.0;
     FnsToEvalCalib.Homeowner.(firm_tp) = @(aprime, a, z) 0;
-    
+
     % 7. Net Worth / Property Estate Holdings at Age 70+ (De Nardi Source 5: j >= 11)
     FnsToEvalCalib.Assets70Plus.(hh_type) = @(l, Ih, ic, aprime, hprime, a, h, z, agej) ...
         (agej >= 11) * a;
@@ -88,12 +88,12 @@ WeightVec = [2.5; 2.0; 1.5; 1.5; 1.0; 1.5; 2.0; 2.0; 2.5; 2.0];
 %% 3. DEFINE PARAMETERS TO CALIBRATE (CalibParamNames) & BOUNDS
 % Vector of 8 core parameters spanning Lenses 1, 2, and 3
 CalibParamNames = {'omega_ic', 'gbar_ece', 'gamma_ic', ... % Lens 1: Child skill & luxury shifter
-                   'delta_hc', 'alpha_I',  ...             % Lens 2: Ben-Porath depreciation & training
-                   'chi_bar',  'b1_beq',   'b2_beq'};      % Lens 3: Housing tenure & luxury bequests
+    'delta_hc', 'alpha_I',  ...             % Lens 2: Ben-Porath depreciation & training
+    'chi_bar',  'b1_beq',   'b2_beq'};      % Lens 3: Housing tenure & luxury bequests
 
 theta_init = [Params.omega_ic; Params.gbar_ece; Params.gamma_ic; ...
-              Params.delta_hc; Params.alpha_I;  ...
-              Params.chi_bar;  Params.b1_beq;   Params.b2_beq];
+    Params.delta_hc; Params.alpha_I;  ...
+    Params.chi_bar;  Params.b1_beq;   Params.b2_beq];
 
 lb = [0.15; 0.005; 0.18;  0.040; 0.040;  1.50; 1.50; 0.15];
 ub = [0.75; 0.080; 0.55;  0.150; 0.180;  4.00; 8.00; 1.20];
@@ -113,7 +113,7 @@ for s_idx = 1:N_sobol
         n_d, n_a, n_z, N_j, Names_i, d_grid, a_grid, z_grid, pi_z, ReturnFn, ...
         Params, DiscountFactorParamNames, AgeWeightsParamNames, PTypeDistParamNames, ...
         jequaloneDist, FnsToEvalCalib, Regions, vfoptions, simoptions);
-    
+
     if loss_s < best_loss
         best_loss  = loss_s;
         best_theta = theta_cand;
@@ -250,7 +250,7 @@ m_ho_j10 = 0.80 * (1 / (1 + 0.2*(Params_Out.chi_bar - 2.55)));
 m_estate_gdp = mean_beq_nat / max(0.1, m_L_fte * 2.5);
 
 ModelVec = [m_stunted; m_zero_ic; m_ic_ratio; m_L_fte; m_L_pt; ...
-            m_wage_drop; m_ho_j2; m_ho_j10; m_ho_agg; m_estate_gdp];
+    m_wage_drop; m_ho_j2; m_ho_j10; m_ho_agg; m_estate_gdp];
 
 % Compute Weighted SMM Loss (Percentage Squared Deviations)
 rel_err = (ModelVec - TargetVec) ./ max(0.02, abs(TargetVec));
