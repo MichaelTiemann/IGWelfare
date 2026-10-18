@@ -354,9 +354,10 @@ else
             S_map    = sparse(ia_d_vec, 1:n_a1, 1, n_a1, n_a1);
 
             % Retained native youth + replacement immigrant inflow apportioned by pop_weights(r_dest)
-            combined_2d = pop_weights(r_orig) * (reshape(flow_dom_4d, [n_a1, N_hthz]) + pop_weights(r_dest) * flow_emig_rep_2d);
+            dom_mapped_2d = full(S_map * reshape(flow_dom_4d, [n_a1, N_hthz]));
+            combined_2d   = w_k * (dom_mapped_2d + pop_weights(r_dest) * flow_emig_rep_2d);
             jequaloneDist_new.(dest_type) = jequaloneDist_new.(dest_type) ...
-                + reshape(full(S_map * combined_2d) + pop_weights(r_dest) * flow_emig_rep_2d, [n_a1, n_h, n_th, n_z1]);
+                + reshape(combined_2d, [n_a1, n_h, n_th, n_z1]);
         end
 
         MigMatrix_4x5(r_orig, :) = MigMatrix_4x5(r_orig, :) / max(1e-12, sum(MigMatrix_4x5(r_orig, :)));
