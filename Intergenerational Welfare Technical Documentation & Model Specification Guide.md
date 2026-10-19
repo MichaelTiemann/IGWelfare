@@ -161,6 +161,11 @@ $$P_{\mathrm{emig},t}\left(a_1, h_1, z_1; k\right) = \frac{\exp\left(V_{\mathrm{
 | Firm productivity ceilings ($z_\ell, z_h$) | $z_{f,k}$ | $\lbrack 0.70,1.15\rbrack, \lbrack 0.75,1.28\rbrack, \lbrack 0.83,1.50\rbrack, \lbrack 0.90,1.75\rbrack$ | Guvenen et al. (2023) heterogeneous firm returns[cite: 17] |
 | Warm-glow bequest & Youth Grant (Base $\to$ Ref) | $b_1, b_2, E$ | $4.20, 0.45, 0.030 \to 0.065$ | De Nardi (2004) & Piketty/Saez youth endowment[cite: 9, 18] |
 
+While our baseline calibration anchors the high-cost stunted cohort share to the 22.0% benchmark identified at age 3 in the 1972–73 Dunedin Study (Caspi et al., 2016),
+contemporary longitudinal evidence from Growing Up in New Zealand (Morton et al., 2014, 2020) and official Child Poverty Related Indicators (Stats NZ / DPMC, 2024–2026) indicate that metropolitan housing overvaluation ($Q_{\text{Auckland}} = 3.10$) has widened early developmental vulnerability.
+Nationally, 29.9% of children live below the After-Housing-Costs financial insecurity line (AHC60), 34%–37% live in households spending over 30% of disposable income on housing, and 37% of the GUiNZ cohort experienced damp or mouldy housing.
+When the full metropolitan housing crowd-out penalty is activated, Auckland's vulnerable/stunted childhood trajectory expands from 22.0% to 36.6%—demonstrating how an unmitigated urban land bubble acts as an intergenerational tax on early human capital.
+
 ---
 
 ## 7. Complete 11-File VFI Toolkit Pipeline Manifest (4-Region + Abroad Suite)
