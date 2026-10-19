@@ -12,16 +12,17 @@ F = -Inf;
 scale_dt = dt / 5;
 
 %% 1. FULL-LIFECYCLE ADULT BEN-PORATH HUMAN CAPITAL LAW OF MOTION (h -> hprime)
+tol_hc = max(0.11, 0.16 * scale_dt);
 if agej < Jr
     if l == 0 && Ih > 0
         return;
     end
     if l > 0
-        h_expected = (1 - delta_hc) * h + scale_dt * (Ih ^ alpha_I) * (h ^ alpha_H);
+        h_expected = (1 - delta_hc) * h + 0.14 * scale_dt * (Ih ^ alpha_I) * (h ^ alpha_H);
     else
         h_expected = (1 - delta_hc) * h;
     end
-    if abs(hprime - h_expected) > 0.16
+    if abs(hprime - h_expected) > tol_hc
         return;
     end
 else
@@ -37,6 +38,7 @@ end
 
 is_stage1 = (agej >= j_s1_start) && (agej <= j_s1_end);
 is_stage2 = (agej >= j_s2_start) && (agej <= j_s2_end);
+
 if (~is_stage1 && ~is_stage2) && (ic > 0)
     return;
 end
@@ -53,17 +55,16 @@ else
     p_H = rh_reg;
 end
 
-%% 3. BUDGET CONSTRAINT & "INCOME x GEOGRAPHY" TRANSFER RULE
-gross_earn = w_reg * h * z * l;
-T_geo      = Transfer_Geo * exp(-1.8 * gross_earn);
-
+%% 3. BUDGET CONSTRAINT & "INCOME x GEOGRAPHY" TRANSFER RULE (FLOWS SCALED BY scale_dt)
+gross_earn       = w_reg * h * z * l;
+T_geo            = Transfer_Geo * exp(-1.8 * gross_earn);
 wealth_after_tax = ((1 - tau_a) ^ dt) * a + r * (1 - tau_k) * a;
 youth_endow      = (agej == 1) * YouthGrant;
 pension_inc      = (agej >= Jr) * p_super;
 
-c_budget = wealth_after_tax + (1 - tau_l) * gross_earn + T_geo + youth_endow + pension_inc ...
-    - aprime - (1 - s_sub) * ic - ebar_energy;
-c_eff    = max(c_floor, c_budget / (1 + tau_c));
+c_budget = wealth_after_tax - aprime + youth_endow ...
+    + scale_dt * ((1 - tau_l) * gross_earn + T_geo + pension_inc - (1 - s_sub) * ic - ebar_energy);
+c_eff    = max(scale_dt * c_floor, c_budget / (1 + tau_c)) / scale_dt;
 
 if c_budget <= 0 && agej < Jr
     return;
@@ -75,15 +76,15 @@ c_H    = (1 - phi_nd) * c_eff / p_H;
 u_comp = (c_nd ^ phi_nd) * (c_H ^ (1 - phi_nd));
 
 eta_c  = 2.0;
-u_flow = (u_comp ^ (1 - eta_c)) / (1 - eta_c) - 0.85 * ((l + Ih) ^ 1.6) / 1.6;
+u_flow = scale_dt * ((u_comp ^ (1 - eta_c)) / (1 - eta_c) - 0.85 * ((l + Ih) ^ 1.6) / 1.6);
 
 u_child = 0;
 if is_stage1
-    I_eff1  = max(1e-4, ic + G_ece_stage1 + gbar_ece);
+    I_eff1  = 0.55 + 2.50 * max(1e-4, ic + G_ece_stage1 + gbar_ece);
     th_2    = (gamma1_self * (max(1e-4, theta_c)^phi1_ces) + gamma1_inv * (I_eff1^phi1_ces) + gamma1_par * (h^phi1_ces)) ^ (1 / phi1_ces);
     u_child = (omega_ic / max(1, n_stage1_steps)) * log(max(1e-4, th_2));
 elseif is_stage2
-    I_eff2  = max(1e-4, ic + G_ece_stage2 + gbar_ece);
+    I_eff2  = 0.55 + 2.50 * max(1e-4, ic + G_ece_stage2 + gbar_ece);
     th_3    = (gamma2_self * (max(1e-4, theta_c)^phi2_ces) + gamma2_inv * (I_eff2^phi2_ces) + gamma2_par * (h^phi2_ces)) ^ (1 / phi2_ces);
     u_child = (omega_ic / max(1, n_stage2_steps)) * log(max(1e-4, th_3));
 end
@@ -96,6 +97,5 @@ if agej >= Jr
 end
 
 F = u_flow + u_child + u_beq;
-
 
 end

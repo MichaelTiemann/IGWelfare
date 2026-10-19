@@ -15,7 +15,7 @@ clear; clc; close all;
 suite_timer = tic;
 
 %% 0. CONFIGURATION SWITCHES, CACHING, & OUTPUT DIRECTORY SETUP
-Params.dt              = 5;     % Period length in years: 5 (J=16), 3 (J=27), or 2 (J=40)
+Params.dt              = 3;     % Period length in years: 5 (J=16), 3 (J=27), or 2 (J=40)
 Use_Saved_Cache        = true;  % true = Load/save per-step .mat checkpoints in CacheDir
 Force_Recompute_All    = false; % true = Ignore cached .mat checkpoints and recompute all steps
 Use_ExpAsset_Pipeline  = true;  % true = Full 5D Experience-Asset Lifecycle Human Capital Pipeline

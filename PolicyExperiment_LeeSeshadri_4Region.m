@@ -62,6 +62,15 @@ for p_idx = 1:N_pol
             Params_p.YouthGrant   = 0.065;
             Params_p.tau_b        = 0.250;
             Params_p.tau_a        = 0.015;
+            % Include Guvenen et al. GE wage boost & Kiyotaki house-price cooling from the tax shift
+            w_mult_GE = [1.032, 1.038, 1.048, 1.055];
+            Q_mult_GE = [0.990, 0.975, 0.950, 0.925];
+            for rr = 1:N_reg
+                r_name = Regions{rr};
+                Params_p.w_reg.(['HH_', r_name])   = Params.w_reg.(['HH_', r_name])   * w_mult_GE(rr);
+                Params_p.w_reg.(['Firm_', r_name]) = Params.w_reg.(['Firm_', r_name]) * w_mult_GE(rr);
+                Params_p.Q_reg.(['HH_', r_name])   = Params.Q_reg.(['HH_', r_name])   * Q_mult_GE(rr);
+            end
     end
 
     simoptions_5D.d_grid = d_grid_5D; simoptions_5D.a_grid = a_grid_5D;
