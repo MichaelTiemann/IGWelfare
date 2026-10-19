@@ -217,6 +217,17 @@ if Run_Transition_Path && exist('TransPath_4Region_Master.m', 'file')
     fprintf('    Step 7 completed in %.2f seconds.\n\n', toc(step7_timer));
 end
 
+% Plot Pre-Employment opportunity index
+% Decomposes the pre-employment youth cohort across 4 Regions (Status Quo SS0 vs Reform SS1) into:
+%   1. Stay in NZ & Attain >= Parents by Age 30 (%)
+%   2. Leave NZ (Australia/OECD) & Attain >= Parents by Age 30 (%)
+%   3. Stay in NZ & Do Worse Than Parents by Age 30 (%)
+%   4. Leave NZ & Do Worse Than Parents by Age 30 (%) [Residual]
+% Calibrates Abroad leaver outcomes using OECD / Trans-Tasman opportunity data:
+%   - Real PPP wage premium in Australia/OECD at age 30: +32% (dlog_w_Abr = +0.278)
+%   - Positive skill selection + deeper metro job ladders -> ~81% conditional upward attainment.
+run('Plot_PreEmployment_OpportunityIndex.m');
+
 %% 8. EXPORT ALL 4-REGION + ABROAD TABLES (.CSV), FIGURES (.PNG/.FIG), AND WORKSPACE (.MAT)
 if Export_Tables_Figures
     fprintf('=========================================================================================\n');

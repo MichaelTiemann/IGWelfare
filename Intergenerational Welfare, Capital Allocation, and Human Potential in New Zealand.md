@@ -119,22 +119,23 @@ Evaluating lifetime welfare gains (measured as permanent Consumption Equivalent 
 
 *Underlying model tables: [`Table1_4Region_Daruich_LeeSeshadri_Decomposition.csv`](Output_NZ_4Region_Intergen/Table1_4Region_Daruich_LeeSeshadri_Decomposition.csv) and [`Table2_4Region_LabroussePerdereau_SpatialQuintiles.csv`](Output_NZ_4Region_Intergen/Table2_4Region_LabroussePerdereau_SpatialQuintiles.csv).*
 
-![Cohort Welfare Transition Path Across 4 Regions](Output_NZ_4Region_Intergen/Daruich__2018__Fig_11__4_Region_Intergenerati.png)
-*Figure 1 (`Daruich__2018__Fig_11__4_Region_Intergenerati.png`): Cohort-by-cohort lifetime welfare trajectory across the 60-year transition path in Rural, Small, Large, and Auckland regions, illustrating the Year-20 generational inflection as better-skilled cohorts mature into parenthood.*
+![Cohort Welfare Transition Path Across 4 Regions](Output_NZ_4Region_Intergen/Fig1_Daruich_Cohort_Welfare_4Region.png)
+*Figure 1 (`Fig1_Daruich_Cohort_Welfare_4Region.png`): Cohort-by-cohort lifetime welfare trajectory across the 60-year transition path in Rural, Small, Large, and Auckland regions, illustrating the Year-20 generational inflection as better-skilled cohorts mature into parenthood.*
 
 ---
 
 ### **2. Breaking the Intergenerational Trap: First 2000 Days vs. Late Remediation**
 
-Our multi-stage counterfactuals (replicating Lee & Seshadri, 2019 across New Zealand's four regions) prove why timing is everything in human capital policy:
+Our high-resolution life-cycle counterfactuals (tracking children and parents in 3-year stages across infancy, preschool, primary, and secondary schooling in all four regions) prove why timing is everything in human capital policy:
 
-1. **The Status Quo Lock-In:** Under current settings, a family's socioeconomic position when parents are aged 30 to 35 locks in **60% to 65%+** of the variation in their children's adult human capital and **~70%+** of their children's future lifetime earnings, with **Auckland** exhibiting the most rigid intergenerational immobility due to its severe housing divide.  
-2. **Early Front-Loading Beats Late Remediation 3-to-1:** Expanding wraparound investment in the **First 2000 Days** (ages 0 to 5) combined with the **Youth Capital Grant** sharply reduces intergenerational inequality and lifts long-run lifetime earnings by roughly **three times** the payoff of spending the exact same public budget on remedial subsidies during the school years (ages 6 to 17). Even a budget-neutral reallocation from late remediation to the First 2000 Days delivers immediate earnings and mobility gains at zero net cost to the taxpayer.
+1. **The Status Quo Lock-In:** Under current settings, a family's socioeconomic position when parents are aged 30 to 35 locks in **66% to 72%+** of the variation in their children's future lifetime earnings. Because learning builds cumulatively across four sequential schooling stages between ages 6 and 17, children who arrive at school at age 5 developmentally stunted fall progressively further behind at each step.
+2. **Early Front-Loading Beats Late Remediation 3-to-1:** Expanding wraparound investment across the **First 2000 Days** (infancy ages 0–2 and preschool ages 3–5) lifts long-run lifetime earnings by roughly **three times** the payoff of spending the exact same public budget on remedial subsidies during the school years (ages 6 to 17). Even a budget-neutral reallocation from late remediation to the First 2000 Days delivers immediate mobility gains at zero net cost to the taxpayer.
+3. **Unlocking Secondary Regional Cities Alongside Auckland:** Pairing First-2000-Days wraparound support with the universal **Youth Capital Grant** and the "use-it-or-lose-it" property tax shift creates a powerful synergy in **Large** regional cities (Wellington, Christchurch, Hamilton, Tauranga, Dunedin) and **Auckland**, lifting long-run lifetime earnings by **+5.5% to +10.1%** as young adults overcome metropolitan rent and deposit barriers during their peak career-building years.
 
 *Underlying model tables: [`Table4_4Region_LeeSeshadri_IGE.csv`](Output_NZ_4Region_Intergen/Table4_4Region_LeeSeshadri_IGE.csv), [`Table5_4Region_LeeSeshadri_Output_Welfare.csv`](Output_NZ_4Region_Intergen/Table5_4Region_LeeSeshadri_Output_Welfare.csv), and [`Table6_4Region_LeeSeshadri_Table12_VarianceExplained.csv`](Output_NZ_4Region_Intergen/Table6_4Region_LeeSeshadri_Table12_VarianceExplained.csv).*
 
-![4-Region Childhood Skill Formation & Intergenerational Persistence Counterfactuals](Output_NZ_4Region_Intergen/Lee___Seshadri__2019__Fig_E8__4_Region_Parent.png)
-*Figure 2 (`Lee___Seshadri__2019__Fig_E8__4_Region_Parent.png`): Multi-stage policy comparisons across Rural, Small, Large, and Auckland regions, demonstrating how First-2000-Days wraparound investment and the Youth Capital Grant outperform late school-age remediation.*
+![4-Region Childhood Skill Formation & Intergenerational Persistence Counterfactuals](Output_NZ_4Region_Intergen/FigE8_LeeSeshadri_4Region_Counterfactuals.png)
+*Figure 2 (`FigE8_LeeSeshadri_4Region_Counterfactuals.png`): Multi-stage policy comparisons across Rural, Small, Large, and Auckland regions, demonstrating how First-2000-Days wraparound investment and the Youth Capital Grant outperform late school-age remediation.*
 
 ---
 
@@ -148,8 +149,8 @@ Decomposing welfare impacts across housing tenure groups (following Kiyotaki, Mi
 
 *Underlying model tables: [`Table3_4Region_Kiyotaki_TenureGenerationalCleavage.csv`](Output_NZ_4Region_Intergen/Table3_4Region_Kiyotaki_TenureGenerationalCleavage.csv), [`Table7_4Region_Endogenous_TFR_DiffFertility.csv`](Output_NZ_4Region_Intergen/Table7_4Region_Endogenous_TFR_DiffFertility.csv), and [`Table8_4Region_Fertility_Stunting_NZSuperTax.csv`](Output_NZ_4Region_Intergen/Table8_4Region_Fertility_Stunting_NZSuperTax.csv).*
 
-![4-Region Housing, Tenure, and Estate Impulse Responses](Output_NZ_4Region_Intergen/Kiyotaki_et_al___2024__Figs_6_7__4_Region_Hou.png)
-*Figure 3 (`Kiyotaki_et_al___2024__Figs_6_7__4_Region_Hou.png`): 60-year transition paths of regional house prices, young adult homeownership rates, and net-of-tax property estate flows.*
+![4-Region Housing, Tenure, and Estate Impulse Responses](Output_NZ_4Region_Intergen/Fig2_Kiyotaki_Housing_Estates_4Region.png)
+*Figure 3 (`Fig2_Kiyotaki_Housing_Estates_4Region.png`): 60-year transition paths of regional house prices, young adult homeownership rates, and net-of-tax property estate flows.*
 
 ---
 
@@ -168,5 +169,31 @@ Tracking domestic youth sorting and outward emigration across **Rural**, **Small
 ![Endogenous Spatial Sorting over 60 Years](Output_NZ_4Region_Intergen/Stats_NZ___Endogenous_Spatial_Sorting__60_Yea.png)
 *Figure 4 (`Stats_NZ___Endogenous_Spatial_Sorting__60_Yea.png`): Dynamic evolution of regional household and business shares from the 2025 Stats NZ baseline across the 60-year horizon.*
 
-![Three-Wave Brain-Drain Closure, Replacement Churn, and Social Cohesion Recovery](Output_NZ_4Region_Intergen/40_Year_Transition__Closing_the_NZ_4_Region_Y.png)
-*Figure 5 (`40_Year_Transition__Closing_the_NZ_4_Region_Y.png`): Three-wave reduction in youth emigration to Australia/OECD, decline in replacement migration churn, and recovery of the Social Cohesion Index.*
+![Three-Wave Brain-Drain Closure, Replacement Churn, and Social Cohesion Recovery](Output_NZ_4Region_Intergen/Fig3_BrainDrain_Cohesion_4Region.png)
+*Figure 5 (`Fig3_BrainDrain_Cohesion_4Region.png`): Three-wave reduction in youth emigration to Australia/OECD, decline in replacement migration churn, and recovery of the Social Cohesion Index.*
+
+### 5. The Pre-Employment Cohort Opportunity Index (Age 30 Attainment & The Brain-Drain Divide)
+
+When evaluated at age 30 ($j = 4$ in the $\Delta t = 3$ life-cycle grid), the **Pre-Employment Cohort Opportunity Index** exposes the exact anatomy of New Zealand's generational squeeze—and how the **High-Opportunity Reform Package** reverses it:
+
+| Region | Policy Regime | **1. Stay in NZ & ≥ Parents (%)** | **2. Leave NZ & ≥ Parents (%)** | **3. Stay in NZ & &lt; Parents (%)** | **4. Leave NZ & &lt; Parents (%)** | **Domestic Share of Upward Mobility** |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **Rural** | Status Quo | 45.0% | 1.5% | **53.2%** | 0.3% | 96.8% |
+| **Rural** | **Reform Package** | **57.9%** | 0.7% | **41.3%** | 0.1% | **98.8%** |
+| **Small Town** | Status Quo | 37.9% | 7.4% | **53.0%** | 1.7% | 83.7% |
+| **Small Town** | **Reform Package** | **57.9%** | 3.2% | **38.3%** | 0.6% | **94.8%** |
+| **Large City** | Status Quo | 26.5% | **19.5%** | **50.1%** | 3.9% | **57.6%** |
+| **Large City** | **Reform Package** | **58.6%** | 7.5% | **32.5%** | 1.4% | **88.6%** |
+| **Auckland** | Status Quo | 26.2% | 6.0% | **66.8%** | 1.0% | 81.4% |
+| **Auckland** | **Reform Package** | **68.6%** | 2.4% | **28.6%** | 0.4% | **96.6%** |
+
+*Underlying model table: [Table11_4Region_PreEmployment_OpportunityIndex.csv](Output_NZ_4Region_Intergen/Table11_4Region_PreEmployment_OpportunityIndex.csv).*
+
+**Three Headline Takeaways from the Opportunity Index:**
+
+1. **The Status Quo "Stay-and-Slide" Trap:** Under current policy settings, **50.1% to 66.8%** of New Zealand's pre-employment youth cohort **remain in New Zealand and fail to match their parents' age-30 living standard** (driven by metropolitan rent-to-income inflation and early childhood skill gaps). Only **26.2%** of Auckland youth and **26.5%** of Large regional city youth both stay in New Zealand and match or exceed their parents by age 30.
+2. **In Large Regional Cities, Nearly Half of All Upward Mobility Requires Emigrating:** In **Large** university and service cities (Wellington, Christchurch, Hamilton, Tauranga, Dunedin), **19.5%** of the entire youth cohort leaves for Australia/OECD and achieves upward mobility abroad, compared to **26.5%** who achieve it domestically—meaning **42.4% of all young adults from Large regional cities who beat their parents' living standard have to leave New Zealand to do so**.
+3. **The Reform Flips Domestic Opportunity Above 58%–68%+:** By combining First-2000-Days wraparound ECE, the Youth Capital Grant, and the property-to-productive-enterprise tax shift, the share of young Kiwis who **stay in New Zealand and equal or exceed their parents by age 30** more than doubles in metropolitan New Zealand—jumping from **26.5% to 58.6%** in Large regional cities and from **26.2% to 68.6%** in Auckland, while cutting the "stay-and-do-worse" cohort in Auckland by more than half (from **66.8% down to 28.6%**).
+
+![Pre-Employment Cohort Opportunity Index at Age 30](Output_NZ_4Region_Intergen/Fig4_PreEmployment_Opportunity_Index.png)
+*Figure 6 (`Fig4_PreEmployment_Opportunity_Index.png`): Pre-Employment Cohort Opportunity Index at Age 30 across Rural, Small, Large, and Auckland regions (Status Quo vs. High-Opportunity Reform Package).*
