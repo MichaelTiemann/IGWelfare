@@ -64,13 +64,15 @@ for p_idx = 1:N_pol
             Params_p.tau_a        = 0.015;
     end
 
+    simoptions_5D.d_grid = d_grid_5D; simoptions_5D.a_grid = a_grid_5D;
+
     % --- 1. SHORT-RUN PARTIAL EQUILIBRIUM (SR: Fixed Newborn Distribution jequaloneDist_5D_BM) ---
-    [V_SR, Policy_SR] = ValueFnIter_Case1_FHorz_PType(n_d_5D, n_a_5D, n_z, N_j, Names_i, ...
+    [V_SR, Policy_SR] = ValueFnIter_MixHorz_PType(n_d_5D, n_a_5D, n_z, N_j, Names_i, ...
         d_grid_5D, a_grid_5D, z_grid, pi_z, ReturnFn_5D, Params_p, DiscountFactorParamNames, vfoptions_5D);
 
-    StatDist_SR = StationaryDist_Case1_FHorz_PType(jequaloneDist_5D_BM, AgeWeightsParamNames, ...
+    StatDist_SR = StationaryDist_MixHorz_PType(jequaloneDist_5D_BM, AgeWeightsParamNames, ...
         PTypeDistParamNames, Policy_SR, n_d_5D, n_a_5D, n_z, N_j, Names_i, ...
-        d_grid_5D, a_grid_5D, z_grid, pi_z, Params_p, simoptions_5D);
+        pi_z, Params_p, simoptions_5D);
 
     [~, Diag_SR] = Build_IntergenTransitionMatrix(StatDist_SR, Policy_SR, V_SR, ...
         n_d_5D, n_a_5D, n_z, d_grid_5D, a_grid_5D, z_grid, pi_z, Params_p, Regions);
@@ -81,9 +83,9 @@ for p_idx = 1:N_pol
     Pol_LR   = Policy_SR;
 
     for ig_it = 1:10
-        StatDist_LR = StationaryDist_Case1_FHorz_PType(jDist_LR, AgeWeightsParamNames, ...
+        StatDist_LR = StationaryDist_MixHorz_PType(jDist_LR, AgeWeightsParamNames, ...
             PTypeDistParamNames, Pol_LR, n_d_5D, n_a_5D, n_z, N_j, Names_i, ...
-            d_grid_5D, a_grid_5D, z_grid, pi_z, Params_p, simoptions_5D);
+            pi_z, Params_p, simoptions_5D);
 
         [jDist_LR_new, Diag_LR] = Build_IntergenTransitionMatrix(StatDist_LR, Pol_LR, V_LR, ...
             n_d_5D, n_a_5D, n_z, d_grid_5D, a_grid_5D, z_grid, pi_z, Params_p, Regions);
@@ -115,35 +117,30 @@ for p_idx = 1:N_pol
         earn_LR_sum = 0; mass_LR_work = 0;
         logE_vals   = []; logE_weights = [];
 
-        for jj = 1:(Params.Jr - 1)
-            for ia = 1:n_a1
-                for ih = 1:n_h
-                    for ith = 1:n_th
-                        for iz = 1:n_z1
-                            m_sr = Dist_SR_k(ia, ih, ith, iz, jj);
-                            m_lr = Dist_LR_k(ia, ih, ith, iz, jj);
+        % Working-age slice: j = 1 ... Jr-1 (5D Tensor: [n_a1, n_h, n_th, n_z1, Jr-1])
+        j_work     = 1:(Params.Jr - 1);
+        Dist_SR_w  = Dist_SR_k(:, :, :, :, j_work);
+        Dist_LR_w  = Dist_LR_k(:, :, :, :, j_work);
 
-                            % Index 1 is labor supply 'l' (since d = [l, Ih, ic])
-                            l_sr = l_grid(min(4, max(1, round(Pol_SR_k(1, ia, ih, ith, iz, jj)))));
-                            l_lr = l_grid(min(4, max(1, round(Pol_LR_k(1, ia, ih, ith, iz, jj)))));
+        % Extract labor supply decision l (Index 1 of Policy) across all working-age states at once
+        idx_l_sr   = min(4, max(1, round(reshape(Pol_SR_k(1, :, :, :, :, j_work), size(Dist_SR_w)))));
+        idx_l_lr   = min(4, max(1, round(reshape(Pol_LR_k(1, :, :, :, :, j_work), size(Dist_LR_w)))));
+        l_sr_ten   = max(0.2, l_grid(idx_l_sr));
+        l_lr_ten   = max(0.2, l_grid(idx_l_lr));
 
-                            y_sr = w_k * h_vec(ih) * z_vec(iz) * max(0.2, l_sr);
-                            y_lr = w_k * h_vec(ih) * z_vec(iz) * max(0.2, l_lr);
+        % 5D implicit expansion: h_vec is [1 x n_h x 1 x 1 x 1], z_vec is [1 x 1 x 1 x n_z1 x 1]
+        hz_tensor  = w_k .* reshape(h_vec, [1, n_h, 1, 1, 1]) .* reshape(z_vec, [1, 1, 1, n_z1, 1]);
+        Y_SR_ten   = hz_tensor .* l_sr_ten;
+        Y_LR_ten   = hz_tensor .* l_lr_ten;
 
-                            earn_SR_sum  = earn_SR_sum + m_sr * y_sr;
-                            mass_SR_work = mass_SR_work + m_sr;
-                            earn_LR_sum  = earn_LR_sum + m_lr * y_lr;
-                            mass_LR_work = mass_LR_work + m_lr;
+        earn_SR_sum  = sum(Dist_SR_w .* Y_SR_ten, 'all');
+        mass_SR_work = sum(Dist_SR_w, 'all');
+        earn_LR_sum  = sum(Dist_LR_w .* Y_LR_ten, 'all');
+        mass_LR_work = sum(Dist_LR_w, 'all');
 
-                            if m_lr > 1e-9
-                                logE_vals(end+1, 1)    = log(max(1e-3, y_lr)); %#ok<SAGROW>
-                                logE_weights(end+1, 1) = m_lr; %#ok<SAGROW>
-                            end
-                        end
-                    end
-                end
-            end
-        end
+        mask_pos     = Dist_LR_w > 1e-9;
+        logE_vals    = log(max(1e-3, Y_LR_ten(mask_pos)));
+        logE_weights = Dist_LR_w(mask_pos);
 
         ebar_sr_val = earn_SR_sum / max(1e-12, mass_SR_work);
         ebar_lr_val = earn_LR_sum / max(1e-12, mass_LR_work);

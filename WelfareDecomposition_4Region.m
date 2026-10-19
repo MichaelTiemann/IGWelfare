@@ -30,7 +30,7 @@ Params_Reform.Transfer_Geo.HH_Large    = 0.025;
 Params_Reform.Transfer_Geo.HH_Auckland = 0.028;
 
 % Stage A: Short-Run Partial Equilibrium (PE: Policy levers only, fixed prices & fixed jDist_SS0)
-[V_PE, Policy_PE] = ValueFnIter_Case1_FHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
+[V_PE, Policy_PE] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
     d_grid, a_grid, z_grid, pi_z, ReturnFn, Params_Reform, DiscountFactorParamNames, vfoptions);
 
 % Stage B: Long-Run General Equilibrium with Exogenous Skills (Guvenen et al. w_k Up & Kiyotaki Q_k Cool)
@@ -42,15 +42,16 @@ for r_idx = 1:N_reg
     Params_Reform.w_reg.(['Firm_', reg]) = Params.w_reg.(['Firm_', reg]) * w_mult_GE(r_idx);
     Params_Reform.Q_reg.(['HH_', reg])   = Params.Q_reg.(['HH_', reg])   * Q_mult_GE(r_idx);
 end
-[V_GE_Exo, Policy_GE_Exo] = ValueFnIter_Case1_FHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
+[V_GE_Exo, Policy_GE_Exo] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
     d_grid, a_grid, z_grid, pi_z, ReturnFn, Params_Reform, DiscountFactorParamNames, vfoptions);
 
 % Stage C: Long-Run General Equilibrium with Endogenous 4x5 Intergenerational Matrix (SS1)
+simoptions.d_grid = d_grid; simoptions.a_grid = a_grid;
 jDist_SS1 = jDist_SS0;
 for ig_it = 1:12
-    StatDist_SS1 = StationaryDist_Case1_FHorz_PType(jDist_SS1, AgeWeightsParamNames, ...
+    StatDist_SS1 = StationaryDist_MixHorz_PType(jDist_SS1, AgeWeightsParamNames, ...
         PTypeDistParamNames, Policy_GE_Exo, n_d, n_a, n_z, N_j, Names_i, ...
-        d_grid, a_grid, z_grid, pi_z, Params_Reform, simoptions);
+        pi_z, Params_Reform, simoptions);
     [jDist_SS1_new, IG_Diag_SS1] = Build_IntergenTransitionMatrix(StatDist_SS1, Policy_GE_Exo, V_GE_Exo, ...
         n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params_Reform, Regions);
     if max(abs(jDist_SS1_new.HH_Auckland(:) - jDist_SS1.HH_Auckland(:))) < 1e-5
@@ -69,11 +70,17 @@ exp_ce   = 1 / (Params.phi_nd * (1 - 2.0));
 
 for r_idx = 1:N_reg
     hh_type = ['HH_', Regions{r_idx}];
-    V0_j1   = gather(V_SS0.(hh_type)(:, 1));
-    Vpe_j1  = gather(V_PE.(hh_type)(:, 1));
-    Vge_j1  = gather(V_GE_Exo.(hh_type)(:, 1));
-    d0_j1   = gather(jDist_SS0.(hh_type)(:));
-    d1_j1   = gather(jDist_SS1.(hh_type)(:));
+    d0_j1   = reshape(gather(jDist_SS0.(hh_type)), [], 1);
+    d1_j1   = reshape(gather(jDist_SS1.(hh_type)), [], 1);
+    N_state = numel(d0_j1);
+
+    V0_full  = reshape(gather(V_SS0.(hh_type)),    [N_state, Params.J]);
+    Vpe_full = reshape(gather(V_PE.(hh_type)),     [N_state, Params.J]);
+    Vge_full = reshape(gather(V_GE_Exo.(hh_type)), [N_state, Params.J]);
+
+    V0_j1  = V0_full(:, 1);
+    Vpe_j1 = Vpe_full(:, 1);
+    Vge_j1 = Vge_full(:, 1);
 
     m0 = isfinite(V0_j1) & isfinite(Vpe_j1) & isfinite(Vge_j1) & (d0_j1 > 0);
     ev0   = sum(V0_j1(m0)  .* d0_j1(m0)) / sum(d0_j1(m0));
