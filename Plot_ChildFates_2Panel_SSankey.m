@@ -4,10 +4,10 @@
 % Montessori Cross-Age Mentoring ("Banking" First-2000-Days Gains).
 
 %% 1. CONFIGURATION SWITCHES
-Target_Region      = 'Rural';   % 'Auckland', 'Urban', 'National', 'Large', 'Small', 'Rural'
+Target_Regions     = {'National', 'Auckland', 'Large', 'Small', 'Rural', 'Urban'}; % Any subset or single region!
+if ischar(Target_Regions) || isstring(Target_Regions), Target_Regions = cellstr(Target_Regions); end
 Calibration_Anchor = 'Dunedin_22'; % 'Dunedin_22' (~17.9% baseline) or 'MetroSqueeze_GUiNZ' (~36.6% baseline)
 Merge_Orientation  = 'Vertical';   % 'Vertical' (Stacked Top/Bottom) or 'Horizontal' (Side-by-Side)
-Out_PNG_Name       = sprintf('Fig_ChildFates_5Stage_2Panel_%s_%s.png', Target_Region, Calibration_Anchor);
 
 %% 2. DETECT BASELINE (SS0) AND REFORM (SS1) WORKSPACE OBJECTS
 if exist('StatDist_Base', 'var') && exist('Policy_Base', 'var')
@@ -57,71 +57,74 @@ else
 end
 
 %% 3. RENDER PANEL A & PANEL B AND MERGE INTO A SINGLE HIGH-RES IMAGE
-figA = figure('Color', 'w', 'Position', [50, 50, 1480, 720], 'Visible', 'on');
-axA  = axes('Parent', figA, 'Position', [0.02, 0.06, 0.95, 0.86]);
-Build_And_Render_Panel(axA, Target_Region, Dist_SS0, Pol_SS0, P_SS0, Diag_SS0, ...
-    n_d, n_a, n_z, d_grid, a_grid, Regions, 'A. Status Quo Baseline (SS0)', ...
-    Calibration_Anchor, false);
-drawnow;
-tmpA = [tempname, '_PanelA.png'];
-imgA = AutoCrop_White_Border(print(figA, '-RGBImage', '-r300'));
-close(figA);
+for r_loop = 1:length(Target_Regions)
+    Target_Region = Target_Regions{r_loop};
+    Out_PNG_Name  = sprintf('Fig_ChildFates_5Stage_2Panel_%s_%s.png', Target_Region, Calibration_Anchor);
+    figA = figure('Color', 'w', 'Position', [50, 50, 1480, 720], 'Visible', 'on');
+    axA  = axes('Parent', figA, 'Position', [0.02, 0.06, 0.95, 0.86]);
+    Build_And_Render_Panel(axA, Target_Region, Dist_SS0, Pol_SS0, P_SS0, Diag_SS0, ...
+        n_d, n_a, n_z, d_grid, a_grid, Regions, 'A. Status Quo Baseline (SS0)', ...
+        Calibration_Anchor, false);
+    drawnow;
+    tmpA = [tempname, '_PanelA.png'];
+    imgA = AutoCrop_White_Border(print(figA, '-RGBImage', '-r300'));
+    close(figA);
 
-figB = figure('Color', 'w', 'Position', [50, 50, 1480, 720], 'Visible', 'on');
-axB  = axes('Parent', figB, 'Position', [0.02, 0.06, 0.95, 0.86]);
-Build_And_Render_Panel(axB, Target_Region, Dist_SS1, Pol_SS1, P_SS1, Diag_SS1, ...
-    n_d, n_a, n_z, d_grid, a_grid, Regions, 'B. High-Opportunity Reform + Montessori Mentoring (SS1)', ...
-    Calibration_Anchor, true);
-drawnow;
-imgB = AutoCrop_White_Border(print(figB, '-RGBImage', '-r300'));
-close(figB);
+    figB = figure('Color', 'w', 'Position', [50, 50, 1480, 720], 'Visible', 'on');
+    axB  = axes('Parent', figB, 'Position', [0.02, 0.06, 0.95, 0.86]);
+    Build_And_Render_Panel(axB, Target_Region, Dist_SS1, Pol_SS1, P_SS1, Diag_SS1, ...
+        n_d, n_a, n_z, d_grid, a_grid, Regions, 'B. High-Opportunity Reform + Montessori Mentoring (SS1)', ...
+        Calibration_Anchor, true);
+    drawnow;
+    imgB = AutoCrop_White_Border(print(figB, '-RGBImage', '-r300'));
+    close(figB);
 
-% Match dimensions and add generous whitespace around all text legends & titles
-[hA, wA, ~] = size(imgA);
-[hB, wB, ~] = size(imgB);
+    % Match dimensions and add generous whitespace around all text legends & titles
+    [hA, wA, ~] = size(imgA);
+    [hB, wB, ~] = size(imgB);
 
-if strcmpi(Merge_Orientation, 'Vertical')
-    W_max    = max(wA, wB);
-    pad_L    = 65;
-    pad_R    = 95;
-    W_canvas = W_max + pad_L + pad_R;
+    if strcmpi(Merge_Orientation, 'Vertical')
+        W_max    = max(wA, wB);
+        pad_L    = 65;
+        pad_R    = 95;
+        W_canvas = W_max + pad_L + pad_R;
 
-    imgA_pad = uint8(255 * ones(hA, W_canvas, 3));
-    imgA_pad(:, (pad_L+1):(pad_L+wA), :) = imgA;
+        imgA_pad = uint8(255 * ones(hA, W_canvas, 3));
+        imgA_pad(:, (pad_L+1):(pad_L+wA), :) = imgA;
 
-    imgB_pad = uint8(255 * ones(hB, W_canvas, 3));
-    imgB_pad(:, (pad_L+1):(pad_L+wB), :) = imgB;
+        imgB_pad = uint8(255 * ones(hB, W_canvas, 3));
+        imgB_pad(:, (pad_L+1):(pad_L+wB), :) = imgB;
 
-    top_frame_pad    = uint8(255 * ones(90, W_canvas, 3)); % Above Panel A Title
-    gap_below_PanelA = uint8(255 * ones(80, W_canvas, 3)); % Below Panel A J-Axis
-    divider_line     = uint8(220 * ones(4,  W_canvas, 3)); % Subtle hairline
-    gap_above_PanelB = uint8(255 * ones(90, W_canvas, 3)); % Above Panel B Title
-    bot_frame_pad    = uint8(255 * ones(90, W_canvas, 3)); % Below Panel B J-Axis
+        top_frame_pad    = uint8(255 * ones(90, W_canvas, 3)); % Above Panel A Title
+        gap_below_PanelA = uint8(255 * ones(80, W_canvas, 3)); % Below Panel A J-Axis
+        divider_line     = uint8(220 * ones(4,  W_canvas, 3)); % Subtle hairline
+        gap_above_PanelB = uint8(255 * ones(90, W_canvas, 3)); % Above Panel B Title
+        bot_frame_pad    = uint8(255 * ones(90, W_canvas, 3)); % Below Panel B J-Axis
 
-    img_Merged = [top_frame_pad; imgA_pad; gap_below_PanelA; divider_line; gap_above_PanelB; imgB_pad; bot_frame_pad];
-    fig_pos    = [80, 20, 1320, 1080];
-else
-    H_max    = max(hA, hB);
-    pad_T    = 90; pad_B = 90;
-    H_canvas = H_max + pad_T + pad_B;
-    imgA_pad = uint8(255 * ones(H_canvas, wA, 3)); imgA_pad((pad_T+1):(pad_T+hA), :, :) = imgA;
-    imgB_pad = uint8(255 * ones(H_canvas, wB, 3)); imgB_pad((pad_T+1):(pad_T+hB), :, :) = imgB;
-    left_pad  = uint8(255 * ones(H_canvas, 65, 3));
-    mid_gap   = uint8(255 * ones(H_canvas, 120, 3));
-    right_pad = uint8(255 * ones(H_canvas, 95, 3));
-    img_Merged = [left_pad, imgA_pad, mid_gap, imgB_pad, right_pad];
-    fig_pos    = [20, 80, 1860, 740];
+        img_Merged = [top_frame_pad; imgA_pad; gap_below_PanelA; divider_line; gap_above_PanelB; imgB_pad; bot_frame_pad];
+        fig_pos    = [80, 20, 1320, 1080];
+    else
+        H_max    = max(hA, hB);
+        pad_T    = 90; pad_B = 90;
+        H_canvas = H_max + pad_T + pad_B;
+        imgA_pad = uint8(255 * ones(H_canvas, wA, 3)); imgA_pad((pad_T+1):(pad_T+hA), :, :) = imgA;
+        imgB_pad = uint8(255 * ones(H_canvas, wB, 3)); imgB_pad((pad_T+1):(pad_T+hB), :, :) = imgB;
+        left_pad  = uint8(255 * ones(H_canvas, 65, 3));
+        mid_gap   = uint8(255 * ones(H_canvas, 120, 3));
+        right_pad = uint8(255 * ones(H_canvas, 95, 3));
+        img_Merged = [left_pad, imgA_pad, mid_gap, imgB_pad, right_pad];
+        fig_pos    = [20, 80, 1860, 740];
+    end
+
+    imwrite(img_Merged, fullfile(OutputDir, Out_PNG_Name));
+    fprintf('Saved merged 5-stage 2-panel Sankey image to: %s\n', fullfile(OutputDir, Out_PNG_Name));
+
+    fig_Merged = figure('Name', ['Merged 5-Stage Child Fates: ', Target_Region], ...
+        'Color', 'w', 'Position', fig_pos);
+    ax_M = axes('Parent', fig_Merged, 'Position', [0, 0, 1, 1]);
+    imshow(img_Merged, 'Parent', ax_M, 'Border', 'tight');
+    axis(ax_M, 'off');
 end
-
-imwrite(img_Merged, fullfile(OutputDir, Out_PNG_Name));
-fprintf('Saved merged 5-stage 2-panel Sankey image to: %s\n', fullfile(OutputDir, Out_PNG_Name));
-
-fig_Merged = figure('Name', ['Merged 5-Stage Child Fates: ', Target_Region], ...
-    'Color', 'w', 'Position', fig_pos);
-ax_M = axes('Parent', fig_Merged, 'Position', [0, 0, 1, 1]);
-imshow(img_Merged, 'Parent', ax_M, 'Border', 'tight');
-axis(ax_M, 'off');
-
 
 %% ========================================================================
 %  LOCAL HELPER: COMPUTE 5-STAGE FLOWS & RENDER SINGLE SANKEY PANEL

@@ -16,11 +16,11 @@
 %       with Net-Zero Breakeven Line across Gates 5 & 6.
 
 %% 1. CONFIGURATION SWITCHES
-Target_Region      = 'Rural';   % 'Auckland', 'Urban', 'National', 'Large', 'Small', 'Rural'
+Target_Regions     = {'National', 'Auckland', 'Large', 'Small', 'Rural', 'Urban'}; % Any subset or single region!
+if ischar(Target_Regions) || isstring(Target_Regions), Target_Regions = cellstr(Target_Regions); end
 Calibration_Anchor = 'Dunedin_22'; % 'Dunedin_22' or 'MetroSqueeze_GUiNZ'
 Merge_Orientation  = 'Vertical';   % 'Vertical' (Stacked Top/Bottom for A3) or 'Horizontal'
 NZD_Base_Scale     = 95.0;         % 1.0 model unit = NZD $95.0k/yr (mean prime household earnings)
-Out_PNG_Name       = sprintf('Fig_ChildFiscal_2Panel_%s_%s.png', Target_Region, Calibration_Anchor);
 
 %% 2. DETECT BASELINE (SS0) AND REFORM (SS1) WORKSPACE OBJECTS
 if exist('StatDist_Base', 'var') && exist('Policy_Base', 'var')
@@ -76,99 +76,105 @@ end
 %% 3. RENDER PANEL A & PANEL B ON A3 CANVASES AND MERGE INTO ONE IMAGE
 FiscalLedger = struct();
 
-figA = figure('Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
-axA  = axes('Parent', figA, 'Position', [0.02, 0.07, 0.95, 0.85]);
-FiscalLedger.SS0 = Build_And_Render_Fiscal_Panel(axA, Target_Region, Dist_SS0, Pol_SS0, ...
-    P_SS0, Diag_SS0, n_d, n_a, n_z, d_grid, a_grid, z_grid, ...
-    'A. Status Quo Baseline (SS0)', ...
-    Calibration_Anchor, NZD_Base_Scale, false);
-drawnow;
-imgA = AutoCrop_White_Border(print(figA, '-RGBImage', '-r300'));
-close(figA);
+for r_loop = 1:length(Target_Regions)
+    Target_Region = Target_Regions{r_loop};
+    Out_PNG_Name  = sprintf('Fig_ChildFiscal_5Stage_2Panel_%s_%s.png', Target_Region, Calibration_Anchor);
 
-figB = figure('Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
-axB  = axes('Parent', figB, 'Position', [0.02, 0.07, 0.95, 0.85]);
-FiscalLedger.SS1 = Build_And_Render_Fiscal_Panel(axB, Target_Region, Dist_SS1, Pol_SS1, ...
-    P_SS1, Diag_SS1, n_d, n_a, n_z, d_grid, a_grid, z_grid, ...
-    'B. High-Opportunity Reform (SS1)', ...
-    Calibration_Anchor, NZD_Base_Scale, true);
-drawnow;
-imgB = AutoCrop_White_Border(print(figB, '-RGBImage', '-r300'));
-close(figB);
+    figA = figure('Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
+    axA  = axes('Parent', figA, 'Position', [0.02, 0.07, 0.95, 0.85]);
+    FiscalLedger.(Target_Region).SS0 = Build_And_Render_Fiscal_Panel(axA, Target_Region, Dist_SS0, Pol_SS0, ...
+        P_SS0, Diag_SS0, n_d, n_a, n_z, d_grid, a_grid, z_grid, ...
+        'A. Status Quo Baseline (SS0)', ...
+        Calibration_Anchor, NZD_Base_Scale, false);
+    drawnow;
+    imgA = AutoCrop_White_Border(print(figA, '-RGBImage', '-r300'));
+    close(figA);
 
-[hA, wA, ~] = size(imgA);
-[hB, wB, ~] = size(imgB);
+    figB = figure('Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
+    axB  = axes('Parent', figB, 'Position', [0.02, 0.07, 0.95, 0.85]);
+    FiscalLedger.(Target_Region).SS1 = Build_And_Render_Fiscal_Panel(axB, Target_Region, Dist_SS1, Pol_SS1, ...
+        P_SS1, Diag_SS1, n_d, n_a, n_z, d_grid, a_grid, z_grid, ...
+        'B. High-Opportunity Reform (SS1)', ...
+        Calibration_Anchor, NZD_Base_Scale, true);
+    drawnow;
+    imgB = AutoCrop_White_Border(print(figB, '-RGBImage', '-r300'));
+    close(figB);
 
-if strcmpi(Merge_Orientation, 'Vertical')
-    W_max    = max(wA, wB);
-    pad_L    = 65;
-    pad_R    = 95;
-    W_canvas = W_max + pad_L + pad_R;
+    [hA, wA, ~] = size(imgA);
+    [hB, wB, ~] = size(imgB);
 
-    imgA_pad = uint8(255 * ones(hA, W_canvas, 3));
-    imgA_pad(:, (pad_L+1):(pad_L+wA), :) = imgA;
+    if strcmpi(Merge_Orientation, 'Vertical')
+        W_max    = max(wA, wB);
+        pad_L    = 65;
+        pad_R    = 95;
+        W_canvas = W_max + pad_L + pad_R;
 
-    imgB_pad = uint8(255 * ones(hB, W_canvas, 3));
-    imgB_pad(:, (pad_L+1):(pad_L+wB), :) = imgB;
+        imgA_pad = uint8(255 * ones(hA, W_canvas, 3));
+        imgA_pad(:, (pad_L+1):(pad_L+wA), :) = imgA;
 
-    top_frame_pad    = uint8(255 * ones(90, W_canvas, 3));
-    gap_below_PanelA = uint8(255 * ones(80, W_canvas, 3));
-    divider_line     = uint8(220 * ones(4,  W_canvas, 3));
-    gap_above_PanelB = uint8(255 * ones(90, W_canvas, 3));
-    bot_frame_pad    = uint8(255 * ones(90, W_canvas, 3));
+        imgB_pad = uint8(255 * ones(hB, W_canvas, 3));
+        imgB_pad(:, (pad_L+1):(pad_L+wB), :) = imgB;
 
-    img_Merged = [top_frame_pad; imgA_pad; gap_below_PanelA; divider_line; gap_above_PanelB; imgB_pad; bot_frame_pad];
-    fig_pos    = [60, 20, 1380, 1080];
-else
-    H_max    = max(hA, hB);
-    pad_T    = 90; pad_B = 90;
-    H_canvas = H_max + pad_T + pad_B;
-    imgA_pad = uint8(255 * ones(H_canvas, wA, 3)); imgA_pad((pad_T+1):(pad_T+hA), :, :) = imgA;
-    imgB_pad = uint8(255 * ones(H_canvas, wB, 3)); imgB_pad((pad_T+1):(pad_T+hB), :, :) = imgB;
-    left_pad  = uint8(255 * ones(H_canvas, 65, 3));
-    mid_gap   = uint8(255 * ones(H_canvas, 120, 3));
-    right_pad = uint8(255 * ones(H_canvas, 95, 3));
-    img_Merged = [left_pad, imgA_pad, mid_gap, imgB_pad, right_pad];
-    fig_pos    = [20, 80, 1880, 760];
+        top_frame_pad    = uint8(255 * ones(90, W_canvas, 3));
+        gap_below_PanelA = uint8(255 * ones(80, W_canvas, 3));
+        divider_line     = uint8(220 * ones(4,  W_canvas, 3));
+        gap_above_PanelB = uint8(255 * ones(90, W_canvas, 3));
+        bot_frame_pad    = uint8(255 * ones(90, W_canvas, 3));
+
+        img_Merged = [top_frame_pad; imgA_pad; gap_below_PanelA; divider_line; gap_above_PanelB; imgB_pad; bot_frame_pad];
+        fig_pos    = [60, 20, 1380, 1080];
+    else
+        H_max    = max(hA, hB);
+        pad_T    = 90; pad_B = 90;
+        H_canvas = H_max + pad_T + pad_B;
+        imgA_pad = uint8(255 * ones(H_canvas, wA, 3)); imgA_pad((pad_T+1):(pad_T+hA), :, :) = imgA;
+        imgB_pad = uint8(255 * ones(H_canvas, wB, 3)); imgB_pad((pad_T+1):(pad_T+hB), :, :) = imgB;
+        left_pad  = uint8(255 * ones(H_canvas, 65, 3));
+        mid_gap   = uint8(255 * ones(H_canvas, 120, 3));
+        right_pad = uint8(255 * ones(H_canvas, 95, 3));
+        img_Merged = [left_pad, imgA_pad, mid_gap, imgB_pad, right_pad];
+        fig_pos    = [20, 80, 1880, 760];
+    end
+
+    imwrite(img_Merged, fullfile(OutputDir, Out_PNG_Name));
+    fprintf('\nSaved merged 6-gate Fiscal Sankey image to: %s\n', fullfile(OutputDir, Out_PNG_Name));
+
+    %% DOCUMENT 1A & 1B PROTOCOL: 2050 DEBT-SINKING FUND & PUBLIC REINVESTMENT LEDGER SUMMARY
+    L_SS0 = FiscalLedger.(Target_Region).SS0;
+    L_SS1 = FiscalLedger.(Target_Region).SS1;
+    Omega_Delta_30 = max(0, L_SS1.Net_Fiscal_Balance_kNZD(1) - L_SS0.Net_Fiscal_Balance_kNZD(1));
+    Omega_Delta_CR = max(0, L_SS1.Net_Fiscal_Balance_kNZD(2) - L_SS0.Net_Fiscal_Balance_kNZD(2));
+
+    FiscalLedger.Protocol_2050_Summary = table( ...
+        [L_SS0.Net_Fiscal_Balance_kNZD(1); L_SS0.Net_Fiscal_Balance_kNZD(2)], ...
+        [L_SS1.Net_Fiscal_Balance_kNZD(1); L_SS1.Net_Fiscal_Balance_kNZD(2)], ...
+        [Omega_Delta_30; Omega_Delta_CR], ...
+        [L_SS1.SinkingFund_50Pct_kNZD(1); L_SS1.SinkingFund_50Pct_kNZD(2)], ...
+        [L_SS1.ReinvestmentPool_50Pct_kNZD(1); L_SS1.ReinvestmentPool_50Pct_kNZD(2)], ...
+        [L_SS1.Annual_DebtService_Saving_kNZD(1); L_SS1.Annual_DebtService_Saving_kNZD(2)], ...
+        [L_SS1.Public_Infra_Yield_Dividend_kNZD(1); L_SS1.Public_Infra_Yield_Dividend_kNZD(2)], ...
+        'RowNames', {'Gate5_Age30_J10', 'Gate6_CareerToRet_J11_16'}, ...
+        'VariableNames', {'Baseline_SS0_kNZD', 'Reform_SS1_kNZD', 'Reform_Gain_Omega_kNZD', ...
+        'DebtSinking_50Pct_kNZD', 'ReinvestPool_50Pct_kNZD', ...
+        'DebtInterestSaved_2050_kNZD', 'Infra_NZSF_YieldDiv_2050_kNZD'});
+
+    fprintf('\n=========================================================================================================\n');
+    fprintf('SECTION 5 PROTOCOL: 2050 SOVEREIGN DEBT-SINKING FUND & PUBLIC REINVESTMENT LEDGER (%s)\n', Target_Region);
+    fprintf('=========================================================================================================\n');
+    disp(FiscalLedger.Protocol_2050_Summary);
+    fprintf('  -> Cumulative 2050 Sovereign Debt Reduction (per 60k birth cohort): NZD $%.1f Million\n', ...
+        L_SS1.Cum_2050_DebtReduction_MNZD);
+    fprintf('  -> Cumulative 2050 Infrastructure & NZSF Reinvestment Pool:         NZD $%.1f Million\n\n', ...
+        L_SS1.Cum_2050_ReinvestPool_MNZD);
+    fprintf('\nSaved merged 6-gate Fiscal Sankey image to: %s\n', fullfile(OutputDir, Out_PNG_Name));
+    fprintf('All dollar flows are in Cohort-Weighted Annual NZD $k/yr per child born in cohort.\n');
+
+    fig_Merged = figure('Name', ['Merged 6-Gate Fiscal & Private Dollar Flows: ', Target_Region], ...
+        'Color', 'w', 'Position', fig_pos);
+    ax_M = axes('Parent', fig_Merged, 'Position', [0, 0, 1, 1]);
+    imshow(img_Merged, 'Parent', ax_M, 'Border', 'tight');
+    axis(ax_M, 'off');
 end
-
-imwrite(img_Merged, fullfile(OutputDir, Out_PNG_Name));
-fprintf('\nSaved merged 6-gate Fiscal Sankey image to: %s\n', fullfile(pwd, Out_PNG_Name));
-
-%% DOCUMENT 1A & 1B PROTOCOL: 2050 DEBT-SINKING FUND & PUBLIC REINVESTMENT LEDGER SUMMARY
-Omega_Delta_30 = max(0, FiscalLedger.SS1.Net_Fiscal_Balance_kNZD(1) - FiscalLedger.SS0.Net_Fiscal_Balance_kNZD(1));
-Omega_Delta_CR = max(0, FiscalLedger.SS1.Net_Fiscal_Balance_kNZD(2) - FiscalLedger.SS0.Net_Fiscal_Balance_kNZD(2));
-
-FiscalLedger.Protocol_2050_Summary = table( ...
-    [FiscalLedger.SS0.Net_Fiscal_Balance_kNZD(1); FiscalLedger.SS0.Net_Fiscal_Balance_kNZD(2)], ...
-    [FiscalLedger.SS1.Net_Fiscal_Balance_kNZD(1); FiscalLedger.SS1.Net_Fiscal_Balance_kNZD(2)], ...
-    [Omega_Delta_30; Omega_Delta_CR], ...
-    [FiscalLedger.SS1.SinkingFund_50Pct_kNZD(1); FiscalLedger.SS1.SinkingFund_50Pct_kNZD(2)], ...
-    [FiscalLedger.SS1.ReinvestmentPool_50Pct_kNZD(1); FiscalLedger.SS1.ReinvestmentPool_50Pct_kNZD(2)], ...
-    [FiscalLedger.SS1.Annual_DebtService_Saving_kNZD(1); FiscalLedger.SS1.Annual_DebtService_Saving_kNZD(2)], ...
-    [FiscalLedger.SS1.Public_Infra_Yield_Dividend_kNZD(1); FiscalLedger.SS1.Public_Infra_Yield_Dividend_kNZD(2)], ...
-    'RowNames', {'Gate5_Age30_J10', 'Gate6_CareerToRet_J11_16'}, ...
-    'VariableNames', {'Baseline_SS0_kNZD', 'Reform_SS1_kNZD', 'Reform_Gain_Omega_kNZD', ...
-    'DebtSinking_50Pct_kNZD', 'ReinvestPool_50Pct_kNZD', ...
-    'DebtInterestSaved_2050_kNZD', 'Infra_NZSF_YieldDiv_2050_kNZD'});
-
-fprintf('\n=========================================================================================================\n');
-fprintf('SECTION 5 PROTOCOL: 2050 SOVEREIGN DEBT-SINKING FUND & PUBLIC REINVESTMENT LEDGER (%s)\n', Target_Region);
-fprintf('=========================================================================================================\n');
-disp(FiscalLedger.Protocol_2050_Summary);
-fprintf('  -> Cumulative 2050 Sovereign Debt Reduction (per 60k birth cohort): NZD $%.1f Million\n', ...
-    FiscalLedger.SS1.Cum_2050_DebtReduction_MNZD);
-fprintf('  -> Cumulative 2050 Infrastructure & NZSF Reinvestment Pool:         NZD $%.1f Million\n\n', ...
-    FiscalLedger.SS1.Cum_2050_ReinvestPool_MNZD);
-fprintf('\nSaved merged 6-gate Fiscal Sankey image to: %s\n', fullfile(OutputDir, Out_PNG_Name));
-fprintf('All dollar flows are in Cohort-Weighted Annual NZD $k/yr per child born in cohort.\n');
-
-fig_Merged = figure('Name', ['Merged 6-Gate Fiscal & Private Dollar Flows: ', Target_Region], ...
-    'Color', 'w', 'Position', fig_pos);
-ax_M = axes('Parent', fig_Merged, 'Position', [0, 0, 1, 1]);
-imshow(img_Merged, 'Parent', ax_M, 'Border', 'tight');
-axis(ax_M, 'off');
-
 
 %% ========================================================================
 %  LOCAL HELPER: GPU-VECTORIZED 6-GATE FISCAL & PRIVATE LEDGER + SANKEY
