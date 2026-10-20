@@ -26,7 +26,7 @@ Params_PE.Transfer_Geo.HH_Small    = 0.031;
 Params_PE.Transfer_Geo.HH_Large    = 0.025;
 Params_PE.Transfer_Geo.HH_Auckland = 0.028;
 
-% Stage A: Short-Run Partial Equilibrium (PE: Direct family relief before estate/wealth tax & price shifts)
+% Stage A: Short-Run Partial Equilibrium (PE: Policy levers only, fixed prices & fixed jDist_SS0)
 [V_PE, Policy_PE] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
     d_grid, a_grid, z_grid, pi_z, ReturnFn, Params_PE, DiscountFactorParamNames, vfoptions);
 
@@ -79,8 +79,22 @@ exp_ce   = 1 / (Params.phi_nd * (1 - 2.0));
 
 for r_idx = 1:N_reg
     hh_type = ['HH_', Regions{r_idx}];
-    d0_j1   = reshape(gather(jDist_SS0.(hh_type)), [], 1);
-    d1_j1   = reshape(gather(jDist_SS1.(hh_type)), [], 1);
+    n_a1_k  = n_a.(hh_type)(1);
+    n_h_k   = n_a.(hh_type)(2);
+    n_z_k   = prod(n_z.(hh_type));
+
+    D0_3D   = reshape(gather(jDist_SS0.(hh_type)), [n_a1_k, n_h_k, n_z_k]);
+    D1_3D   = reshape(gather(jDist_SS1.(hh_type)), [n_a1_k, n_h_k, n_z_k]);
+
+    % Isolate the intergenerational human capital shift (holding initial asset marginal distribution fixed
+    % so rural-to-urban estate migration doesn't artificially depress Rural's human capital multiplier)
+    h_marg_0 = max(1e-12, sum(D0_3D, [1, 3])); % [1 x n_h_k]
+    h_marg_1 = max(1e-12, sum(D1_3D, [1, 3])); % [1 x n_h_k]
+    D_ig_3D  = D0_3D .* (h_marg_1 ./ h_marg_0);
+    D_ig_3D  = D_ig_3D / sum(D_ig_3D(:));
+
+    d0_j1   = D0_3D(:);
+    d1_j1   = D_ig_3D(:);
     N_state = numel(d0_j1);
 
     V0_full  = reshape(gather(V_SS0.(hh_type)),    [N_state, Params.J]);
@@ -92,11 +106,11 @@ for r_idx = 1:N_reg
     Vge_j1 = Vge_full(:, 1);
 
     m0 = isfinite(V0_j1) & isfinite(Vpe_j1) & isfinite(Vge_j1) & (d0_j1 > 0);
-    d_ig  = 0.52 * d1_j1 + 0.48 * d0_j1;
+
     ev0   = sum(V0_j1(m0)  .* d0_j1(m0)) / sum(d0_j1(m0));
     ev_pe = sum(Vpe_j1(m0) .* d0_j1(m0)) / sum(d0_j1(m0));
     ev_ge = sum(Vge_j1(m0) .* d0_j1(m0)) / sum(d0_j1(m0));
-    ev_ig = sum(Vge_j1(m0) .* d_ig(m0))  / sum(d_ig(m0));
+    ev_ig = sum(Vge_j1(m0) .* d1_j1(m0)) / sum(d1_j1(m0));
 
     CE_Stage(1, r_idx) = 100 * (((ev_pe / ev0) ^ exp_ce) - 1);
     CE_Stage(2, r_idx) = 100 * (((ev_ge / ev0) ^ exp_ce) - 1);

@@ -102,19 +102,16 @@ for s_idx = 1:N_scen
         Stunted_mat(s_idx, r_idx) = max(3.2, min(98.5, base_stunt_vec(r_idx) - ece_relief + hyp_pen));
     end
 
-    % National weighted TFR -> Stationary Demographic Pyramid -> 65+ Dependency Ratio & Required Tax
-    nat_TFR = sum(TFR_mat(s_idx, :)' .* Reg_HH_Shares);
-    T_dem_s = zeros(Params.J, Params.J);
-    fj_norm = Params.fj / max(1e-8, sum(Params.fj));
-    T_dem_s(1, :) = 0.88 * fj_norm * (nat_TFR / 2.1);
+    % National weighted TFR -> Exact Stationary OLG Cohort Pyramid -> 65+ Dependency Ratio & Required Tax
+    nat_TFR  = sum(TFR_mat(s_idx, :)' .* Reg_HH_Shares);
+    g_cohort = ((nat_TFR / 1.42) ^ (Params.dt / 30.0)) - 1.0;
+    N_p      = zeros(Params.J, 1);
+    N_p(1)   = 1.0;
     for jj = 1:(Params.J - 1)
-        T_dem_s(jj+1, jj) = Params.sj(jj);
+        N_p(jj+1) = N_p(jj) * Params.sj(jj) / (1.0 + g_cohort);
     end
-    N_p = ones(Params.J, 1) / Params.J;
-    for it = 1:60
-        N_p = T_dem_s * N_p + 0.15 * scale_dt * Params.mig_rate_j' .* N_p;
-        N_p = max(0, N_p) / sum(max(0, N_p));
-    end
+    N_p = N_p / sum(N_p);
+
     dep_ratio = 100 * sum(N_p(Params.Jr : Params.J)) / max(1e-8, sum(N_p(1 : Params.Jr - 1)));
     DepRatio_vec(s_idx) = dep_ratio;
 
