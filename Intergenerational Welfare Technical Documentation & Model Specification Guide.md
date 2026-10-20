@@ -68,7 +68,7 @@ $$\xi_k = \min\left\lbrace 1, \frac{1}{\bar{\chi}} \left(\frac{rr_k}{rh_k}\right
 rh_k & \text{if } j \ge J_r
 \end{cases}$$
 
-### 3.2 Two-Stage Childhood CES Skill Law of Motion (`ChildCES_aprimeFn.m`) & Adult Ben-Porath Dynamics
+### 3.2 Two-Stage Childhood CES Skill Law of Motion (HumanCapital_Lifecycle_aprimeFn.m`) & Adult Ben-Porath Dynamics
 * **Child Experience Asset ($\theta^{\prime}_c$):** Driven by private parental investment $i_c$, stage-specific public wraparound provision ($G_{\mathrm{ECE},1}$ during Stage 1 $j \in \mathcal{J}_{c,1}$ vs. $G_{\mathrm{ECE},2}$ during Stage 2 $j \in \mathcal{J}_{c,2}$), and Stone-Geary luxury floor $\bar{g}_{\mathrm{ECE}} = 0.02$[cite: 1, 6, 15]. When $\Delta t < 5$ so that Stage 1 spans $n_{s1} = \mathrm{round}\left(6/\Delta t\right)$ sub-periods and Stage 2 spans $n_{s2} = \mathrm{round}\left(12/\Delta t\right)$ sub-periods, the one-step transition maps onto the 6-year and 12-year cumulative CES operator via step weight $\omega_{s} = 1 / n_{s}$[cite: 1, 6]:
 
 $$\theta_{\mathrm{step}}\left(\theta_c, i_c, G_{\mathrm{ECE},s}, \varphi_s\right) = \left\lbrack \gamma_{s,\mathrm{self}} \theta_c^{\varphi_s} + \gamma_{s,\mathrm{inv}} \left(i_c + G_{\mathrm{ECE},s} + \bar{g}_{\mathrm{ECE}}\right)^{\varphi_s} + \gamma_{s,\mathrm{par}} \bar{h}_p^{\varphi_s} \right\rbrack^{1/\varphi_s}$$
@@ -83,7 +83,35 @@ $$\theta^{\prime}_c = \begin{cases}
 
 $$h^{\prime} = \left(1 - \delta_{hc}\left(\Delta t\right)\right) h + \left(\frac{\Delta t}{5}\right) \mathbb{I}\left(\ell > 0\right) I_h^{\alpha_I} h^{\alpha_H}$$
 
-### 3.3 Budget Constraint, "Income x Geography" Transfer, and Recursive Bellman Equation
+### Section 3.3: Adolescent Family Unemployment Stress and Bidirectional Montessori Cross-Age Mentoring
+In the baseline two-stage Cunha–Heckman–Schennach skill technology (HumanCapital_Lifecycle_aprimeFn.m`), childhood skill $\theta_c$ evolves across Stage 1 ($\mathcal{J}_{c,1}$, ages 0–5, where $\varphi_1 = 0.35 > 0$) and Stage 2 ($\mathcal{J}_{c,2}$, ages 6–17, where $\varphi_2 = -0.95 < 0$)[cite: 6]:
+
+$$\theta^{\prime}_c = \begin{cases}
+\left\lbrack \gamma_{1,\mathrm{self}} \theta_c^{\varphi_1} + \gamma_{1,\mathrm{inv}} \left(i_c + G_{\mathrm{ECE},1}^{\mathrm{eff}} + \bar{g}_{\mathrm{ECE}}\right)^{\varphi_1} + \gamma_{1,\mathrm{par}} \bar{h}_p^{\varphi_1} \right\rbrack^{1/\varphi_1} & \text{if } j \in \mathcal{J}_{c,1} \\
+\left\lbrack \gamma_{2,\mathrm{self}} \theta_c^{\varphi_2} + \gamma_{2,\mathrm{inv}} \left(i_c + G_{\mathrm{ECE},2}^{\mathrm{eff}} + \bar{g}_{\mathrm{ECE}}\right)^{\varphi_2} + \gamma_{2,\mathrm{par}} \bar{h}_p^{\varphi_2} \right\rbrack^{1/\varphi_2} \exp\left(\Psi_{J=5}\left(z_p, a_p, M_{\mathrm{mont}}\right)\right) & \text{if } j \in \mathcal{J}_{c,2} \\
+\theta_c & \text{otherwise}
+\end{cases}$$
+
+Because Stage 2 exhibits strong dynamic complementarity ($\sigma_2 = \frac{1}{1 - \varphi_2} = 0.51 < 1$), early skill gains $\theta_c$ accumulated during the First 2,000 Days ($j \in \mathcal{J}_{c,1}$) are vulnerable to fade-out if household investments or socio-emotional stability collapse during early adolescence ($J = 5$, child ages 12–14)[cite: 6, 7]. We formalize two countervailing mechanisms operating at this gate:
+
+1. **Observable Family Unemployment & Housing Distress Shock ($\psi_{\mathrm{unemp}}$):**
+   Following the empirical job-displacement and *Family Stress Model* literature (Conger et al., 1992; Rege, Telle, & Votruba, 2011; Coelli, 2011; *Growing Up in New Zealand* "Now We Are 12", Morton et al., 2024), when a parent in region $k$ experiences an adverse labor-market productivity/unemployment realization $z_p \in \mathcal{Z}_{\mathrm{distress}}$ (specifically $z_p = z_1$, or $z_p = z_2$ combined with housing hardship $a_p < 0.08 Q_k$) during the child's adolescent window, household psychological stress and reduced parental supervision impose a non-cognitive skill penalty $-\psi_{\mathrm{unemp}} < 0$[cite: 6, 8].
+
+2. **Bidirectional Montessori Cross-Age Peer Mentoring ($M_{\mathrm{mont}} \in \lbrack 0, 1\rbrack$):**
+   While Stage 2 cognitive investment productivity is low ($\gamma_{2,C,3} = 0.044$), non-cognitive malleability remains more than twice as high ($\gamma_{2,N,3} = 0.104$, Cunha et al., 2010)[cite: 17]. Drawing on Montessori's multi-age *Erdkinder* pedagogy (Lillard & Else-Quest, 2006; Lillard et al., 2017), endogenous peer-spillover CES technologies (Agostinelli, Saharkhiz, & Wiswall, 2024), and adolescent mentoring RCTs (Yeager, Dahl, & Dweck, 2018; Resnjanskij, Ruhose, Wiederhold, & Woessmann, 2024), structured cross-age mentoring where adolescents at $J = 5$ mentor younger children at $J = 2\text{--}3$ generates a **two-way intra-generational spillover** without adding an endogenous state variable:
+   * **Downward Scaffolding Multiplier on Stage 1 ($\kappa_{\mathrm{down}} > 0$):** Near-peer tutoring and role-modeling by the adolescent cohort (with mean skill $\bar{\theta}_{J=5}$) augment the effective productivity of public early childhood and primary investments:
+
+$$G_{\mathrm{ECE},1}^{\mathrm{eff}} = G_{\mathrm{ECE},1} \left(1 + \kappa_{\mathrm{down}} M_{\mathrm{mont}} \bar{\theta}_{J=5}\right)$$
+
+   * **Upward "Protégé Effect" & Stress Buffer on Stage 2 ($\kappa_{\mathrm{up}} > 0$):** Serving as a high-agency mentor builds adolescent executive function, self-regulation, and social purpose, directly buffering the family unemployment shock and locking in ("banking") Stage 1 skill gains via the adolescent net shift $\Psi_{J=5}$:
+
+$$\Psi_{J=5}\left(z_p, a_p, M_{\mathrm{mont}}\right) = -\psi_{\mathrm{unemp}} \mathbb{I}\left(z_p \in \mathcal{Z}_{\mathrm{distress}}\right) \left(1 - \zeta_{\mathrm{buf}} M_{\mathrm{mont}}\right) + \kappa_{\mathrm{up}} M_{\mathrm{mont}}$$
+
+   In the compact 4D projection (`Build_IntergenTransitionMatrix.m` and `Plot_ChildFates_2Panel_SSankey.m`), this induces the unified anchored log-skill transition mean across the 7-point adult human capital grid $h_{\mathrm{child}} \in \mathcal{H}$[cite: 6, 8]:
+
+$$\mu_{\ln h}\left(h_p, i_c, z_p, a_p; k\right) = \rho_{hc} \ln\left(h_p\right) + \gamma_{ic} \ln\left(\frac{i_c + G_{\mathrm{ECE},1}^{\mathrm{eff}} + \bar{g}_{\mathrm{ECE}}}{\bar{i}_c + G_{\mathrm{ECE},\mathrm{base}} + \bar{g}_{\mathrm{ECE}}}\right) - \psi_{\mathrm{crowd}} \ln\left(\max\left(1, Q_k\right)\right) \mathbb{I}\left(a_p < 0.08 Q_k\right) + \Psi_{J=5}\left(z_p, a_p, M_{\mathrm{mont}}\right) + \alpha_{\mathrm{grid}}$$
+
+### 3.4 Budget Constraint, "Income x Geography" Transfer, and Recursive Bellman Equation
 Total household disposable cash-on-hand before consumption and child investment in region $k$ is[cite: 8, 11, 15, 18]:
 
 $$y_{\mathrm{disp},k} = \left(1 + r\left(1 - \tau_k\right)\right) a + \left(1 - \tau_a\right)^{\Delta t} a - a + \left(1 - \tau_l\right) w_k h z \ell + T_k\left(w_k h z \ell\right) + \mathbb{I}\left(j = 1\right) E + \mathbb{I}\left(j \ge J_r\right) P_{\mathrm{super}}$$
@@ -185,3 +213,18 @@ All output CSV tables and 300-DPI PNG figures generated by this pipeline are arc
 | **9** | `FertilityBargaining_Module.m` | **Fertility & Bargaining:** Evaluates childcare bargaining, hyperbolic discounting ($\beta_{\mathrm{hyp}} = 0.72$), differential fertility, and NZ Super tax rates; outputs [Table_Fert1](Output_NZ_4Region_Intergen/Table_Fert1_4Region_TFR_DiffFertility.csv), [Table_Fert2](Output_NZ_4Region_Intergen/Table_Fert2_4Region_Stunting_NZSuper.csv), and [FigFert](Output_NZ_4Region_Intergen/FigFert_4Region_Bargaining_Solvency.png). |
 | **10** | `WelfareDecomposition_4Region.m` | **3-Way Welfare Decomposition:** Outputs the 4-region Daruich/Lee–Seshadri ([Table1](Output_NZ_4Region_Intergen/Table1_4Region_Daruich_LeeSeshadri_Decomposition.csv)), Labrousse & Perdereau $4 \times 5$ quintile ([Table2](Output_NZ_4Region_Intergen/Table2_4Region_LabroussePerdereau_SpatialQuintiles.csv)), and Kiyotaki tenure cleavage ([Table3](Output_NZ_4Region_Intergen/Table3_4Region_Kiyotaki_TenureGenerationalCleavage.csv)) CE % tables. |
 | **11** | `TransPath_4Region_Master.m` & `Calibrate_NZ_Moments.m` | **60-Year Transition & Dynamic Pop Weights:** Solves the $T_{\mathrm{trans}}$-period transition path with endogenous `PTypeWeights_path` ([Table9](Output_NZ_4Region_Intergen/Table9_4Region_Dynamic_Population_Shares.csv), [Table10](Output_NZ_4Region_Intergen/Table10_4Region_Abroad_BrainDrain_Cohesion.csv)), [Fig1](Output_NZ_4Region_Intergen/Fig1_Daruich_Cohort_Welfare_4Region.png), [Fig2](Output_NZ_4Region_Intergen/Fig2_Kiyotaki_Housing_Estates_4Region.png), and [Fig3](Output_NZ_4Region_Intergen/Fig3_BrainDrain_Cohesion_4Region.png). |
+
+## 8. Literature References for Montessori Two-Way Mentoring
+
+* **Agostinelli, F., Saharkhiz, M., & Wiswall, M. (2024).** *Home and School in the Development of Children: Peer Effects and Dynamic Complementarity.* Working Paper / Quantitative Economics.
+* **Coelli, M. B. (2011).** *Parental Job Loss and the Post-Secondary Education Decisions of Youth.* *Economica*, 78(310), 354–377.
+* **Conger, R. D., Conger, K. J., Elder, G. H., Lorenz, F. O., Simons, R. L., & Whitbeck, L. B. (1992).** *A Family Process Model of Economic Hardship and Adjustment of Early Adolescent Boys.* *Child Development*, 63(3), 526–541.
+* **Heller, S. B., Shah, A. K., Guryan, J., Ludwig, J., Mullainathan, S., & Pollack, H. A. (2017).** *Thinking, Fast and Slow? Some Field Experiments to Reduce Crime and Dropouts in Chicago.* *Quarterly Journal of Economics*, 132(1), 1–54.
+* **Johnson, R. C., & Jackson, C. K. (2019).** *Reducing Inequality through Dynamic Complementarity: Evidence from Head Start and Public School Spending.* *American Economic Review*, 109(12), 4165–4205.
+* **Lillard, A. S., & Else-Quest, N. (2006).** *Evaluating Montessori Education.* *Science*, 313(5795), 1893–1894.
+* **Lillard, A. S., Heise, M. J., Richey, E. M., Tong, X., Hart, A., & Bray, P. M. (2017).** *Montessori Preschool Elevates and Equalizes Child Outcomes: A Longitudinal Study.* *Frontiers in Psychology*, 8, 1783.
+* **Morton, S. M. B., et al. (2024).** *Now We Are 12: Material Hardship and Adolescent Trajectories in Growing Up in New Zealand.* University of Auckland Centre for Longitudinal Research.
+* **Newman, S., & Holupka, C. S. (2014).** *Housing Affordability and Investments in Children.* *Journal of Housing Economics*, 24, 89–100.
+* **Rege, M., Telle, K., & Votruba, M. (2011).** *Parental Job Loss and Children's School Performance.* *Review of Economic Studies*, 78(4), 1462–1489.
+* **Resnjanskij, S., Ruhose, J., Wiederhold, S., & Woessmann, L. (2024).** *Can Mentoring Alleviate Family Disadvantage in Adolescence? A Field Experiment to Improve Labor Market Prospects.* *Journal of Political Economy*, 132(3), 1013–1062.
+* **Yeager, D. S., Dahl, R. E., & Dweck, C. S. (2018).** *Why Interventions to Influence Adolescent Behavior Often Fail but Could Succeed.* *Perspectives on Psychological Science*, 13(1), 101–122.

@@ -277,3 +277,30 @@ $$
 
 ![Pre-Employment Cohort Opportunity Index at Age 30](Output_NZ_4Region_Intergen/Fig4_PreEmployment_Opportunity_Index.png)
 *Figure 6 (`Fig4_PreEmployment_Opportunity_Index.png`): Pre-Employment Cohort Opportunity Index at Age 30 ($j = 4, \Delta t = 3$) across Rural, Small, Large, and Auckland regions, decomposing cohort outcomes between Status Quo (`SS0`) and High-Opportunity Reform General Equilibrium (`SS1`).*
+
+*Maps every strategic claim about the $J = 5$ Adolescent Gate, Family Unemployment Stress, and Montessori Mentoring to exact VFI Toolkit scripts, grid indices, and literature parameters.*
+
+### 1. Cross-Reference: The 5-Stage Child Fates Sankey & Lifecycle Horizon ($J = 1 \dots 10$)
+* **Script & Function Mapping:** Implemented in `Plot_ChildFates_2Panel_SSankey.m` (calling `Build_And_Render_Panel` and Zhaoxu Liu / slandarer's `SSankey` class) and parameterized across $\Delta t \in \lbrace 5, 3, 2 \rbrace$ via `Configure_TimeGrid_Params.m`[cite: 6]:
+  * **Column 1 ($J = 1$, Birth / Entry, Age 0):** Evaluates fertile parents in `StationaryDist.(hh_type)(ia, ih, iz, jf)`. Classifies `is_hardship = (a_vec(ia) < 0.08 * Q_house)` into **Node 1 (`Material Hardship & Housing Squeeze`)** vs. **Node 2 (`Secure Parental Asset Buffer`)**, where `Q_house = Params.Q_reg.(hh_type)` equals $\lbrack 1.05, 1.40, 2.05, 3.10\rbrack$ across $\lbrace\mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland}\rbrace$[cite: 6].
+  * **Column 2 ($J = 2\text{--}3$, First 2,000 Days Gate, Ages 0–5):** Reads optimal private child investment $i_c$ from `Policy.(hh_type)(3, ia, ih, iz, jf)` on `d_grid_ic`[cite: 6, 8]. Splits cohort into **Node 3 (`Unmitigated Corner, ic = 0`)**, **Node 4 (`Public ECE + Moderate Inv`)**, and **Node 5 (`High Wraparound + Parental Inv`)**[cite: 6].
+  * **Column 3 ($J = 5$, Early Adolescence & Montessori Mentoring Gate, Ages 12–14):** Evaluates the observable parental labor productivity/employment Markov state $z_p \in \lbrace 1 \dots n_z \rbrace$ at parental period $j_p = 4$ (or $\mathcal{J}_{c,2}$ under $\Delta t = 3$)[cite: 6, 8]. Identifies family unemployment distress via `is_unemp_stress = (iz == 1) || (n_z1 >= 5 && iz == 2 && is_hardship)` and maps flows into:
+    * **Node 6 (`Family Unemp Stress z1`):** Unbuffered parental job loss/distress at ages 12–14, imposing a skill-erosion penalty $\Delta \ln(h_{\mathrm{mean}}) = -0.22$ that causes Stage-1 gains to fade out.
+    * **Node 7 (`Standard Schooling`):** Neutral trajectory maintenance ($\Delta \ln(h_{\mathrm{mean}}) = 0.00$).
+    * **Node 8 (`Montessori Peer Mentoring`):** High-agency cross-age mentoring that buffers family unemployment stress and banks Stage-1 gains ($\Delta \ln(h_{\mathrm{mean}}) = +0.05$ in Baseline $\mathrm{SS}_0$, rising to $+0.11$ in Reform $\mathrm{SS}_1$, while boosting effective Stage-1 $G_{\mathrm{ECE,eff}} = 1.15 \times G_{\mathrm{ECE}}$).
+  * **Column 4 ($J = 6\text{--}7$, Adult Skill Launch $\mathbf{Q}_h$, Age 20):** Maps completed pre-labor-market skill onto the 7-point adult human capital grid `h_vec = [0.45, 0.65, 0.85, 1.00, 1.20, 1.45, 1.80]` (`n_h = 7`): **Node 9 (`Stunted Tier h1-h2`)**, **Node 10 (`Core Skill Tier h3-h5`)**, and **Node 11 (`Thriving Tier h6-h7`)**[cite: 6, 8].
+  * **Column 5 ($J = 10$, Adulthood Fates & Priced Exits, Age 30+):** Maps adult skill tiers into the four priced fiscal exits—**Node 12 (`Exit 1: State Care`)**, **Node 13 (`Exit 2: Avoidable Hospitalisation`)**, **Node 14 (`Exit 3: Lower Lifetime Income`)**, **Node 15 (`Exit 4: Benefit & Justice Burden`)**—plus **Node 16 (`Retained NZ Secure/Thriving Adult`)** and **Node 17 (`Emigrated Abroad 20-35 Brain Drain`)** using `Diag_Sim.Emig_By_SkillTier`[cite: 6, 9].
+
+### 2. Cross-Reference: Two Calibration Anchors for Auckland's Stunted Tier ($h_1\text{--}h_2$)
+* **`Calibration_Anchor = 'Dunedin_22'` (Default Conservative Anchor):**
+  * Sets `crowd_penalty = 0.14 * log(max(1.0, Q_house)) * is_hardship` and `grid_anchor = +0.025` (or `+0.040` in the 5-stage specification).
+  * Yields an Auckland baseline ($\mathrm{SS}_0$) stunted share of **$17.9\%$** (`Thriving h6-h7 = 40.5%`, `Core h3-h5 = 41.6%`), bracketed between the Stats NZ national material hardship rate ($14.3\%$) and the Caspi et al. (2016) Dunedin Study high-cost cohort share ($22.0\%$)[cite: 6].
+  * Under High-Opportunity Reform ($\mathrm{SS}_1$), Auckland house prices cool from $Q = 3.10$ to $Q = 2.87$ (`Q_mult_Map.Auckland = 0.925`), compressing the stunted share to **$0.3\%$** and expanding the thriving share to **$55.3\%$**[cite: 6].
+* **`Calibration_Anchor = 'MetroSqueeze_GUiNZ'` (Metropolitan Housing-Squeeze Sensitivity):**
+  * Sets `crowd_penalty = 0.18 * log(max(1.0, Q_house)) * is_hardship` and `grid_anchor = -0.140`.
+  * Yields an Auckland baseline ($\mathrm{SS}_0$) stunted/vulnerable share of **$36.6\%$** (`Thriving h6-h7 = 27.0%`, `Core h3-h5 = 36.3%`), matching the contemporary metropolitan housing-squeeze evidence: $29.9\%$ After-Housing-Costs (`AHC60`) child poverty (Stats NZ Feb 2026), $34\%\text{--}37\%$ of children in households with housing outgoings exceeding $30\%$ of income (`OTI > 30%`, DPMC), and $37\%$ of the *Growing Up in New Zealand* cohort living in damp or mouldy housing (Morton et al., 2014, 2020; Newman & Holupka, 2014).
+
+### 3. Cross-Reference: Empirical Parameters for Stage 2 ($J = 5$) Non-Cognitive Malleability
+* **Cunha, Heckman, & Schennach (2010, Table IV & Section 4.3):**
+  * Stage 2 cognitive investment loading $\gamma_{2,C,3} = 0.044$ (standard error $0.006$) vs. Stage 1 $\gamma_{1,C,3} = 0.161$ (standard error $0.015$)[cite: 17].
+  * Stage 2 non-cognitive investment loading $\gamma_{2,N,3} = 0.104$ and elasticity of substitution $\sigma_{2,N} \approx 0.66$ vs. cognitive $\sigma_{2,C} \approx 0.44$ ($\varphi_{2,C} = -1.220$ in Cunha et al.; calibrated as $\varphi_2 = -0.95$ in `ChildCES_aprimeFn.m` for the composite skill stock $\theta_c$)[cite: 6, 7, 17].
