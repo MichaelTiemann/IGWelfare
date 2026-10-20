@@ -227,22 +227,51 @@ T_Out = array2table([Ebar_SR, Ebar_LR, CE_LR], 'RowNames', PolicyNames, ...
     'Ebar_LR_Rural', 'Ebar_LR_Small', 'Ebar_LR_Large', 'Ebar_LR_Auckland', ...
     'CE_LR_Rural', 'CE_LR_Small', 'CE_LR_Large', 'CE_LR_Auckland'});
 
-figE8 = figure('Name', 'Lee & Seshadri 4-Region Counterfactuals', 'Color', 'w', 'Position', [100, 100, 1200, 750]);
-tiledlayout(2, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
-cats = categorical(PolicyNames, PolicyNames);
+figE8 = figure('Name', 'Lee & Seshadri 4-Region Counterfactuals', 'Color', 'w', 'Position', [100, 80, 1240, 820]);
+t_e8  = tiledlayout(2, 2, 'TileSpacing', 'loose', 'Padding', 'compact');
 
-nexttile; bar(cats, IGE_LR, 'grouped'); ylabel('Long-Run IGE');
-title('A. Intergenerational Elasticity of Earnings (IGE\_LR)'); grid on; legend(Regions, 'Location', 'northwest');
+CleanLabels = {'BM Baseline'; 'P0 Early (0-5)'; 'P1/P2 Late (6-17)'; 'BN Front-Load'; 'P0 + Grant E'};
+cats = categorical(CleanLabels, CleanLabels);
 
-nexttile; bar(cats, VarExpl_LFE, 'grouped'); ylabel('Variance Explained (%)');
-title('B. Lifetime Earnings Variance Explained by Parents at Age 30-35'); grid on;
+% Panel A: Long-Run IGE
+ax1 = nexttile;
+b_ige = bar(cats, IGE_LR, 'grouped');
+ylim([0, max(0.62, max(IGE_LR(:)) * 1.25)]);
+ylabel('Long-Run IGE');
+title('A. Intergenerational Elasticity of Earnings (IGE\_LR)');
+set(ax1, 'TickLabelInterpreter', 'none');
+grid on;
+lgd = legend(b_ige, Regions, 'Orientation', 'horizontal', 'Location', 'northoutside');
+lgd.Layout.Tile = 'north';
 
-nexttile; bar(cats(2:end), Ebar_LR(2:end, :), 'grouped'); ylabel('\Delta Lifetime Earnings (%)');
-title('C. Long-Run Average Lifetime Earnings Gain (Ebar\_LR %)'); grid on;
+% Panel B: Variance Explained
+ax2 = nexttile;
+bar(cats, VarExpl_LFE, 'grouped');
+ylim([0, max(88, max(VarExpl_LFE(:)) * 1.20)]);
+ylabel('Variance Explained (%)');
+title('B. Lifetime Earnings Variance Explained by Parents at Age 30-35');
+set(ax2, 'TickLabelInterpreter', 'none');
+grid on;
 
-nexttile; bar(cats(2:end), CE_LR(2:end, :), 'grouped'); ylabel('Consumption Equivalent CE\_LR (%)');
-title('D. Long-Run Newborn Welfare Gain (CE\_LR %)'); grid on;
+% Panel C: Lifetime Earnings Gain
+ax3 = nexttile;
+bar(cats(2:end), Ebar_LR(2:end, :), 'grouped');
+ylim([min(0, min(Ebar_LR(:)) * 1.2), max(9.0, max(Ebar_LR(:)) * 1.22)]);
+ylabel('\Delta Lifetime Earnings (%)');
+title('C. Long-Run Average Lifetime Earnings Gain (Ebar\_LR %)');
+set(ax3, 'TickLabelInterpreter', 'none');
+grid on;
+
+% Panel D: Newborn Welfare Gain
+ax4 = nexttile;
+bar(cats(2:end), CE_LR(2:end, :), 'grouped');
+ylim([min(0, min(CE_LR(:)) * 1.2), max(8.0, max(CE_LR(:)) * 1.22)]);
+ylabel('Consumption Equivalent CE\_LR (%)');
+title('D. Long-Run Newborn Welfare Gain (CE\_LR %)');
+set(ax4, 'TickLabelInterpreter', 'none');
+grid on;
 
 if Export_Tables_Figures
     exportgraphics(figE8, fullfile(OutputDir, 'FigE8_LeeSeshadri_4Region_Counterfactuals.png'), 'Resolution', 300);
+    exportgraphics(figE8, fullfile(OutputDir, 'Lee___Seshadri__2019__Fig_E8__4_Region_Parent.png'), 'Resolution', 300);
 end

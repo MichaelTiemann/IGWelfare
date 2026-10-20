@@ -128,23 +128,46 @@ T_Fert2 = array2table([Stunted_mat, DepRatio_vec, ReqTax_vec], 'RowNames', FertS
     'VariableNames', {'Stunted_Pct_Rural','Stunted_Pct_Small','Stunted_Pct_Large','Stunted_Pct_Auckland', ...
     'DepRatio_65Plus_Pct','Required_LaborTax_Pct'});
 
-figFert = figure('Name', '4-Region Fertility Bargaining & NZ Super Solvency', 'Color', 'w', 'Position', [120, 120, 1150, 720]);
-tiledlayout(2, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
+figFert = figure('Name', '4-Region Fertility Bargaining & NZ Super Solvency', 'Color', 'w', 'Position', [120, 80, 1200, 800]);
+tiledlayout(2, 2, 'TileSpacing', 'loose', 'Padding', 'compact');
 scen_cats = categorical({'1. Baseline','2. Hyperbolic','3. ECE Relief','4. Full Pkg'}, ...
     {'1. Baseline','2. Hyperbolic','3. ECE Relief','4. Full Pkg'});
 
-nexttile; bar(scen_cats, TFR_mat, 'grouped'); ylabel('Total Fertility Rate (TFR)');
-title('A. 4-Region Total Fertility Rate (TFR)'); legend(Regions, 'Location', 'southwest'); grid on;
+nexttile;
+bar(scen_cats, TFR_mat, 'grouped');
+ylim([0, max(2.6, max(TFR_mat(:)) * 1.25)]);
+ylabel('Total Fertility Rate (TFR)');
+title('A. 4-Region Total Fertility Rate (TFR)');
+legend(Regions, 'Location', 'northoutside', 'Orientation', 'horizontal');
+grid on;
 
-nexttile; bar(scen_cats, DiffFert_mat(:, 3:4), 'grouped'); ylabel('Low-Skill minus High-Skill Births');
-title('B. Metropolitan Differential Fertility Gap (Large vs Auckland)'); legend({'Large','Auckland'}); grid on;
+nexttile;
+bar(scen_cats, DiffFert_mat(:, 3:4), 'grouped');
+ylim([0, max(0.38, max(DiffFert_mat(:)) * 1.28)]);
+ylabel('Low-Skill minus High-Skill Births');
+title('B. Metropolitan Differential Fertility Gap (Large vs Auckland)');
+legend({'Large','Auckland'}, 'Location', 'northeast');
+grid on;
 
-nexttile; bar(scen_cats, Stunted_mat(:, 3:4), 'grouped'); ylabel('Stunted Cohort Share (%)');
-title('C. Metropolitan Low-Skill Cohort Share (Large vs Auckland)'); legend({'Large','Auckland'}); grid on;
+nexttile;
+bar(scen_cats, Stunted_mat(:, 3:4), 'grouped');
+ylim([0, max(22, max(Stunted_mat(:)) * 1.28)]);
+ylabel('Stunted Cohort Share (%)');
+title('C. Metropolitan Low-Skill Cohort Share (Large vs Auckland)');
+legend({'Large','Auckland'}, 'Location', 'northeast');
+grid on;
 
-nexttile; yyaxis left; bar(scen_cats, DepRatio_vec, 0.45); ylabel('65+ Dependency Ratio (%)');
-yyaxis right; plot(scen_cats, ReqTax_vec, '-s', 'LineWidth', 2.2, 'MarkerSize', 8); ylabel('Required Labor Tax \tau_l (%)');
-title('D. Aged 65+ Dependency Ratio & Required Tax Rate'); grid on;
+nexttile;
+yyaxis left;
+bar(scen_cats, DepRatio_vec, 0.45);
+ylim([0, max(55, max(DepRatio_vec) * 1.25)]);
+ylabel('65+ Dependency Ratio (%)');
+yyaxis right;
+plot(scen_cats, ReqTax_vec, '-s', 'LineWidth', 2.2, 'MarkerSize', 8);
+ylim([20, max(35, max(ReqTax_vec) * 1.18)]);
+ylabel('Required Labor Tax \tau_l (%)');
+title('D. Aged 65+ Dependency Ratio & Required Tax Rate');
+grid on;
 
 if Export_Tables_Figures
     exportgraphics(figFert, fullfile(OutputDir, 'FigFert_4Region_Bargaining_Solvency.png'), 'Resolution', 300);

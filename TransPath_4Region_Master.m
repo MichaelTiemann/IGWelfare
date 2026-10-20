@@ -95,7 +95,9 @@ Cohesion_St   = 104.3 + 1.85 * (Emig_base(3) - Emig_path(:, 3)) / (Emig_base(3) 
 %% 3. RENDER FIGURES 1, 2, AND 3
 fig1 = figure('Name', 'Cohort Welfare Transition Path', 'Color', 'w', 'Position', [100, 100, 950, 520]);
 plot(Cohort_Years, CE_Cohort, '-o', 'LineWidth', 2.2, 'MarkerSize', 5);
-xline(0, '--k', 'Reform Year 0'); xline(20, ':r', 'Year 20 (First-2000-Days Cohort Enters Workforce)');
+xline(0,  '--k', 'Reform Year 0', 'LabelHorizontalAlignment', 'right', 'LabelVerticalAlignment', 'top');
+xline(20, ':r',  'Year 20 (First-2000-Days Cohort Enters Workforce)', ...
+      'LabelHorizontalAlignment', 'left', 'LabelVerticalAlignment', 'top');
 xlabel('Cohort Birth/Entry Year Relative to Reform'); ylabel('Lifetime Consumption Equivalent Welfare (CE %)');
 title(sprintf('4-Region Cohort Welfare Transition Path (dt = %d yr)', dt));
 legend(Regions, 'Location', 'northwest'); grid on;
