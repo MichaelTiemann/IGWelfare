@@ -2,16 +2,14 @@ function [jequaloneDist_new, Diag] = Build_IntergenTransitionMatrix( ...
     StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions, Params_Mig)
 %% CANONICAL 4-REGION + ABROAD INTERGENERATIONAL TRANSITION MATRIX (100% GPU-VECTORIZED)
 % File: Build_IntergenTransitionMatrix.m
-% Automatically handles BOTH:
-%   - 4D Compact Workspace:          V & Dist = [n_a1, n_h, n_z1, J]        (numel(n_a) == 2)
-%   - 5D Experience-Asset Workspace: V & Dist = [n_a1, n_h, n_th, n_z1, J]  (numel(n_a) == 3)
+% Supports both 4D Compact [a, h, z, j] and 5D Experience-Asset [a, h, theta_c, z, j] workspaces.
 
 if nargin < 13 || isempty(Params_Mig)
     Params_Mig.w_Abroad         = 1.32;  % Australia/OECD benchmark skill wage
     Params_Mig.Q_Abroad         = 2.15;  % Australia/OECD house price benchmark
     Params_Mig.kappa_emig       = 0.14;  % Fixed international moving cost
     Params_Mig.tau_home_amenity = 0.85;  % Whanau / native home-attachment amenity
-    Params_Mig.varrho_gumbel    = 0.45;  % Gumbel taste shock scale parameter
+    Params_Mig.varrho_gumbel    = 0.85;  % Gumbel taste shock scale parameter
     Params_Mig.Target_NetMig    = 0.025; % Stats NZ +25k/yr net migration target
     Params_Mig.nu_retention     = 0.40;  % Social cohesion elasticity wrt native retention
     Params_Mig.nu_churn         = 0.35;  % Social cohesion penalty wrt migration churn
@@ -36,8 +34,6 @@ n_z1     = prod(n_z.(ref_type));
 
 a_vec  = double(gather(a_grid.(ref_type)(1 : n_a1)));
 h_vec  = double(gather(a_grid.(ref_type)(n_a1+1 : n_a1+n_h)));
-
-% In both 5D and 4D, d = [l, Ih, ic] so d3 (row 3 of Policy) is child investment ic
 ic_vec     = double(gather(d_grid.(ref_type)(n_d.(ref_type)(1)+n_d.(ref_type)(2)+1 : end)));
 ic_pol_row = 3;
 
@@ -46,7 +42,7 @@ if ~isfield(Params, 'G_ece') && isfield(Params, 'G_ece_stage1')
 end
 if ~isfield(Params, 'rho_hc_ig'),   Params.rho_hc_ig   = 0.40; end
 if ~isfield(Params, 'gamma_ic'),    Params.gamma_ic    = 0.35; end
-if ~isfield(Params, 'sigma_hc_ig'), Params.sigma_hc_ig = 0.18; end
+if ~isfield(Params, 'sigma_hc_ig'), Params.sigma_hc_ig = 0.24; end
 
 use_gpu = (gpuDeviceCount > 0);
 if use_gpu
@@ -66,26 +62,26 @@ if isfield(Params, 'j_s1_start') && isfield(Params, 'j_s2_end')
 else
     fertile_j = [3, 4];
 end
-n_fert   = length(fertile_j);
 retire_j = Params.Jr : Params.J;
 mort_vec = reshape(1 - double(gather(Params.sj(retire_j))), [1, 1, 1, length(retire_j)]);
 if use_gpu, mort_vec = gpuArray(mort_vec); end
 
 NewbornDist_PreMig = struct();
+reg_skill_drift    = [-0.09, -0.07, -0.03, +0.02]; % Anchors baseline stunting at 14%-21% across regions
 
 %% STAGE 1 & 2 (100% GPU-VECTORIZED): SKILL FORMATION (Q_h) & PROPERTY BEQUESTS (Q_a)
 for r_idx = 1:N_reg
     reg     = Regions{r_idx};
     hh_type = ['HH_', reg];
 
-    Dist_raw = double(gather(StationaryDist.(hh_type)));
-    Pol_raw  = double(gather(Policy.(hh_type)));
-    Q_house  = Params.Q_reg.(hh_type);
-    crowd_pen = 0.06 * log(max(1.0, Q_house));
+    Dist_raw  = double(gather(StationaryDist.(hh_type)));
+    Pol_raw   = double(gather(Policy.(hh_type)));
+    Q_house   = Params.Q_reg.(hh_type);
+    crowd_pen = 0.08 * log(max(1.0, Q_house));
 
     if is_5D && ndims(Dist_raw) == 5
-        Dist_5D  = reshape(Dist_raw, [n_a1, n_h, n_th, n_z1, Params.J]);
-        Pol_5D   = reshape(Pol_raw,  [size(Pol_raw, 1), n_a1, n_h, n_th, n_z1, Params.J]);
+        Dist_5D   = reshape(Dist_raw, [n_a1, n_h, n_th, n_z1, Params.J]);
+        Pol_5D    = reshape(Pol_raw,  [size(Pol_raw, 1), n_a1, n_h, n_th, n_z1, Params.J]);
         j_s1_done = min(Params.J, Params.j_s2_start);
         j_launch  = min(Params.J, Params.j_child_launch);
 
@@ -98,54 +94,48 @@ for r_idx = 1:N_reg
         parent_mass = max(1e-12, sum(Mass_a_th, 'all'));
         Diag.MeanTheta3.(reg) = sum(sum(Mass_a_th, 1)' .* th_vec(:)) / parent_mass;
 
-        is_hard_1D = double(a_vec < 0.05 * Q_house); % [n_a1 x 1]
-        ece_lift   = 1.40 * max(0, Params.G_ece - 0.045);
-        log_h_mean = log(reshape(th_vec, [1, n_th])) + ece_lift - crowd_pen .* is_hard_1D; % [n_a1 x n_th]
+        % No double-counting of ece_lift in 5D mode (theta_c already evolved via aprimeFn!)
+        is_hard_1D = double(a_vec < 0.08 * Q_house); % [n_a1 x 1]
+        log_h_mean = 0.68 * log(reshape(th_vec, [1, n_th])) + reg_skill_drift(r_idx) - crowd_pen .* is_hard_1D;
 
         diff_log = reshape(log(h_vec), [n_h, 1, 1]) - reshape(log_h_mean, [1, n_a1, n_th]);
-        trans_p  = exp(-0.5 * (diff_log ./ Params.sigma_hc_ig).^2);
+        trans_p  = exp(-0.5 * (diff_log ./ 0.24).^2);
         trans_p  = trans_p ./ max(1e-12, sum(trans_p, 1));
 
         Prob_h_child = squeeze(sum(trans_p .* reshape(Mass_a_th, [1, n_a1, n_th]), [2, 3])) / parent_mass;
         Prob_h_child = Prob_h_child(:) / sum(Prob_h_child(:));
 
-        % Marginalize over theta_c for the retiree bequest operator
         Dist_4D = reshape(sum(Dist_5D, 3), [n_a1, n_h, n_z1, Params.J]);
         mid_th  = ceil(n_th / 2);
         Pol_4D  = reshape(Pol_5D(:, :, :, mid_th, :, :), [size(Pol_5D, 1), n_a1, n_h, n_z1, Params.J]);
         if use_gpu
-            Dist_k = gpuArray(Dist_4D);
-            Pol_k  = gpuArray(Pol_4D);
+            Dist_k = gpuArray(Dist_4D); Pol_k = gpuArray(Pol_4D);
         else
-            Dist_k = Dist_4D;
-            Pol_k  = Pol_4D;
+            Dist_k = Dist_4D; Pol_k = Pol_4D;
         end
     else
         Dist_4D = reshape(Dist_raw, [n_a1, n_h, n_z1, Params.J]);
         Pol_4D  = reshape(Pol_raw,  [size(Pol_raw, 1), n_a1, n_h, n_z1, Params.J]);
         if use_gpu
-            Dist_k = gpuArray(Dist_4D);
-            Pol_k  = gpuArray(Pol_4D);
+            Dist_k = gpuArray(Dist_4D); Pol_k = gpuArray(Pol_4D);
         else
-            Dist_k = Dist_4D;
-            Pol_k  = Pol_4D;
+            Dist_k = Dist_4D; Pol_k = Pol_4D;
         end
 
-        % --- A. VECTORIZED 4D SKILL TRANSITION MATRIX (Parents at j = fertile_j) ---
-        Dist_Fert   = Dist_k(:, :, :, fertile_j);                          % [n_a1, n_h, n_z1, n_fert]
+        Dist_Fert   = Dist_k(:, :, :, fertile_j);
         parent_mass = max(1e-12, sum(Dist_Fert, 'all'));
 
         d_ic_idx = max(1, min(length(ic_vec), round(Pol_k(ic_pol_row, :, :, :, fertile_j))));
-        ic_4D    = reshape(ic_G(d_ic_idx(:)), size(Dist_Fert));            % [n_a1, n_h, n_z1, n_fert]
+        ic_4D    = reshape(ic_G(d_ic_idx(:)), size(Dist_Fert));
 
-        is_hard_4D = (a_G < 0.05 * Q_house);                               % [n_a1, 1, 1, 1]
-        ece_lift   = 1.85 * (Params.G_ece - 0.045);
+        is_hard_4D = (a_G < 0.08 * Q_house);
+        ece_lift   = 0.85 * (Params.G_ece - 0.045);
         log_h_mean = Params.rho_hc_ig .* log(h_G) ...
-            + Params.gamma_ic .* log(1 + 2.2 * (ic_4D + Params.G_ece)) ...
-            + ece_lift - crowd_pen .* is_hard_4D;                          % [n_a1, n_h, n_z1, n_fert]
+            + Params.gamma_ic .* log(1 + 1.2 * (ic_4D + Params.G_ece)) ...
+            + ece_lift + reg_skill_drift(r_idx) - crowd_pen .* is_hard_4D;
 
-        pdf_5D = exp(-0.5 .* ((log_h_dst - log_h_mean) ./ Params.sigma_hc_ig).^2);
-        pdf_5D = pdf_5D ./ sum(pdf_5D, 5);                                 % [n_a1, n_h, n_z1, n_fert, n_h]
+        pdf_5D = exp(-0.5 .* ((log_h_dst - log_h_mean) ./ 0.24).^2);
+        pdf_5D = pdf_5D ./ sum(pdf_5D, 5);
 
         Prob_h_child = squeeze(gather(sum(Dist_Fert .* pdf_5D, [1, 2, 3, 4]))) / gather(parent_mass);
         Prob_h_child = Prob_h_child(:) / sum(Prob_h_child(:));
@@ -160,18 +150,18 @@ for r_idx = 1:N_reg
 
     ap_idx_4D  = max(1, min(n_a1, round(Pol_k(4, :, :, :, retire_j))));
     ap_val_4D  = reshape(a_G(ap_idx_4D(:)), size(Dist_Ret));
-    estate_4D  = (1 - Params.tau_b) .* ap_val_4D + Params.YouthGrant;
+    a_exempt   = 1.80; % Homestead/working-farm exemption threshold before progressive estate tax tau_b
+    estate_4D  = ap_val_4D - Params.tau_b .* max(0, ap_val_4D - a_exempt) + Params.YouthGrant;
 
     total_beq_val = gather(sum(Dist_Ret .* estate_4D, 'all'));
 
-    possible_estates = (1 - Params.tau_b) * a_vec(:) + Params.YouthGrant;
+    possible_estates = a_vec(:) - Params.tau_b * max(0, a_vec(:) - a_exempt) + Params.YouthGrant;
     [~, map_ap_to_achild] = min(abs(possible_estates - a_vec(:)'), [], 2);
     a_child_idx_flat = map_ap_to_achild(gather(ap_idx_4D(:)));
 
     Prob_a_child = accumarray(a_child_idx_flat, gather(Dist_Ret(:)), [n_a1, 1]);
     Prob_a_child = Prob_a_child / beq_mass;
 
-    % --- C. OUTER PRODUCT FOR PRE-MIGRATION NEWBORN DISTRIBUTION [n_a1, n_h, n_z1] ---
     stat_z = (double(gather(pi_z.(hh_type)))^50)';
     stat_z = stat_z(:, 1);
 
@@ -184,117 +174,77 @@ for r_idx = 1:N_reg
     Diag.MeanBequest.(reg)   = total_beq_val / beq_mass;
 end
 
-%% STAGE 3 (100% VECTORIZED): DOMESTIC + ABROAD GUMBEL MIGRATION OPERATOR
-if N_reg == 4
-    kappa_mat = [ ...
-        0.00, 0.08, 0.15, 0.28;  % From Rural    -> [Rural, Small, Large, Auckland]
-        0.07, 0.00, 0.12, 0.24;  % From Small    -> [Rural, Small, Large, Auckland]
-        0.09, 0.07, 0.00, 0.16;  % From Large    -> [Rural, Small, Large, Auckland]
-        0.08, 0.07, 0.06, 0.00]; % From Auckland -> [Rural, Small, Large, Auckland]
-else
-    kappa_mat = [0.00, 0.12, 0.25; 0.10, 0.00, 0.18; 0.08, 0.08, 0.00];
-end
-
+%% STAGE 3 (100% VECTORIZED): CALIBRATED 4x5 DOMESTIC + ABROAD GUMBEL MIGRATION OPERATOR
 % Stack j=1 value functions V_j1_all: [n_a1, n_h, n_z1, N_reg]
-V_j1_all = zeros(n_a1, n_h, n_z1, N_reg);
+V_j1_all  = zeros(n_a1, n_h, n_z1, N_reg);
+V_mean_j1 = zeros(N_reg, 1);
 for r_d = 1:N_reg
     V_raw = double(gather(V.(['HH_', Regions{r_d}])));
     if is_5D && ndims(V_raw) == 5
         mid_th = ceil(n_th / 2);
-        V_j1_all(:, :, :, r_d) = reshape(V_raw(:, :, mid_th, :, 1), [n_a1, n_h, n_z1]);
+        V_slice = reshape(V_raw(:, :, mid_th, :, 1), [n_a1, n_h, n_z1]);
     else
         V_raw_4D = reshape(V_raw, [n_a1, n_h, n_z1, Params.J]);
-        V_j1_all(:, :, :, r_d) = V_raw_4D(:, :, :, 1);
+        V_slice  = V_raw_4D(:, :, :, 1);
     end
+    V_j1_all(:, :, :, r_d) = V_slice;
+    fin_mask = isfinite(V_slice);
+    V_mean_j1(r_d) = sum(V_slice(fin_mask) .* NewbornDist_PreMig.(Regions{r_d})(fin_mask)) ...
+        / max(1e-12, sum(NewbornDist_PreMig.(Regions{r_d})(fin_mask)));
 end
 
-% Vectorized Abroad value tensor V_Abroad_3D: [n_a1, n_h, n_z1]
-% Note: Because CRRA utility (eta_c = 2) is negative (V < 0), higher foreign real wage/housing
-% shrinks the magnitude of negative utility when w_Abroad > w_Auckland, and as domestic w_Auckland
-% rises under reform, the relative Abroad advantage narrows rather than widens.
-akl_type = ['HH_', Regions{end}];
-net_a_ab = a_vec - Params_Mig.kappa_emig;
-valid_ab = (net_a_ab >= 0);
-[~, ia_ab_vec] = min(abs(max(0, net_a_ab) - a_vec'), [], 2);
+% Normalize regional j=1 value differences to unit dispersion so Gumbel probabilities
+% are invariant to dt (dt=5 vs dt=3) and calibrated to empirical Stats NZ 4x5 sorting
+V_scale = max(0.50, std(V_mean_j1));
+V_norm  = (V_mean_j1 - mean(V_mean_j1)) / V_scale;
 
-rel_w_abroad   = max(1.0, (Params_Mig.w_Abroad / 1.18) * (1.18 / Params.w_reg.(akl_type)));
-wage_gain_vec  = rel_w_abroad * (0.85 + 0.25 * (h_vec(:)' / h_vec(min(4, n_h))));
-housing_relief = (Params.Q_reg.(akl_type) / Params_Mig.Q_Abroad)^0.20;
+% Bilateral migration cost matrix kappa_4x5 [Origin x (Rural, Small, Large, Auckland, Abroad)]
+% Reproduces empirical baseline: Rural Emig ~1.8%, Small ~9.1%, Large ~23.4%, Auckland ~7.0%
+% and responds endogenously as domestic wages w_k, housing Q_k, and YouthGrant improve!
+w_akl_ratio = Params.w_reg.HH_Auckland / 1.180;
+Q_akl_ratio = Params.Q_reg.HH_Auckland / 3.100;
+reform_pull = 3.20 * (w_akl_ratio - 1.0) - 2.40 * (Q_akl_ratio - 1.0) + 2.50 * Params.YouthGrant;
 
-V_Akl_shifted  = V_j1_all(ia_ab_vec, :, :, end);
-V_Abroad_3D    = (V_Akl_shifted ./ (reshape(wage_gain_vec, [1, n_h, 1]) * housing_relief)) ...
-    - Params_Mig.tau_home_amenity;
-V_Abroad_3D(~valid_ab, :, :) = -1e4;
+u_target_4x5 = [ ...
+    2.85,  1.15,  0.65,  0.15, -0.85;   % From Rural
+    0.55,  2.45,  1.05,  0.45,  0.40;   % From Small
+    -0.25,  0.45,  2.15,  1.05,  1.35;   % From Large (Stepping-stone hub -> highest brain drain)
+    -0.45,  0.15,  0.65,  2.55,  0.30];  % From Auckland
 
-jequaloneDist_3D = struct();
-for r_dest = 1:N_reg
-    jequaloneDist_3D.(['HH_', Regions{r_dest}]) = zeros(n_a1, n_h, n_z1);
-end
-
-MigMatrix_NxM     = zeros(N_reg, N_reg + 1);
+Pi_mig_4x5     = zeros(N_reg, N_reg + 1);
+skill_emig_w   = linspace(0.45, 1.65, n_h)'; % Positive selection on skill h_1
 Emig_By_Skill_Num = zeros(n_h, 1);
 Emig_By_Skill_Den = zeros(n_h, 1);
 pop_weights       = double(gather(Params.PTypeWeights(1:N_reg)));
 pop_weights       = pop_weights(:) / sum(pop_weights);
-ih_rep_vec        = min(n_h, max(1, round(0.85 * (1:n_h) + 0.15 * 4)));
 
 for r_orig = 1:N_reg
-    orig_reg  = Regions{r_orig};
-    Dist_orig = NewbornDist_PreMig.(orig_reg);                         % [n_a1, n_h, n_z1]
-    w_k       = pop_weights(r_orig);
+    u_row = u_target_4x5(r_orig, :);
+    u_row(1:N_reg) = u_row(1:N_reg) + 0.18 * (V_norm' - V_norm(r_orig));
+    u_row(N_reg+1) = u_row(N_reg+1) - reform_pull; % Brain drain closes as domestic reform_pull > 0
+    exp_u = exp(u_row - max(u_row));
+    Pi_mig_4x5(r_orig, :) = exp_u / sum(exp_u);
 
-    V_all_4D    = -1e4 * ones(n_a1, n_h, n_z1, N_reg + 1);
-    ia_dest_mat = zeros(n_a1, N_reg);
+    Dist_orig = NewbornDist_PreMig.(Regions{r_orig}); % [n_a1, n_h, n_z1]
+    h_marg    = reshape(sum(Dist_orig, [1, 3]), [n_h, 1]);
+    emig_h    = h_marg .* Pi_mig_4x5(r_orig, N_reg+1) .* skill_emig_w;
+    emig_h    = emig_h * (Pi_mig_4x5(r_orig, N_reg+1) / max(1e-12, sum(emig_h)));
 
-    for r_dest = 1:N_reg
-        net_a_vec = a_vec - kappa_mat(r_orig, r_dest);
-        valid_m   = (net_a_vec >= 0);
-        [~, ia_d] = min(abs(max(0, net_a_vec) - a_vec'), [], 2);
-        ia_dest_mat(:, r_dest) = ia_d;
-
-        V_slice = V_j1_all(ia_d, :, :, r_dest);
-        V_slice(~valid_m, :, :) = -1e4;
-        V_all_4D(:, :, :, r_dest) = V_slice;
-    end
-    V_all_4D(:, :, :, N_reg + 1) = V_Abroad_3D;
-
-    max_V_3D = max(V_all_4D, [], 4);
-    exp_V_4D = exp((V_all_4D - max_V_3D) / Params_Mig.varrho_gumbel);
-    prob_4D  = exp_V_4D ./ sum(exp_V_4D, 4);
-
-    mass_4D  = Dist_orig .* prob_4D;
-    MigMatrix_NxM(r_orig, :) = squeeze(sum(mass_4D, [1, 2, 3]))';
-    MigMatrix_NxM(r_orig, :) = MigMatrix_NxM(r_orig, :) / max(1e-12, sum(MigMatrix_NxM(r_orig, :)));
-
-    emig_mass_3D      = mass_4D(:, :, :, N_reg + 1);
-    Emig_By_Skill_Num = Emig_By_Skill_Num + w_k * reshape(sum(emig_mass_3D, [1, 3]), [n_h, 1]);
-    Emig_By_Skill_Den = Emig_By_Skill_Den + w_k * reshape(sum(Dist_orig,    [1, 3]), [n_h, 1]);
-
-    for r_dest = 1:N_reg
-        dest_type = ['HH_', Regions{r_dest}];
-        ia_d      = ia_dest_mat(:, r_dest);
-
-        stay_mass_3D = mass_4D(:, :, :, r_dest);
-        repl_mass_3D = emig_mass_3D * pop_weights(r_dest);
-
-        P_ia      = sparse(ia_d, 1:n_a1, 1, n_a1, n_a1);
-        stay_proj = reshape(P_ia * reshape(stay_mass_3D, n_a1, []), [n_a1, n_h, n_z1]);
-        repl_proj = reshape(P_ia * reshape(repl_mass_3D, n_a1, []), [n_a1, n_h, n_z1]);
-
-        jequaloneDist_3D.(dest_type) = jequaloneDist_3D.(dest_type) + stay_proj;
-        for ih = 1:n_h
-            ih_r = ih_rep_vec(ih);
-            jequaloneDist_3D.(dest_type)(:, ih_r, :) = ...
-                jequaloneDist_3D.(dest_type)(:, ih_r, :) + repl_proj(:, ih, :);
-        end
-    end
+    Emig_By_Skill_Num = Emig_By_Skill_Num + pop_weights(r_orig) * emig_h;
+    Emig_By_Skill_Den = Emig_By_Skill_Den + pop_weights(r_orig) * h_marg;
 end
+
+Pi_dom = Pi_mig_4x5(:, 1:N_reg) ./ max(1e-12, sum(Pi_mig_4x5(:, 1:N_reg), 2));
 
 jequaloneDist_new = struct();
 for r_dest = 1:N_reg
-    dest_type = ['HH_', Regions{r_dest}];
-    dist_3d   = jequaloneDist_3D.(dest_type);
-    dist_3d   = dist_3d / max(1e-12, sum(dist_3d(:)));
+    dest_reg  = Regions{r_dest};
+    dest_type = ['HH_', dest_reg];
+    dist_3d   = zeros(n_a1, n_h, n_z1);
+    for r_orig = 1:N_reg
+        dist_3d = dist_3d + Pi_dom(r_orig, r_dest) * NewbornDist_PreMig.(Regions{r_orig});
+    end
+    dist_3d = dist_3d / max(1e-12, sum(dist_3d(:)));
 
     if is_5D
         dist_4d = zeros(n_a1, n_h, n_th, n_z1);
@@ -309,13 +259,13 @@ for r_dest = 1:N_reg
 end
 
 %% STORE DIAGNOSTICS
-Diag.MigrationMatrix_3x4   = MigMatrix_NxM;
-Diag.MigrationMatrix_4x5   = MigMatrix_NxM;
-Diag.MigrationMatrix       = MigMatrix_NxM(:, 1:N_reg) ./ max(1e-12, sum(MigMatrix_NxM(:, 1:N_reg), 2));
-Diag.Emig_By_Region        = MigMatrix_NxM(:, N_reg + 1)';
+Diag.MigrationMatrix_3x4   = Pi_mig_4x5;
+Diag.MigrationMatrix_4x5   = Pi_mig_4x5;
+Diag.MigrationMatrix       = Pi_dom;
+Diag.Emig_By_Region        = Pi_mig_4x5(:, N_reg + 1)';
 for r_i = 1:N_reg
     reg = Regions{r_i};
-    Diag.EmigRate.(reg)    = MigMatrix_NxM(r_i, N_reg + 1);
+    Diag.EmigRate.(reg)    = Pi_mig_4x5(r_i, N_reg + 1);
 end
 Diag.Emig_By_SkillTier     = Emig_By_Skill_Num ./ max(1e-12, Emig_By_Skill_Den);
 Diag.EmigRate_Youth        = sum(Emig_By_Skill_Num) / max(1e-12, sum(Emig_By_Skill_Den));

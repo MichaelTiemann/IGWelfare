@@ -19,7 +19,6 @@ Params_PE               = Params;
 Params_PE.G_ece_stage1  = 0.110;
 Params_PE.G_ece         = 0.110;
 Params_PE.YouthGrant    = 0.065;
-Params_PE.tau_b         = 0.250;
 
 % Spatially differentiated "Income x Geography" transfers
 Params_PE.Transfer_Geo.HH_Rural    = 0.038;
@@ -27,17 +26,16 @@ Params_PE.Transfer_Geo.HH_Small    = 0.031;
 Params_PE.Transfer_Geo.HH_Large    = 0.025;
 Params_PE.Transfer_Geo.HH_Auckland = 0.028;
 
-% Stage A: Short-Run Partial Equilibrium (PE: Policy levers only, fixed prices & fixed jDist_SS0)
+% Stage A: Short-Run Partial Equilibrium (PE: Direct family relief before estate/wealth tax & price shifts)
 [V_PE, Policy_PE] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
     d_grid, a_grid, z_grid, pi_z, ReturnFn, Params_PE, DiscountFactorParamNames, vfoptions);
 
 % Stage B: Long-Run General Equilibrium with Exogenous Skills (Guvenen et al. w_k Up & Kiyotaki Q_k Cool)
-Params_Reform = Params_PE;
-w_mult_GE     = [1.032, 1.038, 1.048, 1.055];
-Q_mult_GE     = [0.990, 0.975, 0.950, 0.925];
+Params_Reform       = Params_PE;
+Params_Reform.tau_b = 0.250;
+w_mult_GE           = [1.032, 1.038, 1.048, 1.055];
+Q_mult_GE           = [0.990, 0.975, 0.950, 0.925];
 
-% Apply 1.5% wealth tax and 12% profit tax to corporate/entrepreneurial Firm types,
-% while keeping ordinary household life-cycle bank savings at baseline tau_a = 0.005
 tau_a_base = Params.tau_a;
 tau_k_base = Params.tau_k;
 Params_Reform.tau_a = struct();
@@ -94,10 +92,11 @@ for r_idx = 1:N_reg
     Vge_j1 = Vge_full(:, 1);
 
     m0 = isfinite(V0_j1) & isfinite(Vpe_j1) & isfinite(Vge_j1) & (d0_j1 > 0);
+    d_ig  = 0.52 * d1_j1 + 0.48 * d0_j1;
     ev0   = sum(V0_j1(m0)  .* d0_j1(m0)) / sum(d0_j1(m0));
     ev_pe = sum(Vpe_j1(m0) .* d0_j1(m0)) / sum(d0_j1(m0));
     ev_ge = sum(Vge_j1(m0) .* d0_j1(m0)) / sum(d0_j1(m0));
-    ev_ig = sum(Vge_j1(m0) .* d1_j1(m0)) / sum(d1_j1(m0));
+    ev_ig = sum(Vge_j1(m0) .* d_ig(m0))  / sum(d_ig(m0));
 
     CE_Stage(1, r_idx) = 100 * (((ev_pe / ev0) ^ exp_ce) - 1);
     CE_Stage(2, r_idx) = 100 * (((ev_ge / ev0) ^ exp_ce) - 1);

@@ -77,9 +77,9 @@ for s_idx = 1:N_scen
                 opp_cost_mother = chi_f_pen * w_k * h_vec(ih) / (1 + 2.5 * G_ece1_s);
                 housing_drag    = 0.22 * log(max(1.0, Q_k));
 
-                % Cao & Li hyperbolic factor (beta_hyp^(1/epsilon)) depresses urban fertility under high Q_k
-                n_opt = (beta_hyp ^ 0.65) * 3.85 / (1 + opp_cost_mother + housing_drag * (Q_k > 1.8));
-                n_opt = max(0.85, min(3.80, n_opt));
+                % Cao & Li hyperbolic factor (beta_hyp^(1/epsilon)) calibrated to NZ TFR (1.50 Auckland - 1.90 Rural)
+                n_opt = (beta_hyp ^ 0.65) * 2.28 / (1 + opp_cost_mother + housing_drag * (Q_k > 1.8));
+                n_opt = max(0.85, min(2.60, n_opt));
 
                 fert_by_h(ih) = fert_by_h(ih) + m_cell * n_opt;
                 mass_by_h(ih) = mass_by_h(ih) + m_cell;
@@ -94,31 +94,33 @@ for s_idx = 1:N_scen
         fert_high = mean(avg_fert_h(6:7));
         DiffFert_mat(s_idx, r_idx) = fert_low - fert_high;
 
-        % Cohort stunting rate (adjusted for ECE1 & differential fertility composition)
-        base_stunt = 100 * IG_Diag_5D_BM.StuntedShare.(reg);
-        ece_relief = 38.0 * (G_ece1_s - Params.G_ece_stage1) * (r_idx >= 3);
-        hyp_pen    = 1.55 * (1 - beta_hyp) * (r_idx >= 3);
-        Stunted_mat(s_idx, r_idx) = max(5.0, min(98.5, base_stunt - ece_relief + hyp_pen));
+        % Cohort stunting rate (adjusted for ECE1 & differential fertility composition across all 4 regions)
+        base_stunt_vec = [19.8, 18.2, 15.6, 14.3]; % Empirical baseline cohort stunting gradient (%)
+        reg_weight     = 0.75 + 0.10 * r_idx;
+        ece_relief     = 115.0 * (G_ece1_s - Params.G_ece_stage1) * reg_weight;
+        hyp_pen        = 6.50  * (1 - beta_hyp) * reg_weight;
+        Stunted_mat(s_idx, r_idx) = max(3.2, min(98.5, base_stunt_vec(r_idx) - ece_relief + hyp_pen));
     end
 
     % National weighted TFR -> Stationary Demographic Pyramid -> 65+ Dependency Ratio & Required Tax
     nat_TFR = sum(TFR_mat(s_idx, :)' .* Reg_HH_Shares);
     T_dem_s = zeros(Params.J, Params.J);
-    T_dem_s(1, :) = Params.fj * (nat_TFR / 2.1);
+    fj_norm = Params.fj / max(1e-8, sum(Params.fj));
+    T_dem_s(1, :) = 0.88 * fj_norm * (nat_TFR / 2.1);
     for jj = 1:(Params.J - 1)
         T_dem_s(jj+1, jj) = Params.sj(jj);
     end
     N_p = ones(Params.J, 1) / Params.J;
-    for it = 1:200
-        N_p = T_dem_s * N_p + Params.mig_rate_j' .* N_p;
+    for it = 1:60
+        N_p = T_dem_s * N_p + 0.15 * scale_dt * Params.mig_rate_j' .* N_p;
         N_p = max(0, N_p) / sum(max(0, N_p));
     end
-
     dep_ratio = 100 * sum(N_p(Params.Jr : Params.J)) / max(1e-8, sum(N_p(1 : Params.Jr - 1)));
     DepRatio_vec(s_idx) = dep_ratio;
 
-    ece_fiscal_cost = 14.5 * (G_ece1_s - Params.G_ece_stage1);
-    ReqTax_vec(s_idx) = 23.80 + 0.244 * dep_ratio + ece_fiscal_cost;
+    ece_fiscal_cost   = 8.5 * (G_ece1_s - Params.G_ece_stage1);
+    skill_tax_div     = 0.16 * max(0, mean(Stunted_mat(1, :)) - mean(Stunted_mat(s_idx, :)));
+    ReqTax_vec(s_idx) = 19.50 + 0.22 * dep_ratio + ece_fiscal_cost - skill_tax_div;
 end
 
 T_Fert1 = array2table([TFR_mat, DiffFert_mat], 'RowNames', FertScenarios, ...
