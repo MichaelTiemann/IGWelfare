@@ -64,9 +64,8 @@ Build_And_Render_Panel(axA, Target_Region, Dist_SS0, Pol_SS0, P_SS0, Diag_SS0, .
     Calibration_Anchor, false);
 drawnow;
 tmpA = [tempname, '_PanelA.png'];
-exportgraphics(figA, tmpA, 'Resolution', 300, 'BackgroundColor', 'white');
-imgA = imread(tmpA);
-close(figA); if exist(tmpA, 'file'), delete(tmpA); end
+imgA = AutoCrop_White_Border(print(figA, '-RGBImage', '-r300'));
+close(figA);
 
 figB = figure('Color', 'w', 'Position', [50, 50, 1480, 720], 'Visible', 'on');
 axB  = axes('Parent', figB, 'Position', [0.02, 0.06, 0.95, 0.86]);
@@ -74,10 +73,8 @@ Build_And_Render_Panel(axB, Target_Region, Dist_SS1, Pol_SS1, P_SS1, Diag_SS1, .
     n_d, n_a, n_z, d_grid, a_grid, Regions, 'B. High-Opportunity Reform + Montessori Mentoring (SS1)', ...
     Calibration_Anchor, true);
 drawnow;
-tmpB = [tempname, '_PanelB.png'];
-exportgraphics(figB, tmpB, 'Resolution', 300, 'BackgroundColor', 'white');
-imgB = imread(tmpB);
-close(figB); if exist(tmpB, 'file'), delete(tmpB); end
+imgB = AutoCrop_White_Border(print(figB, '-RGBImage', '-r300'));
+close(figB);
 
 % Match dimensions and add generous whitespace around all text legends & titles
 [hA, wA, ~] = size(imgA);
@@ -116,7 +113,7 @@ else
     fig_pos    = [20, 80, 1860, 740];
 end
 
-imwrite(img_Merged, Out_PNG_Name);
+imwrite(img_Merged, fullfile(OutputDir, Out_PNG_Name));
 fprintf('Saved merged 5-stage 2-panel Sankey image to: %s\n', fullfile(OutputDir, Out_PNG_Name));
 
 fig_Merged = figure('Name', ['Merged 5-Stage Child Fates: ', Target_Region], ...
@@ -209,123 +206,122 @@ for r_i = 1:length(reg_list)
         Q_house = Q_house * Q_mult_Map.(reg);
     end
 
-    reg_F12 = zeros(2, 3);
-    reg_F23 = zeros(3, 3);
-    reg_F34 = zeros(3, 3);
-    tot_p   = 0;
-
-    for jf = fertile_j
-        for ia = 1:n_a1
-            % Stage 1 (J=1): Material Hardship & Housing Squeeze vs. Secure Asset Buffer
-            is_hardship = (a_vec(ia) < 0.08 * Q_house);
-            s1_idx      = 1 * is_hardship + 2 * (~is_hardship);
-
-            for ih = 1:n_h
-                for iz = 1:n_z1
-                    mass_p = Dist_k(ia, ih, iz, jf);
-                    if mass_p > 1e-12
-                        tot_p    = tot_p + mass_p;
-                        d_ic_idx = Pol_k(3, ia, ih, iz, jf);
-                        ic_val   = ic_vec(max(1, min(length(ic_vec), d_ic_idx)));
-
-                        % Stage 2 (J=2-3): First 2000 Days Gate
-                        if ic_val <= 1e-5 && ~is_reform_panel
-                            s2_weights = [1.0, 0.0, 0.0]; % Node 3: Unmitigated Corner (ic = 0)
-                        elseif ic_val <= 1e-5 && is_reform_panel
-                            % Public wraparound + Montessori peer scaffolding lifts 78% out of corner
-                            s2_weights = [0.22, 0.78, 0.0];
-                        elseif ic_val <= 0.35 * max(ic_vec)
-                            s2_weights = [0.0, 1.0, 0.0]; % Node 4: Public ECE + Moderate Inv
-                        else
-                            s2_weights = [0.0, 0.0, 1.0]; % Node 5: High Wraparound + Parental Inv
-                        end
-
-                        reg_F12(s1_idx, :) = reg_F12(s1_idx, :) + mass_p * s2_weights;
-
-                        % Stage 3 (J=5, Age 12-14): Early Adolescence Gate
-                        % Observable parental employment distress (iz <= 2 in 7-state z grid, or iz == 1)
-                        is_unemp_stress = (iz == 1) || (n_z1 >= 5 && iz == 2 && is_hardship);
-
-                        % Map from each Stage-2 path into Stage-3 (J=5) Adolescent Nodes:
-                        %   s3 = 1: Node 6 - Family Unemployment & Stress (z_1 Risk)
-                        %   s3 = 2: Node 7 - Standard Schooling (Passive Maintenance)
-                        %   s3 = 3: Node 8 - Montessori Cross-Age Mentoring (Gain Banking)
-                        for s2_i = 1:3
-                            m_s2 = mass_p * s2_weights(s2_i);
-                            if m_s2 > 1e-14
-                                if ~is_reform_panel
-                                    % Baseline Status Quo (Low access to Montessori mentoring)
-                                    if is_unemp_stress
-                                        % Unemployment shock at J=5 pushes families into Adolescent Stress
-                                        if s2_i == 1,     p_s3 = [0.82, 0.16, 0.02];
-                                        elseif s2_i == 2, p_s3 = [0.55, 0.37, 0.08];
-                                        else,             p_s3 = [0.28, 0.54, 0.18];
-                                        end
-                                    else
-                                        if s2_i == 1,     p_s3 = [0.35, 0.58, 0.07];
-                                        elseif s2_i == 2, p_s3 = [0.12, 0.68, 0.20];
-                                        else,             p_s3 = [0.05, 0.55, 0.40];
-                                        end
-                                    end
-                                else
-                                    % Reform SS1: Expanded Montessori Mentoring at J=5 buffers family stress
-                                    % and banks Stage-1 First-2000-Days gains!
-                                    if is_unemp_stress
-                                        if s2_i == 1,     p_s3 = [0.38, 0.34, 0.28];
-                                        elseif s2_i == 2, p_s3 = [0.16, 0.36, 0.48];
-                                        else,             p_s3 = [0.08, 0.30, 0.62];
-                                        end
-                                    else
-                                        if s2_i == 1,     p_s3 = [0.14, 0.46, 0.40];
-                                        elseif s2_i == 2, p_s3 = [0.04, 0.38, 0.58];
-                                        else,             p_s3 = [0.02, 0.26, 0.72];
-                                        end
-                                    end
-                                end
-
-                                reg_F23(s2_i, :) = reg_F23(s2_i, :) + m_s2 * p_s3;
-
-                                % Stage 3 (J=5) -> Stage 4 (J=6-7): Completed Adult Skill Tier (Q_h)
-                                inv_gap = log(ic_val + G_ece_eff + 0.02) - log(0.20 + 0.05 + 0.02);
-                                if strcmpi(Calibration_Anchor, 'Dunedin_22')
-                                    crowd_penalty = 0.14 * log(max(1.0, Q_house)) * is_hardship;
-                                    grid_anchor   = +0.040;
-                                else
-                                    crowd_penalty = 0.18 * log(max(1.0, Q_house)) * is_hardship;
-                                    grid_anchor   = -0.125;
-                                end
-
-                                base_log_h = rho_hc * log(h_vec(ih)) + gamma_ic * inv_gap - crowd_penalty + grid_anchor;
-
-                                % Apply J=5 Adolescent Shock / Montessori Mentoring Buffer:
-                                %   s3_i == 1 (Family Unemployment Stress): -0.22 skill erosion (fades out early gains!)
-                                %   s3_i == 2 (Standard Schooling):          0.00 neutral maintenance
-                                %   s3_i == 3 (Montessori Mentoring):       +montessori_bank skill lock-in
-                                s3_shifts = [-0.22, 0.00, montessori_bank];
-
-                                for s3_i = 1:3
-                                    m_s3 = m_s2 * p_s3(s3_i);
-                                    if m_s3 > 1e-14
-                                        log_h_mean  = base_log_h + s3_shifts(s3_i);
-                                        trans_probs = normpdf(log(h_vec), log_h_mean, sig_hc);
-                                        trans_probs = trans_probs / sum(trans_probs);
-
-                                        reg_F34(s3_i, 1) = reg_F34(s3_i, 1) + m_s3 * sum(trans_probs(1:2)); % Stunted h1-h2
-                                        reg_F34(s3_i, 2) = reg_F34(s3_i, 2) + m_s3 * sum(trans_probs(3:5)); % Core h3-h5
-                                        reg_F34(s3_i, 3) = reg_F34(s3_i, 3) + m_s3 * sum(trans_probs(6:7)); % Thriving h6-h7
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
+    % --- GPU-VECTORIZED 5-STAGE CHILDHOOD FLOW TENSORS ACROSS [ia, ih, iz, jf] ---
+    use_gpu = (gpuDeviceCount > 0);
+    if use_gpu
+        Dist_Fert = gpuArray(double(Dist_k(:, :, :, fertile_j)));  % [n_a1, n_h, n_z1, 2]
+        Pol_Fert  = gpuArray(double(Pol_k(3, :, :, :, fertile_j)));
+        a_G       = gpuArray(reshape(double(a_vec), [n_a1, 1, 1, 1]));
+        h_G       = gpuArray(reshape(double(h_vec), [1, n_h, 1, 1]));
+        ic_G      = gpuArray(double(ic_vec(:)));
+        z_idx_3D  = gpuArray(reshape(1:n_z1, [1, 1, n_z1, 1]));
+        log_h_dst = gpuArray(reshape(log(double(h_vec)), [1, 1, 1, 1, n_h]));
+    else
+        Dist_Fert = double(Dist_k(:, :, :, fertile_j));
+        Pol_Fert  = double(Pol_k(3, :, :, :, fertile_j));
+        a_G       = reshape(double(a_vec), [n_a1, 1, 1, 1]);
+        h_G       = reshape(double(h_vec), [1, n_h, 1, 1]);
+        ic_G      = double(ic_vec(:));
+        z_idx_3D  = reshape(1:n_z1, [1, 1, n_z1, 1]);
+        log_h_dst = reshape(log(double(h_vec)), [1, 1, 1, 1, n_h]);
     end
 
-    reg_F12 = reg_F12 / max(1e-12, tot_p);
-    reg_F23 = reg_F23 / max(1e-12, tot_p);
-    reg_F34 = reg_F34 / max(1e-12, tot_p);
+    tot_p    = max(1e-12, gather(sum(Dist_Fert(:))));
+    d_ic_idx = max(1, min(length(ic_vec), Pol_Fert));
+    ic_4D    = reshape(ic_G(d_ic_idx(:)), size(Dist_Fert));        % [n_a1, n_h, n_z1, 2]
+
+    % Stage 1 (J=1): Material Hardship & Housing Squeeze vs. Secure Asset Buffer
+    is_hard_4D = (a_G < 0.08 * Q_house);                           % [n_a1, 1, 1, 1]
+    mask_s1_1  = is_hard_4D;
+    mask_s1_2  = ~is_hard_4D;
+
+    % Stage 2 (J=2-3): First 2000 Days Gate Weights [n_a1, n_h, n_z1, 2]
+    m_corner = (ic_4D <= 1e-5);
+    m_mod    = (~m_corner) & (ic_4D <= 0.35 * max(ic_vec));
+    m_high   = (~m_corner) & (~m_mod);
+
+    if ~is_reform_panel
+        s2_W1 = 1.00 .* m_corner;
+        s2_W2 = 1.00 .* m_mod;
+        s2_W3 = 1.00 .* m_high;
+    else
+        s2_W1 = 0.22 .* m_corner;
+        s2_W2 = 0.78 .* m_corner + 1.00 .* m_mod;
+        s2_W3 = 1.00 .* m_high;
+    end
+    s2_W_5D = cat(5, s2_W1, s2_W2, s2_W3);                         % [n_a1, n_h, n_z1, 2, 3]
+
+    reg_F12 = zeros(2, 3);
+    for s2_i = 1:3
+        reg_F12(1, s2_i) = gather(sum(Dist_Fert .* s2_W_5D(:, :, :, :, s2_i) .* mask_s1_1,'all') / tot_p); % Wait: broadcast mask_s1_1 first!
+    end
+    % Proper broadcasted Stage 1 -> Stage 2 sum:
+    for s2_i = 1:3
+        w_s2 = Dist_Fert .* s2_W_5D(:, :, :, :, s2_i);
+        reg_F12(1, s2_i) = gather(sum(w_s2 .* mask_s1_1,'all')) / tot_p;
+        reg_F12(2, s2_i) = gather(sum(w_s2 .* mask_s1_2,'all')) / tot_p;
+    end
+
+    % Stage 3 (J=5, Age 12-14): Early Adolescence & Montessori Mentoring Gate
+    is_unemp_4D = (z_idx_3D == 1) | (n_z1 >= 5 & (z_idx_3D == 2) & is_hard_4D);
+
+    % Transition probability tables p_s3(s2_i, s3_i) for Unemployed Stress vs. Stable
+    if ~is_reform_panel
+        P_unemp = [0.82, 0.16, 0.02;
+            0.55, 0.37, 0.08;
+            0.28, 0.54, 0.18];
+        P_stabl = [0.35, 0.58, 0.07;
+            0.12, 0.68, 0.20;
+            0.05, 0.55, 0.40];
+    else
+        P_unemp = [0.38, 0.34, 0.28;
+            0.16, 0.36, 0.48;
+            0.08, 0.30, 0.62];
+        P_stabl = [0.14, 0.46, 0.40;
+            0.04, 0.38, 0.58;
+            0.02, 0.26, 0.72];
+    end
+
+    % Precompute Stage 3 -> Stage 4 Gaussian Skill Transition Probabilities on GPU
+    inv_gap_4D = log(ic_4D + G_ece_eff + 0.02) - log(0.20 + 0.05 + 0.02);
+    if strcmpi(Calibration_Anchor, 'Dunedin_22')
+        crowd_pen_4D = 0.14 * log(max(1.0, Q_house)) .* is_hard_4D;
+        grid_anchor  = +0.040;
+    else
+        crowd_pen_4D = 0.18 * log(max(1.0, Q_house)) .* is_hard_4D;
+        grid_anchor  = -0.125;
+    end
+    base_log_h_4D = rho_hc .* log(h_G) + gamma_ic .* inv_gap_4D - crowd_pen_4D + grid_anchor;
+    s3_shifts     = [-0.22, 0.00, montessori_bank];
+
+    % Precompute p_st, p_co, p_th 4D tensors for each s3_i in {1, 2, 3}
+    p_st_cell = cell(1, 3);
+    p_co_cell = cell(1, 3);
+    p_th_cell = cell(1, 3);
+    for s3_i = 1:3
+        mean_4D = base_log_h_4D + s3_shifts(s3_i);
+        pdf_5D  = exp(-0.5 .* ((log_h_dst - mean_4D) ./ sig_hc).^2);
+        pdf_5D  = pdf_5D ./ sum(pdf_5D, 5);
+        p_st_cell{s3_i} = sum(pdf_5D(:, :, :, :, 1:2), 5);
+        p_co_cell{s3_i} = sum(pdf_5D(:, :, :, :, 3:5), 5);
+        p_th_cell{s3_i} = sum(pdf_5D(:, :, :, :, 6:7), 5);
+    end
+
+    reg_F23 = zeros(3, 3);
+    reg_F34 = zeros(3, 3);
+    for s2_i = 1:3
+        m_s2_4D = Dist_Fert .* s2_W_5D(:, :, :, :, s2_i);
+        for s3_i = 1:3
+            p_s3_4D = P_unemp(s2_i, s3_i) .* is_unemp_4D + P_stabl(s2_i, s3_i) .* (~is_unemp_4D);
+            m_s3_4D = m_s2_4D .* p_s3_4D;
+
+            reg_F23(s2_i, s3_i) = gather(sum(m_s3_4D(:))) / tot_p;
+
+            reg_F34(s3_i, 1) = reg_F34(s3_i, 1) + gather(sum(m_s3_4D(:) .* p_st_cell{s3_i}(:))) / tot_p;
+            reg_F34(s3_i, 2) = reg_F34(s3_i, 2) + gather(sum(m_s3_4D(:) .* p_co_cell{s3_i}(:))) / tot_p;
+            reg_F34(s3_i, 3) = reg_F34(s3_i, 3) + gather(sum(m_s3_4D(:) .* p_th_cell{s3_i}(:))) / tot_p;
+        end
+    end
 
     Flow_S1_to_S2 = Flow_S1_to_S2 + 100 * w_reg * reg_F12;
     Flow_S2_to_S3 = Flow_S2_to_S3 + 100 * w_reg * reg_F23;
@@ -575,5 +571,16 @@ if isfield(S, fname)
     val = S.(fname);
 else
     val = default_val;
+end
+end
+
+function img_cropped = AutoCrop_White_Border(img)
+is_nonwhite = any(img < 252, 3);
+rows = find(any(is_nonwhite, 2));
+cols = find(any(is_nonwhite, 1));
+if ~isempty(rows) && ~isempty(cols)
+    img_cropped = img(min(rows):max(rows), min(cols):max(cols), :);
+else
+    img_cropped = img;
 end
 end
