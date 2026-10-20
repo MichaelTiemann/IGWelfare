@@ -508,15 +508,23 @@ for r_i = 1:length(reg_list)
         end
     end
 
-    % Conditional annual per-person cost (in model units of $95k/yr) of:
-    %   exits_124_y: Exits 1, 2 & 4 at Age 30 (Corrections/Incarceration, Excess Hospitalisation, State Care aftercare, Main Benefit)
-    %   exit_3_y:    Exit 3 at Age 30 (Fiscal tax & productive income shortfall from lower lifetime income)
-    exits_124_y = [0.365, 0.042, 0.008]; % ~$34.7k/yr per Stunted adult (Corrections + Hosp + Benefit + Care)
-    exit_3_y    = [0.195, 0.035, 0.000]; % ~$18.5k/yr per Stunted adult in foregone income/tax drag at Age 30
+    % Conditional annual per-person Crown outlays & foregone tax base (in model units of $95k/yr):
+    %   1. exits_124_*: Direct Crown Remediation Outlays for Exits 1, 2 & 4
+    %      (Oranga Tamariki State Care aftercare, Excess Acute Hospitalisations, Corrections/Justice, Main Benefit)
+    %   2. pub_infra_*: Per-capita Crown outlay on Roads, Infrastructure, Pure Public Goods (Gp),
+    %      Routine Non-Hardship Healthcare & Debt Service (Ferriere et al. Table 28 / Piketty-Saez Table 1: ~34% of Crown budget)
+    %   3. exit3_taxloss_*: Exit 3 Fiscal Share (28.8% Crown tax revenue foregone due to lower lifetime income of stunted cohort,
+    %      kept strictly in the Beyond/Foregone Tax Base tier per Barnardos Source 9 & 11 integrity rules!)
+    exits_124_y     = [0.340, 0.038, 0.006]; % Direct Exits 1,2,4 outlay at Age 30 (~$32.3k/yr per stunted adult)
+    pub_infra_y     = [0.072, 0.072, 0.072]; % ~$6.8k/yr per adult for Roads, Infra, Routine Health & Public Goods Gp
+    exit3_taxloss_y = [0.068, 0.012, 0.000]; % Crown's 28.8% lost PAYE+GST tax share from Exit 3 lower earnings at Age 30
 
-    exits_124_w = [0.340, 0.038, 0.006]; % Ongoing Corrections, acute health/addiction & benefit burden (Ages 35-64)
-    exit_3_w    = [0.220, 0.040, 0.000]; % Prime-career lower lifetime income fiscal drag (Ages 35-64)
-    exits_124_r = [0.160, 0.025, 0.005]; % Excess aged hospital/residential care in retirement (Ages 65+)
+    exits_124_w     = [0.310, 0.035, 0.005]; % Ongoing Corrections, acute health & benefit burden (Ages 35-64)
+    pub_infra_w     = [0.076, 0.076, 0.076]; % ~$7.2k/yr per adult for Roads, Infra, Routine Health & Gp (Ages 35-64)
+    exit3_taxloss_w = [0.078, 0.014, 0.000]; % Crown's 28.8% lost PAYE+GST tax share from Exit 3 lower earnings (Ages 35-64)
+
+    exits_124_r     = [0.145, 0.022, 0.004]; % Excess aged acute/residential care in retirement (Ages 65+)
+    pub_infra_r     = [0.085, 0.085, 0.085]; % Routine aged health + per-capita public goods/infra in retirement
 
     for t_idx = 1:3
         ih_set = tier_bins{t_idx};
@@ -527,18 +535,28 @@ for r_i = 1:length(reg_list)
         P_y    = paye_4D(:, ih_set, :, 1:3);
         GC_y   = gst_w4D(:, ih_set, :, 1:3) + cap_4D(:, ih_set, :, 1:3);
         E_y    = earn_4D(:, ih_set, :, 1:3);
-        BN_124 = 0.085 .* (E_y < 0.35) + 0.050 .* (a_G < 0.05 * Q_house) + exits_124_y(t_idx);
+        BN_124 = 0.075 .* (E_y < 0.35) + 0.045 .* (a_G < 0.05 * Q_house) + exits_124_y(t_idx);
 
         paye_y      = NZD_Scale * gather(sum(D_y .* P_y,    'all')) / mass_y;
         gst_cap_y   = NZD_Scale * gather(sum(D_y .* GC_y,   'all')) / mass_y;
         cost_124_y  = NZD_Scale * gather(sum(D_y .* BN_124, 'all')) / mass_y;
-        cost_ex3_y  = NZD_Scale * exit_3_y(t_idx);
+        infra_gp_y  = NZD_Scale * pub_infra_y(t_idx);
+        ex3_loss_y  = NZD_Scale * exit3_taxloss_y(t_idx);
 
         sh_t  = Pop_S4_Skill(t_idx);
         ret_t = 1 - emig_t(t_idx);
-        % 5 Columns at Gate 5: [1:Exits 1,2,4 (Bad1), 2:Exit 3 Lower Inc (Bad2), 3:GST/Cap (Good1), 4:PAYE (Good2), 5:Abroad (Beyond)]
+        % 5 Columns at Gate 5:
+        %   Col 1 (Bad 1 - Social Remediation): Exits 1,2,4 (Care, Acute Hosp, Justice & Benefit)
+        %   Col 2 (Bad 2 - General Gov Outlay): Roads, Infra, Baseline Health & Public Goods Gp
+        %   Col 3 (Good 1 - Indirect/Cap Tax):  Age 30 GST & Capital/Wealth Tax Paid
+        %   Col 4 (Good 2 - Direct Labor Tax):  Age 30 PAYE Income Tax Paid
+        %   Col 5 (Beyond - Foregone Tax Base): Exit 3 Lost Tax Revenue (Domestic Stunting) + Emigrated Brain-Drain Tax Loss
         Age30_Fiscal(t_idx, :) = Age30_Fiscal(t_idx, :) + w_reg * sh_t * ...
-            [ret_t * cost_124_y, ret_t * cost_ex3_y, ret_t * gst_cap_y, ret_t * paye_y, emig_t(t_idx) * (paye_y + gst_cap_y)];
+            [ret_t * cost_124_y, ...
+            ret_t * infra_gp_y, ...
+            ret_t * gst_cap_y, ...
+            ret_t * paye_y, ...
+            ret_t * ex3_loss_y + emig_t(t_idx) * (paye_y + gst_cap_y)];
 
         % --- GATE 6 (J = 11..16, Career to Retirement, VFI j = 4..16) ---
         D_w    = Dist_G(:, ih_set, :, 4:(Jr-1));
@@ -546,41 +564,51 @@ for r_i = 1:length(reg_list)
         P_w    = paye_4D(:, ih_set, :, 4:(Jr-1));
         GC_w   = gst_w4D(:, ih_set, :, 4:(Jr-1)) + cap_4D(:, ih_set, :, 4:(Jr-1));
         E_w    = earn_4D(:, ih_set, :, 4:(Jr-1));
-        BN_w   = 0.085 .* (E_w < 0.35) + exits_124_w(t_idx);
+        BN_w   = 0.075 .* (E_w < 0.35) + exits_124_w(t_idx);
 
         paye_w     = NZD_Scale * gather(sum(D_w .* P_w,  'all')) / mass_w;
         gst_cap_w  = NZD_Scale * gather(sum(D_w .* GC_w, 'all')) / mass_w;
         cost_124_w = NZD_Scale * gather(sum(D_w .* BN_w, 'all')) / mass_w;
-        cost_ex3_w = NZD_Scale * exit_3_w(t_idx);
+        infra_gp_w = NZD_Scale * pub_infra_w(t_idx);
+        ex3_loss_w = NZD_Scale * exit3_taxloss_w(t_idx);
 
         D_r    = Dist_G(:, ih_set, :, Jr:J_tot);
         mass_r = max(1e-12, gather(sum(D_r, 'all')));
         RT_r   = cap_4D(:, ih_set, :, Jr:J_tot) + beq_r4D(:, ih_set, :, Jr:J_tot) + gst_r4D(:, ih_set, :, Jr:J_tot);
         SD_124 = exits_124_r(t_idx) + 0 .* D_r;
-        SD_sup = (p_super + 0.025) + 0 .* D_r;
+        SD_sup = (p_super + pub_infra_r(t_idx)) + 0 .* D_r;
 
         ret_tax_r  = NZD_Scale * gather(sum(D_r .* RT_r,   'all')) / mass_r;
         cost_124_r = NZD_Scale * gather(sum(D_r .* SD_124, 'all')) / mass_r;
-        super_dr_r = NZD_Scale * gather(sum(D_r .* SD_sup, 'all')) / mass_r;
+        sup_inf_r  = NZD_Scale * gather(sum(D_r .* SD_sup, 'all')) / mass_r;
 
         ann_exits_124    = 0.67 * cost_124_w + 0.33 * cost_124_r;
-        ann_exit3_super  = 0.67 * cost_ex3_w + 0.33 * super_dr_r;
+        ann_super_infra  = 0.67 * infra_gp_w + 0.33 * sup_inf_r;
         ann_super_estate = 0.67 * gst_cap_w  + 0.33 * ret_tax_r;
         ann_career_paye  = 0.67 * paye_w;
-        ann_abroad_loss  = 0.67 * (paye_w + gst_cap_w) + 0.33 * ret_tax_r;
+        ann_foregone_tax = ret_t * (0.67 * ex3_loss_w) + emig_t(t_idx) * (0.67 * (paye_w + gst_cap_w) + 0.33 * ret_tax_r);
 
-        % 5 Columns at Gate 6: [1:Exits 1,2,4 (Bad1), 2:Exit 3 & Super Draw (Bad2), 3:Super/Estate Tax (Good1), 4:Career PAYE (Good2), 5:Abroad (Beyond)]
+        % 5 Columns at Gate 6:
+        %   Col 1 (Bad 1): Exits 1,2,4 Ongoing Remediation Burden
+        %   Col 2 (Bad 2): Universal NZ Super + Roads, Infra & Baseline Health
+        %   Col 3 (Good 1): GST, Capital, Wealth & Estate Tax Pool
+        %   Col 4 (Good 2): Career PAYE Income Tax
+        %   Col 5 (Beyond): Foregone Tax Base (Exit 3 Stunting Tax Loss + Emigration Abroad)
         CareerRet_Fiscal(t_idx, :) = CareerRet_Fiscal(t_idx, :) + w_reg * sh_t * ...
-            [ret_t * ann_exits_124, ret_t * ann_exit3_super, ret_t * ann_super_estate, ret_t * ann_career_paye, emig_t(t_idx) * ann_abroad_loss];
+            [ret_t * ann_exits_124, ...
+            ret_t * ann_super_infra, ...
+            ret_t * ann_super_estate, ...
+            ret_t * ann_career_paye, ...
+            ann_foregone_tax];
     end
 end
 
 %% HARMONIZE 6-GATE FLOW SCALES & SAVE EXACT DOLLAR LEDGER
-S1_Totals = sum(Flow_S1_to_S2, 2); % [1: Means-Tested Birth; 2: Universal Birth; 3: Private Birth] ($k/yr)
-S4_Totals = sum(Flow_S3_to_S4, 1); % [1: Stunted, 2: Core, 3: Thriving]
+S1_Totals = sum(Flow_S1_to_S2, 2);
+S4_Totals = sum(Flow_S3_to_S4, 1);
 
-A30_Col_Dollars = sum(Age30_Fiscal, 1);     % [1:Exits124, 2:Exit3, 3:GST_Cap, 4:PAYE, 5:Abroad] ($k/yr per cohort member)
-CR_Col_Dollars  = sum(CareerRet_Fiscal, 1); % [1:Exits124, 2:Exit3_Super, 3:SuperEstateTax, 4:CareerPAYE, 5:Abroad] ($k/yr)
+A30_Col_Dollars = sum(Age30_Fiscal, 1);
+CR_Col_Dollars  = sum(CareerRet_Fiscal, 1);
 
 Flow_S4_to_S5 = zeros(3, 5);
 for t_i = 1:3
@@ -593,11 +621,11 @@ end
 S5_Block_Widths = sum(Flow_S4_to_S5, 1);
 cr_shares = CR_Col_Dollars / max(1e-8, sum(CR_Col_Dollars));
 Flow_S5_to_S6 = zeros(5, 5);
-Flow_S5_to_S6(1, :) = S5_Block_Widths(1) * [0.78, 0.14, 0.05, 0.03, 0.00]; % From Exits 1,2,4
-Flow_S5_to_S6(2, :) = S5_Block_Widths(2) * [0.16, 0.72, 0.08, 0.04, 0.00]; % From Exit 3 Lower Income
-Flow_S5_to_S6(3, :) = S5_Block_Widths(3) * [0.04, 0.14, 0.56, 0.26, 0.00]; % From Age 30 GST & Cap Tax
-Flow_S5_to_S6(4, :) = S5_Block_Widths(4) * [0.02, 0.12, 0.24, 0.62, 0.00]; % From Age 30 PAYE Tax
-Flow_S5_to_S6(5, :) = S5_Block_Widths(5) * [0.00, 0.00, 0.00, 0.00, 1.00]; % From Age 30 Emig Tax Loss
+Flow_S5_to_S6(1, :) = S5_Block_Widths(1) * [0.78, 0.14, 0.05, 0.03, 0.00];
+Flow_S5_to_S6(2, :) = S5_Block_Widths(2) * [0.10, 0.76, 0.08, 0.06, 0.00];
+Flow_S5_to_S6(3, :) = S5_Block_Widths(3) * [0.04, 0.14, 0.56, 0.26, 0.00];
+Flow_S5_to_S6(4, :) = S5_Block_Widths(4) * [0.02, 0.12, 0.24, 0.62, 0.00];
+Flow_S5_to_S6(5, :) = S5_Block_Widths(5) * [0.00, 0.00, 0.00, 0.00, 1.00];
 for c_j = 1:4
     cs = sum(Flow_S5_to_S6(1:4, c_j));
     target_cs = sum(S5_Block_Widths(1:4)) * (cr_shares(c_j) / max(1e-8, sum(cr_shares(1:4))));
@@ -612,7 +640,6 @@ for r_i = 1:4
     end
 end
 
-% Compute Conditional Per-Child Cost in each Gate 2, 3, 4 node ($k/yr per child in that node)
 Gate4_Step_Dollars = [ ...
     ECE_Step_Dollars(1)*0.3 + Adol_Step_Dollars(1)*0.7, ...
     ECE_Step_Dollars(2)*0.3 + Adol_Step_Dollars(2)*0.7, ...
@@ -628,40 +655,37 @@ Ledger.Gate4_Skill_Pop_Pct          = 100 * Pop_S4_Skill;
 Ledger.Gate5_Age30_Totals_kNZD      = A30_Col_Dollars;
 Ledger.Gate6_CareerRet_Totals_kNZD  = CR_Col_Dollars;
 
-%% BUILD 6-GATE DISAMBIGUATED TWO-LINE NODE LABELS (% POP + COHORT $/YR ON GATES 1-4; ALL 4 EXITS ON GATES 3-6)
-% Gate 1 (J = 1 Birth, Age 0):
+%% BUILD 6-GATE DISAMBIGUATED TWO-LINE NODE LABELS (WITH FULL CROWN BUDGET INTEGRITY)
 Nodes_S1 = {sprintf('1. Means-Tested Birth Support\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S1_Birth(1), S1_Totals(1)), ...
     sprintf('2. Universal Birth Benefit\n(100%% pop | $%.1fk/yr)', S1_Totals(2)), ...
     sprintf('3. Private Birth Out-of-Pocket\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S1_Birth(3), S1_Totals(3))};
 
-% Gate 2 (J = 2..3 First 2000 Days ECE Gate, Ages 0-5):
 Nodes_S2 = {sprintf('4. ECE Corner + Benefit Need\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S2_ECE(1), ECE_Step_Dollars(1)), ...
     sprintf('5. Public ECE + Mod. Inv\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S2_ECE(2), ECE_Step_Dollars(2)), ...
     sprintf('6. High Wraparound + Time\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S2_ECE(3), ECE_Step_Dollars(3))};
 
-% Gate 3 (J = 5 Adolescent Gate, Ages 12-14 — Exits 1, 2, 4 Materialize):
 Nodes_S3 = {sprintf('7. Unemp Stress + Exits 1,2,4\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S3_Adol(1), Adol_Step_Dollars(1)), ...
     sprintf('8. Standard Schooling\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S3_Adol(2), Adol_Step_Dollars(2)), ...
     sprintf('9. Montessori Mentoring\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S3_Adol(3), Adol_Step_Dollars(3))};
 
-% Gate 4 (J = 6..7 Adult Skill Launch, Age 20 — Exits 1,2,4 Active; Exit 3 Starts in Adulthood):
 Nodes_S4 = {sprintf('10. Stunted h1-h2 [Exits 1,2,4]\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S4_Skill(1), Gate4_Step_Dollars(1)), ...
     sprintf('11. Core Skill Tier h3-h5\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S4_Skill(2), Gate4_Step_Dollars(2)), ...
     sprintf('12. Thriving Tier h6-h7\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S4_Skill(3), Gate4_Step_Dollars(3))};
 
-% Gate 5 (J = 10 Age 30 Annual Fiscal Balance — All 4 Exits Legible & Priced):
+% Gate 5 (J = 10 Age 30): Both Social Exits 1,2,4 AND General Public Goods/Infra/Health are in BAD (Outlays),
+% while Exit 3 (Lost Tax Share from Lower Income) + Emigration sit in BEYOND (Foregone Tax Base)!
 Nodes_S5 = {sprintf('13. Exits 1,2,4: Care/Hosp/Just\n($%.1fk/yr | @$%.0fk/stunted)', A30_Col_Dollars(1), NZD_Scale*exits_124_y(1)), ...
-    sprintf('14. Exit 3: Lower Income Drag\n($%.1fk/yr | @$%.0fk/stunted)', A30_Col_Dollars(2), NZD_Scale*exit_3_y(1)), ...
+    sprintf('14. Infra, Roads & Base Health\n($%.1fk/yr per adult)', A30_Col_Dollars(2)), ...
     sprintf('15. Age 30 GST & Cap Tax\n($%.1fk/yr)', A30_Col_Dollars(3)), ...
     sprintf('16. Age 30 PAYE Income Tax\n($%.1fk/yr)', A30_Col_Dollars(4)), ...
-    sprintf('17. Age 30 Emig Tax Loss\n($%.1fk/yr)', A30_Col_Dollars(5))};
+    sprintf('17. Lost Tax: Exit 3 + Emig\n($%.1fk/yr foregone)', A30_Col_Dollars(5))};
 
-% Gate 6 (J = 11..16 Career to Retirement Fiscal Destiny — All 4 Exits + NZ Super vs Taxes):
+% Gate 6 (J = 11..16 Career to Retirement): Exits 1,2,4 + (NZ Super & Infra/Base Health) vs Taxes Paid
 Nodes_S6 = {sprintf('18. Exits 1,2,4: Ongoing Burden\n($%.1fk/yr)', CR_Col_Dollars(1)), ...
-    sprintf('19. Exit 3 & NZ Super Draw\n($%.1fk/yr)', CR_Col_Dollars(2)), ...
-    sprintf('20. Super & Estate Tax Pool\n($%.1fk/yr)', CR_Col_Dollars(3)), ...
-    sprintf('21. Career PAYE Surplus\n($%.1fk/yr)', CR_Col_Dollars(4)), ...
-    sprintf('22. Perm. Abroad Tax Loss\n($%.1fk/yr)', CR_Col_Dollars(5))};
+    sprintf('19. NZ Super, Infra & Health\n($%.1fk/yr)', CR_Col_Dollars(2)), ...
+    sprintf('20. GST, Cap & Estate Tax Pool\n($%.1fk/yr)', CR_Col_Dollars(3)), ...
+    sprintf('21. Career PAYE Income Tax\n($%.1fk/yr)', CR_Col_Dollars(4)), ...
+    sprintf('22. Lost Tax: Exit 3 + Abroad\n($%.1fk/yr foregone)', CR_Col_Dollars(5))};
 
 links = {};
 row_k = 0;
@@ -718,11 +742,14 @@ if isprop(SK, 'FontName')
     SK.FontName = 'Helvetica';
 end
 
-% 22-Node Cohesive Palette: [Bad/Exits (Crimson/Orange at Bottom) -> Good/Tax (Blue/Teal in Middle) -> Beyond (Purple at Top)]
+% 22-Node Palette:
+%   Bottom 2 in Gates 5-6 = Crown Outlays [13/18: Exits 1,2,4 (Crimson) + 14/19: Infra/Base Health/Super (Warm Terracotta-Amber)]
+%   Middle 2 in Gates 5-6 = Crown Tax Revenues [15/20: GST/Cap/Estate (Blue) + 16/21: PAYE (Teal)]
+%   Top 1 in Gates 5-6    = Foregone Crown Tax Base [17/22: Exit 3 Stunting Tax Loss + Emigration (Purple)]
 Master_Colors = [
-    0.78, 0.22, 0.20;  % 1. Means-Tested Birth Support (Crimson - Bottom)
-    0.28, 0.52, 0.68;  % 2. Universal Birth Benefit (Steel Blue - Middle)
-    0.16, 0.58, 0.48;  % 3. Private Birth Out-of-Pocket (Emerald Teal - Top)
+    0.78, 0.22, 0.20;  % 1. Means-Tested Birth Support (Crimson)
+    0.28, 0.52, 0.68;  % 2. Universal Birth Benefit (Steel Blue)
+    0.16, 0.58, 0.48;  % 3. Private Birth Out-of-Pocket (Emerald Teal)
     0.76, 0.20, 0.18;  % 4. ECE Corner + Benefit Need (Crimson)
     0.32, 0.54, 0.68;  % 5. Public ECE + Mod. Inv (Slate Blue)
     0.14, 0.62, 0.50;  % 6. High Wraparound + Time (Emerald Teal)
@@ -732,16 +759,16 @@ Master_Colors = [
     0.72, 0.18, 0.18;  % 10. Stunted h1-h2 [Exits 1,2,4] (Brick Red)
     0.32, 0.56, 0.68;  % 11. Core Skill Tier h3-h5 (Slate Blue)
     0.13, 0.55, 0.45;  % 12. Thriving Tier h6-h7 (Deep Sea Green)
-    0.78, 0.18, 0.18;  % 13. Gate 5 Exits 1,2,4: Care/Hosp/Just (BAD 1 - Deep Red at Bottom)
-    0.86, 0.44, 0.16;  % 14. Gate 5 Exit 3: Lower Income Drag (BAD 2 - Amber-Orange)
-    0.24, 0.50, 0.70;  % 15. Gate 5 Age 30 GST & Cap Tax (GOOD 1 - Revenue Blue)
-    0.15, 0.58, 0.48;  % 16. Gate 5 Age 30 PAYE Income Tax (GOOD 2 - Revenue Teal)
-    0.52, 0.34, 0.70;  % 17. Gate 5 Age 30 Emig Tax Loss (BEYOND - Purple at Top)
-    0.74, 0.16, 0.18;  % 18. Gate 6 Exits 1,2,4: Ongoing Burden (BAD 1 - Deep Red at Bottom)
-    0.84, 0.42, 0.16;  % 19. Gate 6 Exit 3 & NZ Super Draw (BAD 2 - Amber-Orange)
-    0.20, 0.48, 0.68;  % 20. Gate 6 Super & Estate Tax Pool (GOOD 1 - Royal Blue)
-    0.12, 0.56, 0.44;  % 21. Gate 6 Career PAYE Surplus (GOOD 2 - Deep Emerald)
-    0.46, 0.28, 0.66   % 22. Gate 6 Perm. Abroad Tax Loss (BEYOND - Deep Purple at Top)
+    0.78, 0.18, 0.18;  % 13. Gate 5 Exits 1,2,4: Care/Hosp/Just (OUTLAY 1 - Deep Red)
+    0.82, 0.48, 0.22;  % 14. Gate 5 Infra, Roads & Base Health (OUTLAY 2 - Terracotta Amber)
+    0.24, 0.50, 0.70;  % 15. Gate 5 Age 30 GST & Cap Tax (TAX 1 - Revenue Blue)
+    0.15, 0.58, 0.48;  % 16. Gate 5 Age 30 PAYE Income Tax (TAX 2 - Revenue Teal)
+    0.52, 0.34, 0.70;  % 17. Gate 5 Lost Tax: Exit 3 + Emig (BEYOND - Purple)
+    0.74, 0.16, 0.18;  % 18. Gate 6 Exits 1,2,4: Ongoing Burden (OUTLAY 1 - Deep Red)
+    0.80, 0.46, 0.20;  % 19. Gate 6 NZ Super, Infra & Health (OUTLAY 2 - Terracotta Amber)
+    0.20, 0.48, 0.68;  % 20. Gate 6 GST, Cap & Estate Tax Pool (TAX 1 - Royal Blue)
+    0.12, 0.56, 0.44;  % 21. Gate 6 Career PAYE Income Tax (TAX 2 - Deep Emerald)
+    0.46, 0.28, 0.66   % 22. Gate 6 Lost Tax: Exit 3 + Abroad (BEYOND - Deep Purple)
     ];
 
 All_Node_Names = [Nodes_S1, Nodes_S2, Nodes_S3, Nodes_S4, Nodes_S5, Nodes_S6];
