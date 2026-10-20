@@ -7,7 +7,7 @@
 %   - Gate 2 (J = 2..3, First 2000 Days ECE Gate, Ages 0-5):
 %       Exposes the ~50/50 split between ECE Corner + Benefit Need vs. High ECE + Parental Time
 %   - Gate 3 (J = 5, Adolescent Gate, Ages 12-14):
-%       Exposes Unemp Stress + Early Exits 1,2,4 (Care, Hosp, Youth Justice/Benefit) vs. Montessori Mentoring
+%       Exposes Unemp Stress + Early Exits 1,2,4 (Care, Hosp, Youth Justice/Benefit) vs. Montessori / Tuakana Mentoring
 %   - Gate 4 (J = 6..7, Adult Skill Launch, Age 20):
 %       Stunted h1-h2 (carrying Exits 1,2,4; Exit 3 not yet active) vs. Core h3-h5 vs. Thriving h6-h7
 %   - Gate 5 (J = 10, Age 30) & Gate 6 (J = 11..16, Career to Retirement):
@@ -80,6 +80,7 @@ for r_loop = 1:length(Target_Regions)
     Target_Region = Target_Regions{r_loop};
     Out_PNG_Name  = sprintf('Fig_ChildFiscal_5Stage_2Panel_%s_%s.png', Target_Region, Calibration_Anchor);
 
+    %% 3.1 CREATE SANKEY BLOCKS AND RIBBONS
     figA = figure('Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
     axA  = axes('Parent', figA, 'Position', [0.02, 0.07, 0.95, 0.85]);
     FiscalLedger.(Target_Region).SS0 = Build_And_Render_Fiscal_Panel(axA, Target_Region, Dist_SS0, Pol_SS0, ...
@@ -139,7 +140,7 @@ for r_loop = 1:length(Target_Regions)
     imwrite(img_Merged, fullfile(OutputDir, Out_PNG_Name));
     fprintf('\nSaved merged 6-gate Fiscal Sankey image to: %s\n', fullfile(OutputDir, Out_PNG_Name));
 
-    %% DOCUMENT 1A & 1B PROTOCOL: 2050 DEBT-SINKING FUND & PUBLIC REINVESTMENT LEDGER SUMMARY
+    %% 3.2 DOCUMENT 1A & 1B PROTOCOL: 2050 DEBT-SINKING FUND & PUBLIC REINVESTMENT LEDGER SUMMARY
     L_SS0 = FiscalLedger.(Target_Region).SS0;
     L_SS1 = FiscalLedger.(Target_Region).SS1;
     Omega_Delta_30 = max(0, L_SS1.Net_Fiscal_Balance_kNZD(1) - L_SS0.Net_Fiscal_Balance_kNZD(1));
@@ -162,6 +163,121 @@ for r_loop = 1:length(Target_Regions)
     fprintf('SECTION 5 PROTOCOL: 2050 SOVEREIGN DEBT-SINKING FUND & PUBLIC REINVESTMENT LEDGER (%s)\n', Target_Region);
     fprintf('=========================================================================================================\n');
     disp(FiscalLedger.Protocol_2050_Summary);
+
+    %% 3.3 EXPORT 6-GATE FISCAL LEDGER & 4-LANE CHILD-COST RECONCILIATION CSV
+    % Bridges the conventional NZD 15k-19k/yr out-of-pocket survey benchmark against
+    % the 4 macroeconomic resource lanes in the 6-Gate Sankey diagram:
+    %   Lane A: Private Out-of-Pocket Cash ((1-s)*i_c + housing/food/gear)
+    %   Lane B: Private Parental Time Commitment (w*z*h*l_child, Lee & Seshadri gamma_a)
+    %   Lane C: Public Developmental Investment (PPL, BestStart, G_ECE, Schooling, Montessori / Tuakana Mentoring)
+    %   Lane D: Public Reactive Hardship & Remediation (WFF Hardship, Exits 1, 2, 4)
+
+    Gate_Labels = { ...
+        'Gate1_J1_Birth_Age0';           'Gate1_J1_Birth_Age0';           'Gate1_J1_Birth_Age0'; ...
+        'Gate2_J2_3_First2000Days_0to5'; 'Gate2_J2_3_First2000Days_0to5'; 'Gate2_J2_3_First2000Days_0to5'; 'Gate2_J2_3_First2000Days_0to5'; ...
+        'Gate3_J5_Adolescent_12to14';    'Gate3_J5_Adolescent_12to14';    'Gate3_J5_Adolescent_12to14';    'Gate3_J5_Adolescent_12to14'; ...
+        'Gate4_J6_7_AdultLaunch_Age20';  'Gate4_J6_7_AdultLaunch_Age20';  'Gate4_J6_7_AdultLaunch_Age20'; ...
+        'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal'; ...
+        'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal'; ...
+        'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet'; ...
+        'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet'};
+
+    Node_Clean_Names = { ...
+        '1_MeansTested_Birth_Support';       '2_Universal_Birth_Benefit';         '3_Private_Birth_OutOfPocket'; ...
+        '4_ECE_Corner_Benefit_Need';         '5_Public_ECE_Wraparound';           '6_High_Public_ECE_Support';         '7_Private_Parental_ECE_CashTime'; ...
+        '8_Adol_UnempStress_Exits124';       '9_Public_Secondary_Schooling';      '10_Montessori_Tuakana_Mentoring';   '11_Private_Adol_Commit_CashTime'; ...
+        '12_Stunted_Tier_h1_h2_Exits124';    '13_Core_Skill_Tier_h3_h5';          '14_Thriving_Tier_h6_h7'; ...
+        '15_Age30_Exits124_Remediation';     '16_Age30_Infra_Roads_BaseHealth';   '17_Age30_GST_Cap_Tax_Paid'; ...
+        '18_Age30_PAYE_Income_Tax_Paid';     '19_Age30_Exit3_Stunting_LostTax';   '20_Age30_Emig_Abroad_LostTax'; ...
+        '21_Career_Exits124_OngoingBurden';  '22_Career_NZSuper_Infra_Health';    '23_Career_GST_Cap_Estate_Tax'; ...
+        '24_Career_PAYE_Income_Tax';         '25_Career_Exit3_Stunting_LostTax';  '26_Career_Perm_Abroad_LostTax'};
+
+    Pop_SS0_Pct = 100 * [ ...
+        reshape(L_SS0.Pop_S1_Birth, 3, 1); ...
+        reshape(L_SS0.Pop_S2_ECE_4Node, 4, 1); ...
+        reshape(L_SS0.Pop_S3_Adol_4Node, 4, 1); ...
+        reshape(L_SS0.Pop_S4_Skill, 3, 1); ...
+        ones(12, 1)];
+
+    Pop_SS1_Pct = 100 * [ ...
+        reshape(L_SS1.Pop_S1_Birth, 3, 1); ...
+        reshape(L_SS1.Pop_S2_ECE_4Node, 4, 1); ...
+        reshape(L_SS1.Pop_S3_Adol_4Node, 4, 1); ...
+        reshape(L_SS1.Pop_S4_Skill, 3, 1); ...
+        ones(12, 1)];
+
+    Flow_SS0_kNZD = [ ...
+        reshape(L_SS0.S1_Totals, 3, 1); ...
+        reshape(L_SS0.ECE_4Node_Dollars_kNZD, 4, 1); ...
+        reshape(L_SS0.Adol_4Node_Dollars_kNZD, 4, 1); ...
+        reshape(L_SS0.S4_Totals, 3, 1); ...
+        reshape(L_SS0.S5_Totals, 6, 1); ...
+        reshape(L_SS0.S6_Totals, 6, 1)];
+
+    Flow_SS1_kNZD = [ ...
+        reshape(L_SS1.S1_Totals, 3, 1); ...
+        reshape(L_SS1.ECE_4Node_Dollars_kNZD, 4, 1); ...
+        reshape(L_SS1.Adol_4Node_Dollars_kNZD, 4, 1); ...
+        reshape(L_SS1.S4_Totals, 3, 1); ...
+        reshape(L_SS1.S5_Totals, 6, 1); ...
+        reshape(L_SS1.S6_Totals, 6, 1)];
+
+    % 4-Lane Share Weights for the 26-Node Split (where Nodes 7 & 11 are 100% Private Cash + Time,
+    % and Nodes 5, 6, 9, 10 are 100% Public Developmental Investment)
+    Lane_Shares_SS0 = [ ...
+        0.00, 0.00, 0.00, 1.00;  % Node 1: Means-Tested Birth Support
+        0.00, 0.00, 1.00, 0.00;  % Node 2: Universal Birth Benefit
+        0.68, 0.32, 0.00, 0.00;  % Node 3: Private Birth Out-of-Pocket
+        0.00, 0.00, 0.15, 0.85;  % Node 4: ECE Corner + Benefit Need
+        0.00, 0.00, 1.00, 0.00;  % Node 5: Public ECE Wraparound (100% Public Dev)
+        0.00, 0.00, 1.00, 0.00;  % Node 6: High Public ECE Support (100% Public Dev)
+        0.56, 0.44, 0.00, 0.00;  % Node 7: Private Parental ECE (Cash + Time)
+        0.00, 0.00, 0.20, 0.80;  % Node 8: Adol Unemp Stress + Exits 1,2,4
+        0.00, 0.00, 1.00, 0.00;  % Node 9: Public Secondary Schooling (100% Public Dev)
+        0.00, 0.00, 1.00, 0.00;  % Node 10: Montessori / Tuakana Mentoring (100% Public Dev)
+        0.58, 0.42, 0.00, 0.00;  % Node 11: Private Adol Commit (Cash + Time)
+        0.00, 0.00, 0.15, 0.85;  % Node 12: Stunted Tier h1-h2 [Exits 1,2,4]
+        0.35, 0.15, 0.50, 0.00;  % Node 13: Core Skill Tier h3-h5
+        0.48, 0.22, 0.30, 0.00;  % Node 14: Thriving Tier h6-h7
+        zeros(12, 4)];           % Nodes 15..26: Adult Fiscal Ledger Outlays & Taxes
+
+    Lane_Shares_SS1 = Lane_Shares_SS0;
+
+    PrivCash_SS0_kNZD = Flow_SS0_kNZD .* Lane_Shares_SS0(:, 1);
+    PrivTime_SS0_kNZD = Flow_SS0_kNZD .* Lane_Shares_SS0(:, 2);
+    PubDev_SS0_kNZD   = Flow_SS0_kNZD .* Lane_Shares_SS0(:, 3);
+    PubRemed_SS0_kNZD = Flow_SS0_kNZD .* Lane_Shares_SS0(:, 4);
+
+    PrivCash_SS1_kNZD = Flow_SS1_kNZD .* Lane_Shares_SS1(:, 1);
+    PrivTime_SS1_kNZD = Flow_SS1_kNZD .* Lane_Shares_SS1(:, 2);
+    PubDev_SS1_kNZD   = Flow_SS1_kNZD .* Lane_Shares_SS1(:, 3);
+    PubRemed_SS1_kNZD = Flow_SS1_kNZD .* Lane_Shares_SS1(:, 4);
+
+    Cond_PerChild_SS0_kNZD = Flow_SS0_kNZD ./ max(0.01, Pop_SS0_Pct / 100);
+    Cond_PerChild_SS1_kNZD = Flow_SS1_kNZD ./ max(0.01, Pop_SS1_Pct / 100);
+
+    T_FiscalCSV = table(Gate_Labels, Node_Clean_Names, ...
+        round(Pop_SS0_Pct, 2), round(Flow_SS0_kNZD, 2), round(Cond_PerChild_SS0_kNZD, 2), ...
+        round(PrivCash_SS0_kNZD, 2), round(PrivTime_SS0_kNZD, 2), round(PubDev_SS0_kNZD, 2), round(PubRemed_SS0_kNZD, 2), ...
+        round(Pop_SS1_Pct, 2), round(Flow_SS1_kNZD, 2), round(Cond_PerChild_SS1_kNZD, 2), ...
+        round(PrivCash_SS1_kNZD, 2), round(PrivTime_SS1_kNZD, 2), round(PubDev_SS1_kNZD, 2), round(PubRemed_SS1_kNZD, 2), ...
+        'VariableNames', {'Gate', 'Node_Name', ...
+        'SS0_Pop_Pct', 'SS0_CohortFlow_kNZD', 'SS0_CondPerChild_kNZD', ...
+        'SS0_LaneA_PrivCash_kNZD', 'SS0_LaneB_PrivTime_kNZD', 'SS0_LaneC_PubDev_kNZD', 'SS0_LaneD_PubRemed_kNZD', ...
+        'SS1_Pop_Pct', 'SS1_CohortFlow_kNZD', 'SS1_CondPerChild_kNZD', ...
+        'SS1_LaneA_PrivCash_kNZD', 'SS1_LaneB_PrivTime_kNZD', 'SS1_LaneC_PubDev_kNZD', 'SS1_LaneD_PubRemed_kNZD'});
+
+    if exist('OutDir', 'var') && isfolder(OutDir)
+        csv_dir = OutDir;
+    elseif isfolder('Output_NZ_4Region_Intergen')
+        csv_dir = 'Output_NZ_4Region_Intergen';
+    else
+        csv_dir = pwd;
+    end
+    csv_fname = fullfile(csv_dir, sprintf('Table14_FiscalLedger_6Gate_Decomp_%s.csv', Target_Region));
+    writetable(T_FiscalCSV, csv_fname);
+    FiscalLedger.(Target_Region).Table14_Decomp = T_FiscalCSV;
+    fprintf('  -> Exported 6-Gate 4-Lane Child-Cost & Fiscal CSV to: %s\n', csv_fname);
     fprintf('  -> Cumulative 2050 Sovereign Debt Reduction (per 60k birth cohort): NZD $%.1f Million\n', ...
         L_SS1.Cum_2050_DebtReduction_MNZD);
     fprintf('  -> Cumulative 2050 Infrastructure & NZSF Reinvestment Pool:         NZD $%.1f Million\n\n', ...
@@ -244,8 +360,8 @@ if is_reform_panel
     if G_ece <= 0.06, G_ece = G_ece + 0.14; end
     if tau_a <= 0.006, tau_a = tau_a + 0.010; end
     if tau_b <= 0.06,  tau_b = tau_b + 0.10;  end
-    G_ece_eff       = G_ece * 1.15; % Montessori cross-age downward multiplier
-    montessori_bank = +0.11;        % Montessori adolescent skill lock-in
+    G_ece_eff       = G_ece * 1.15; % Montessori / Tuakana cross-age downward multiplier
+    montessori_bank = +0.11;        % Montessori / Tuakana adolescent skill lock-in
 else
     G_ece_eff       = G_ece;
     montessori_bank = +0.05;
@@ -257,7 +373,7 @@ end
 %   Gate 2 (J=2..3 First 2000 Days ECE Gate, 3 nodes):
 %     [4: ECE Corner + Benefit Need (Bad); 5: Public ECE + Mod Inv; 6: High ECE + Time (Good)]
 %   Gate 3 (J=5 Adolescent Gate, Ages 12-14, 3 nodes):
-%     [7: Unemp Stress + Exits 1,2,4 (Care/Hosp/Just); 8: Std Schooling; 9: Montessori Mentoring]
+%     [7: Unemp Stress + Exits 1,2,4 (Care/Hosp/Just); 8: Std Schooling; 9: Montessori / Tuakana Mentoring]
 %   Gate 4 (J=6..7 Adult Skill Launch, Age 20, 3 nodes):
 %     [10: Stunted h1-h2 (Exits 1,2,4 active); 11: Core h3-h5; 12: Thriving h6-h7]
 %   Gate 5 (J=10 Age 30 Annual Fiscal Balance, 5 nodes):
@@ -272,7 +388,7 @@ Flow_S3_to_S4 = zeros(3, 3);
 
 Pop_S1_Birth  = zeros(1, 3); % [Means-Tested Hardship %, Universal 100%, Private Out-of-Pocket %]
 Pop_S2_ECE    = zeros(1, 3); % [Corner ic=0 %, Mod ECE %, High ECE %] — matches Fate Chart!
-Pop_S3_Adol   = zeros(1, 3); % [Unemp Stress + Exits 1,2,4 %, Std School %, Montessori %]
+Pop_S3_Adol   = zeros(1, 3); % [Unemp Stress + Exits 1,2,4 %, Std School %, Montessori / Tuakana %]
 Pop_S4_Skill  = zeros(1, 3); % [Stunted h1-h2 %, Core h3-h5 %, Thriving h6-h7 %]
 
 ECE_Step_Dollars  = zeros(1, 3); % Cohort-weighted $/yr at J=2-3 (including early benefit/health need in Corner)
@@ -341,8 +457,10 @@ for r_i = 1:length(reg_list)
     pwage_4D    = w_mkt .* z_G .* h_G;                             % [1, n_h, n_z1, 1]
 
     % --- GATE 2 (J = 2..3, Ages 0-5) EXACT POPULATION WEIGHTS (Matches Fate Chart ~50/50 Split!) ---
-    m_corner = (ic_4D <= 1e-5);
-    m_mod    = (~m_corner) & (ic_4D <= 0.35 * max(ic_vec));
+    % A family is in the unmitigated ECE Hardship Corner when ic=0 AND they face asset/income squeeze;
+    % middle-income families with ic=0 still fund baseline child food/shelter sustenance + 20-Hrs ECE.
+    m_corner = (ic_4D <= 1e-5) & (is_hard_4D | (z_idx_3D <= 2));
+    m_mod    = (~m_corner) & ((ic_4D <= 1e-5) | (ic_4D <= 0.35 * max(ic_vec)));
     m_high   = (~m_corner) & (~m_mod);
 
     if ~is_reform_panel
@@ -388,22 +506,17 @@ for r_i = 1:length(reg_list)
     end
 
     % --- GATE 2 (J = 2..3, First 2000 Days ECE Gate) ANNUAL COST FLOWS ($k/yr per cohort child) ---
-    %   Node 4 (Corner ic=0): Triggers public hardship transfers + early hospital/OT protection costs!
-    %   Node 5 (Public ECE + Mod Inv): Public 20-Hours ECE + Te Korowai Mokopuna wraparound + moderate parent top-up
-    %   Node 6 (High ECE + Time): High parental active time (Lee & Seshadri gamma_0 = 0.90) + private ECE + universal subsidy
-    ECE_Corner_Need_4D = NZD_Scale .* (0.135 + 0.085 .* is_hard_4D + 0.065 .* is_unemp_4D); % Benefit + early acute health/OT need
-    ECE_PubMod_Cost_4D = NZD_Scale .* (G_ece_eff + 0.075 + (1 - s_sub) .* ic_4D + 0.080 .* pwage_4D);
-    ECE_High_Cost_4D   = NZD_Scale .* (G_ece_eff + 0.055 + (1 - s_sub) .* ic_4D + 0.145 .* pwage_4D + 0.045 * Q_house);
+    % Strictly separate PUBLIC in-kind/remediation flows from PRIVATE parental (sustenance + ic + time) flows
+    % so public G_ece_eff never leaks into the Private Parental block!
+    ECE_Corner_Need_4D = NZD_Scale .* (0.135 + 0.085 .* is_hard_4D + 0.065 .* is_unemp_4D); % Node 4: Public Hardship/OT/Health
+    ECE_PubMod_Cost_4D = NZD_Scale .* (G_ece_eff + 0.045 + s_sub .* ic_4D);                  % Node 5: 100% Public ECE Wraparound
+    ECE_High_Cost_4D   = NZD_Scale .* (G_ece_eff + 0.065 + s_sub .* ic_4D);                  % Node 6: 100% High-Intensity Public ECE
 
     reg_ECE_Step = [gather(sum(Dist_Fert .* ECE_Corner_Need_4D .* s2_W1, 'all')) / tot_p, ...
         gather(sum(Dist_Fert .* ECE_PubMod_Cost_4D .* s2_W2, 'all')) / tot_p, ...
         gather(sum(Dist_Fert .* ECE_High_Cost_4D   .* s2_W3, 'all')) / tot_p];
 
     % --- GATE 3 (J = 5, Ages 12-14 Adolescent Gate) & EMERGENCE OF BARNARDOS EXITS 1, 2, 4 ---
-    %   Node 7 (Unemp Stress z1 + Early Exits 1,2,4): Family benefit dependence, Oranga Tamariki care
-    %          placement ($145k/case-yr), avoidable hospitalisation, and youth justice contact emerge here!
-    %   Node 8 (Standard Schooling): Public secondary schooling (d_2 = $9.5k/yr) + standard family care
-    %   Node 9 (Montessori Cross-Age Mentoring): High-agency peer mentoring banking early gains
     if ~is_reform_panel
         P_unemp = [0.82, 0.16, 0.02; 0.55, 0.37, 0.08; 0.28, 0.54, 0.18];
         P_stabl = [0.35, 0.58, 0.07; 0.12, 0.68, 0.20; 0.05, 0.55, 0.40];
@@ -412,13 +525,10 @@ for r_i = 1:length(reg_list)
         P_stabl = [0.14, 0.46, 0.40; 0.04, 0.38, 0.58; 0.02, 0.26, 0.72];
     end
 
-    % Annual cost per adolescent in each J=5 node ($k/yr):
-    %   In Node 7 (Stress + Exits 1,2,4): Public school ($9.5k) + Family Benefit ($11.5k) +
-    %   Expected Oranga Tamariki State Care (~8% placement risk @ $150k = $12.0k) +
-    %   Avoidable Hospitalisation & Youth Justice (~$6.5k) = ~$39.5k/yr per affected adolescent!
-    Adol_Cost_Node7_4D = NZD_Scale .* (0.100 + 0.120 + 0.126 + 0.068 + 0.045 .* is_hard_4D);
-    Adol_Cost_Node8_4D = NZD_Scale .* (0.100 + (1 - s_sub) .* ic_4D + 0.075 .* pwage_4D + 0.035 * Q_house);
-    Adol_Cost_Node9_4D = NZD_Scale .* (0.100 + 0.038 + (1 - s_sub) .* ic_4D + 0.095 .* pwage_4D + 0.040 * Q_house);
+    % Strictly PUBLIC per-adolescent flows for Nodes 8, 9, 10 (Private parental cash+time is tracked in Node 11):
+    Adol_Cost_Node7_4D = NZD_Scale .* (0.100 + 0.120 + 0.126 + 0.068 + 0.045 .* is_hard_4D); % Node 8: Unemp Stress + Exits 1,2,4
+    Adol_Cost_Node8_4D = NZD_Scale .* (0.105 + s_sub .* ic_4D + 0 .* Dist_Fert);             % Node 9: Public Secondary Schooling (d_2)
+    Adol_Cost_Node9_4D = NZD_Scale .* (0.105 + 0.038 + s_sub .* ic_4D + 0 .* Dist_Fert);     % Node 10: Montessori / Tuakana Mentoring
     Adol_Node_Costs    = {Adol_Cost_Node7_4D, Adol_Cost_Node8_4D, Adol_Cost_Node9_4D};
 
     % Gate 3 -> Gate 4 (J = 6..7 Adult Skill Launch) Gaussian Transitions
@@ -443,8 +553,7 @@ for r_i = 1:length(reg_list)
         p_th_cell{s3_i} = sum(pdf_5D(:, :, :, :, 6:7), 5);
     end
 
-    % Build Gate 2 -> Gate 3 and Gate 3 -> Gate 4 flows conserving Gate-1 birth dollar scale
-    S2_In_Totals  = sum(reg_F12, 1); % Exact Gate-2 block heights from Gate 1
+    S2_In_Totals  = sum(reg_F12, 1);
     reg_F23_raw   = zeros(3, 3);
     reg_F34_raw   = zeros(3, 3);
     reg_Pop_S3    = zeros(1, 3);
@@ -463,7 +572,6 @@ for r_i = 1:length(reg_list)
             reg_Pop_S3(s3_i)    = reg_Pop_S3(s3_i)    + m_share;
             reg_Adol_Step(s3_i) = reg_Adol_Step(s3_i) + gather(sum(mass_s3 .* Adol_Node_Costs{s3_i}, 'all')) / tot_p;
 
-            % Weight ribbon out of s2_i by conditional probability into s3_i
             reg_F23_raw(s2_i, s3_i) = m_share;
 
             m_st = gather(sum(mass_s3 .* p_st_cell{s3_i}, 'all')) / tot_p;
@@ -480,23 +588,6 @@ for r_i = 1:length(reg_list)
         end
     end
 
-    % Scale reg_F23 and reg_F34 to carry forward the Gate-2 dollar flows cleanly
-    reg_F23 = zeros(3, 3);
-    for s2_i = 1:3
-        rs = sum(reg_F23_raw(s2_i, :));
-        if rs > 1e-12
-            reg_F23(s2_i, :) = S2_In_Totals(s2_i) * (reg_F23_raw(s2_i, :) / rs);
-        end
-    end
-    S3_In_Totals = sum(reg_F23, 1);
-    reg_F34 = zeros(3, 3);
-    for s3_i = 1:3
-        rs = sum(reg_F34_raw(s3_i, :));
-        if rs > 1e-12
-            reg_F34(s3_i, :) = S3_In_Totals(s3_i) * (reg_F34_raw(s3_i, :) / rs);
-        end
-    end
-
     Flow_S1_to_S2     = Flow_S1_to_S2     + w_reg * reg_F12;
     Flow_S2_to_S3     = Flow_S2_to_S3     + w_reg * reg_F23_raw;
     Flow_S3_to_S4     = Flow_S3_to_S4     + w_reg * reg_F34_raw;
@@ -508,13 +599,6 @@ for r_i = 1:length(reg_list)
     Adol_Step_Dollars = Adol_Step_Dollars + w_reg * reg_Adol_Step;
 
     %% PART B (GPU): GATES 5 & 6 — ALL 4 BARNARDOS EXITS VS. TAX REVENUES BY CATEGORY
-    % Extraordinary per-person costs of Exits 1, 2, 4 (Dunedin Study / NZ Treasury CBAx / Barnardos Plan):
-    %   - Exit 1 (State Care transition / high-needs residential & supported care): ~$135k-$160k/case-yr
-    %   - Exit 2 (Avoidable Hospitalisations & acute mental/addiction health):      ~$28k-$45k/case-yr
-    %   - Exit 4 (Corrections prison/community sentence @$150k/yr + Main Benefit):  ~$55k-$95k/case-yr
-    %   Combined conditional expected cost of Exits 1, 2 & 4 per Stunted (h1-h2) adult = ~0.38 model units (~$36.1k/yr per stunted adult!)
-    %   - Exit 3 (Lower Lifetime Income & Fiscal Tax Shortfall):
-    %     Materializes in adulthood (J=10 and J=11..16) as lost earnings & lost tax revenue relative to Core/Thriving!
     d_l_all  = max(1, min(n_l,  Pol_G(1, :, :, :, :)));
     d_Ih_all = max(1, min(n_Ih, Pol_G(2, :, :, :, :)));
     l_4D     = reshape(l_G(d_l_all(:)),   size(Dist_G));
@@ -541,23 +625,16 @@ for r_i = 1:length(reg_list)
         end
     end
 
-    % Conditional annual per-person Crown outlays & foregone tax base (in model units of $95k/yr):
-    %   1. exits_124_*: Direct Crown Remediation Outlays for Exits 1, 2 & 4
-    %      (Oranga Tamariki State Care aftercare, Excess Acute Hospitalisations, Corrections/Justice, Main Benefit)
-    %   2. pub_infra_*: Per-capita Crown outlay on Roads, Infrastructure, Pure Public Goods (Gp),
-    %      Routine Non-Hardship Healthcare & Debt Service (Ferriere et al. Table 28 / Piketty-Saez Table 1: ~34% of Crown budget)
-    %   3. exit3_taxloss_*: Exit 3 Fiscal Share (28.8% Crown tax revenue foregone due to lower lifetime income of stunted cohort,
-    %      kept strictly in the Beyond/Foregone Tax Base tier per Barnardos Source 9 & 11 integrity rules!)
-    exits_124_y     = [0.340, 0.038, 0.006]; % Direct Exits 1,2,4 outlay at Age 30 (~$32.3k/yr per stunted adult)
-    pub_infra_y     = [0.072, 0.072, 0.072]; % ~$6.8k/yr per adult for Roads, Infra, Routine Health & Public Goods Gp
-    exit3_taxloss_y = [0.068, 0.012, 0.000]; % Crown's 28.8% lost PAYE+GST tax share from Exit 3 lower earnings at Age 30
+    exits_124_y     = [0.340, 0.038, 0.006];
+    pub_infra_y     = [0.072, 0.072, 0.072];
+    exit3_taxloss_y = [0.068, 0.012, 0.000];
 
-    exits_124_w     = [0.310, 0.035, 0.005]; % Ongoing Corrections, acute health & benefit burden (Ages 35-64)
-    pub_infra_w     = [0.076, 0.076, 0.076]; % ~$7.2k/yr per adult for Roads, Infra, Routine Health & Gp (Ages 35-64)
-    exit3_taxloss_w = [0.078, 0.014, 0.000]; % Crown's 28.8% lost PAYE+GST tax share from Exit 3 lower earnings (Ages 35-64)
+    exits_124_w     = [0.310, 0.035, 0.005];
+    pub_infra_w     = [0.076, 0.076, 0.076];
+    exit3_taxloss_w = [0.078, 0.014, 0.000];
 
-    exits_124_r     = [0.145, 0.022, 0.004]; % Excess aged acute/residential care in retirement (Ages 65+)
-    pub_infra_r     = [0.085, 0.085, 0.085]; % Routine aged health + per-capita public goods/infra in retirement
+    exits_124_r     = [0.145, 0.022, 0.004];
+    pub_infra_r     = [0.085, 0.085, 0.085];
 
     for t_idx = 1:3
         ih_set = tier_bins{t_idx};
@@ -578,13 +655,6 @@ for r_i = 1:length(reg_list)
 
         sh_t  = Pop_S4_Skill(t_idx);
         ret_t = 1 - emig_t(t_idx);
-        % 6 Columns at Gate 5 (Bottom-to-Top):
-        %   Col 1 (Bad 1 - Social Remediation): Exits 1,2,4 (Care, Acute Hosp, Justice & Benefit)
-        %   Col 2 (Bad 2 - General Gov Outlay): Roads, Infra, Baseline Health & Public Goods Gp
-        %   Col 3 (Good 1 - Indirect/Cap Tax):  Age 30 GST & Capital/Wealth Tax Paid
-        %   Col 4 (Good 2 - Direct Labor Tax):  Age 30 PAYE Income Tax Paid
-        %   Col 5 (Beyond 1 - Domestic Leak):   Exit 3 Lost Tax Share (28.8% of Foregone Stunted Earnings)
-        %   Col 6 (Beyond 2 - External Leak):   Emigrated Brain-Drain Tax Loss (20-35 Outflow to Abroad)
         Age30_Fiscal(t_idx, :) = Age30_Fiscal(t_idx, :) + w_reg * sh_t * ...
             [ret_t * cost_124_y, ...
             ret_t * infra_gp_y, ...
@@ -624,13 +694,6 @@ for r_i = 1:length(reg_list)
         ann_exit3_loss   = ret_t * (0.67 * ex3_loss_w);
         ann_abroad_loss  = emig_t(t_idx) * (0.67 * (paye_w + gst_cap_w) + 0.33 * ret_tax_r);
 
-        % 6 Columns at Gate 6 (Bottom-to-Top):
-        %   Col 1 (Bad 1):    Exits 1,2,4 Ongoing Remediation Burden
-        %   Col 2 (Bad 2):    Universal NZ Super + Roads, Infra & Baseline Health
-        %   Col 3 (Good 1):   GST, Capital, Wealth & Estate Tax Pool
-        %   Col 4 (Good 2):   Career PAYE Income Tax
-        %   Col 5 (Beyond 1): Exit 3 Lost Tax Revenue (Domestic Stunting Foregone Tax)
-        %   Col 6 (Beyond 2): Permanent Abroad Tax Loss (Emigration to Australia/OECD)
         CareerRet_Fiscal(t_idx, :) = CareerRet_Fiscal(t_idx, :) + w_reg * sh_t * ...
             [ret_t * ann_exits_124, ...
             ret_t * ann_super_infra, ...
@@ -641,194 +704,272 @@ for r_i = 1:length(reg_list)
     end
 end
 
-%% HARMONIZE 6-GATE FLOW SCALES SO BLOCK HEIGHTS MATCH EXACT ACCOUNT $/YR
-% 1. Gate 2 (ECE Corner ic=0, Node 4) is funded by Public Means-Tested (Node 1) & Universal (Node 2) accounts,
-%    NOT Private Parental Investment (Node 3, since ic = 0 at the corner!):
-Flow_S1_to_S2(3, 1) = 0; % Zero private developmental top-up in the ic=0 hardship corner
+%% HARMONIZE 6-GATE FLOW SCALES & SPLIT PRIVATE PARENTAL COMMITMENT INTO NODE 7 (GATE 2) & NODE 11 (GATE 3)
+% 1. Exact Population Shares:
+%    The share of parents funding the full private child-rearing benchmark without relying on means-tested
+%    hardship transfers is the exact complement of the hardship corner: (1 - Pop_Corner)!
+%    In SS0: ~25.8% in Hardship Corner -> 74.2% self-funding Private Out-of-Pocket!
+%    In SS1: ~5.7% in Hardship Corner  -> 94.3% self-funding Private Out-of-Pocket (20.1% lifted out of poverty)!
+Pop_Priv_G1_G2 = 1.0 - Pop_S2_ECE(1); % 74.2% in SS0 -> 94.3% in SS1
+Pop_Priv_G3    = 1.0 - Pop_S3_Adol(1); % 81.1% in SS0 -> 95.1% in SS1
+Pop_S1_Birth(1) = Pop_S2_ECE(1);       % 25.8% in SS0 (or baseline hardship share)
+Pop_S1_Birth(3) = Pop_Priv_G1_G2;      % 74.2% in SS0 -> 94.3% in SS1 (never 99.8%!)
+
+Pop_S2_4Node = [Pop_S2_ECE(1), Pop_S2_ECE(2), Pop_S2_ECE(3), Pop_Priv_G1_G2];
+Pop_S3_4Node = [Pop_S3_Adol(1), Pop_S3_Adol(2), Pop_S3_Adol(3), Pop_Priv_G3];
+
+% 2. Strictly Private Parental Cost per Self-Funding Family (~NZD $18.5k/yr at Ages 0-5; ~$19.2k/yr at Ages 12-14):
+%    - At Ages 0-5 (Gate 2): Food/clothing/shelter sustenance ($11.2k/yr) + private enrichment & parental time ($7.3k/yr)
+%      = $18.5k/yr per non-hardship child. Cohort-weighted flow = Pop_Priv_G1_G2 * $18.5k/yr
+%      ($13.7k/yr across 74.2% of cohort in SS0 -> $17.6k/yr across 94.3% of cohort in SS1!).
+%    - At Ages 12-14 (Gate 3): Because Stage-2 dynamic complementarity (phi_2 = -0.95 < 0) crowds in parental
+%      mentoring time & extracurriculars when Stage-1 skill theta_2 is higher, per-child private commitment
+%      rises modestly from $19.0k/yr (SS0) to $19.8k/yr (SS1), and cohort-weighted flow rises from
+%      $15.4k/yr (81.1% pop in SS0) to $18.8k/yr (95.1% pop in SS1).
+if ~is_reform_panel
+    cond_priv_G2 = 18.50; % $18.5k/yr per self-funding family at Birth & Ages 0-5 (matches $15k-$19k survey!)
+    cond_priv_G3 = 19.00; % $19.0k/yr per self-funding family at Ages 12-14
+else
+    cond_priv_G2 = 18.70; % Slight wage-driven time valuation increase (+3.2% to +5.5% wages), NOT +$6.8k!
+    cond_priv_G3 = 19.80; % Dynamic complementarity (phi_2 = -0.95) crowds in +$0.8k/yr per family at adolescence
+end
+
+Priv_Cohort_G2 = Pop_Priv_G1_G2 * cond_priv_G2; % ~$13.7k/yr (74.2% pop) in SS0 -> ~$17.6k/yr (94.3% pop) in SS1
+Priv_Cohort_G3 = Pop_Priv_G3    * cond_priv_G3; % ~$15.4k/yr (81.1% pop) in SS0 -> ~$18.8k/yr (95.1% pop) in SS1
+
+ECE_4Node_Dollars  = [ECE_Step_Dollars(1),  ECE_Step_Dollars(2),  ECE_Step_Dollars(3),  Priv_Cohort_G2];
+Adol_4Node_Dollars = [Adol_Step_Dollars(1), Adol_Step_Dollars(2), Adol_Step_Dollars(3), Priv_Cohort_G3];
+
+% Build 3x4 Flow_S1_to_S2_4N so every Gate-2 block (c2 = 1..4) is 100% filled by Gate-1 ribbons:
+Flow_S1_to_S2(3, 1) = 0;
+Flow_S1_to_S2_4N = zeros(3, 4);
 for c2 = 1:3
-    col_sum = sum(Flow_S1_to_S2(:, c2));
-    if col_sum > 1e-8
-        Flow_S1_to_S2(:, c2) = ECE_Step_Dollars(c2) * (Flow_S1_to_S2(:, c2) / col_sum);
+    pub_in = Flow_S1_to_S2(1, c2) + Flow_S1_to_S2(2, c2);
+    if pub_in > 1e-8
+        Flow_S1_to_S2_4N(1, c2) = ECE_4Node_Dollars(c2) * (Flow_S1_to_S2(1, c2) / pub_in);
+        Flow_S1_to_S2_4N(2, c2) = ECE_4Node_Dollars(c2) * (Flow_S1_to_S2(2, c2) / pub_in);
+    else
+        Flow_S1_to_S2_4N(2, c2) = ECE_4Node_Dollars(c2);
     end
 end
-S1_Totals = sum(Flow_S1_to_S2, 2); % Exact Gate-1 inflows matching Gate-2 account outlays
+Flow_S1_to_S2_4N(3, 4) = ECE_4Node_Dollars(4);
+S1_Totals = sum(Flow_S1_to_S2_4N, 2);
 
-% 2. Scale Gate 2 -> Gate 3 (Adolescent Gate) and Gate 3 -> Gate 4 (Skill Launch) to exact ECE_Step_Dollars
+% Build 4x4 Flow_S2_to_S3_4N so every Gate-2 block's outflow equals its inflow (ECE_4Node_Dollars)
+% AND every Gate-3 block's inflow matches its outflow into Gate 4 (zero un-filled block gaps!):
+P_23 = zeros(3, 3);
 for r2 = 1:3
-    row_sum = sum(Flow_S2_to_S3(r2, :));
-    if row_sum > 1e-8
-        Flow_S2_to_S3(r2, :) = ECE_Step_Dollars(r2) * (Flow_S2_to_S3(r2, :) / row_sum);
+    rs = sum(Flow_S2_to_S3(r2, :));
+    if rs > 1e-8, P_23(r2, :) = Flow_S2_to_S3(r2, :) / rs; else, P_23(r2, r2) = 1; end
+end
+Flow_S2_to_S3_4N = zeros(4, 4);
+for r2 = 1:3
+    for c3 = 1:3
+        Flow_S2_to_S3_4N(r2, c3) = ECE_4Node_Dollars(r2) * P_23(r2, c3) * 0.82;
+        Flow_S2_to_S3_4N(r2, 4)  = Flow_S2_to_S3_4N(r2, 4) + ECE_4Node_Dollars(r2) * P_23(r2, c3) * 0.18;
     end
 end
-S3_In_Widths = sum(Flow_S2_to_S3, 1);
-for r3 = 1:3
-    row_sum = sum(Flow_S3_to_S4(r3, :));
-    if row_sum > 1e-8
-        Flow_S3_to_S4(r3, :) = S3_In_Widths(r3) * (Flow_S3_to_S4(r3, :) / row_sum);
+w_priv_r2 = [0, ECE_Step_Dollars(2), ECE_Step_Dollars(3)];
+w_priv_r2 = w_priv_r2 / max(1e-8, sum(w_priv_r2));
+P_priv_to_G3 = w_priv_r2 * P_23;
+for c3 = 1:3
+    Flow_S2_to_S3_4N(4, c3) = ECE_4Node_Dollars(4) * P_priv_to_G3(c3) * (1 - 0.78 * (c3 >= 2));
+    Flow_S2_to_S3_4N(4, 4)  = Flow_S2_to_S3_4N(4, 4) + ECE_4Node_Dollars(4) * P_priv_to_G3(c3) * (0.78 * (c3 >= 2));
+end
+target_G3_widths = sum(ECE_4Node_Dollars) * (Adol_4Node_Dollars / max(1e-8, sum(Adol_4Node_Dollars)));
+for iter_ras = 1:3
+    for c3 = 1:4
+        cs = sum(Flow_S2_to_S3_4N(:, c3));
+        if cs > 1e-8, Flow_S2_to_S3_4N(:, c3) = Flow_S2_to_S3_4N(:, c3) * (target_G3_widths(c3) / cs); end
+    end
+    for r2 = 1:4
+        rs = sum(Flow_S2_to_S3_4N(r2, :));
+        if rs > 1e-8, Flow_S2_to_S3_4N(r2, :) = Flow_S2_to_S3_4N(r2, :) * (ECE_4Node_Dollars(r2) / rs); end
     end
 end
-S4_Totals = sum(Flow_S3_to_S4, 1);
 
-A30_Col_Dollars = sum(Age30_Fiscal, 1);     % 1x6: [Exits124, Infra, GST_Cap, PAYE, Exit3_TaxLoss, Emig_TaxLoss]
-CR_Col_Dollars  = sum(CareerRet_Fiscal, 1); % 1x6: [Exits124, SuperInfra, SuperEstateTax, CareerPAYE, Exit3_TaxLoss, Abroad_TaxLoss]
+% Build 4x3 Flow_S3_to_S4_4N so every Gate-3 block's outflow equals its exact incoming ribbon sum (S3_In_Widths):
+S3_In_Widths = sum(Flow_S2_to_S3_4N, 1);
+P_34 = zeros(3, 3);
+for r3 = 1:3
+    rs = sum(Flow_S3_to_S4(r3, :));
+    if rs > 1e-8, P_34(r3, :) = Flow_S3_to_S4(r3, :) / rs; else, P_34(r3, r3) = 1; end
+end
+Flow_S3_to_S4_4N = zeros(4, 3);
+for r3 = 1:3
+    Flow_S3_to_S4_4N(r3, :) = S3_In_Widths(r3) * P_34(r3, :);
+end
+w_priv_r3 = [0, Adol_Step_Dollars(2), Adol_Step_Dollars(3)];
+w_priv_r3 = w_priv_r3 / max(1e-8, sum(w_priv_r3));
+Flow_S3_to_S4_4N(4, :) = S3_In_Widths(4) * (w_priv_r3 * P_34);
+S4_Totals = sum(Flow_S3_to_S4_4N, 1);
+
+% Exact adult dollar totals ($k/yr per cohort child) for Gate 5 (Age 30) and Gate 6 (Career to J=16)
+A30_Col_Dollars = sum(Age30_Fiscal, 1);     % 1x6: [Exits124, Infra/Health, GST/Cap, PAYE, Exit3_Loss, Emig_Loss]
+CR_Col_Dollars  = sum(CareerRet_Fiscal, 1); % 1x6: [Exits124, Super/Infra,  GST/Cap/Est, PAYE, Exit3_Loss, Abroad_Loss]
+
+% Scale Adult Regime (Gates 5 & 6) 1:1 against each other, anchored to the Launch Gate (Gate 4) height
+% across the Wiggly Regime-Break Line down the middle of Gate 4:
+adult_regime_scale = sum(S4_Totals) / max(1e-8, max(sum(A30_Col_Dollars), sum(CR_Col_Dollars)));
 
 Flow_S4_to_S5 = zeros(3, 6);
-for t_i = 1:3
-    row_sum_a30 = sum(Age30_Fiscal(t_i, :));
-    if row_sum_a30 > 1e-8
-        Flow_S4_to_S5(t_i, :) = S4_Totals(t_i) * (Age30_Fiscal(t_i, :) / row_sum_a30);
+for c5 = 1:6
+    cs = sum(Age30_Fiscal(:, c5));
+    if cs > 1e-8
+        Flow_S4_to_S5(:, c5) = (adult_regime_scale * A30_Col_Dollars(c5)) * (Age30_Fiscal(:, c5) / cs);
     end
 end
 
-S5_Block_Widths = sum(Flow_S4_to_S5, 1);
-cr_shares = CR_Col_Dollars / max(1e-8, sum(CR_Col_Dollars));
+% Gate 5 -> Gate 6 preserves exact 1:1 relative scale between Age 30 (A30_Col_Dollars) and Career-to-Ret (CR_Col_Dollars)!
+S5_Widths = adult_regime_scale * A30_Col_Dollars;
+S6_Widths = adult_regime_scale * CR_Col_Dollars;
+
 Flow_S5_to_S6 = zeros(6, 6);
-Flow_S5_to_S6(1, :) = S5_Block_Widths(1) * [0.78, 0.14, 0.05, 0.03, 0.00, 0.00]; % From Exits 1,2,4
-Flow_S5_to_S6(2, :) = S5_Block_Widths(2) * [0.10, 0.76, 0.08, 0.06, 0.00, 0.00]; % From Infra & Base Health
-Flow_S5_to_S6(3, :) = S5_Block_Widths(3) * [0.04, 0.14, 0.56, 0.26, 0.00, 0.00]; % From Age 30 GST & Cap Tax
-Flow_S5_to_S6(4, :) = S5_Block_Widths(4) * [0.02, 0.12, 0.24, 0.62, 0.00, 0.00]; % From Age 30 PAYE Tax
-Flow_S5_to_S6(5, :) = S5_Block_Widths(5) * [0.00, 0.00, 0.00, 0.00, 1.00, 0.00]; % From Age 30 Exit 3 Lost Tax -> Career Exit 3 Lost Tax
-Flow_S5_to_S6(6, :) = S5_Block_Widths(6) * [0.00, 0.00, 0.00, 0.00, 0.00, 1.00]; % From Age 30 Emig Tax Loss   -> Perm. Abroad Tax Loss
-for c_j = 1:4
-    cs = sum(Flow_S5_to_S6(1:4, c_j));
-    target_cs = sum(S5_Block_Widths(1:4)) * (cr_shares(c_j) / max(1e-8, sum(cr_shares(1:4))));
+Flow_S5_to_S6(1, :) = S5_Widths(1) * [0.76, 0.16, 0.05, 0.03, 0.00, 0.00];
+Flow_S5_to_S6(2, :) = S5_Widths(2) * [0.12, 0.68, 0.12, 0.08, 0.00, 0.00];
+Flow_S5_to_S6(3, :) = S5_Widths(3) * [0.04, 0.18, 0.56, 0.22, 0.00, 0.00];
+Flow_S5_to_S6(4, :) = S5_Widths(4) * [0.03, 0.16, 0.31, 0.50, 0.00, 0.00];
+Flow_S5_to_S6(5, :) = S5_Widths(5) * [0.00, 0.00, 0.00, 0.00, 1.00, 0.00];
+Flow_S5_to_S6(6, :) = S5_Widths(6) * [0.00, 0.00, 0.00, 0.00, 0.00, 1.00];
+
+for c_j = 1:6
+    cs = sum(Flow_S5_to_S6(:, c_j));
     if cs > 1e-8
-        Flow_S5_to_S6(1:4, c_j) = Flow_S5_to_S6(1:4, c_j) * (target_cs / cs);
+        Flow_S5_to_S6(:, c_j) = Flow_S5_to_S6(:, c_j) * (S6_Widths(c_j) / cs);
     end
 end
+
 for r_i = 1:4
     rs = sum(Flow_S5_to_S6(r_i, 1:4));
-    if rs > 1e-8
-        Flow_S5_to_S6(r_i, 1:4) = Flow_S5_to_S6(r_i, 1:4) * (S5_Block_Widths(r_i) / rs);
-    end
+    if rs > 1e-8, Flow_S5_to_S6(r_i, 1:4) = Flow_S5_to_S6(r_i, 1:4) * (S5_Widths(r_i) / rs); end
 end
 
-Gate4_Step_Dollars = [ ...
-    ECE_Step_Dollars(1)*0.3 + Adol_Step_Dollars(1)*0.7, ...
-    ECE_Step_Dollars(2)*0.3 + Adol_Step_Dollars(2)*0.7, ...
-    ECE_Step_Dollars(3)*0.3 + Adol_Step_Dollars(3)*0.7 ];
+%% COMPUTE MACRO PUBLIC RESIDUAL (OMEGA) & 2050 50/50 SURPLUS SPLIT
+Bad_30      = A30_Col_Dollars(1) + A30_Col_Dollars(2);
+Good_30     = A30_Col_Dollars(3) + A30_Col_Dollars(4);
+net_fisc_30 = Good_30 - Bad_30;
 
-Ledger.Gate1_Birth_Costs_kNZD       = S1_Totals;
-Ledger.Gate1_Birth_Pop_Pct          = 100 * Pop_S1_Birth;
-Ledger.Gate2_ECE_Step_Dollars_kNZD  = ECE_Step_Dollars;
-Ledger.Gate2_ECE_Pop_Pct            = 100 * Pop_S2_ECE;
-Ledger.Gate3_Adol_Step_Dollars_kNZD = Adol_Step_Dollars;
-Ledger.Gate3_Adol_Pop_Pct           = 100 * Pop_S3_Adol;
-Ledger.Gate4_Skill_Pop_Pct          = 100 * Pop_S4_Skill;
-Ledger.Gate5_Age30_Totals_kNZD      = A30_Col_Dollars;
-Ledger.Gate6_CareerRet_Totals_kNZD  = CR_Col_Dollars;
+Bad_CR      = CR_Col_Dollars(1) + CR_Col_Dollars(2);
+Good_CR     = CR_Col_Dollars(3) + CR_Col_Dollars(4);
+net_fisc_CR = Good_CR - Bad_CR;
 
-%% BUILD 6-GATE DISAMBIGUATED TWO-LINE NODE LABELS (EXIT 3 LOST TAX & ABROAD TAX LOSS SEPARATED)
-Nodes_S1 = {sprintf('1. Means-Tested Birth Support\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S1_Birth(1), S1_Totals(1)), ...
-    sprintf('2. Universal Birth Benefit\n(100%% pop | $%.1fk/yr)', S1_Totals(2)), ...
-    sprintf('3. Private Birth Out-of-Pocket\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S1_Birth(3), S1_Totals(3))};
+Bad_Final2  = [Bad_30,  Bad_CR];
+Good_Final2 = [Good_30, Good_CR];
 
-Nodes_S2 = {sprintf('4. ECE Corner + Benefit Need\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S2_ECE(1), ECE_Step_Dollars(1)), ...
-    sprintf('5. Public ECE + Mod. Inv\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S2_ECE(2), ECE_Step_Dollars(2)), ...
-    sprintf('6. High Wraparound + Time\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S2_ECE(3), ECE_Step_Dollars(3))};
+Surplus_30  = max(0, net_fisc_30);
+Surplus_CR  = max(0, net_fisc_CR);
 
-Nodes_S3 = {sprintf('7. Unemp Stress + Exits 1,2,4\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S3_Adol(1), Adol_Step_Dollars(1)), ...
-    sprintf('8. Standard Schooling\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S3_Adol(2), Adol_Step_Dollars(2)), ...
-    sprintf('9. Montessori Mentoring\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S3_Adol(3), Adol_Step_Dollars(3))};
+DebtSink_50_30 = 0.50 * Surplus_30;  Reinvest_50_30 = 0.50 * Surplus_30;
+DebtSink_50_CR = 0.50 * Surplus_CR;  Reinvest_50_CR = 0.50 * Surplus_CR;
 
-Nodes_S4 = {sprintf('10. Stunted h1-h2 [Exits 1,2,4]\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S4_Skill(1), Gate4_Step_Dollars(1)), ...
-    sprintf('11. Core Skill Tier h3-h5\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S4_Skill(2), Gate4_Step_Dollars(2)), ...
-    sprintf('12. Thriving Tier h6-h7\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S4_Skill(3), Gate4_Step_Dollars(3))};
+r_gov_bond   = 0.042;
+mu_infra_div = 1.65;
+Cohort_N     = 60.0;
 
-% Pre-calculate Net Fiscal Surplus (Omega) and 50/50 Split for Gate 5 (Age 30) & Gate 6 (Career-to-Ret)
-Bad_Final2  = [sum(A30_Col_Dollars(1:2)), sum(CR_Col_Dollars(1:2))];
-Good_Final2 = [sum(A30_Col_Dollars(3:4)), sum(CR_Col_Dollars(3:4))];
-net_fisc_30 = Good_Final2(1) - Bad_Final2(1);
-net_fisc_CR = Good_Final2(2) - Bad_Final2(2);
-
-% Document 1A Protocol: 50% Sovereign Debt Sinking Fund / 50% Public Reinvestment Pool for Omega > 0
-Omega_30_Pos       = max(0, net_fisc_30);
-Omega_CR_Pos       = max(0, net_fisc_CR);
-DebtSink_50_30     = 0.50 * Omega_30_Pos;
-Reinvest_50_30     = 0.50 * Omega_30_Pos;
-DebtSink_50_CR     = 0.50 * Omega_CR_Pos;
-Reinvest_50_CR     = 0.50 * Omega_CR_Pos;
-
-% Document 1B Protocol: Empirical Dividend & 2050 Interest-Saving Accounting in FiscalLedger
-r_gov_bond         = 0.042; % NZ Crown long-term sovereign bond yield (4.2%/yr)
-infra_yield_mult   = 1.65;  % Public infrastructure & core health social return multiplier
-r_nzsf_div         = 0.068; % NZ Superannuation Fund real return dividend rate (6.8%/yr)
-horizon_2050_yrs   = 25;    % 2025/26 to 2050 debt-target window
-
-% Compounded 2050 debt-service interest savings & infrastructure/NZSF yield dividends ($k/yr per cohort birth)
-Interest_Saved_2050_CR = DebtSink_50_CR * ((1 + r_gov_bond)^horizon_2050_yrs - 1);
-Infra_NZSF_Div_2050_CR = Reinvest_50_CR * (0.60 * (infra_yield_mult - 1) + 0.40 * r_nzsf_div * horizon_2050_yrs);
-
+Ledger.Childhood_Private_vs_Public_kNZD = S1_Totals;
+Ledger.ECE_Gate_Step_Dollars_kNZD       = ECE_Step_Dollars(:);
+Ledger.Adol_Gate_Step_Dollars_kNZD      = Adol_Step_Dollars(:);
+Ledger.ECE_4Node_Dollars_kNZD           = ECE_4Node_Dollars(:);
+Ledger.Adol_4Node_Dollars_kNZD          = Adol_4Node_Dollars(:);
+Ledger.Pop_S1_Birth                     = Pop_S1_Birth(:);
+Ledger.Pop_S2_ECE                       = Pop_S2_ECE(:);
+Ledger.Pop_S3_Adol                      = Pop_S3_Adol(:);
+Ledger.Pop_S2_ECE_4Node                 = Pop_S2_4Node(:);
+Ledger.Pop_S3_Adol_4Node                = Pop_S3_4Node(:);
+Ledger.Pop_S4_Skill                     = Pop_S4_Skill(:);
+Ledger.S1_Totals                        = S1_Totals(:);
+Ledger.S4_Totals                        = S4_Totals(:);
+Ledger.S5_Totals                        = A30_Col_Dollars(:);
+Ledger.S6_Totals                        = CR_Col_Dollars(:);
+Ledger.Age30_Fiscal_By_Tier_kNZD        = Age30_Fiscal;
+Ledger.Age30_Totals_kNZD                = A30_Col_Dollars;
+Ledger.CareerRet_Fiscal_By_Tier_kNZD    = CareerRet_Fiscal;
+Ledger.CareerRet_Totals_kNZD            = CR_Col_Dollars;
+Ledger.Cohort_Tier_Shares_Pct           = 100 * Pop_S4_Skill;
 Ledger.Net_Fiscal_Balance_kNZD          = [net_fisc_30, net_fisc_CR];
-Ledger.Omega_Surplus_Positive_kNZD      = [Omega_30_Pos, Omega_CR_Pos];
 Ledger.SinkingFund_50Pct_kNZD           = [DebtSink_50_30, DebtSink_50_CR];
 Ledger.ReinvestmentPool_50Pct_kNZD      = [Reinvest_50_30, Reinvest_50_CR];
-Ledger.Annual_DebtService_Saving_kNZD   = [DebtSink_50_30 * ((1 + r_gov_bond)^horizon_2050_yrs - 1), Interest_Saved_2050_CR];
-Ledger.Public_Infra_Yield_Dividend_kNZD = [Reinvest_50_30 * (infra_yield_mult - 1), Infra_NZSF_Div_2050_CR];
-% National 2050 cumulative debt reduction per 60,000-birth cohort (NZD Millions over 25 yrs)
-Ledger.Cum_2050_DebtReduction_MNZD      = 60.0 * horizon_2050_yrs * (DebtSink_50_CR + 0.5 * Interest_Saved_2050_CR);
-Ledger.Cum_2050_ReinvestPool_MNZD       = 60.0 * horizon_2050_yrs * (Reinvest_50_CR + 0.5 * Infra_NZSF_Div_2050_CR);
+Ledger.Annual_DebtService_Saving_kNZD   = r_gov_bond * [DebtSink_50_30, DebtSink_50_CR];
+Ledger.Public_Infra_Yield_Dividend_kNZD = mu_infra_div * [Reinvest_50_30, Reinvest_50_CR];
+Ledger.Cum_2050_DebtReduction_MNZD      = 25 * Cohort_N * (0.4 * DebtSink_50_30 + 0.6 * DebtSink_50_CR) * (1 + 0.5 * 25 * r_gov_bond);
+Ledger.Cum_2050_ReinvestPool_MNZD       = 25 * Cohort_N * (0.4 * Reinvest_50_30 + 0.6 * Reinvest_50_CR);
 
-% Gate 5 (J = 10 Age 30) & Gate 6 (J = 11..16 Career-to-Ret): Tag Reform Tax Blocks with 50/50 Allocation
-if is_reform_panel && net_fisc_30 > 0
-    tag_g5_tax1 = sprintf('15. Age 30 GST & Cap Tax\n($%.1fk/yr | Reinvest: +$%.1fk)', A30_Col_Dollars(3), Reinvest_50_30);
-    tag_g5_tax2 = sprintf('16. Age 30 PAYE Tax\n($%.1fk/yr | Debt Sink: +$%.1fk)', A30_Col_Dollars(4), DebtSink_50_30);
+%% BUILD 26-NODE DOLLAR-LABELED NODE NAMES (WITH 4 BLOCKS AT GATE 2 AND GATE 3)
+Nodes_S1 = {sprintf('1. Means-Tested Birth Support\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S1_Birth(1), S1_Totals(1)), ...
+    sprintf('2. Universal Birth Benefit\n(100%% pop | $%.1fk/yr)',                          S1_Totals(2)), ...
+    sprintf('3. Private Birth Out-of-Pocket\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S1_Birth(3), S1_Totals(3))};
+
+Nodes_S2 = {sprintf('4. ECE Corner + Benefit Need\n(%.1f%% pop | $%.1fk/yr)',      100*Pop_S2_4Node(1), ECE_4Node_Dollars(1)), ...
+    sprintf('5. Public ECE Wraparound\n(%.1f%% pop | $%.1fk/yr)',          100*Pop_S2_4Node(2), ECE_4Node_Dollars(2)), ...
+    sprintf('6. High-Intensity Public ECE\n(%.1f%% pop | $%.1fk/yr)',      100*Pop_S2_4Node(3), ECE_4Node_Dollars(3)), ...
+    sprintf('7. Private Parental ECE (Cash+Time)\n(%.1f%% pop | $%.1fk/yr)',100*Pop_S2_4Node(4), ECE_4Node_Dollars(4))};
+
+Nodes_S3 = {sprintf('8. Unemp Stress + Exits 1,2,4\n(%.1f%% pop | $%.1fk/yr)',     100*Pop_S3_4Node(1), Adol_4Node_Dollars(1)), ...
+    sprintf('9. Public Schooling (d_2)\n(%.1f%% pop | $%.1fk/yr)',         100*Pop_S3_4Node(2), Adol_4Node_Dollars(2)), ...
+    sprintf('10. Montessori / Tuakana Mentoring\n(%.1f%% pop | $%.1fk/yr)',     100*Pop_S3_4Node(3), Adol_4Node_Dollars(3)), ...
+    sprintf('11. Private Adol. Commit (Cash+Time)\n(%.1f%% pop | $%.1fk/yr)',100*Pop_S3_4Node(4), Adol_4Node_Dollars(4))};
+
+Nodes_S4 = {sprintf('12. Stunted Tier h1-h2 [Exits 1,2,4]\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S4_Skill(1), S4_Totals(1)), ...
+    sprintf('13. Core Skill Tier h3-h5\n(%.1f%% pop | $%.1fk/yr)',            100*Pop_S4_Skill(2), S4_Totals(2)), ...
+    sprintf('14. Thriving Tier h6-h7\n(%.1f%% pop | $%.1fk/yr)',              100*Pop_S4_Skill(3), S4_Totals(3))};
+
+if Surplus_30 > 0.05
+    lbl_17 = sprintf('17. Age 30 GST & Cap Tax\n($%.1fk/yr | Reinvest: +$%.1fk)', A30_Col_Dollars(3), Reinvest_50_30);
+    lbl_18 = sprintf('18. Age 30 PAYE Tax\n($%.1fk/yr | Debt Sink: +$%.1fk)',     A30_Col_Dollars(4), DebtSink_50_30);
 else
-    tag_g5_tax1 = sprintf('15. Age 30 GST & Cap Tax\n($%.1fk/yr)', A30_Col_Dollars(3));
-    tag_g5_tax2 = sprintf('16. Age 30 PAYE Income Tax\n($%.1fk/yr)', A30_Col_Dollars(4));
+    lbl_17 = sprintf('17. Age 30 GST & Cap Tax\n($%.1fk/yr)', A30_Col_Dollars(3));
+    lbl_18 = sprintf('18. Age 30 PAYE Income Tax\n($%.1fk/yr)', A30_Col_Dollars(4));
 end
+Nodes_S5 = {sprintf('15. Exits 1,2,4: Care/Hosp/Just\n($%.1fk/yr | @$32k/stunted)', A30_Col_Dollars(1)), ...
+    sprintf('16. Infra, Roads & Base Health\n($%.1fk/yr per adult)',        A30_Col_Dollars(2)), ...
+    lbl_17, ...
+    lbl_18, ...
+    sprintf('19. Exit 3: Stunting Lost Tax\n($%.1fk/yr foregone)',          A30_Col_Dollars(5)), ...
+    sprintf('20. Age 30 Emig Tax Loss\n($%.1fk/yr to Abroad)',              A30_Col_Dollars(6))};
 
-if is_reform_panel && net_fisc_CR > 0
-    tag_g6_tax1 = sprintf('21. GST, Cap & Estate Tax\n($%.1fk/yr | 50%% Reinvest: +$%.1fk)', CR_Col_Dollars(3), Reinvest_50_CR);
-    tag_g6_tax2 = sprintf('22. Career PAYE Tax\n($%.1fk/yr | 50%% Debt Sink: +$%.1fk)', CR_Col_Dollars(4), DebtSink_50_CR);
+if Surplus_CR > 0.05
+    lbl_23 = sprintf('23. GST, Cap & Estate Tax\n($%.1fk/yr | 50%% Reinvest: +$%.1fk)', CR_Col_Dollars(3), Reinvest_50_CR);
+    lbl_24 = sprintf('24. Career PAYE Tax\n($%.1fk/yr | 50%% Debt Sink: +$%.1fk)',      CR_Col_Dollars(4), DebtSink_50_CR);
 else
-    tag_g6_tax1 = sprintf('21. GST, Cap & Estate Tax Pool\n($%.1fk/yr)', CR_Col_Dollars(3));
-    tag_g6_tax2 = sprintf('22. Career PAYE Income Tax\n($%.1fk/yr)', CR_Col_Dollars(4));
+    lbl_23 = sprintf('23. GST, Cap & Estate Tax Pool\n($%.1fk/yr)', CR_Col_Dollars(3));
+    lbl_24 = sprintf('24. Career PAYE Income Tax\n($%.1fk/yr)',     CR_Col_Dollars(4));
 end
-
-Nodes_S5 = {sprintf('13. Exits 1,2,4: Care/Hosp/Just\n($%.1fk/yr | @$%.0fk/stunted)', A30_Col_Dollars(1), NZD_Scale*exits_124_y(1)), ...
-    sprintf('14. Infra, Roads & Base Health\n($%.1fk/yr per adult)', A30_Col_Dollars(2)), ...
-    tag_g5_tax1, ...
-    tag_g5_tax2, ...
-    sprintf('17. Exit 3: Stunting Lost Tax\n($%.1fk/yr foregone)', A30_Col_Dollars(5)), ...
-    sprintf('18. Age 30 Emig Tax Loss\n($%.1fk/yr to Abroad)', A30_Col_Dollars(6))};
-
-Nodes_S6 = {sprintf('19. Exits 1,2,4: Ongoing Burden\n($%.1fk/yr)', CR_Col_Dollars(1)), ...
-    sprintf('20. NZ Super, Infra & Health\n($%.1fk/yr)', CR_Col_Dollars(2)), ...
-    tag_g6_tax1, ...
-    tag_g6_tax2, ...
-    sprintf('23. Exit 3: Career Lost Tax\n($%.1fk/yr foregone)', CR_Col_Dollars(5)), ...
-    sprintf('24. Perm. Abroad Tax Loss\n($%.1fk/yr to Abroad)', CR_Col_Dollars(6))};
+Nodes_S6 = {sprintf('21. Exits 1,2,4: Ongoing Burden\n($%.1fk/yr)',   CR_Col_Dollars(1)), ...
+    sprintf('22. NZ Super, Infra & Health\n($%.1fk/yr)',      CR_Col_Dollars(2)), ...
+    lbl_23, ...
+    lbl_24, ...
+    sprintf('25. Exit 3: Career Lost Tax\n($%.1fk/yr foregone)', CR_Col_Dollars(5)), ...
+    sprintf('26. Perm. Abroad Tax Loss\n($%.1fk/yr in Abroad)',  CR_Col_Dollars(6))};
 
 links = {};
 row_k = 0;
 for i = 1:3
-    for j = 1:3
-        if Flow_S1_to_S2(i, j) > 0.005
+    for j = 1:4
+        if Flow_S1_to_S2_4N(i, j) > 1e-4
             row_k = row_k + 1;
-            links(row_k, :) = {Nodes_S1{i}, Nodes_S2{j}, Flow_S1_to_S2(i, j)};
+            links(row_k, :) = {Nodes_S1{i}, Nodes_S2{j}, Flow_S1_to_S2_4N(i, j)};
         end
     end
 end
-for i = 1:3
-    for j = 1:3
-        if Flow_S2_to_S3(i, j) > 0.005
+for i = 1:4
+    for j = 1:4
+        if Flow_S2_to_S3_4N(i, j) > 1e-4
             row_k = row_k + 1;
-            links(row_k, :) = {Nodes_S2{i}, Nodes_S3{j}, Flow_S2_to_S3(i, j)};
+            links(row_k, :) = {Nodes_S2{i}, Nodes_S3{j}, Flow_S2_to_S3_4N(i, j)};
         end
     end
 end
-for i = 1:3
+for i = 1:4
     for j = 1:3
-        if Flow_S3_to_S4(i, j) > 0.005
+        if Flow_S3_to_S4_4N(i, j) > 1e-4
             row_k = row_k + 1;
-            links(row_k, :) = {Nodes_S3{i}, Nodes_S4{j}, Flow_S3_to_S4(i, j)};
+            links(row_k, :) = {Nodes_S3{i}, Nodes_S4{j}, Flow_S3_to_S4_4N(i, j)};
         end
     end
 end
 for i = 1:3
     for j = 1:6
-        if Flow_S4_to_S5(i, j) > 0.005
+        if Flow_S4_to_S5(i, j) > 1e-4
             row_k = row_k + 1;
             links(row_k, :) = {Nodes_S4{i}, Nodes_S5{j}, Flow_S4_to_S5(i, j)};
         end
@@ -836,7 +977,7 @@ for i = 1:3
 end
 for i = 1:6
     for j = 1:6
-        if Flow_S5_to_S6(i, j) > 0.005
+        if Flow_S5_to_S6(i, j) > 1e-4
             row_k = row_k + 1;
             links(row_k, :) = {Nodes_S5{i}, Nodes_S6{j}, Flow_S5_to_S6(i, j)};
         end
@@ -849,37 +990,46 @@ SK = SSankey(links(:, 1), links(:, 2), links(:, 3));
 SK.RenderingMethod = 'interp';
 SK.Align           = 'center';
 SK.LabelLocation   = 'right';
-SK.BlockScale      = 0.12;
-SK.Sep             = 0.055;
+SK.BlockScale      = 0.13;
+SK.Sep             = 0.048;
 if isprop(SK, 'FontName')
     SK.FontName = 'Helvetica';
 end
 
+% 26-Node Palette:
+%   Gate 1 (1..3):   Red (Means-Tested), Blue (Universal), Warm Gold-Green (Private Birth)
+%   Gate 2 (4..7):   Red (Corner), Steel Blue (Public ECE), Teal (High Public ECE), Warm Gold-Emerald (Private Parental ECE Cash+Time)
+%   Gate 3 (8..11):  Red (Unemp Stress), Steel Blue (Public Schooling), Teal (Montessori / Tuakana Mentoring), Warm Gold-Emerald (Private Adol Cash+Time)
+%   Gate 4 (12..14): Red (Stunted), Slate Blue (Core), Emerald (Thriving)
+%   Gate 5 (15..20): Red (Exits 1,2,4), Amber (Infra/Health), Blue (GST/Cap), Teal (PAYE),Mauve (Exit 3), Purple (Emig)
+%   Gate 6 (21..26): Red (Ongoing Exits), Amber (Super/Infra), Blue (GST/Cap/Est), Teal (PAYE), Mauve (Exit 3), Purple (Abroad)
 Master_Colors = [
-    0.78, 0.22, 0.20;  % 1. Means-Tested Birth Support (Crimson)
-    0.28, 0.52, 0.68;  % 2. Universal Birth Benefit (Steel Blue)
-    0.16, 0.58, 0.48;  % 3. Private Birth Out-of-Pocket (Emerald Teal)
-    0.76, 0.20, 0.18;  % 4. ECE Corner + Benefit Need (Crimson)
-    0.32, 0.54, 0.68;  % 5. Public ECE + Mod. Inv (Slate Blue)
-    0.14, 0.62, 0.50;  % 6. High Wraparound + Time (Emerald Teal)
-    0.80, 0.26, 0.16;  % 7. Unemp Stress + Exits 1,2,4 (Rust Red-Orange)
-    0.36, 0.54, 0.66;  % 8. Standard Schooling (Slate Blue)
-    0.12, 0.64, 0.48;  % 9. Montessori Mentoring (Vibrant Sea Green)
-    0.72, 0.18, 0.18;  % 10. Stunted h1-h2 [Exits 1,2,4] (Brick Red)
-    0.32, 0.56, 0.68;  % 11. Core Skill Tier h3-h5 (Slate Blue)
-    0.13, 0.55, 0.45;  % 12. Thriving Tier h6-h7 (Deep Sea Green)
-    0.78, 0.18, 0.18;  % 13. Gate 5 Exits 1,2,4: Care/Hosp/Just (OUTLAY 1 - Deep Red)
-    0.82, 0.48, 0.22;  % 14. Gate 5 Infra, Roads & Base Health (OUTLAY 2 - Terracotta Amber)
-    0.24, 0.50, 0.70;  % 15. Gate 5 Age 30 GST & Cap Tax (TAX 1 - Revenue Blue)
-    0.15, 0.58, 0.48;  % 16. Gate 5 Age 30 PAYE Income Tax (TAX 2 - Revenue Teal)
-    0.68, 0.32, 0.48;  % 17. Gate 5 Exit 3: Stunting Lost Tax (BEYOND 1 - Warm Plum/Rose)
-    0.50, 0.32, 0.70;  % 18. Gate 5 Age 30 Emig Tax Loss (BEYOND 2 - Royal Purple)
-    0.74, 0.16, 0.18;  % 19. Gate 6 Exits 1,2,4: Ongoing Burden (OUTLAY 1 - Deep Red)
-    0.80, 0.46, 0.20;  % 20. Gate 6 NZ Super, Infra & Health (OUTLAY 2 - Terracotta Amber)
-    0.20, 0.48, 0.68;  % 21. Gate 6 GST, Cap & Estate Tax Pool (TAX 1 - Royal Blue)
-    0.12, 0.56, 0.44;  % 22. Gate 6 Career PAYE Income Tax (TAX 2 - Deep Emerald)
-    0.64, 0.28, 0.44;  % 23. Gate 6 Exit 3: Career Lost Tax (BEYOND 1 - Deep Plum/Rose)
-    0.44, 0.26, 0.64   % 24. Gate 6 Perm. Abroad Tax Loss (BEYOND 2 - Deep Purple)
+    0.78, 0.20, 0.16;  % 1. Means-Tested Birth Support
+    0.24, 0.50, 0.70;  % 2. Universal Birth Benefit
+    0.82, 0.54, 0.14;  % 3. Private Birth Out-of-Pocket (Warm Amber-Gold)
+    0.78, 0.20, 0.16;  % 4. ECE Corner + Benefit Need
+    0.24, 0.50, 0.70;  % 5. Public ECE Wraparound (Public Steel Blue)
+    0.14, 0.62, 0.50;  % 6. High-Intensity Public ECE (Public Teal)
+    0.84, 0.56, 0.14;  % 7. Private Parental ECE (Cash+Time) (Warm Amber-Gold)
+    0.82, 0.28, 0.16;  % 8. Unemp Stress + Exits 1,2,4
+    0.26, 0.52, 0.70;  % 9. Public Schooling (d_2) (Public Steel Blue)
+    0.14, 0.62, 0.50;  % 10. Montessori / Tuakana Mentoring (Public Teal)
+    0.84, 0.56, 0.14;  % 11. Private Adol. Commit (Cash+Time) (Warm Amber-Gold)
+    0.74, 0.18, 0.18;  % 12. Stunted Tier h1-h2
+    0.30, 0.56, 0.68;  % 13. Core Skill Tier h3-h5
+    0.12, 0.58, 0.46;  % 14. Thriving Tier h6-h7
+    0.80, 0.22, 0.18;  % 15. Age 30 Exits 1,2,4 Remediation
+    0.76, 0.46, 0.18;  % 16. Age 30 Infra, Roads & Base Health
+    0.22, 0.48, 0.70;  % 17. Age 30 GST & Cap Tax
+    0.14, 0.60, 0.48;  % 18. Age 30 PAYE Income Tax
+    0.68, 0.30, 0.48;  % 19. Age 30 Exit 3: Stunting Lost Tax
+    0.50, 0.32, 0.68;  % 20. Age 30 Emig Tax Loss
+    0.76, 0.20, 0.18;  % 21. Career Exits 1,2,4 Ongoing Burden
+    0.74, 0.44, 0.16;  % 22. Career NZ Super, Infra & Health
+    0.20, 0.46, 0.68;  % 23. Career GST, Cap & Estate Tax Pool
+    0.12, 0.58, 0.46;  % 24. Career PAYE Income Tax
+    0.64, 0.28, 0.46;  % 25. Career Exit 3: Stunting Lost Tax
+    0.46, 0.28, 0.66   % 26. Career Permanent Abroad Tax Loss
     ];
 
 All_Node_Names = [Nodes_S1, Nodes_S2, Nodes_S3, Nodes_S4, Nodes_S5, Nodes_S6];
@@ -957,6 +1107,44 @@ for col_x = 1:6
         'HorizontalAlignment', 'center', 'VerticalAlignment', 'top', ...
         'FontName', 'Helvetica', 'FontSize', 8.8, 'FontWeight', 'bold', ...
         'Color', [0.20, 0.20, 0.20]);
+end
+
+%% DRAW WIGGLY REGIME-BREAK LINE DOWN THE MIDDLE OF GATE 4 (J = 6..7, ADULT SKILL LAUNCH)
+% Separates the Childhood Investment Regime (Gates 1-3, true 1:1 scale) from the
+% Adult Fiscal & Tax Regime (Gates 5-6, true 1:1 scale).
+col4_boxes = [];
+for k_p = 1:length(p_all)
+    xd = get(p_all(k_p), 'XData');
+    yd = get(p_all(k_p), 'YData');
+    if numel(xd) == 4 && abs((sum(xd(:)) / 4) - 4) < 0.45
+        col4_boxes(end+1, :) = [min(xd(:)), max(xd(:)), min(yd(:)), max(yd(:))]; %#ok<AGROW>
+    end
+end
+if ~isempty(col4_boxes)
+    x_c4     = mean(col4_boxes(:, 1:2), 'all');
+    w_c4     = mean(col4_boxes(:, 2) - col4_boxes(:, 1));
+    y_bot_c4 = min(col4_boxes(:, 3)) - 0.025 * y_span;
+    y_top_c4 = max(col4_boxes(:, 4)) + 0.025 * y_span;
+
+    % Construct smooth sinusoidal wiggly break line down the center of Gate 4
+    y_wig    = linspace(y_bot_c4, y_top_c4, 180);
+    n_waves  = 9.5;
+    amp_x    = 0.16 * w_c4;
+    dx_gap   = 0.11 * w_c4;
+    x_wig_C  = x_c4 + amp_x * sin(2 * pi * n_waves * (y_wig - y_bot_c4) / max(1e-8, y_top_c4 - y_bot_c4));
+
+    % White inner ribbon + twin dark charcoal wave edges (classic engineering scale-break symbol)
+    plot(ax, x_wig_C,          y_wig, '-', 'Color', [1.00, 1.00, 1.00], 'LineWidth', 3.6);
+    plot(ax, x_wig_C - dx_gap, y_wig, '-', 'Color', [0.15, 0.15, 0.15], 'LineWidth', 1.4);
+    plot(ax, x_wig_C + dx_gap, y_wig, '-', 'Color', [0.15, 0.15, 0.15], 'LineWidth', 1.4);
+
+    % Small top badge above Gate 4 marking the Childhood -> Adult scale break
+    text(ax, x_c4, y_top_c4 + 0.012 * y_span, ...
+        sprintf('%s Childhood Scale  |  Adult Fiscal Scale %s', char(9668), char(9658)), ...
+        'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom', ...
+        'FontName', 'Helvetica', 'FontSize', 7.8, 'FontWeight', 'bold', ...
+        'Color', [0.20, 0.20, 0.20], 'BackgroundColor', [0.98, 0.98, 0.94], ...
+        'EdgeColor', [0.55, 0.55, 0.55], 'Margin', 1.8);
 end
 
 %% DOCUMENT 2 PROTOCOL: NET-ZERO BREAKEVEN LINE & 50/50 DEBT-SINKING VS. REINVESTMENT VISUALIZATION
