@@ -15,33 +15,44 @@ StatDist_SS0= StationaryDist;
 jDist_SS0   = jequaloneDist;
 
 %% 1. CONFIGURE FULL REFORM PACKAGE PARAMETERS (SS1)
-Params_Reform               = Params;
-Params_Reform.G_ece_stage1  = 0.110;
-Params_Reform.G_ece         = 0.110;
-Params_Reform.YouthGrant    = 0.065;
-Params_Reform.tau_a         = 0.015;
-Params_Reform.tau_b         = 0.250;
-Params_Reform.tau_k         = 0.120;
+Params_PE               = Params;
+Params_PE.G_ece_stage1  = 0.110;
+Params_PE.G_ece         = 0.110;
+Params_PE.YouthGrant    = 0.065;
+Params_PE.tau_b         = 0.250;
 
 % Spatially differentiated "Income x Geography" transfers
-Params_Reform.Transfer_Geo.HH_Rural    = 0.038;
-Params_Reform.Transfer_Geo.HH_Small    = 0.031;
-Params_Reform.Transfer_Geo.HH_Large    = 0.025;
-Params_Reform.Transfer_Geo.HH_Auckland = 0.028;
+Params_PE.Transfer_Geo.HH_Rural    = 0.038;
+Params_PE.Transfer_Geo.HH_Small    = 0.031;
+Params_PE.Transfer_Geo.HH_Large    = 0.025;
+Params_PE.Transfer_Geo.HH_Auckland = 0.028;
 
 % Stage A: Short-Run Partial Equilibrium (PE: Policy levers only, fixed prices & fixed jDist_SS0)
 [V_PE, Policy_PE] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
-    d_grid, a_grid, z_grid, pi_z, ReturnFn, Params_Reform, DiscountFactorParamNames, vfoptions);
+    d_grid, a_grid, z_grid, pi_z, ReturnFn, Params_PE, DiscountFactorParamNames, vfoptions);
 
 % Stage B: Long-Run General Equilibrium with Exogenous Skills (Guvenen et al. w_k Up & Kiyotaki Q_k Cool)
-w_mult_GE = [1.032, 1.038, 1.048, 1.055];
-Q_mult_GE = [0.990, 0.975, 0.950, 0.925];
+Params_Reform = Params_PE;
+w_mult_GE     = [1.032, 1.038, 1.048, 1.055];
+Q_mult_GE     = [0.990, 0.975, 0.950, 0.925];
+
+% Apply 1.5% wealth tax and 12% profit tax to corporate/entrepreneurial Firm types,
+% while keeping ordinary household life-cycle bank savings at baseline tau_a = 0.005
+tau_a_base = Params.tau_a;
+tau_k_base = Params.tau_k;
+Params_Reform.tau_a = struct();
+Params_Reform.tau_k = struct();
 for r_idx = 1:N_reg
     reg = Regions{r_idx};
+    Params_Reform.tau_a.(['HH_', reg])   = tau_a_base;
+    Params_Reform.tau_a.(['Firm_', reg]) = 0.015;
+    Params_Reform.tau_k.(['HH_', reg])   = tau_k_base;
+    Params_Reform.tau_k.(['Firm_', reg]) = 0.120;
     Params_Reform.w_reg.(['HH_', reg])   = Params.w_reg.(['HH_', reg])   * w_mult_GE(r_idx);
     Params_Reform.w_reg.(['Firm_', reg]) = Params.w_reg.(['Firm_', reg]) * w_mult_GE(r_idx);
     Params_Reform.Q_reg.(['HH_', reg])   = Params.Q_reg.(['HH_', reg])   * Q_mult_GE(r_idx);
 end
+
 [V_GE_Exo, Policy_GE_Exo] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
     d_grid, a_grid, z_grid, pi_z, ReturnFn, Params_Reform, DiscountFactorParamNames, vfoptions);
 

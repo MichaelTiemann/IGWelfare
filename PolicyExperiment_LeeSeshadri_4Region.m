@@ -50,23 +50,37 @@ for p_idx = 1:N_pol
             % Status quo baseline
         case 'P0_Early_0to5'
             Params_p.G_ece_stage1 = Params.G_ece_stage1 + 0.065;
+            Params_p.G_ece        = Params_p.G_ece_stage1;
             Params_p.tau_l        = Params.tau_l + 0.008;
         case 'P1P2_Late_6to17'
             Params_p.G_ece_stage2 = Params.G_ece_stage2 + 0.065;
             Params_p.tau_l        = Params.tau_l + 0.008;
         case 'BN_FrontLoad'
             Params_p.G_ece_stage1 = Params.G_ece_stage1 + 0.025;
+            Params_p.G_ece        = Params_p.G_ece_stage1;
             Params_p.G_ece_stage2 = max(0.010, Params.G_ece_stage2 - 0.025);
         case 'P0_Plus_GrantE'
             Params_p.G_ece_stage1 = Params.G_ece_stage1 + 0.065;
+            Params_p.G_ece        = Params_p.G_ece_stage1;
             Params_p.YouthGrant   = 0.065;
             Params_p.tau_b        = 0.250;
-            Params_p.tau_a        = 0.015;
+
+            % Convert tau_a and tau_k to PType structs so Firm_* gets the tax shift
+            % while HH_* keeps baseline life-cycle savings tax
+            tau_a_hh = Params.tau_a;
+            tau_k_hh = Params.tau_k;
+            Params_p.tau_a = struct();
+            Params_p.tau_k = struct();
+
             % Include Guvenen et al. GE wage boost & Kiyotaki house-price cooling from the tax shift
             w_mult_GE = [1.032, 1.038, 1.048, 1.055];
             Q_mult_GE = [0.990, 0.975, 0.950, 0.925];
             for rr = 1:N_reg
                 r_name = Regions{rr};
+                Params_p.tau_a.(['HH_', r_name])   = tau_a_hh;
+                Params_p.tau_a.(['Firm_', r_name]) = 0.015;
+                Params_p.tau_k.(['HH_', r_name])   = tau_k_hh;
+                Params_p.tau_k.(['Firm_', r_name]) = 0.120;
                 Params_p.w_reg.(['HH_', r_name])   = Params.w_reg.(['HH_', r_name])   * w_mult_GE(rr);
                 Params_p.w_reg.(['Firm_', r_name]) = Params.w_reg.(['Firm_', r_name]) * w_mult_GE(rr);
                 Params_p.Q_reg.(['HH_', r_name])   = Params.Q_reg.(['HH_', r_name])   * Q_mult_GE(rr);
