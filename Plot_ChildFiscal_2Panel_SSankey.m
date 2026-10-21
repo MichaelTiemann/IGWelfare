@@ -811,40 +811,56 @@ S4_Totals = sum(Flow_S3_to_S4_4N, 1);
 A30_Col_Dollars = sum(Age30_Fiscal, 1);     % 1x6: [Exits124, Infra/Health, GST/Cap, PAYE, Exit3_Loss, Emig_Loss]
 CR_Col_Dollars  = sum(CareerRet_Fiscal, 1); % 1x6: [Exits124, Super/Infra,  GST/Cap/Est, PAYE, Exit3_Loss, Abroad_Loss]
 
-% Scale Adult Regime (Gates 5 & 6) 1:1 against each other, anchored to the Launch Gate (Gate 4) height
-% across the Wiggly Regime-Break Line down the middle of Gate 4:
-adult_regime_scale = sum(S4_Totals) / max(1e-8, max(sum(A30_Col_Dollars), sum(CR_Col_Dollars)));
+% Target visual block heights at Gate 5 and Gate 6 (preserving exact 100% proportions of A30_Col_Dollars
+% and CR_Col_Dollars while matching sum(S4_Totals) so every ribbon fills 100% of its source & target block!):
+S5_Widths = sum(S4_Totals) * (A30_Col_Dollars / max(1e-8, sum(A30_Col_Dollars)));
+S6_Widths = sum(S4_Totals) * (CR_Col_Dollars  / max(1e-8, sum(CR_Col_Dollars)));
 
-Flow_S4_to_S5 = zeros(3, 6);
-for c5 = 1:6
-    cs = sum(Age30_Fiscal(:, c5));
-    if cs > 1e-8
-        Flow_S4_to_S5(:, c5) = (adult_regime_scale * A30_Col_Dollars(c5)) * (Age30_Fiscal(:, c5) / cs);
+% Build 3x6 Flow_S4_to_S5 so that:
+%   (1) Row sums equal S4_Totals(1:3) -> ribbons leaving Gate 4 fill 100% of Nodes 12, 13, 14!
+%   (2) Column sums equal S5_Widths(1:6) -> ribbons arriving at Gate 5 fill 100% of Nodes 15..20!
+Flow_S4_to_S5 = max(Age30_Fiscal, 1e-4 * mean(Age30_Fiscal(:)));
+% Keep structural zero where Thriving (Row 3) has zero Exit-3 Stunting Lost Tax (Col 5):
+Flow_S4_to_S5(3, 5) = 0;
+for iter_ras = 1:15
+    for c5 = 1:6
+        cs = sum(Flow_S4_to_S5(:, c5));
+        if cs > 1e-8
+            Flow_S4_to_S5(:, c5) = Flow_S4_to_S5(:, c5) * (S5_Widths(c5) / cs);
+        end
+    end
+    for r4 = 1:3
+        rs = sum(Flow_S4_to_S5(r4, :));
+        if rs > 1e-8
+            Flow_S4_to_S5(r4, :) = Flow_S4_to_S5(r4, :) * (S4_Totals(r4) / rs);
+        end
     end
 end
 
-% Gate 5 -> Gate 6 preserves exact 1:1 relative scale between Age 30 (A30_Col_Dollars) and Career-to-Ret (CR_Col_Dollars)!
-S5_Widths = adult_regime_scale * A30_Col_Dollars;
-S6_Widths = adult_regime_scale * CR_Col_Dollars;
-
+% Build 6x6 Flow_S5_to_S6 so that:
+%   (1) Row sums equal S5_Widths(1:6) -> ribbons leaving Gate 5 fill 100% of Nodes 15..20!
+%   (2) Column sums equal S6_Widths(1:6) -> ribbons arriving at Gate 6 fill 100% of Nodes 21..26!
 Flow_S5_to_S6 = zeros(6, 6);
-Flow_S5_to_S6(1, :) = S5_Widths(1) * [0.76, 0.16, 0.05, 0.03, 0.00, 0.00];
-Flow_S5_to_S6(2, :) = S5_Widths(2) * [0.12, 0.68, 0.12, 0.08, 0.00, 0.00];
-Flow_S5_to_S6(3, :) = S5_Widths(3) * [0.04, 0.18, 0.56, 0.22, 0.00, 0.00];
-Flow_S5_to_S6(4, :) = S5_Widths(4) * [0.03, 0.16, 0.31, 0.50, 0.00, 0.00];
-Flow_S5_to_S6(5, :) = S5_Widths(5) * [0.00, 0.00, 0.00, 0.00, 1.00, 0.00];
-Flow_S5_to_S6(6, :) = S5_Widths(6) * [0.00, 0.00, 0.00, 0.00, 0.00, 1.00];
+Flow_S5_to_S6(1, :) = S5_Widths(1) * [0.74, 0.16, 0.05, 0.03, 0.01, 0.01];
+Flow_S5_to_S6(2, :) = S5_Widths(2) * [0.12, 0.66, 0.12, 0.08, 0.01, 0.01];
+Flow_S5_to_S6(3, :) = S5_Widths(3) * [0.04, 0.18, 0.54, 0.22, 0.01, 0.01];
+Flow_S5_to_S6(4, :) = S5_Widths(4) * [0.03, 0.16, 0.30, 0.49, 0.01, 0.01];
+Flow_S5_to_S6(5, :) = S5_Widths(5) * [0.04, 0.04, 0.02, 0.00, 0.90, 0.00];
+Flow_S5_to_S6(6, :) = S5_Widths(6) * [0.00, 0.02, 0.04, 0.04, 0.00, 0.90];
 
-for c_j = 1:6
-    cs = sum(Flow_S5_to_S6(:, c_j));
-    if cs > 1e-8
-        Flow_S5_to_S6(:, c_j) = Flow_S5_to_S6(:, c_j) * (S6_Widths(c_j) / cs);
+for iter_ras = 1:15
+    for c_j = 1:6
+        cs = sum(Flow_S5_to_S6(:, c_j));
+        if cs > 1e-8
+            Flow_S5_to_S6(:, c_j) = Flow_S5_to_S6(:, c_j) * (S6_Widths(c_j) / cs);
+        end
     end
-end
-
-for r_i = 1:4
-    rs = sum(Flow_S5_to_S6(r_i, 1:4));
-    if rs > 1e-8, Flow_S5_to_S6(r_i, 1:4) = Flow_S5_to_S6(r_i, 1:4) * (S5_Widths(r_i) / rs); end
+    for r_i = 1:6
+        rs = sum(Flow_S5_to_S6(r_i, :));
+        if rs > 1e-8
+            Flow_S5_to_S6(r_i, :) = Flow_S5_to_S6(r_i, :) * (S5_Widths(r_i) / rs);
+        end
+    end
 end
 
 %% COMPUTE MACRO PUBLIC RESIDUAL (OMEGA) & 2050 50/50 SURPLUS SPLIT
