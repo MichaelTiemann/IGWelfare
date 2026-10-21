@@ -64,8 +64,7 @@ for m = 1:numel(allObjs)
     end
 end
 
-% 3. Match every BlockHdl(b) to its true Node Number by reading the actual
-%    numbered text labels ('13. Core Skill...', '18. Age 30 PAYE...') on the axes!
+% 3. Cache BlockHdl bounding boxes & Node Text Label Extents (to avoid covering labels!)
 nBlocks = numel(SK.BlockHdl);
 blkBBox = nan(nBlocks, 4); % [xMin, xMax, yMin, yMax]
 for b = 1:nBlocks
@@ -76,24 +75,33 @@ for b = 1:nBlocks
     end
 end
 
-% Parse leading node numbers for every row of linksCell
-nRowsCell  = size(linksCell, 1);
-cellSrcNum = zeros(nRowsCell, 1);
-cellTgtNum = zeros(nRowsCell, 1);
-for r = 1:nRowsCell
-    sTok = regexp(strtrim(linksCell{r, 1}), '^\d+', 'match', 'once');
-    tTok = regexp(strtrim(linksCell{r, 2}), '^\d+', 'match', 'once');
-    if ~isempty(sTok), cellSrcNum(r) = str2double(sTok); end
-    if ~isempty(tTok), cellTgtNum(r) = str2double(tTok); end
+% Cache the axes bounding boxes [xMin, xMax, yMin, yMax] of all Node text labels
+allTxts = findall(axHdl, 'Type', 'text');
+lblBBox = zeros(0, 4);
+lblNode = zeros(0, 1);
+for t = 1:numel(allTxts)
+    rawStr = allTxts(t).String;
+    if iscell(rawStr), rawStr = strjoin(rawStr, ' '); end
+    rawStr = strtrim(char(rawStr));
+    tok = regexp(rawStr, '^(\d+)\.', 'tokens', 'once');
+    if ~isempty(tok)
+        ext = double(allTxts(t).Extent); % [xLeft, yBottom, width, height] in axes units
+        if numel(ext) == 4 && ext(3) > 0
+            lblBBox(end+1, :) = [ext(1), ext(1)+ext(3), ext(2), ext(2)+ext(4)]; %#ok<AGROW>
+            lblNode(end+1, 1) = str2double(tok{1}); %#ok<AGROW>
+        end
+    end
 end
 
-% 4. Cache each ribbon's exact geometry, true Source/Target blocks, and color profile
+% 4. Map SK.LinkHdl(k) 100% deterministically using SK.AdjMat (ZERO geometric guessing!)
+%    In SSankey.draw(), LinkHdl is created by looping:
+%      for i = 1:N_nodes, for j = 1:N_nodes, if AdjMat(i,j) ~= 0 -> LinkHdl(k)
 nLinks     = numel(SK.LinkHdl);
 origAlpha  = zeros(1, nLinks);
-xGrid      = cell(1, nLinks); % Common monotonic X grid from xLeft to xRight
-yTopGrid   = cell(1, nLinks); % Exact upper edge Y at xGrid
-yBotGrid   = cell(1, nLinks); % Exact lower edge Y at xGrid
-yMidGrid   = cell(1, nLinks); % True vertical center Y = 0.5*(yTopGrid + yBotGrid) at xGrid
+xGrid      = cell(1, nLinks);
+yTopGrid   = cell(1, nLinks);
+yBotGrid   = cell(1, nLinks);
+yMidGrid   = cell(1, nLinks);
 polyX      = cell(1, nLinks);
 polyY      = cell(1, nLinks);
 ribThick   = zeros(nLinks, 1);
@@ -104,6 +112,24 @@ linkTgtBlk = zeros(nLinks, 1);
 yMidLeft   = zeros(nLinks, 1);
 yMidRight  = zeros(nLinks, 1);
 linkRow    = (1:nLinks)';
+
+% Build exact (srcBlk, tgtBlk) list in SSankey's native AdjMat creation order
+adjSrcBlk = zeros(nLinks, 1);
+adjTgtBlk = zeros(nLinks, 1);
+if isprop(SK, 'AdjMat') && ~isempty(SK.AdjMat)
+    cnt = 0;
+    for i = 1:size(SK.AdjMat, 1)
+        for j = 1:size(SK.AdjMat, 2)
+            if SK.AdjMat(i, j) > 0
+                cnt = cnt + 1;
+                if cnt <= nLinks
+                    adjSrcBlk(cnt) = i;
+                    adjTgtBlk(cnt) = j;
+                end
+            end
+        end
+    end
+end
 
 for k = 1:nLinks
     hP = SK.LinkHdl(k);
@@ -121,35 +147,23 @@ for k = 1:nLinks
         ribThick(k) = median(yt - yb);
         rgbStrip{k} = cProfile;
         bbox(k, :)  = [min(px), max(px), min(py), max(py)];
+        yMidLeft(k) = ym(1);
+        yMidRight(k)= ym(end);
 
-        % Read exact un-interpolated left & right attachment edges directly from hP
-        Xraw = double(hP.XData);
-        Yraw = double(hP.YData);
-        if size(Xraw, 1) == 2 && size(Xraw, 2) > 1
-            xL    = mean(Xraw(:, 1));     xR    = mean(Xraw(:, end));
-            yBotL = min(Yraw(:, 1));      yTopL = max(Yraw(:, 1));
-            yBotR = min(Yraw(:, end));    yTopR = max(Yraw(:, end));
-        else
-            xL    = xg(1);                xR    = xg(end);
-            yBotL = yb(1);                yTopL = yt(1);
-            yBotR = yb(end);              yTopR = yt(end);
-        end
-        yMidLeft(k)  = 0.5 * (yBotL + yTopL);
-        yMidRight(k) = 0.5 * (yBotR + yTopR);
+        if adjSrcBlk(k) > 0 && adjTgtBlk(k) > 0 && isprop(SK, 'NodeList')
+            sBlk = adjSrcBlk(k);
+            tBlk = adjTgtBlk(k);
+            linkSrcBlk(k) = sBlk;
+            linkTgtBlk(k) = tBlk;
 
-        sBlk = matchRibbonEndToBlock(xL, yBotL, yTopL, blkBBox, 'right');
-        tBlk = matchRibbonEndToBlock(xR, yBotR, yTopR, blkBBox, 'left');
-
-        linkSrcBlk(k) = sBlk;
-        linkTgtBlk(k) = tBlk;
-
-        if sBlk > 0 && tBlk > 0 && isprop(SK, 'NodeList')
-            sNum = str2double(regexp(strtrim(SK.NodeList{sBlk}), '^\d+', 'match', 'once'));
-            tNum = str2double(regexp(strtrim(SK.NodeList{tBlk}), '^\d+', 'match', 'once'));
-            mRow = find(cellSrcNum == sNum & cellTgtNum == tNum, 1);
+            sName = SK.NodeList{sBlk};
+            tName = SK.NodeList{tBlk};
+            mRow  = find(strcmp(linksCell(:, 1), sName) & strcmp(linksCell(:, 2), tName), 1);
             if ~isempty(mRow)
                 linkRow(k) = mRow;
             end
+        else
+            linkRow(k) = min(k, size(linksCell, 1));
         end
     end
 end
@@ -471,7 +485,7 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
         % 4. Place box above or below the active ribbon span, and connect the
         %    leader line & anchor dot directly to the ribbon's TRUE CENTER (xPin, yCenterPin)!
         [boxX, boxY, boxAnchorAxesX, boxAnchorAxesY] = ...
-            computeFullSpanBoxAndCenterPin(axHdl, xPin, yBotLoc, yTopLoc, xg, yb, yt, boxW, boxH);
+            computeFullSpanBoxAndCenterPin(axHdl, xPin, yBotLoc, yTopLoc, xg, yb, yt, boxW, boxH, lblBBox);
 
         hoverBox.Position = [boxX, boxY, boxW, boxH];
         hoverBox.Visible  = 'on';
@@ -510,7 +524,10 @@ end
 %  FULL-SPAN RIBBON CLEARANCE + TRUE RIBBON-CENTER PIN
 %  ========================================================================
 function [boxX, boxY, boxAnchorAxesX, boxAnchorAxesY] = ...
-    computeFullSpanBoxAndCenterPin(axHdl, xPin, yBotLoc, yTopLoc, xg, yBotVec, yTopVec, boxW, boxH)
+    computeFullSpanBoxAndCenterPin(axHdl, xPin, yBotLoc, yTopLoc, xg, yBotVec, yTopVec, boxW, boxH, lblBBox)
+% Places the narrative box above, below, or left/right of the active ribbon
+% while actively avoiding any overlap with the active ribbon AND the rendered
+% Source/Target node statistics labels (lblBBox)!
 
 oldUnits = axHdl.Units;
 axHdl.Units = 'normalized';
@@ -520,75 +537,129 @@ axHdl.Units = oldUnits;
 xl = axHdl.XLim;
 yl = axHdl.YLim;
 
-figX    = axPos(1) + ((xPin    - xl(1)) / diff(xl)) * axPos(3);
-figXRibR= axPos(1) + ((xg(end) - xl(1)) / diff(xl)) * axPos(3);
+% Helper functions to convert between Axes coordinates and Figure normalized units
+toFigX = @(axX) axPos(1) + ((axX - xl(1)) ./ diff(xl)) .* axPos(3);
+toFigY = @(axY) axPos(2) + ((axY - yl(1)) ./ diff(yl)) .* axPos(4);
+toAxX  = @(fgX) xl(1) + ((fgX - axPos(1)) ./ axPos(3)) .* diff(xl);
+toAxY  = @(fgY) yl(1) + ((fgY - axPos(2)) ./ axPos(4)) .* diff(yl);
+
+figX     = toFigX(xPin);
+figXRibL = toFigX(xg(1));
+figXRibR = toFigX(xg(end));
 
 minX = 0.02;  maxX = 0.98;
 minY = 0.13;  maxY = 0.90;
-gapY = 0.024; % breathing room between ribbon edge and narrative box
+gapY = 0.024;
 
-% Shift box horizontally to the LEFT of the destination block (figXRibR)
-% so it NEVER covers the destination block's right-hand statistics label,
-% AND so on upward-sloping ribbons (like 13->18) it sits over the lower
-% left-hand valley of the ribbon rather than the high right-hand end!
-maxRightEdge = max(minX + boxW, min(maxX, figXRibR - 0.015));
-idealBoxX    = figX - 0.72 * boxW; % bias left of the pin point
-boxX         = min(max(idealBoxX, minX), maxRightEdge - boxW);
-
-% Check the highest and lowest Y of the ribbon ONLY where the box & ribbon
-% could actually intersect near the pin (left-biased window), so a steep rise
-% to the right of the box doesn't push the box into the ceiling!
-xBoxLeftAx  = xl(1) + ((boxX        - axPos(1)) / axPos(3)) * diff(xl);
-xBoxRightAx = xl(1) + ((boxX + boxW - axPos(1)) / axPos(3)) * diff(xl);
-
-inSpan = (xg >= xBoxLeftAx) & (xg <= xBoxRightAx);
-if any(inSpan)
-    yHighSpan = max(yTopVec(inSpan));
-    yLowSpan  = min(yBotVec(inSpan));
-else
-    yHighSpan = yTopLoc;
-    yLowSpan  = yBotLoc;
+% Convert all node text label rectangles into normalized figure rectangles [x1, x2, y1, y2]
+nLbls = size(lblBBox, 1);
+figLbls = zeros(nLbls, 4);
+for i = 1:nLbls
+    figLbls(i, :) = [toFigX(lblBBox(i,1)), toFigX(lblBBox(i,2)), ...
+        toFigY(lblBBox(i,3)), toFigY(lblBBox(i,4))];
 end
 
-figYHigh = axPos(2) + ((yHighSpan - yl(1)) / diff(yl)) * axPos(4);
-figYLow  = axPos(2) + ((yLowSpan  - yl(1)) / diff(yl)) * axPos(4);
+% Generate candidate horizontal X positions for the box:
+%   1) Centered on xPin
+%   2) Left-aligned to clear the Source node's right-hand text label (shifts left of Gate bar!)
+%   3) Right-shifted (for Gate 1 ribbons near left edge)
+candX = [ ...
+    min(max(figX - 0.50 * boxW, minX), maxX - boxW), ...
+    min(max(figXRibL - boxW - 0.015, minX), maxX - boxW), ...
+    min(max(figXRibR - boxW - 0.015, minX), maxX - boxW), ...
+    min(max(figX - 0.25 * boxW, minX), maxX - boxW), ...
+    min(max(figX - 0.80 * boxW, minX), maxX - boxW)  ...
+    ];
 
-% Check if ribbon is rising (ym(end) > ym(1)) vs falling
-isRising = (yTopVec(end) + yBotVec(end)) > (yTopVec(1) + yBotVec(1));
+bestScore = inf;
+boxX      = candX(1);
+boxY      = minY;
+isAbove   = false;
 
-spaceAbove = maxY - (figYHigh + gapY);
-spaceBelow = (figYLow  - gapY) - minY;
+for c = 1:numel(candX)
+    cx = candX(c);
+    xAx1 = toAxX(cx);
+    xAx2 = toAxX(cx + boxW);
 
-if isRising && spaceAbove >= boxH
-    % Rising ribbon (e.g. 13->18): open valley is ABOVE-LEFT of the ribbon!
-    boxY        = figYHigh + gapY;
-    figBoxEdgeY = boxY;        % attach leader to bottom edge of box
-elseif ~isRising && spaceBelow >= boxH
-    % Falling ribbon: open valley is BELOW-LEFT of the ribbon!
-    boxY        = figYLow - gapY - boxH;
-    figBoxEdgeY = boxY + boxH; % attach leader to top edge of box
-elseif spaceBelow >= boxH && spaceBelow >= spaceAbove
-    boxY        = figYLow - gapY - boxH;
-    figBoxEdgeY = boxY + boxH;
-elseif spaceAbove >= boxH
-    boxY        = figYHigh + gapY;
-    figBoxEdgeY = boxY;
-else
-    % Tight vertical span: place directly above or below the local slice at xPin
-    figYLocTop = axPos(2) + ((yTopLoc - yl(1)) / diff(yl)) * axPos(4);
-    figYLocBot = axPos(2) + ((yBotLoc - yl(1)) / diff(yl)) * axPos(4);
-    if spaceAbove >= spaceBelow
-        boxY        = min(maxY - boxH, figYLocTop + gapY);
-        figBoxEdgeY = boxY;
+    % Find the active ribbon's [yLow, yHigh] inside this horizontal candidate window
+    inSpan = (xg >= xAx1) & (xg <= xAx2);
+    if any(inSpan)
+        rHigh = toFigY(max(yTopVec(inSpan)));
+        rLow  = toFigY(min(yBotVec(inSpan)));
     else
-        boxY        = max(minY, figYLocBot - gapY - boxH);
-        figBoxEdgeY = boxY + boxH;
+        rHigh = toFigY(yTopLoc);
+        rLow  = toFigY(yBotLoc);
+    end
+
+    % Try BOTH Above the ribbon (side = 1) and Below the ribbon (side = 2)
+    for side = 1:2
+        if side == 1
+            cy = rHigh + gapY;  % Above ribbon
+        else
+            cy = rLow - gapY - boxH; % Below ribbon
+        end
+
+        % Penalty 1: Out-of-bounds penalty (if cy pushes past minY or maxY)
+        oobPen = 0;
+        if cy < minY
+            oobPen = 500 * (minY - cy);
+            cy = minY;
+        elseif cy + boxH > maxY
+            oobPen = 500 * ((cy + boxH) - maxY);
+            cy = maxY - boxH;
+        end
+
+        % Penalty 2: Overlap with the active ribbon itself (strictly forbidden!)
+        ribOvY = max(0, min(cy + boxH, rHigh + 0.008) - max(cy, rLow - 0.008));
+        if any(inSpan)
+            ribPen = 2000 * ribOvY;
+        else
+            ribPen = 0;
+        end
+
+        % Penalty 3: Overlap with ANY rendered Node Text Label (especially near source/target!)
+        lblPen = 0;
+        for L = 1:nLbls
+            ox = max(0, min(cx + boxW, figLbls(L, 2)) - max(cx, figLbls(L, 1)));
+            oy = max(0, min(cy + boxH, figLbls(L, 4)) - max(cy, figLbls(L, 3)));
+            if ox > 0 && oy > 0
+                % Heavy weight if this label is right next to our ribbon's X span!
+                isNearRibbon = (figLbls(L, 1) >= figXRibL - 0.05) && (figLbls(L, 1) <= figXRibR + 0.15);
+                wL = 80 * (1 + 3 * isNearRibbon);
+                lblPen = lblPen + wL * (ox * oy);
+            end
+        end
+
+        % Penalty 4: Distance from the anchor pin (keep box visually close to xPin!)
+        boxMidX = cx + 0.5 * boxW;
+        if side == 1
+            boxEdgeY = cy;
+            pinY     = toFigY(yTopLoc);
+        else
+            boxEdgeY = cy + boxH;
+            pinY     = toFigY(yBotLoc);
+        end
+        distPen = 1.8 * abs(boxMidX - figX) + 1.2 * abs(boxEdgeY - pinY);
+
+        totalScore = oobPen + ribPen + lblPen + distPen;
+        if totalScore < bestScore
+            bestScore = totalScore;
+            boxX      = cx;
+            boxY      = cy;
+            isAbove   = (side == 1);
+        end
     end
 end
 
+if isAbove
+    figBoxEdgeY = boxY;
+else
+    figBoxEdgeY = boxY + boxH;
+end
+
 figBoxAttachX  = min(max(figX, boxX + 0.025), boxX + boxW - 0.025);
-boxAnchorAxesX = xl(1) + ((figBoxAttachX - axPos(1)) / axPos(3)) * diff(xl);
-boxAnchorAxesY = yl(1) + ((figBoxEdgeY   - axPos(2)) / axPos(4)) * diff(yl);
+boxAnchorAxesX = toAxX(figBoxAttachX);
+boxAnchorAxesY = toAxY(figBoxEdgeY);
 end
 
 %% ========================================================================
@@ -635,8 +706,8 @@ px = [x1, fliplr(x2), x1(1)]';
 py = [y1, fliplr(y2), y1(1)]';
 
 % Resample both rails onto a shared X grid xg WITHOUT extrapolation overshoot
-xL = min(mean(x1(1), x2(1)), min([x1, x2]));
-xR = max(mean(x1(end), x2(end)), max([x1, x2]));
+xL = min([x1(:); x2(:)]);
+xR = max([x1(:); x2(:)]);
 xg = linspace(xL, xR, nPts);
 
 [u1, ia1] = unique(x1, 'stable');
