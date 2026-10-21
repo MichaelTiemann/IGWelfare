@@ -49,6 +49,34 @@ if ~exist('Reform_Phase_Specs', 'var') || isempty(Reform_Phase_Specs)
         'HH_Large',    0.025, ...
         'HH_Auckland', 0.028);
 end
+% Toggle Enable_SS2_Phase = true (or pass Active_Phases = {'SS0','SS1','SS2'}) to solve Phase 2 (SS2):
+if ~exist('Enable_SS2_Phase', 'var')
+    Enable_SS2_Phase = (exist('Active_Phases', 'var') && any(strcmpi(Active_Phases, 'SS2')));
+end
+
+if Enable_SS2_Phase
+    % --- PHASE 2 (SS2): 2050 Debt-Sinking Harvest, PAYE Tax Relief & Infrastructure Dividend ---
+    Reform_Phase_Specs(2).Code          = 'SS2';
+    Reform_Phase_Specs(2).Label         = 'C. 2050 Debt-Sinking Dividend & Tax-Relief Harvest (SS2)';
+    Reform_Phase_Specs(2).Intensity     = 1.25;
+    Reform_Phase_Specs(2).G_ece_stage1  = 0.125; % Reinvestment pool deepens universal wraparound
+    Reform_Phase_Specs(2).G_ece_stage2  = 0.100; % Expanded Montessori / Tuakana secondary coverage
+    Reform_Phase_Specs(2).G_ece         = 0.125;
+    Reform_Phase_Specs(2).YouthGrant    = 0.075; % Mature sovereign wealth / estate pool lifts grant
+    Reform_Phase_Specs(2).tau_a         = Params_SS0.tau_a;
+    Reform_Phase_Specs(2).tau_b         = 0.180;
+    Reform_Phase_Specs(2).tau_l_delta   = -0.020; % 2.0% PAYE tax cut funded by 2050 Debt-Sinking interest savings!
+    Reform_Phase_Specs(2).r_delta       = -0.006; % Sovereign debt paydown lowers national crowding-out
+    Reform_Phase_Specs(2).w_mult_vs_SS0 = [1.062, 1.068, 1.078, 1.085]; % 1.65x Public Infra Reinvestment multiplier
+    Reform_Phase_Specs(2).Q_mult_vs_SS0 = [0.985, 0.960, 0.930, 0.900]; % Regional housing supply elasticity dividend
+    Reform_Phase_Specs(2).Frac_stunted  = 0.018; % 2nd-gen Daruich compounding reaches 1-2% target
+    Reform_Phase_Specs(2).S_cohesion    = 124.0;
+    Reform_Phase_Specs(2).Transfer_Geo  = struct( ...
+        'HH_Rural',    0.042, ...
+        'HH_Small',    0.035, ...
+        'HH_Large',    0.029, ...
+        'HH_Auckland', 0.031);
+end
 
 M_reforms = numel(Reform_Phase_Specs);
 eta_c_val = 2.0;

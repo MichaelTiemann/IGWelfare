@@ -25,6 +25,9 @@ Run_Fertility_Module   = true;  % true = Run Intra-Household Bargaining & Differ
 Run_Transition_Path    = true;  % true = Run 60-year shooting algorithm (TransPath_4Region_Master.m)
 Export_Tables_Figures  = true;  % true = Save all CSV tables, 300-DPI PNGs, .fig, and .mat workspace
 
+Active_Phases    = {'SS0', 'SS1', 'SS2'};
+Enable_SS2_Phase = true;
+
 Params = Configure_TimeGrid_Params(Params, Params.dt);
 
 OutputDir = fullfile(pwd, 'Output_NZ_4Region_Intergen');
