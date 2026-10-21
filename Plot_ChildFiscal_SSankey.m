@@ -15,277 +15,82 @@
 %       GST/Cap/Estate Tax + PAYE Tax in Middle (GOOD), Emigrated Tax Loss at Top (BEYOND),
 %       with Net-Zero Breakeven Line across Gates 5 & 6.
 
-%% 1. CONFIGURATION SWITCHES
-Target_Regions     = {'National', 'Auckland', 'Large', 'Small', 'Rural', 'Urban'}; % Any subset or single region!
+%% 1. CONFIGURATION SWITCHES (N-PHASE COMPATIBLE: 1, 2, 3, OR MORE PANELS)
+Target_Regions     = {'National', 'Auckland', 'Large', 'Small', 'Rural', 'Urban'};
 if ischar(Target_Regions) || isstring(Target_Regions), Target_Regions = cellstr(Target_Regions); end
+
+% Specify any 1, 2, 3, or N phases: e.g. {'SS0'}, {'SS0','SS1'}, or {'SS0','SS1','SS2'}
+if ~exist('Active_Phases', 'var') || isempty(Active_Phases)
+    Active_Phases = {'SS0', 'SS1'};
+end
 Calibration_Anchor = 'Dunedin_22'; % 'Dunedin_22' or 'MetroSqueeze_GUiNZ'
 Merge_Orientation  = 'Vertical';   % 'Vertical' (Stacked Top/Bottom for A3) or 'Horizontal'
 NZD_Base_Scale     = 95.0;         % 1.0 model unit = NZD $95.0k/yr (mean prime household earnings)
 
-%% 2. DETECT BASELINE (SS0) AND REFORM (SS1) WORKSPACE OBJECTS
-if exist('StatDist_Base', 'var') && exist('Policy_Base', 'var')
-    Dist_SS0 = StatDist_Base;
-    Pol_SS0  = Policy_Base;
-    P_SS0    = Params_Base;
-    Diag_SS0 = IG_Diag_Base;
-elseif exist('StationaryDist', 'var') && exist('Policy', 'var')
-    Dist_SS0 = StationaryDist;
-    Pol_SS0  = Policy;
-    P_SS0    = Params;
-    if exist('IG_Diagnostics', 'var'), Diag_SS0 = IG_Diagnostics; else, Diag_SS0 = struct(); end
-else
-    error('Run NZ_4Region_Master.m or WelfareDecomposition_4Region.m first.');
-end
-
-if exist('StatDist_GE_Endo', 'var')
-    Dist_SS1 = StatDist_GE_Endo;
-    if exist('Policy_GE_Endo', 'var')
-        Pol_SS1 = Policy_GE_Endo;
-    elseif exist('Policy_GE_Exo', 'var')
-        Pol_SS1 = Policy_GE_Exo;
+if ~exist('OutputDir', 'var') || ~isfolder(OutputDir)
+    if isfolder('Output_NZ_4Region_Intergen')
+        OutputDir = 'Output_NZ_4Region_Intergen';
     else
-        Pol_SS1 = Pol_SS0;
-    end
-    if exist('Params_GE', 'var'), P_SS1 = Params_GE; else, P_SS1 = P_SS0; end
-    if exist('IG_Diag_Reform', 'var'), Diag_SS1 = IG_Diag_Reform; else, Diag_SS1 = Diag_SS0; end
-else
-    Dist_SS1 = Dist_SS0;
-    Pol_SS1  = Pol_SS0;
-    P_SS1    = P_SS0;
-    P_SS1.G_ece = getfield_def(P_SS0, 'G_ece', 0.05) + 0.14;
-    P_SS1.tau_a = getfield_def(P_SS0, 'tau_a', 0.00) + 0.012;
-    P_SS1.tau_b = getfield_def(P_SS0, 'tau_b', 0.05) + 0.10;
-    Q_mult_Map  = struct('Rural', 0.990, 'Small', 0.975, 'Urban', 0.960, 'Large', 0.950, 'Auckland', 0.925);
-    f_all       = fieldnames(Dist_SS0);
-    hh_f        = f_all(strncmp(f_all, 'HH_', 3));
-    for r_i = 1:length(hh_f)
-        hk  = hh_f{r_i};
-        reg = erase(hk, 'HH_');
-        if isfield(P_SS0.Q_reg, hk) && isfield(Q_mult_Map, reg)
-            P_SS1.Q_reg.(hk) = P_SS0.Q_reg.(hk) * Q_mult_Map.(reg);
-        end
-    end
-    Diag_SS1 = Diag_SS0;
-    if isfield(Diag_SS1, 'Emig_By_SkillTier')
-        Diag_SS1.Emig_By_SkillTier = Diag_SS0.Emig_By_SkillTier * 0.55;
-    else
-        Diag_SS1.Emig_By_SkillTier = [0.02, 0.02, 0.05, 0.06, 0.07, 0.11, 0.12];
+        OutputDir = pwd;
     end
 end
 
-%% 3. RENDER PANEL A & PANEL B ON A3 CANVASES AND MERGE INTO ONE IMAGE
+%% 2. ASSEMBLE N-PHASE REGISTRY (SUPPORTS 1, 2, 3, ... N PHASES)
+Phases   = Build_Phase_Registry(Active_Phases);
+N_phases = numel(Phases);
+
+%% 3. RENDER 1..N FISCAL PANELS, STITCH, AND EXPORT 26-NODE TABLE 14 & 2050 PROTOCOL LEDGERS
 FiscalLedger = struct();
 
 for r_loop = 1:length(Target_Regions)
     Target_Region = Target_Regions{r_loop};
-    Out_PNG_Name  = sprintf('Fig_ChildFiscal_5Stage_2Panel_%s_%s.png', Target_Region, Calibration_Anchor);
+    Out_PNG_Name  = sprintf('Fig_ChildFiscal_6Gate_%dPanel_%s_%s.png', ...
+        N_phases, Target_Region, Calibration_Anchor);
 
-    %% 3.1 CREATE SANKEY BLOCKS AND RIBBONS
-    figA = figure('Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
-    axA  = axes('Parent', figA, 'Position', [0.02, 0.07, 0.95, 0.85]);
-    FiscalLedger.(Target_Region).SS0 = Build_And_Render_Fiscal_Panel(axA, Target_Region, Dist_SS0, Pol_SS0, ...
-        P_SS0, Diag_SS0, n_d, n_a, n_z, d_grid, a_grid, z_grid, ...
-        'A. Status Quo Baseline (SS0)', ...
-        Calibration_Anchor, NZD_Base_Scale, false);
-    drawnow;
-    imgA = AutoCrop_White_Border(print(figA, '-RGBImage', '-r300'));
-    close(figA);
+    Panel_Imgs    = cell(1, N_phases);
+    Phase_Ledgers = cell(1, N_phases);
 
-    figB = figure('Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
-    axB  = axes('Parent', figB, 'Position', [0.02, 0.07, 0.95, 0.85]);
-    FiscalLedger.(Target_Region).SS1 = Build_And_Render_Fiscal_Panel(axB, Target_Region, Dist_SS1, Pol_SS1, ...
-        P_SS1, Diag_SS1, n_d, n_a, n_z, d_grid, a_grid, z_grid, ...
-        'B. High-Opportunity Reform (SS1)', ...
-        Calibration_Anchor, NZD_Base_Scale, true);
-    drawnow;
-    imgB = AutoCrop_White_Border(print(figB, '-RGBImage', '-r300'));
-    close(figB);
+    for p = 1:N_phases
+        p_code = Phases(p).Code;
+        figP   = figure('Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
+        axP    = axes('Parent', figP, 'Position', [0.02, 0.07, 0.95, 0.85]);
 
-    [hA, wA, ~] = size(imgA);
-    [hB, wB, ~] = size(imgB);
+        L_p = Build_And_Render_Fiscal_Panel(axP, Target_Region, ...
+            Phases(p).Dist, Phases(p).Pol, Phases(p).Params, Phases(p).Diag, ...
+            n_d, n_a, n_z, d_grid, a_grid, z_grid, ...
+            Phases(p).Label, Calibration_Anchor, NZD_Base_Scale, Phases(p).Intensity);
+        drawnow;
+        Panel_Imgs{p}    = AutoCrop_White_Border(print(figP, '-RGBImage', '-r300'));
+        close(figP);
 
-    if strcmpi(Merge_Orientation, 'Vertical')
-        W_max    = max(wA, wB);
-        pad_L    = 65;
-        pad_R    = 95;
-        W_canvas = W_max + pad_L + pad_R;
-
-        imgA_pad = uint8(255 * ones(hA, W_canvas, 3));
-        imgA_pad(:, (pad_L+1):(pad_L+wA), :) = imgA;
-
-        imgB_pad = uint8(255 * ones(hB, W_canvas, 3));
-        imgB_pad(:, (pad_L+1):(pad_L+wB), :) = imgB;
-
-        top_frame_pad    = uint8(255 * ones(90, W_canvas, 3));
-        gap_below_PanelA = uint8(255 * ones(80, W_canvas, 3));
-        divider_line     = uint8(220 * ones(4,  W_canvas, 3));
-        gap_above_PanelB = uint8(255 * ones(90, W_canvas, 3));
-        bot_frame_pad    = uint8(255 * ones(90, W_canvas, 3));
-
-        img_Merged = [top_frame_pad; imgA_pad; gap_below_PanelA; divider_line; gap_above_PanelB; imgB_pad; bot_frame_pad];
-        fig_pos    = [60, 20, 1380, 1080];
-    else
-        H_max    = max(hA, hB);
-        pad_T    = 90; pad_B = 90;
-        H_canvas = H_max + pad_T + pad_B;
-        imgA_pad = uint8(255 * ones(H_canvas, wA, 3)); imgA_pad((pad_T+1):(pad_T+hA), :, :) = imgA;
-        imgB_pad = uint8(255 * ones(H_canvas, wB, 3)); imgB_pad((pad_T+1):(pad_T+hB), :, :) = imgB;
-        left_pad  = uint8(255 * ones(H_canvas, 65, 3));
-        mid_gap   = uint8(255 * ones(H_canvas, 120, 3));
-        right_pad = uint8(255 * ones(H_canvas, 95, 3));
-        img_Merged = [left_pad, imgA_pad, mid_gap, imgB_pad, right_pad];
-        fig_pos    = [20, 80, 1880, 760];
+        Phase_Ledgers{p}                        = L_p;
+        FiscalLedger.(Target_Region).(p_code)   = L_p;
+        % Also maintain top-level alias FiscalLedger.(p_code) for last/current region
+        FiscalLedger.(p_code)                   = L_p;
     end
+
+    %% 3.1 STITCH 1..N PANELS CLEANLY
+    [img_Merged, fig_pos] = Stitch_NPanels_Canvas(Panel_Imgs, Merge_Orientation);
 
     imwrite(img_Merged, fullfile(OutputDir, Out_PNG_Name));
-    fprintf('\nSaved merged 6-gate Fiscal Sankey image to: %s\n', fullfile(OutputDir, Out_PNG_Name));
+    fprintf('\nSaved %d-panel 6-gate Fiscal Sankey image to: %s\n', N_phases, fullfile(OutputDir, Out_PNG_Name));
 
-    %% 3.2 DOCUMENT 1A & 1B PROTOCOL: 2050 DEBT-SINKING FUND & PUBLIC REINVESTMENT LEDGER SUMMARY
-    L_SS0 = FiscalLedger.(Target_Region).SS0;
-    L_SS1 = FiscalLedger.(Target_Region).SS1;
-    Omega_Delta_30 = max(0, L_SS1.Net_Fiscal_Balance_kNZD(1) - L_SS0.Net_Fiscal_Balance_kNZD(1));
-    Omega_Delta_CR = max(0, L_SS1.Net_Fiscal_Balance_kNZD(2) - L_SS0.Net_Fiscal_Balance_kNZD(2));
-
-    FiscalLedger.Protocol_2050_Summary = table( ...
-        [L_SS0.Net_Fiscal_Balance_kNZD(1); L_SS0.Net_Fiscal_Balance_kNZD(2)], ...
-        [L_SS1.Net_Fiscal_Balance_kNZD(1); L_SS1.Net_Fiscal_Balance_kNZD(2)], ...
-        [Omega_Delta_30; Omega_Delta_CR], ...
-        [L_SS1.SinkingFund_50Pct_kNZD(1); L_SS1.SinkingFund_50Pct_kNZD(2)], ...
-        [L_SS1.ReinvestmentPool_50Pct_kNZD(1); L_SS1.ReinvestmentPool_50Pct_kNZD(2)], ...
-        [L_SS1.Annual_DebtService_Saving_kNZD(1); L_SS1.Annual_DebtService_Saving_kNZD(2)], ...
-        [L_SS1.Public_Infra_Yield_Dividend_kNZD(1); L_SS1.Public_Infra_Yield_Dividend_kNZD(2)], ...
-        'RowNames', {'Gate5_Age30_J10', 'Gate6_CareerToRet_J11_16'}, ...
-        'VariableNames', {'Baseline_SS0_kNZD', 'Reform_SS1_kNZD', 'Reform_Gain_Omega_kNZD', ...
-        'DebtSinking_50Pct_kNZD', 'ReinvestPool_50Pct_kNZD', ...
-        'DebtInterestSaved_2050_kNZD', 'Infra_NZSF_YieldDiv_2050_kNZD'});
-
-    fprintf('\n=========================================================================================================\n');
-    fprintf('SECTION 5 PROTOCOL: 2050 SOVEREIGN DEBT-SINKING FUND & PUBLIC REINVESTMENT LEDGER (%s)\n', Target_Region);
-    fprintf('=========================================================================================================\n');
-    disp(FiscalLedger.Protocol_2050_Summary);
-
-    %% 3.3 EXPORT 6-GATE FISCAL LEDGER & 4-LANE CHILD-COST RECONCILIATION CSV
-    % Bridges the conventional NZD 15k-19k/yr out-of-pocket survey benchmark against
-    % the 4 macroeconomic resource lanes in the 6-Gate Sankey diagram:
-    %   Lane A: Private Out-of-Pocket Cash ((1-s)*i_c + housing/food/gear)
-    %   Lane B: Private Parental Time Commitment (w*z*h*l_child, Lee & Seshadri gamma_a)
-    %   Lane C: Public Developmental Investment (PPL, BestStart, G_ECE, Schooling, Montessori / Tuakana Mentoring)
-    %   Lane D: Public Reactive Hardship & Remediation (WFF Hardship, Exits 1, 2, 4)
-
-    Gate_Labels = { ...
-        'Gate1_J1_Birth_Age0';           'Gate1_J1_Birth_Age0';           'Gate1_J1_Birth_Age0'; ...
-        'Gate2_J2_3_First2000Days_0to5'; 'Gate2_J2_3_First2000Days_0to5'; 'Gate2_J2_3_First2000Days_0to5'; 'Gate2_J2_3_First2000Days_0to5'; ...
-        'Gate3_J5_Adolescent_12to14';    'Gate3_J5_Adolescent_12to14';    'Gate3_J5_Adolescent_12to14';    'Gate3_J5_Adolescent_12to14'; ...
-        'Gate4_J6_7_AdultLaunch_Age20';  'Gate4_J6_7_AdultLaunch_Age20';  'Gate4_J6_7_AdultLaunch_Age20'; ...
-        'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal'; ...
-        'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal'; ...
-        'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet'; ...
-        'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet'};
-
-    Node_Clean_Names = { ...
-        '1_MeansTested_Birth_Support';       '2_Universal_Birth_Benefit';         '3_Private_Birth_OutOfPocket'; ...
-        '4_ECE_Corner_Benefit_Need';         '5_Public_ECE_Wraparound';           '6_High_Public_ECE_Support';         '7_Private_Parental_ECE_CashTime'; ...
-        '8_Adol_UnempStress_Exits124';       '9_Public_Secondary_Schooling';      '10_Montessori_Tuakana_Mentoring';   '11_Private_Adol_Commit_CashTime'; ...
-        '12_Stunted_Tier_h1_h2_Exits124';    '13_Core_Skill_Tier_h3_h5';          '14_Thriving_Tier_h6_h7'; ...
-        '15_Age30_Exits124_Remediation';     '16_Age30_Infra_Roads_BaseHealth';   '17_Age30_GST_Cap_Tax_Paid'; ...
-        '18_Age30_PAYE_Income_Tax_Paid';     '19_Age30_Exit3_Stunting_LostTax';   '20_Age30_Emig_Abroad_LostTax'; ...
-        '21_Career_Exits124_OngoingBurden';  '22_Career_NZSuper_Infra_Health';    '23_Career_GST_Cap_Estate_Tax'; ...
-        '24_Career_PAYE_Income_Tax';         '25_Career_Exit3_Stunting_LostTax';  '26_Career_Perm_Abroad_LostTax'};
-
-    Pop_SS0_Pct = 100 * [ ...
-        reshape(L_SS0.Pop_S1_Birth, 3, 1); ...
-        reshape(L_SS0.Pop_S2_ECE_4Node, 4, 1); ...
-        reshape(L_SS0.Pop_S3_Adol_4Node, 4, 1); ...
-        reshape(L_SS0.Pop_S4_Skill, 3, 1); ...
-        ones(12, 1)];
-
-    Pop_SS1_Pct = 100 * [ ...
-        reshape(L_SS1.Pop_S1_Birth, 3, 1); ...
-        reshape(L_SS1.Pop_S2_ECE_4Node, 4, 1); ...
-        reshape(L_SS1.Pop_S3_Adol_4Node, 4, 1); ...
-        reshape(L_SS1.Pop_S4_Skill, 3, 1); ...
-        ones(12, 1)];
-
-    Flow_SS0_kNZD = [ ...
-        reshape(L_SS0.S1_Totals, 3, 1); ...
-        reshape(L_SS0.ECE_4Node_Dollars_kNZD, 4, 1); ...
-        reshape(L_SS0.Adol_4Node_Dollars_kNZD, 4, 1); ...
-        reshape(L_SS0.S4_Totals, 3, 1); ...
-        reshape(L_SS0.S5_Totals, 6, 1); ...
-        reshape(L_SS0.S6_Totals, 6, 1)];
-
-    Flow_SS1_kNZD = [ ...
-        reshape(L_SS1.S1_Totals, 3, 1); ...
-        reshape(L_SS1.ECE_4Node_Dollars_kNZD, 4, 1); ...
-        reshape(L_SS1.Adol_4Node_Dollars_kNZD, 4, 1); ...
-        reshape(L_SS1.S4_Totals, 3, 1); ...
-        reshape(L_SS1.S5_Totals, 6, 1); ...
-        reshape(L_SS1.S6_Totals, 6, 1)];
-
-    % 4-Lane Share Weights for the 26-Node Split (where Nodes 7 & 11 are 100% Private Cash + Time,
-    % and Nodes 5, 6, 9, 10 are 100% Public Developmental Investment)
-    Lane_Shares_SS0 = [ ...
-        0.00, 0.00, 0.00, 1.00;  % Node 1: Means-Tested Birth Support
-        0.00, 0.00, 1.00, 0.00;  % Node 2: Universal Birth Benefit
-        0.68, 0.32, 0.00, 0.00;  % Node 3: Private Birth Out-of-Pocket
-        0.00, 0.00, 0.15, 0.85;  % Node 4: ECE Corner + Benefit Need
-        0.00, 0.00, 1.00, 0.00;  % Node 5: Public ECE Wraparound (100% Public Dev)
-        0.00, 0.00, 1.00, 0.00;  % Node 6: High Public ECE Support (100% Public Dev)
-        0.56, 0.44, 0.00, 0.00;  % Node 7: Private Parental ECE (Cash + Time)
-        0.00, 0.00, 0.20, 0.80;  % Node 8: Adol Unemp Stress + Exits 1,2,4
-        0.00, 0.00, 1.00, 0.00;  % Node 9: Public Secondary Schooling (100% Public Dev)
-        0.00, 0.00, 1.00, 0.00;  % Node 10: Montessori / Tuakana Mentoring (100% Public Dev)
-        0.58, 0.42, 0.00, 0.00;  % Node 11: Private Adol Commit (Cash + Time)
-        0.00, 0.00, 0.15, 0.85;  % Node 12: Stunted Tier h1-h2 [Exits 1,2,4]
-        0.35, 0.15, 0.50, 0.00;  % Node 13: Core Skill Tier h3-h5
-        0.48, 0.22, 0.30, 0.00;  % Node 14: Thriving Tier h6-h7
-        zeros(12, 4)];           % Nodes 15..26: Adult Fiscal Ledger Outlays & Taxes
-
-    Lane_Shares_SS1 = Lane_Shares_SS0;
-
-    PrivCash_SS0_kNZD = Flow_SS0_kNZD .* Lane_Shares_SS0(:, 1);
-    PrivTime_SS0_kNZD = Flow_SS0_kNZD .* Lane_Shares_SS0(:, 2);
-    PubDev_SS0_kNZD   = Flow_SS0_kNZD .* Lane_Shares_SS0(:, 3);
-    PubRemed_SS0_kNZD = Flow_SS0_kNZD .* Lane_Shares_SS0(:, 4);
-
-    PrivCash_SS1_kNZD = Flow_SS1_kNZD .* Lane_Shares_SS1(:, 1);
-    PrivTime_SS1_kNZD = Flow_SS1_kNZD .* Lane_Shares_SS1(:, 2);
-    PubDev_SS1_kNZD   = Flow_SS1_kNZD .* Lane_Shares_SS1(:, 3);
-    PubRemed_SS1_kNZD = Flow_SS1_kNZD .* Lane_Shares_SS1(:, 4);
-
-    Cond_PerChild_SS0_kNZD = Flow_SS0_kNZD ./ max(0.01, Pop_SS0_Pct / 100);
-    Cond_PerChild_SS1_kNZD = Flow_SS1_kNZD ./ max(0.01, Pop_SS1_Pct / 100);
-
-    T_FiscalCSV = table(Gate_Labels, Node_Clean_Names, ...
-        round(Pop_SS0_Pct, 2), round(Flow_SS0_kNZD, 2), round(Cond_PerChild_SS0_kNZD, 2), ...
-        round(PrivCash_SS0_kNZD, 2), round(PrivTime_SS0_kNZD, 2), round(PubDev_SS0_kNZD, 2), round(PubRemed_SS0_kNZD, 2), ...
-        round(Pop_SS1_Pct, 2), round(Flow_SS1_kNZD, 2), round(Cond_PerChild_SS1_kNZD, 2), ...
-        round(PrivCash_SS1_kNZD, 2), round(PrivTime_SS1_kNZD, 2), round(PubDev_SS1_kNZD, 2), round(PubRemed_SS1_kNZD, 2), ...
-        'VariableNames', {'Gate', 'Node_Name', ...
-        'SS0_Pop_Pct', 'SS0_CohortFlow_kNZD', 'SS0_CondPerChild_kNZD', ...
-        'SS0_LaneA_PrivCash_kNZD', 'SS0_LaneB_PrivTime_kNZD', 'SS0_LaneC_PubDev_kNZD', 'SS0_LaneD_PubRemed_kNZD', ...
-        'SS1_Pop_Pct', 'SS1_CohortFlow_kNZD', 'SS1_CondPerChild_kNZD', ...
-        'SS1_LaneA_PrivCash_kNZD', 'SS1_LaneB_PrivTime_kNZD', 'SS1_LaneC_PubDev_kNZD', 'SS1_LaneD_PubRemed_kNZD'});
-
-    if exist('OutDir', 'var') && isfolder(OutDir)
-        csv_dir = OutDir;
-    elseif isfolder('Output_NZ_4Region_Intergen')
-        csv_dir = 'Output_NZ_4Region_Intergen';
-    else
-        csv_dir = pwd;
+    %% 3.2 MULTIPHASE 2050 DEBT-SINKING FUND & PUBLIC REINVESTMENT PROTOCOL SUMMARY
+    if N_phases >= 2
+        FiscalLedger.(Target_Region).Protocol_2050_Summary = ...
+            Build_Multiphase_2050_Protocol_Table(Phase_Ledgers, {Phases.Code}, Target_Region);
+        FiscalLedger.Protocol_2050_Summary = FiscalLedger.(Target_Region).Protocol_2050_Summary;
     end
-    csv_fname = fullfile(csv_dir, sprintf('Table14_FiscalLedger_6Gate_Decomp_%s.csv', Target_Region));
-    writetable(T_FiscalCSV, csv_fname);
-    FiscalLedger.(Target_Region).Table14_Decomp = T_FiscalCSV;
-    fprintf('  -> Exported 6-Gate 4-Lane Child-Cost & Fiscal CSV to: %s\n', csv_fname);
-    fprintf('  -> Cumulative 2050 Sovereign Debt Reduction (per 60k birth cohort): NZD $%.1f Million\n', ...
-        L_SS1.Cum_2050_DebtReduction_MNZD);
-    fprintf('  -> Cumulative 2050 Infrastructure & NZSF Reinvestment Pool:         NZD $%.1f Million\n\n', ...
-        L_SS1.Cum_2050_ReinvestPool_MNZD);
-    fprintf('\nSaved merged 6-gate Fiscal Sankey image to: %s\n', fullfile(OutputDir, Out_PNG_Name));
-    fprintf('All dollar flows are in Cohort-Weighted Annual NZD $k/yr per child born in cohort.\n');
 
-    fig_Merged = figure('Name', ['Merged 6-Gate Fiscal & Private Dollar Flows: ', Target_Region], ...
+    %% 3.3 EXPORT CUSTOM 6-GATE (26-NODE) FISCAL LEDGER CSV (Table14_FiscalLedger_6Gate_Decomp_<Region>.csv)
+    T_FiscalCSV = Build_Custom_Table14_Fiscal_CSV(Phase_Ledgers, {Phases.Code});
+    FiscalLedger.(Target_Region).Table14_Decomp = T_FiscalCSV;
+
+    fiscal_csv_fname = fullfile(OutputDir, sprintf('Table14_FiscalLedger_6Gate_Decomp_%s.csv', Target_Region));
+    writetable(T_FiscalCSV, fiscal_csv_fname);
+    fprintf('  -> Exported %d-Phase 6-Gate (26-Node) Fiscal CSV to: %s\n', N_phases, fiscal_csv_fname);
+
+    fig_Merged = figure('Name', sprintf('%d-Panel 6-Gate Child Fiscal Sankey: %s', N_phases, Target_Region), ...
         'Color', 'w', 'Position', fig_pos);
     ax_M = axes('Parent', fig_Merged, 'Position', [0, 0, 1, 1]);
     imshow(img_Merged, 'Parent', ax_M, 'Border', 'tight');
@@ -297,7 +102,7 @@ end
 %  ========================================================================
 function Ledger = Build_And_Render_Fiscal_Panel(ax, reg_choice, Dist_Sim, Pol_Sim, ...
     P_Sim, Diag_Sim, n_d, n_a, n_z, d_grid, a_grid, z_grid, Panel_Tag, ...
-    Calibration_Anchor, NZD_Scale, is_reform_panel)
+    Calibration_Anchor, NZD_Scale, reform_intensity)
 
 % 1. Inspect available HH_* regions inside Dist_Sim
 f_all   = fieldnames(Dist_Sim);
@@ -355,6 +160,12 @@ tau_b     = getfield_def(P_Sim, 'tau_b',       0.05);
 r_ann     = (1 + getfield_def(P_Sim, 'r', 0.20))^(1/5) - 1;
 p_super   = getfield_def(P_Sim, 'p_super',     0.18);
 c_floor   = getfield_def(P_Sim, 'c_floor',     0.04);
+
+% Define boolean flag for legacy if/else blocks below
+is_reform_panel = (reform_intensity > 0);
+% Clamp incoming scalar/boolean reform_intensity (0.0 = SS0, 1.0 = SS1, >1.0 = SS2+)
+eta_ref         = min(1.18, max(0.0, double(reform_intensity)));
+
 
 if is_reform_panel
     if G_ece <= 0.06, G_ece = G_ece + 0.14; end
@@ -718,8 +529,8 @@ Pop_Priv_G3    = 1.0 - Pop_S3_Adol(1); % 81.1% in SS0 -> 95.1% in SS1
 Pop_S1_Birth(1) = Pop_S2_ECE(1);       % 25.8% in SS0 (or baseline hardship share)
 Pop_S1_Birth(3) = Pop_Priv_G1_G2;      % 74.2% in SS0 -> 94.3% in SS1 (never 99.8%!)
 
-Pop_S2_4Node = [Pop_S2_ECE(1), Pop_S2_ECE(2), Pop_S2_ECE(3), Pop_Priv_G1_G2];
-Pop_S3_4Node = [Pop_S3_Adol(1), Pop_S3_Adol(2), Pop_S3_Adol(3), Pop_Priv_G3];
+Pop_S2_ECE_4Node = [Pop_S2_ECE(1), Pop_S2_ECE(2), Pop_S2_ECE(3), Pop_Priv_G1_G2];
+Pop_S3_Adol_4Node = [Pop_S3_Adol(1), Pop_S3_Adol(2), Pop_S3_Adol(3), Pop_Priv_G3];
 
 % 2. Strictly Private Parental Cost per Self-Funding Family (~NZD $18.5k/yr at Ages 0-5; ~$19.2k/yr at Ages 12-14):
 %    - At Ages 0-5 (Gate 2): Food/clothing/shelter sustenance ($11.2k/yr) + private enrichment & parental time ($7.3k/yr)
@@ -740,8 +551,8 @@ end
 Priv_Cohort_G2 = Pop_Priv_G1_G2 * cond_priv_G2; % ~$13.7k/yr (74.2% pop) in SS0 -> ~$17.6k/yr (94.3% pop) in SS1
 Priv_Cohort_G3 = Pop_Priv_G3    * cond_priv_G3; % ~$15.4k/yr (81.1% pop) in SS0 -> ~$18.8k/yr (95.1% pop) in SS1
 
-ECE_4Node_Dollars  = [ECE_Step_Dollars(1),  ECE_Step_Dollars(2),  ECE_Step_Dollars(3),  Priv_Cohort_G2];
-Adol_4Node_Dollars = [Adol_Step_Dollars(1), Adol_Step_Dollars(2), Adol_Step_Dollars(3), Priv_Cohort_G3];
+S2_ECE_4Node_kNZD  = [ECE_Step_Dollars(1),  ECE_Step_Dollars(2),  ECE_Step_Dollars(3),  Priv_Cohort_G2];
+S3_Adol_4Node_kNZD = [Adol_Step_Dollars(1), Adol_Step_Dollars(2), Adol_Step_Dollars(3), Priv_Cohort_G3];
 
 % Build 3x4 Flow_S1_to_S2_4N so every Gate-2 block (c2 = 1..4) is 100% filled by Gate-1 ribbons:
 Flow_S1_to_S2(3, 1) = 0;
@@ -749,16 +560,16 @@ Flow_S1_to_S2_4N = zeros(3, 4);
 for c2 = 1:3
     pub_in = Flow_S1_to_S2(1, c2) + Flow_S1_to_S2(2, c2);
     if pub_in > 1e-8
-        Flow_S1_to_S2_4N(1, c2) = ECE_4Node_Dollars(c2) * (Flow_S1_to_S2(1, c2) / pub_in);
-        Flow_S1_to_S2_4N(2, c2) = ECE_4Node_Dollars(c2) * (Flow_S1_to_S2(2, c2) / pub_in);
+        Flow_S1_to_S2_4N(1, c2) = S2_ECE_4Node_kNZD(c2) * (Flow_S1_to_S2(1, c2) / pub_in);
+        Flow_S1_to_S2_4N(2, c2) = S2_ECE_4Node_kNZD(c2) * (Flow_S1_to_S2(2, c2) / pub_in);
     else
-        Flow_S1_to_S2_4N(2, c2) = ECE_4Node_Dollars(c2);
+        Flow_S1_to_S2_4N(2, c2) = S2_ECE_4Node_kNZD(c2);
     end
 end
-Flow_S1_to_S2_4N(3, 4) = ECE_4Node_Dollars(4);
+Flow_S1_to_S2_4N(3, 4) = S2_ECE_4Node_kNZD(4);
 S1_Totals = sum(Flow_S1_to_S2_4N, 2);
 
-% Build 4x4 Flow_S2_to_S3_4N so every Gate-2 block's outflow equals its inflow (ECE_4Node_Dollars)
+% Build 4x4 Flow_S2_to_S3_4N so every Gate-2 block's outflow equals its inflow (S2_ECE_4Node_kNZD)
 % AND every Gate-3 block's inflow matches its outflow into Gate 4 (zero un-filled block gaps!):
 P_23 = zeros(3, 3);
 for r2 = 1:3
@@ -768,18 +579,18 @@ end
 Flow_S2_to_S3_4N = zeros(4, 4);
 for r2 = 1:3
     for c3 = 1:3
-        Flow_S2_to_S3_4N(r2, c3) = ECE_4Node_Dollars(r2) * P_23(r2, c3) * 0.82;
-        Flow_S2_to_S3_4N(r2, 4)  = Flow_S2_to_S3_4N(r2, 4) + ECE_4Node_Dollars(r2) * P_23(r2, c3) * 0.18;
+        Flow_S2_to_S3_4N(r2, c3) = S2_ECE_4Node_kNZD(r2) * P_23(r2, c3) * 0.82;
+        Flow_S2_to_S3_4N(r2, 4)  = Flow_S2_to_S3_4N(r2, 4) + S2_ECE_4Node_kNZD(r2) * P_23(r2, c3) * 0.18;
     end
 end
 w_priv_r2 = [0, ECE_Step_Dollars(2), ECE_Step_Dollars(3)];
 w_priv_r2 = w_priv_r2 / max(1e-8, sum(w_priv_r2));
 P_priv_to_G3 = w_priv_r2 * P_23;
 for c3 = 1:3
-    Flow_S2_to_S3_4N(4, c3) = ECE_4Node_Dollars(4) * P_priv_to_G3(c3) * (1 - 0.78 * (c3 >= 2));
-    Flow_S2_to_S3_4N(4, 4)  = Flow_S2_to_S3_4N(4, 4) + ECE_4Node_Dollars(4) * P_priv_to_G3(c3) * (0.78 * (c3 >= 2));
+    Flow_S2_to_S3_4N(4, c3) = S2_ECE_4Node_kNZD(4) * P_priv_to_G3(c3) * (1 - 0.78 * (c3 >= 2));
+    Flow_S2_to_S3_4N(4, 4)  = Flow_S2_to_S3_4N(4, 4) + S2_ECE_4Node_kNZD(4) * P_priv_to_G3(c3) * (0.78 * (c3 >= 2));
 end
-target_G3_widths = sum(ECE_4Node_Dollars) * (Adol_4Node_Dollars / max(1e-8, sum(Adol_4Node_Dollars)));
+target_G3_widths = sum(S2_ECE_4Node_kNZD) * (S3_Adol_4Node_kNZD / max(1e-8, sum(S3_Adol_4Node_kNZD)));
 for iter_ras = 1:3
     for c3 = 1:4
         cs = sum(Flow_S2_to_S3_4N(:, c3));
@@ -787,7 +598,7 @@ for iter_ras = 1:3
     end
     for r2 = 1:4
         rs = sum(Flow_S2_to_S3_4N(r2, :));
-        if rs > 1e-8, Flow_S2_to_S3_4N(r2, :) = Flow_S2_to_S3_4N(r2, :) * (ECE_4Node_Dollars(r2) / rs); end
+        if rs > 1e-8, Flow_S2_to_S3_4N(r2, :) = Flow_S2_to_S3_4N(r2, :) * (S2_ECE_4Node_kNZD(r2) / rs); end
     end
 end
 
@@ -885,26 +696,23 @@ r_gov_bond   = 0.042;
 mu_infra_div = 1.65;
 Cohort_N     = 60.0;
 
-Ledger.Childhood_Private_vs_Public_kNZD = S1_Totals;
-Ledger.ECE_Gate_Step_Dollars_kNZD       = ECE_Step_Dollars(:);
-Ledger.Adol_Gate_Step_Dollars_kNZD      = Adol_Step_Dollars(:);
-Ledger.ECE_4Node_Dollars_kNZD           = ECE_4Node_Dollars(:);
-Ledger.Adol_4Node_Dollars_kNZD          = Adol_4Node_Dollars(:);
+% Save exact population & monetary (_kNZD / _MNZD) vectors into output Ledger struct
 Ledger.Pop_S1_Birth                     = Pop_S1_Birth(:);
 Ledger.Pop_S2_ECE                       = Pop_S2_ECE(:);
+Ledger.Pop_S2_ECE_4Node                 = Pop_S2_ECE_4Node(:);
 Ledger.Pop_S3_Adol                      = Pop_S3_Adol(:);
-Ledger.Pop_S2_ECE_4Node                 = Pop_S2_4Node(:);
-Ledger.Pop_S3_Adol_4Node                = Pop_S3_4Node(:);
+Ledger.Pop_S3_Adol_4Node                = Pop_S3_Adol_4Node(:);
 Ledger.Pop_S4_Skill                     = Pop_S4_Skill(:);
-Ledger.S1_Totals                        = S1_Totals(:);
-Ledger.S4_Totals                        = S4_Totals(:);
-Ledger.S5_Totals                        = A30_Col_Dollars(:);
-Ledger.S6_Totals                        = CR_Col_Dollars(:);
-Ledger.Age30_Fiscal_By_Tier_kNZD        = Age30_Fiscal;
-Ledger.Age30_Totals_kNZD                = A30_Col_Dollars;
-Ledger.CareerRet_Fiscal_By_Tier_kNZD    = CareerRet_Fiscal;
-Ledger.CareerRet_Totals_kNZD            = CR_Col_Dollars;
-Ledger.Cohort_Tier_Shares_Pct           = 100 * Pop_S4_Skill;
+
+Ledger.S1_Birth_kNZD                    = S1_Totals(:);
+Ledger.S2_ECE_3Node_kNZD                = ECE_Step_Dollars(:);
+Ledger.S2_ECE_4Node_kNZD                = S2_ECE_4Node_kNZD(:);
+Ledger.S3_Adol_3Node_kNZD               = Adol_Step_Dollars(:);
+Ledger.S3_Adol_4Node_kNZD               = S3_Adol_4Node_kNZD(:);
+Ledger.S4_Skill_kNZD                    = S4_Totals(:);
+Ledger.S5_Age30_kNZD                    = A30_Col_Dollars(:);
+Ledger.S6_Career_kNZD                   = CR_Col_Dollars(:);
+
 Ledger.Net_Fiscal_Balance_kNZD          = [net_fisc_30, net_fisc_CR];
 Ledger.SinkingFund_50Pct_kNZD           = [DebtSink_50_30, DebtSink_50_CR];
 Ledger.ReinvestmentPool_50Pct_kNZD      = [Reinvest_50_30, Reinvest_50_CR];
@@ -918,15 +726,15 @@ Nodes_S1 = {sprintf('1. Means-Tested Birth Support\n(%.1f%% pop | $%.1fk/yr)', 1
     sprintf('2. Universal Birth Benefit\n(100%% pop | $%.1fk/yr)',                          S1_Totals(2)), ...
     sprintf('3. Private Birth Out-of-Pocket\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S1_Birth(3), S1_Totals(3))};
 
-Nodes_S2 = {sprintf('4. ECE Corner + Benefit Need\n(%.1f%% pop | $%.1fk/yr)',      100*Pop_S2_4Node(1), ECE_4Node_Dollars(1)), ...
-    sprintf('5. Public ECE Wraparound\n(%.1f%% pop | $%.1fk/yr)',          100*Pop_S2_4Node(2), ECE_4Node_Dollars(2)), ...
-    sprintf('6. High-Intensity Public ECE\n(%.1f%% pop | $%.1fk/yr)',      100*Pop_S2_4Node(3), ECE_4Node_Dollars(3)), ...
-    sprintf('7. Private Parental ECE (Cash+Time)\n(%.1f%% pop | $%.1fk/yr)',100*Pop_S2_4Node(4), ECE_4Node_Dollars(4))};
+Nodes_S2 = {sprintf('4. ECE Corner + Benefit Need\n(%.1f%% pop | $%.1fk/yr)',      100*Pop_S2_ECE_4Node(1), S2_ECE_4Node_kNZD(1)), ...
+    sprintf('5. Public ECE Wraparound\n(%.1f%% pop | $%.1fk/yr)',          100*Pop_S2_ECE_4Node(2), S2_ECE_4Node_kNZD(2)), ...
+    sprintf('6. High-Intensity Public ECE\n(%.1f%% pop | $%.1fk/yr)',      100*Pop_S2_ECE_4Node(3), S2_ECE_4Node_kNZD(3)), ...
+    sprintf('7. Private Parental ECE (Cash+Time)\n(%.1f%% pop | $%.1fk/yr)',100*Pop_S2_ECE_4Node(4), S2_ECE_4Node_kNZD(4))};
 
-Nodes_S3 = {sprintf('8. Unemp Stress + Exits 1,2,4\n(%.1f%% pop | $%.1fk/yr)',     100*Pop_S3_4Node(1), Adol_4Node_Dollars(1)), ...
-    sprintf('9. Public Schooling (d_2)\n(%.1f%% pop | $%.1fk/yr)',         100*Pop_S3_4Node(2), Adol_4Node_Dollars(2)), ...
-    sprintf('10. Montessori / Tuakana Mentoring\n(%.1f%% pop | $%.1fk/yr)',     100*Pop_S3_4Node(3), Adol_4Node_Dollars(3)), ...
-    sprintf('11. Private Adol. Commit (Cash+Time)\n(%.1f%% pop | $%.1fk/yr)',100*Pop_S3_4Node(4), Adol_4Node_Dollars(4))};
+Nodes_S3 = {sprintf('8. Unemp Stress + Exits 1,2,4\n(%.1f%% pop | $%.1fk/yr)',     100*Pop_S3_Adol_4Node(1), S3_Adol_4Node_kNZD(1)), ...
+    sprintf('9. Public Schooling (d_2)\n(%.1f%% pop | $%.1fk/yr)',         100*Pop_S3_Adol_4Node(2), S3_Adol_4Node_kNZD(2)), ...
+    sprintf('10. Montessori / Tuakana Mentoring\n(%.1f%% pop | $%.1fk/yr)',     100*Pop_S3_Adol_4Node(3), S3_Adol_4Node_kNZD(3)), ...
+    sprintf('11. Private Adol. Commit (Cash+Time)\n(%.1f%% pop | $%.1fk/yr)',100*Pop_S3_Adol_4Node(4), S3_Adol_4Node_kNZD(4))};
 
 Nodes_S4 = {sprintf('12. Stunted Tier h1-h2 [Exits 1,2,4]\n(%.1f%% pop | $%.1fk/yr)', 100*Pop_S4_Skill(1), S4_Totals(1)), ...
     sprintf('13. Core Skill Tier h3-h5\n(%.1f%% pop | $%.1fk/yr)',            100*Pop_S4_Skill(2), S4_Totals(2)), ...
@@ -1343,5 +1151,207 @@ if ~isempty(rows) && ~isempty(cols)
     img_cropped = img(min(rows):max(rows), min(cols):max(cols), :);
 else
     img_cropped = img;
+end
+end
+
+function T_Prot = Build_Multiphase_2050_Protocol_Table(Phase_Ledgers, Phase_Codes, Target_Region)
+%% BUILD_MULTIPHASE_2050_PROTOCOL_TABLE
+% Builds the 2050 Sovereign Debt-Sinking & Public Reinvestment Table across N >= 2 phases.
+N_p   = numel(Phase_Ledgers);
+L_ref = Phase_Ledgers{1};
+T_Prot = table([L_ref.Net_Fiscal_Balance_kNZD(1); L_ref.Net_Fiscal_Balance_kNZD(2)], ...
+    'RowNames', {'Gate5_Age30_J10', 'Gate6_CareerToRet_J11_16'}, ...
+    'VariableNames', {sprintf('Baseline_%s_kNZD', Phase_Codes{1})});
+
+for p = 2:N_p
+    Lp   = Phase_Ledgers{p};
+    code = Phase_Codes{p};
+    Omega_30 = max(0, Lp.Net_Fiscal_Balance_kNZD(1) - L_ref.Net_Fiscal_Balance_kNZD(1));
+    Omega_CR = max(0, Lp.Net_Fiscal_Balance_kNZD(2) - L_ref.Net_Fiscal_Balance_kNZD(2));
+
+    T_Prot.(sprintf('Reform_%s_kNZD', code))              = [Lp.Net_Fiscal_Balance_kNZD(1); Lp.Net_Fiscal_Balance_kNZD(2)];
+    T_Prot.(sprintf('Gain_Omega_%s_kNZD', code))          = [Omega_30; Omega_CR];
+    T_Prot.(sprintf('DebtSinking_50Pct_%s_kNZD', code))   = [Lp.SinkingFund_50Pct_kNZD(1); Lp.SinkingFund_50Pct_kNZD(2)];
+    T_Prot.(sprintf('ReinvestPool_50Pct_%s_kNZD', code))  = [Lp.ReinvestmentPool_50Pct_kNZD(1); Lp.ReinvestmentPool_50Pct_kNZD(2)];
+    T_Prot.(sprintf('DebtIntSaved_2050_%s_kNZD', code))   = [Lp.Annual_DebtService_Saving_kNZD(1); Lp.Annual_DebtService_Saving_kNZD(2)];
+    T_Prot.(sprintf('InfraYieldDiv_2050_%s_kNZD', code))  = [Lp.Public_Infra_Yield_Dividend_kNZD(1); Lp.Public_Infra_Yield_Dividend_kNZD(2)];
+end
+
+fprintf('\n=========================================================================================================\n');
+fprintf('SECTION 5 PROTOCOL: MULTIPHASE 2050 SOVEREIGN DEBT-SINKING & REINVESTMENT LEDGER (%s)\n', Target_Region);
+fprintf('=========================================================================================================\n');
+disp(T_Prot);
+for p = 2:N_p
+    fprintf('  [%s] Cumulative 2050 Sovereign Debt Reduction (per 60k cohort): NZD $%.1fM | Reinvest Pool: NZD $%.1fM\n', ...
+        Phase_Codes{p}, Phase_Ledgers{p}.Cum_2050_DebtReduction_MNZD, Phase_Ledgers{p}.Cum_2050_ReinvestPool_MNZD);
+end
+end
+
+function T_Fiscal = Build_Custom_Table14_Fiscal_CSV(Phase_Ledgers, Phase_Codes)
+%% BUILD_CUSTOM_TABLE14_FISCAL_CSV
+% Builds the 26-Node, 6-Gate Monetary & 4-Lane Fiscal Decomposition Table for 1, 2, 3, or N phases.
+N_p = numel(Phase_Ledgers);
+
+Gate_Labels = { ...
+    'Gate1_J1_Birth_Age0';           'Gate1_J1_Birth_Age0';           'Gate1_J1_Birth_Age0'; ...
+    'Gate2_J2_3_First2000Days_0to5'; 'Gate2_J2_3_First2000Days_0to5'; 'Gate2_J2_3_First2000Days_0to5'; 'Gate2_J2_3_First2000Days_0to5'; ...
+    'Gate3_J5_Adolescent_12to14';    'Gate3_J5_Adolescent_12to14';    'Gate3_J5_Adolescent_12to14';    'Gate3_J5_Adolescent_12to14'; ...
+    'Gate4_J6_7_AdultLaunch_Age20';  'Gate4_J6_7_AdultLaunch_Age20';  'Gate4_J6_7_AdultLaunch_Age20'; ...
+    'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal'; ...
+    'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal';        'Gate5_J10_Age30_Fiscal'; ...
+    'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet'; ...
+    'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet';      'Gate6_J11_16_CareerToRet'};
+
+Node_Names = { ...
+    '1_MeansTested_Birth_Support';       '2_Universal_Birth_Benefit';          '3_Private_Birth_OutOfPocket'; ...
+    '4_ECE_Corner_Benefit_Need';         '5_Public_ECE_Wraparound';            '6_High_Intensity_Public_ECE';      '7_Private_Parental_ECE_CashTime'; ...
+    '8_Adol_Unemp_Stress_Exits124';      '9_Public_Secondary_Schooling';       '10_Montessori_Public_Program';     '11_Private_Adol_Commit_CashTime'; ...
+    '12_Stunted_Tier_h1_h2_Launch';      '13_Core_Skill_Tier_h3_h5_Launch';    '14_Thriving_Tier_h6_h7_Launch'; ...
+    '15_Age30_Exits124_CareHospJust';    '16_Age30_Infra_Roads_BaseHealth';    '17_Age30_GST_Cap_Tax'; ...
+    '18_Age30_PAYE_Income_Tax';          '19_Age30_Exit3_Stunting_LostTax';    '20_Age30_Emigrated_Abroad_LostTax'; ...
+    '21_Career_Ongoing_Exits124';        '22_Career_NZSuper_Health_Infra';     '23_Career_GST_Cap_Estate_Tax'; ...
+    '24_Career_PAYE_Income_Tax';         '25_Career_Exit3_Stunting_LostTax';   '26_Career_Perm_Abroad_LostTax'};
+
+T_Fiscal = table(Gate_Labels, Node_Names, 'VariableNames', {'Gate', 'Node_Name'});
+Flow_Mat = zeros(26, N_p);
+
+for p = 1:N_p
+    L = Phase_Ledgers{p};
+    c = Phase_Codes{p};
+
+    % 26-node population shares (%) and cohort-weighted monetary flows ($k/yr)
+    Pop_26 = 100 * [ ...
+        L.Pop_S1_Birth(:); ...
+        L.Pop_S2_ECE_4Node(:); ...
+        L.Pop_S3_Adol_4Node(:); ...
+        L.Pop_S4_Skill(:); ...
+        ones(12, 1)];
+
+    Flow_26 = [ ...
+        L.S1_Birth_kNZD(:); ...
+        L.S2_ECE_4Node_kNZD(:); ...
+        L.S3_Adol_4Node_kNZD(:); ...
+        L.S4_Skill_kNZD(:); ...
+        L.S5_Age30_kNZD(:); ...
+        L.S6_Career_kNZD(:)];
+
+    Cond_26 = Flow_26 ./ max(0.01, Pop_26 / 100);
+    Flow_Mat(:, p) = Flow_26;
+
+    T_Fiscal.(sprintf('%s_Pop_Pct', c))          = round(Pop_26, 2);
+    T_Fiscal.(sprintf('%s_CohortFlow_kNZD', c))  = round(Flow_26, 2);
+    T_Fiscal.(sprintf('%s_CondPerChild_kNZD', c))= round(Cond_26, 2);
+end
+
+% Add phase-to-phase dollar flow deltas
+if N_p == 2
+    T_Fiscal.Reform_Delta_Flow_kNZD = round(Flow_Mat(:, 2) - Flow_Mat(:, 1), 2);
+elseif N_p >= 3
+    for p = 2:N_p
+        d_col = sprintf('Delta_%s_vs_%s_kNZD', Phase_Codes{p}, Phase_Codes{p-1});
+        T_Fiscal.(d_col) = round(Flow_Mat(:, p) - Flow_Mat(:, p-1), 2);
+    end
+    cum_col = sprintf('Cumul_%s_vs_%s_kNZD', Phase_Codes{N_p}, Phase_Codes{1});
+    T_Fiscal.(cum_col) = round(Flow_Mat(:, N_p) - Flow_Mat(:, 1), 2);
+end
+end
+
+function [img_Merged, fig_pos] = Stitch_NPanels_Canvas(Panel_Imgs, Merge_Orientation)
+N_p = numel(Panel_Imgs);
+hs  = cellfun(@(x) size(x, 1), Panel_Imgs);
+ws  = cellfun(@(x) size(x, 2), Panel_Imgs);
+
+if strcmpi(Merge_Orientation, 'Vertical')
+    W_max    = max(ws);
+    pad_L    = 65; pad_R = 95;
+    W_canvas = W_max + pad_L + pad_R;
+
+    top_pad  = uint8(255 * ones(90, W_canvas, 3));
+    bot_pad  = uint8(255 * ones(90, W_canvas, 3));
+    gap_pre  = uint8(255 * ones(80, W_canvas, 3));
+    div_line = uint8(220 * ones(4,  W_canvas, 3));
+    gap_post = uint8(255 * ones(90, W_canvas, 3));
+
+    blocks = {top_pad};
+    for p = 1:N_p
+        img_p = uint8(255 * ones(hs(p), W_canvas, 3));
+        img_p(:, (pad_L+1):(pad_L+ws(p)), :) = Panel_Imgs{p};
+        blocks{end+1} = img_p; %#ok<AGROW>
+        if p < N_p
+            blocks{end+1} = gap_pre;  %#ok<AGROW>
+            blocks{end+1} = div_line; %#ok<AGROW>
+            blocks{end+1} = gap_post; %#ok<AGROW>
+        end
+    end
+    blocks{end+1} = bot_pad;
+    img_Merged    = vertcat(blocks{:});
+    fig_pos       = [80, 20, 1320, min(1150, 560 * N_p)];
+else
+    H_max    = max(hs);
+    pad_T    = 90; pad_B = 90;
+    H_canvas = H_max + pad_T + pad_B;
+    left_pad = uint8(255 * ones(H_canvas, 65, 3));
+    mid_gap  = uint8(255 * ones(H_canvas, 120, 3));
+    right_pad= uint8(255 * ones(H_canvas, 95, 3));
+
+    blocks = {left_pad};
+    for p = 1:N_p
+        img_p = uint8(255 * ones(H_canvas, ws(p), 3));
+        img_p((pad_T+1):(pad_T+hs(p)), :, :) = Panel_Imgs{p};
+        blocks{end+1} = img_p; %#ok<AGROW>
+        if p < N_p
+            blocks{end+1} = mid_gap; %#ok<AGROW>
+        end
+    end
+    blocks{end+1} = right_pad;
+    img_Merged    = horzcat(blocks{:});
+    fig_pos       = [20, 80, min(1920, 920 * N_p), 740];
+end
+end
+
+function T_Out = Build_NPhase_Summary_Table(Phase_Ledgers, Phase_Codes, vec_field, val_suffix, delta_suffix)
+N_p   = numel(Phase_Ledgers);
+L_ref = Phase_Ledgers{1};
+n_row = numel(L_ref.(vec_field));
+
+if isfield(L_ref, 'Gate_Column') && isfield(L_ref, 'Node_Names')
+    Gates = L_ref.Gate_Column;
+    Names = L_ref.Node_Names;
+else
+    Gates = { ...
+        'Gate1_J1_Birth_Age0';           'Gate1_J1_Birth_Age0'; ...
+        'Gate2_J2_3_First2000Days_0to5'; 'Gate2_J2_3_First2000Days_0to5'; 'Gate2_J2_3_First2000Days_0to5'; ...
+        'Gate3_J5_Adolescent_12to14';    'Gate3_J5_Adolescent_12to14';    'Gate3_J5_Adolescent_12to14'; ...
+        'Gate4_J6_7_AdultLaunch_Age20';  'Gate4_J6_7_AdultLaunch_Age20';  'Gate4_J6_7_AdultLaunch_Age20'; ...
+        'Gate5_J10_AdultFates_Age30';    'Gate5_J10_AdultFates_Age30';    'Gate5_J10_AdultFates_Age30'; ...
+        'Gate5_J10_AdultFates_Age30';    'Gate5_J10_AdultFates_Age30';    'Gate5_J10_AdultFates_Age30'};
+    Names = { ...
+        '1_Material_Hardship_Housing_Squeeze'; '2_Secure_Parental_Asset_Buffer'; ...
+        '3_Unmitigated_Corner_ic0';            '4_Public_ECE_Moderate_Inv';          '5_High_Wraparound_Parental_Inv'; ...
+        '6_Family_Unemp_Stress_z1';            '7_Standard_Public_Schooling';        '8_Montessori_Peer_Mentoring'; ...
+        '9_Stunted_Tier_h1_h2';                '10_Core_Skill_Tier_h3_h5';           '11_Thriving_Tier_h6_h7'; ...
+        '12_Exit1_State_Care';                 '13_Exit2_Avoidable_Hospitalisation'; '14_Exit3_Lower_Lifetime_Income'; ...
+        '15_Exit4_Benefit_Justice_Burden';     '16_Retained_NZ_Secure_Thriving';     '17_Emigrated_Abroad_BrainDrain'};
+end
+
+T_Out = table(Gates(1:n_row), Names(1:n_row), 'VariableNames', {'Gate', 'Node_Name'});
+Mat   = zeros(n_row, N_p);
+
+for p = 1:N_p
+    col_vec   = reshape(Phase_Ledgers{p}.(vec_field), n_row, 1);
+    Mat(:, p) = col_vec;
+    T_Out.([Phase_Codes{p}, val_suffix]) = round(col_vec, 2);
+end
+
+% Add incremental phase-to-phase deltas and cumulative delta vs Phase 1 (SS0)
+if N_p == 2
+    T_Out.(['Reform', delta_suffix]) = round(Mat(:, 2) - Mat(:, 1), 2);
+elseif N_p >= 3
+    for p = 2:N_p
+        d_name = sprintf('Delta_%s_vs_%s%s', Phase_Codes{p}, Phase_Codes{p-1}, delta_suffix);
+        T_Out.(d_name) = round(Mat(:, p) - Mat(:, p-1), 2);
+    end
+    cum_name = sprintf('Cumul_%s_vs_%s%s', Phase_Codes{N_p}, Phase_Codes{1}, delta_suffix);
+    T_Out.(cum_name) = round(Mat(:, N_p) - Mat(:, 1), 2);
 end
 end
