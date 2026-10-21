@@ -15,6 +15,7 @@
 
 %% 1. CONFIGURATION SWITCHES (N-PHASE COMPATIBLE: 1, 2, 3, OR MORE PANELS)
 Target_Regions     = {'National', 'Auckland', 'Large', 'Small', 'Rural', 'Urban'};
+Target_Regions     = {'National'};
 if ischar(Target_Regions) || isstring(Target_Regions), Target_Regions = cellstr(Target_Regions); end
 
 % Specify any 1, 2, 3, or N phases: e.g. {'SS0'}, {'SS0','SS1'}, or {'SS0','SS1','SS2'}
@@ -23,6 +24,8 @@ if ~exist('Active_Phases', 'var') || isempty(Active_Phases)
 end
 Calibration_Anchor = 'Dunedin_22'; % 'Dunedin_22' or 'MetroSqueeze_GUiNZ'
 Merge_Orientation  = 'Vertical';   % 'Vertical' (Stacked Top/Bottom for A3) or 'Horizontal'
+NZD_Base_Scale         = 95.0;     % 1.0 model unit = NZD $95.0k/yr (mean prime household earnings)
+Interactive_Hover_Mode = true;     % TRUE = keep live vector SSankey figure open for mouse-hover narratives
 
 if ~exist('OutputDir', 'var') || ~isfolder(OutputDir)
     if isfolder('Output_NZ_4Region_Intergen')
@@ -38,6 +41,9 @@ N_phases = numel(Phases);
 
 %% 3. RENDER 1..N PANELS ON A3 CANVASES, STITCH, AND EXPORT N-PHASE TABLE 15 CSVs
 FatesLedger = struct();
+if Interactive_Hover_Mode
+    fatesNarrativeMap = getFatesRibbonNarratives();
+end
 
 Fate_Gates = { ...
     'Gate1_J1_Birth_Age0';           'Gate1_J1_Birth_Age0'; ...
@@ -62,22 +68,34 @@ for r_loop = 1:length(Target_Regions)
 
     %% 3.1 RENDER EACH PHASE p = 1..N_phases
     Panel_Imgs = cell(1, N_phases);
+    Phase_Ledgers = cell(1, N_phases);
     Pop_Mat    = zeros(17, N_phases);
 
     for p = 1:N_phases
         p_code = Phases(p).Code;
-        figP   = figure('Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
+        figP   = figure('Name', sprintf('LIVE HOVER — %s (%s)', Phases(p).Label, Target_Region), ...
+            'Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
         axP    = axes('Parent', figP, 'Position', [0.02, 0.07, 0.95, 0.85]);
 
-        F_p = Build_And_Render_Fates_Panel(axP, Target_Region, ...
+        [F_p, SK_p, links_p] = Build_And_Render_Fates_Panel(axP, Target_Region, ...
             Phases(p).Dist, Phases(p).Pol, Phases(p).Params, Phases(p).Diag, ...
             n_d, n_a, n_z, d_grid, a_grid, z_grid, ...
-            Phases(p).Label, Calibration_Anchor, Phases(p).Intensity);
+            Phases(p).Label, Calibration_Anchor, NZD_Base_Scale, Phases(p).Intensity);
         drawnow;
-        Panel_Imgs{p} = AutoCrop_White_Border(print(figP, '-RGBImage', '-r300'));
-        close(figP);
 
-        FatesLedger.(Target_Region).(p_code) = F_p;
+        % 1. Capture high-res raster image BEFORE attaching interactive hover UI
+        Panel_Imgs{p} = AutoCrop_White_Border(print(figP, '-RGBImage', '-r300'));
+
+        % 2. If Interactive_Hover_Mode is enabled, wire up hover callbacks & keep figure open!
+        if Interactive_Hover_Mode && strcmpi(Target_Region, 'National')
+            attachSankeyHoverNarratives(axP, SK_p, links_p, fiscalNarrativeMap, 'NZD $%.2fk/yr per cohort birth');
+        else
+            close(figP);
+        end
+
+        Phase_Ledgers{p}                        = F_p;
+        FatesLedger.(Target_Region).(p_code)    = F_p;
+        FatesLedger.(p_code)                    = F_p;
         Pop_Mat(:, p) = reshape(F_p.Pop_17Nodes_Pct, 17, 1);
     end
 
@@ -118,9 +136,9 @@ end
 %% ========================================================================
 %  LOCAL HELPER: GPU-VECTORIZED 5-STAGE (17-NODE) CHILD FATES SANKEY
 %  ========================================================================
-function Ledger = Build_And_Render_Fates_Panel(ax, reg_choice, Dist_Sim, Pol_Sim, ...
+function [Ledger, SK, links] = Build_And_Render_Fates_Panel(ax, reg_choice, Dist_Sim, Pol_Sim, ...
     P_Sim, Diag_Sim, n_d, n_a, n_z, d_grid, a_grid, z_grid, Panel_Tag, ...
-    Calibration_Anchor, reform_intensity)
+    Calibration_Anchor, NZD_Scale, reform_intensity)
 
 f_all   = fieldnames(Dist_Sim);
 hh_f    = f_all(strncmp(f_all, 'HH_', 3));

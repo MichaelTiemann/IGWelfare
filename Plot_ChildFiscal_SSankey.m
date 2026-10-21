@@ -17,6 +17,7 @@
 
 %% 1. CONFIGURATION SWITCHES (N-PHASE COMPATIBLE: 1, 2, 3, OR MORE PANELS)
 Target_Regions     = {'National', 'Auckland', 'Large', 'Small', 'Rural', 'Urban'};
+Target_Regions     = {'National'};
 if ischar(Target_Regions) || isstring(Target_Regions), Target_Regions = cellstr(Target_Regions); end
 
 % Specify any 1, 2, 3, or N phases: e.g. {'SS0'}, {'SS0','SS1'}, or {'SS0','SS1','SS2'}
@@ -26,6 +27,7 @@ end
 Calibration_Anchor = 'Dunedin_22'; % 'Dunedin_22' or 'MetroSqueeze_GUiNZ'
 Merge_Orientation  = 'Vertical';   % 'Vertical' (Stacked Top/Bottom for A3) or 'Horizontal'
 NZD_Base_Scale     = 95.0;         % 1.0 model unit = NZD $95.0k/yr (mean prime household earnings)
+Interactive_Hover_Mode = true;     % TRUE = keep live vector SSankey figure open for mouse-hover narratives
 
 if ~exist('OutputDir', 'var') || ~isfolder(OutputDir)
     if isfolder('Output_NZ_4Region_Intergen')
@@ -41,6 +43,9 @@ N_phases = numel(Phases);
 
 %% 3. RENDER 1..N FISCAL PANELS, STITCH, AND EXPORT 26-NODE TABLE 14 & 2050 PROTOCOL LEDGERS
 FiscalLedger = struct();
+if Interactive_Hover_Mode
+    fiscalNarrativeMap = getFiscalRibbonNarratives();
+end
 
 for r_loop = 1:length(Target_Regions)
     Target_Region = Target_Regions{r_loop};
@@ -52,20 +57,28 @@ for r_loop = 1:length(Target_Regions)
 
     for p = 1:N_phases
         p_code = Phases(p).Code;
-        figP   = figure('Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
+        figP   = figure('Name', sprintf('LIVE HOVER — %s (%s)', Phases(p).Label, Target_Region), ...
+            'Color', 'w', 'Position', [20, 40, 1850, 820], 'Visible', 'on');
         axP    = axes('Parent', figP, 'Position', [0.02, 0.07, 0.95, 0.85]);
 
-        L_p = Build_And_Render_Fiscal_Panel(axP, Target_Region, ...
+        [L_p, SK_p, links_p] = Build_And_Render_Fiscal_Panel(axP, Target_Region, ...
             Phases(p).Dist, Phases(p).Pol, Phases(p).Params, Phases(p).Diag, ...
             n_d, n_a, n_z, d_grid, a_grid, z_grid, ...
             Phases(p).Label, Calibration_Anchor, NZD_Base_Scale, Phases(p).Intensity);
         drawnow;
-        Panel_Imgs{p}    = AutoCrop_White_Border(print(figP, '-RGBImage', '-r300'));
-        close(figP);
+
+        % 1. Capture high-res raster image BEFORE attaching interactive hover UI
+        Panel_Imgs{p} = AutoCrop_White_Border(print(figP, '-RGBImage', '-r300'));
+
+        % 2. If Interactive_Hover_Mode is enabled, wire up hover callbacks & keep figure open!
+        if Interactive_Hover_Mode && strcmpi(Target_Region, 'National')
+            attachSankeyHoverNarratives(axP, SK_p, links_p, fiscalNarrativeMap, 'NZD $%.2fk/yr per cohort birth');
+        else
+            close(figP);
+        end
 
         Phase_Ledgers{p}                        = L_p;
         FiscalLedger.(Target_Region).(p_code)   = L_p;
-        % Also maintain top-level alias FiscalLedger.(p_code) for last/current region
         FiscalLedger.(p_code)                   = L_p;
     end
 
@@ -100,7 +113,7 @@ end
 %% ========================================================================
 %  LOCAL HELPER: GPU-VECTORIZED 6-GATE FISCAL & PRIVATE LEDGER + SANKEY
 %  ========================================================================
-function Ledger = Build_And_Render_Fiscal_Panel(ax, reg_choice, Dist_Sim, Pol_Sim, ...
+function [Ledger, SK, links] = Build_And_Render_Fiscal_Panel(ax, reg_choice, Dist_Sim, Pol_Sim, ...
     P_Sim, Diag_Sim, n_d, n_a, n_z, d_grid, a_grid, z_grid, Panel_Tag, ...
     Calibration_Anchor, NZD_Scale, reform_intensity)
 
