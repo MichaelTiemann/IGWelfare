@@ -339,13 +339,16 @@ for r_i = 1:length(reg_list)
         P_stabl = [0.14, 0.46, 0.40; 0.04, 0.38, 0.58; 0.02, 0.26, 0.72];
     end
 
-    inv_gap_4D = log(ic_4D + G_ece_eff + 0.02) - log(0.20 + 0.05 + 0.02);
+    % Credit non-corner families (~m_corner) with their baseline child sustenance + 20-Hrs ECE investment
+    % so middle-class children at ic_grid=0 on the coarse 4D grid are not hit with an artificial -0.47 log-skill penalty!
+    ic_eff_4D  = max(ic_4D, 0.185 .* (~m_corner));
+    inv_gap_4D = log(ic_eff_4D + G_ece_eff + 0.02) - log(0.20 + 0.05 + 0.02);
     if strcmpi(Calibration_Anchor, 'Dunedin_22')
         crowd_pen_4D = 0.14 * log(max(1.0, Q_house)) .* is_hard_4D;
-        grid_anchor  = +0.040;
+        grid_anchor  = +0.265; % Calibrates National SS0 Stunted h1-h2 to the ~22.0% Dunedin Study benchmark!
     else
         crowd_pen_4D = 0.18 * log(max(1.0, Q_house)) .* is_hard_4D;
-        grid_anchor  = -0.125;
+        grid_anchor  = +0.105; % Metropolitan Squeeze sensitivity (~34-36% Stunted in Auckland)
     end
     base_log_h_4D = rho_hc .* log(h_G) + gamma_ic .* inv_gap_4D - crowd_pen_4D + grid_anchor;
     s3_shifts     = [-0.22, 0.00, montessori_bank];
@@ -396,15 +399,15 @@ for r_i = 1:length(reg_list)
     % into the 6 Adulthood Fate Nodes [Exit 1 Care, Exit 2 Hosp, Exit 3 LowInc, Exit 4 Ben/Just, Retained Secure, Emigrated]:
     S4_Shares = sum(reg_F34, 1);
     reg_F45   = zeros(3, 6);
-    % Row 1: Stunted h1-h2 -> concentrated in Exits 1, 2, 3, 4 (Dunedin Study 22% high-need profile)
+    % Row 1: Stunted h1-h2 (~22% Dunedin segment drives ~74% of Exits 1, 2, 4; State Care = ~2.1% of cohort)
     ret_1 = 1 - emig_t(1);
-    reg_F45(1, :) = S4_Shares(1) * [ret_1*0.18, ret_1*0.24, ret_1*0.26, ret_1*0.24, ret_1*0.08, emig_t(1)];
-    % Row 2: Core Skill Tier h3-h5 -> predominantly Retained NZ Secure/Thriving, some Exit 3/4 & Emigration
+    reg_F45(1, :) = S4_Shares(1) * [ret_1*0.090, ret_1*0.165, ret_1*0.260, ret_1*0.385, ret_1*0.100, emig_t(1)];
+    % Row 2: Core Skill Tier h3-h5 (~54.5% of cohort in SS0)
     ret_2 = 1 - emig_t(2);
-    reg_F45(2, :) = S4_Shares(2) * [ret_2*0.01, ret_2*0.04, ret_2*0.12, ret_2*0.05, ret_2*0.78, emig_t(2)];
-    % Row 3: Thriving Tier h6-h7 -> Retained NZ Secure/Thriving vs. Positive-Selection Brain Drain to Abroad
+    reg_F45(2, :) = S4_Shares(2) * [ret_2*0.004, ret_2*0.024, ret_2*0.080, ret_2*0.065, ret_2*0.827, emig_t(2)];
+    % Row 3: Thriving Tier h6-h7 (~23.5% of cohort in SS0 -> ~58% in SS1)
     ret_3 = 1 - emig_t(3);
-    reg_F45(3, :) = S4_Shares(3) * [0.00,       ret_3*0.02, 0.00,       0.00,       ret_3*0.98, emig_t(3)];
+    reg_F45(3, :) = S4_Shares(3) * [0.000,       ret_3*0.008, 0.000,       0.000,       ret_3*0.992, emig_t(3)];
 
     Flow_S1_to_S2 = Flow_S1_to_S2 + w_reg * 100 * reg_F12;
     Flow_S2_to_S3 = Flow_S2_to_S3 + w_reg * 100 * reg_F23;

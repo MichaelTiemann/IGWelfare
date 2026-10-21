@@ -532,13 +532,16 @@ for r_i = 1:length(reg_list)
     Adol_Node_Costs    = {Adol_Cost_Node7_4D, Adol_Cost_Node8_4D, Adol_Cost_Node9_4D};
 
     % Gate 3 -> Gate 4 (J = 6..7 Adult Skill Launch) Gaussian Transitions
-    inv_gap_4D = log(ic_4D + G_ece_eff + 0.02) - log(0.20 + 0.05 + 0.02);
+    % Credit non-corner families (~m_corner) with their baseline child sustenance + 20-Hrs ECE investment
+    % so middle-class children at ic_grid=0 on the coarse 4D grid are not hit with an artificial -0.47 log-skill penalty!
+    ic_eff_4D  = max(ic_4D, 0.185 .* (~m_corner));
+    inv_gap_4D = log(ic_eff_4D + G_ece_eff + 0.02) - log(0.20 + 0.05 + 0.02);
     if strcmpi(Calibration_Anchor, 'Dunedin_22')
         crowd_pen_4D = 0.14 * log(max(1.0, Q_house)) .* is_hard_4D;
-        grid_anchor  = +0.040;
+        grid_anchor  = +0.265; % Calibrates National SS0 Stunted h1-h2 to the ~22.0% Dunedin Study benchmark!
     else
         crowd_pen_4D = 0.18 * log(max(1.0, Q_house)) .* is_hard_4D;
-        grid_anchor  = -0.125;
+        grid_anchor  = +0.105; % Metropolitan Squeeze sensitivity (~34-36% Stunted in Auckland)
     end
     base_log_h_4D = rho_hc .* log(h_G) + gamma_ic .* inv_gap_4D - crowd_pen_4D + grid_anchor;
     s3_shifts     = [-0.22, 0.00, montessori_bank];
@@ -625,11 +628,11 @@ for r_i = 1:length(reg_list)
         end
     end
 
-    exits_124_y     = [0.340, 0.038, 0.006];
+    exits_124_y     = [0.420, 0.038, 0.006];
     pub_infra_y     = [0.072, 0.072, 0.072];
     exit3_taxloss_y = [0.068, 0.012, 0.000];
 
-    exits_124_w     = [0.310, 0.035, 0.005];
+    exits_124_w     = [0.380, 0.035, 0.005];
     pub_infra_w     = [0.076, 0.076, 0.076];
     exit3_taxloss_w = [0.078, 0.014, 0.000];
 
