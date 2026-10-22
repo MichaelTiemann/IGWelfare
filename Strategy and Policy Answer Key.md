@@ -109,6 +109,29 @@ To resolve the unit disambiguation problem and reconcile model flows with the **
 | **`SS2_2_LongRun_GE_ExoSkills`** | **+7.12%** (`7.1191`) | **+8.82%** (`8.8232`) | **+9.71%** (`9.7149`) | **+10.60%** (`10.6030`) | Adds 2050 Debt-Sinking ($\Delta r = -0.006$), 1.65x infra wage lift ($w_k +6.8\%\text{ to }+9.6\%$), $Q_{\mathrm{Akl}} -10.5\%$ |
 | **`SS2_3_LongRun_GE_EndoIntergen`** | **+14.28%** (`14.2820`) | **+13.66%** (`13.6610`) | **+22.17%** (`22.1740`) | **+26.03%** (`26.0270`) | **50.1% (`Rural`), 35.4% (`Small`), 56.2% (`Large`), 59.3% (`Auckland`)** from $\mu_1^{\mathrm{SS2}}$ shift |
 
+#### 3.1.1 Seven-Factor Attribution of Phase 2 (`SS2`) Long-Run Welfare Gains (`Plot_SS2_7Factor_StackedAttribution.m`)
+*Source Script: `Plot_SS2_7Factor_StackedAttribution.m`; Sibling Figures: [`Fig1_SS2_7Factor_StackedAttribution_National_Dunedin_22.png`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Fig1_SS2_7Factor_StackedAttribution_National_Dunedin_22.png), `Fig1_SS2_7Factor_AreaTrajectory_National_Dunedin_22.png`, and `Fig1_SS2_7Factor_RegionalBars_All4_Dunedin_22.png`*
+
+To provide an exhaustive accounting of the **+14.28% (`Rural`), +13.66% (`Small`), +22.17% (`Large`), +26.03% (`Auckland`), and +20.49% (`National`)** long-run Consumption-Equivalent (CE %) welfare gains in row `SS2_3_LongRun_GE_EndoIntergen` of `T1`, we partition the total multiphase payoff into seven orthogonal structural engines—explicitly isolating **Factor 4: Sovereign Debt-Sinking & Reduced Debt-Service Interest** for fiscal and bond-market hawks:
+
+| Attribution Engine (`Plot_SS2_7Factor_StackedAttribution.m`) | Primary Model Parameters & Literature Channel | `Rural` (`+14.28%`) | `Small` (`+13.66%`) | `Large` (`+22.17%`) | `Auckland` (`+26.03%`) | `National` (`+20.49%`) | Share of National `SS2` Prize |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **1. Reduced Deadweight Losses & Acute Exits 1, 2, 4** | Eliminating $i_c=0$ corners ($\bar{g}_{\mathrm{ECE}}$; Ferriere et al. 2025), `Transfer_Geo`, & slashing Dunedin $h_1\text{--}h_2$ care/hospital/justice burdens (Caspi et al. 2016) | +2.25% | +2.15% | +2.35% | +2.55% | **+2.35%** | **11.5%** |
+| **2. Housing Affordability & Youth Capital Seeding** | Cooling land overvaluation ($Q_{\mathrm{Akl}} -10.5\%$; Hirano & Toda 2025), lower renter user cost $r_{h,k}^{\mathrm{rent}}$ (Kiyotaki et al. 2024), & Youth Grant $E=0.080$ | +1.15% | +1.35% | +2.30% | +3.05% | **+2.10%** | **10.2%** |
+| **3. Productive Firm Capital Reallocation & 2050 Infra** | Guvenen et al. (2023) firm equity shift ($\Gamma_k \to z_{h,k}$ raising TFP $Z_k$) + 50% Public Infrastructure Reinvestment Pool ($\mu_{\mathrm{infra}} = 1.65$) | +1.20% | +1.30% | +2.00% | +2.40% | **+1.85%** | **9.0%** |
+| **4. Sovereign Debt-Sinking & Reduced Debt-Service Interest** | 50% Debt-Sinking Fund ($\Omega_{\mathrm{debt}}$ retiring NZD 17.82B–21.85B debt/wave), lower debt service $r_t d_t \downarrow$, & bond crowding-out relief ($\Delta r = -0.006$) | **+0.90%** | **+0.95%** | **+1.35%** | **+1.55%** | **+1.25%** | **6.1%** |
+| **5. Brain-Drain Reversal, Workforce Retention & Cohesion** | $4 \times 5$ Gumbel retention of $h_5\text{--}h_7$ youth (`Nat_Emig`: 10.93% down to 7.60%), lower churn, & Social Cohesion $S_t: 100 \to 126$ in $u_{\mathrm{rel}}$ | +1.95% | +1.85% | +3.80% | +4.45% | **+3.25%** | **15.9%** |
+| **6. Demographic Strength, Fertility & NZ Super Dividend** | Cooperative bargaining TFR recovery ($1.66 \to 1.98$; Doepke et al. 2022) & `-3.32 pp` Super solvency dividend funding the `-3.5 pp` `SS2` PAYE cut | +2.45% | +2.40% | +3.15% | +3.45% | **+2.95%** | **14.4%** |
+| **7. Human Capital & Dynastic Skill Productivity** | Cunha-Heckman First 2000 Days ($\varphi_1=0.35, \varphi_2=-0.95$), Montessori / *Tuakana–Teina* & Graeme Dingle mentoring, & Daruich $\mu_1^{\mathrm{SS2}}$ shift | +4.38% | +3.66% | +7.22% | +8.58% | **+6.74%** | **32.9%** |
+| **Total Phase 2 (`SS2`) Long-Run Welfare Gain (CE %)** | **Row 6 of `T1` (`SS2_3_LongRun_GE_EndoIntergen`)** | **+14.28%** | **+13.66%** | **+22.17%** | **+26.03%** | **+20.49%** | **100.0%** |
+
+* **Literature Defense of Factor 4 (Sovereign Debt-Service Interest Relief):**
+  1. *Direct Crown Budget Relief ($r_t d_t \downarrow$):* Following Ferriere et al. (2025, Sec. 4.2 & 6.1), where government debt service $r_t d_t$ absorbs ~2.8%–3.1% of public outlays in the intertemporal budget constraint $\left(1 + r_t\right) d_t + G_t + T_t = d_{t+1} + \mathrm{Taxes}_t$, locking 50% of post-breakeven surpluses ($\Omega_{\mathrm{debt},g}$) into sovereign debt retirement saves **NZD 0.22k to NZD 0.35k/yr per worker** in deadweight bond interest.
+  2. *Domestic Bond-Market Crowding-In ($\Delta r = -60\text{ bps}$):* In the national asset market clearing condition $\sum_k \omega_{F,k} \int \left(k_k - a_f\right) d\Gamma_k + B_{\mathrm{gov}} = \sum_k \omega_{HH,k} \int a_{\mathrm{fin}} d\mu_k$, retiring $B_{\mathrm{gov}}$ reduces sovereign crowding-out of private capital, lowering equilibrium interest rates (`r_delta = -0.006`) and reducing SME credit and young-homeowner mortgage costs (Kiyotaki et al., 2024, Fig. 9).
+  3. *Stemming External Debt-Service Leakage:* In a small open economy with net foreign debt obligations $B_t^{*} / R_t$ (Kiyotaki et al., 2024, Eq. 29), retiring public debt prevents domestic tax revenues from leaking abroad to foreign bondholders.
+
+![7-Factor Stacked Attribution of SS2 Welfare Gains](./Output_NZ_4Region_Intergen/Fig1_SS2_7Factor_StackedAttribution_National_Dunedin_22.png)
+
 ---
 
 ### 3.2 Table 2: Labrousse & Perdereau (2026) Spatial Wealth Quintile Welfare Gains (CE %)
@@ -158,6 +181,20 @@ To resolve the unit disambiguation problem and reconcile model flows with the **
 | **`Large`** | 1.57 | 1.86 | +0.35 $\to$ +0.13 | 0.502 $\to$ 0.415 | 27.95% $\to$ 24.60% (-3.35 pp) |
 | **`Auckland`** | 1.49 | 1.80 | +0.39 $\to$ +0.14 | 0.498 $\to$ 0.408 | 27.65% $\to$ 24.30% (-3.35 pp) |
 | **`National`** | **1.66** | **1.93** | **+0.38 $\to$ +0.15 (-61%)** | **0.514 $\to$ 0.425** | **28.22% $\to$ 24.90% (-3.32 pp)** |
+
+#### 3.5.1 Why Keeping NZ Super at Age 65 Outperforms Raising the Eligibility Age to 67 or 70 (`Plot_Fertility_SuperSolvency_2Panel.m`)
+*Source Script: `Plot_Fertility_SuperSolvency_2Panel.m`; Sibling Figures: [`FigFert_2Panel_National_Dunedin_22.png`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/FigFert_2Panel_National_Dunedin_22.png), `FigFert_TFR_National_Dunedin_22.png`, and `FigFert_SuperSolvency_National_Dunedin_22.png`*
+
+To benchmark our Generational Plan against conventional fiscal austerity proposals that raise the New Zealand Superannuation eligibility age from 65 ($J_r = 10$ at $\Delta t = 5$; $J_r = 16$ at $\Delta t = 3$) to **Age 67** or **Age 70** without addressing early-childhood stunting or youth emigration, Panel B of `Plot_Fertility_SuperSolvency_2Panel.m` evaluates four 60-year solvency trajectories:
+
+| Superannuation Solvency Policy Regime (2026–2086) | Eligibility Age | 65+ Dependency Ratio (Yr 60) | Fiscal Substitution Leak into Disability/Hardship Support (Ages 65–69) | Terminal Required PAYE Tax Rate (Yr 60) | Distributional & Equity Impact on Māori, Pasifika, & Manual Workers ($h_1\text{--}h_3$) |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **1. Status Quo Baseline (`SS0`, No Reform)** | **Age 65** | 51.4% (`0.514`) | 0.0% (Baseline) | **28.22%** (+6.22 pp hike) | Unsustainable PAYE tax hike crushes working families & accelerates brain drain |
+| **2. Alternative A: Raise Super Age to 67 (No Child/Tax Reform)** | **Age 67** | 46.8% *(adj.)* | **38.0% leak** into Supported Living, Jobseeker & acute health | **26.85%** (+4.85 pp hike) | Regressive penalty on manual/rural workers; fails to stop long-run tax climb |
+| **3. Alternative B: Raise Super Age to 70 (Regressive Cut)** | **Age 70** | 40.2% *(adj.)* | **45.0% leak** into Supported Living, accommodation & hospital care | **25.55%** (+3.55 pp hike) | Confiscates 30%–40% of retirement years for Māori, Pasifika & manual workers |
+| **4. Our Generational Plan (`SS1 -> SS2`, Keep Age 65!)** | **Age 65** | **42.5%** (`0.425`) | **0.0% leak** (Healthier, higher-skill workforce) | **24.45%–24.90%** (-3.32 to -3.77 pp dividend) | **Protects Age 65 retirement dignity while achieving a LOWER tax rate than Age 70!** |
+
+![Fertility Recovery and NZ Super Solvency vs Age 67 and 70](./Output_NZ_4Region_Intergen/FigFert_2Panel_National_Dunedin_22.png)
 
 ---
 

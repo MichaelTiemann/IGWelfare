@@ -230,6 +230,32 @@ if Run_Transition_Path && exist('TransPath_4Region_Master.m', 'file')
     fprintf('    Step 7 completed in %.2f seconds.\n\n', toc(step7_timer));
 end
 
+%% STEP 7B: 2-PANEL FERTILITY/SUPER SOLVENCY & 7-FACTOR SS2 STACKED ATTRIBUTION PLOTS
+Target_Plot_Regions = {'National', 'Auckland', 'Large', 'Small', 'Rural', 'Urban'};
+if ~exist('Params_SS0', 'var') && exist('Params', 'var'), Params_SS0 = Params; end
+Params_SS0.Calibration_Anchor = 'Dunedin_22'; % Or 'MetroSqueeze_GUiNZ'
+
+if exist('Plot_Fertility_SuperSolvency_2Panel.m', 'file')
+    fprintf('>>> [STEP 7B] Generating 2-Panel Fertility & NZ Super Solvency Plots (Age 65 vs 67/70)...\n');
+    if ~exist('T_Fert1', 'var'), T_Fert1 = []; end
+    if ~exist('T_Fert2', 'var'), T_Fert2 = []; end
+    Out_FertPlot = Plot_Fertility_SuperSolvency_2Panel(Params_SS0, T_Fert1, T_Fert2);
+end
+
+if exist('Plot_SS2_7Factor_StackedAttribution.m', 'file') && exist('T1', 'var')
+    fprintf('>>> [STEP 7C] Generating 7-Factor SS2 Stacked Attribution Plots across %d Regions...\n', ...
+        numel(Target_Plot_Regions));
+    Out_AttrPlot = Plot_SS2_7Factor_StackedAttribution(T1, Params_SS0, Target_Plot_Regions);
+end
+
+%% GENERATE 12-TIER EARN + OWN WEALTH BRACKET PAIN & CELEBRATION FIGURE
+if ~exist('Params_SS0', 'var') && exist('Params', 'var')
+    Params_SS0 = Params;
+elseif ~exist('Params_SS0', 'var')
+    Params_SS0 = struct('Calibration_Anchor', 'Dunedin_22');
+end
+Out_WealthBrackets = Plot_WealthBracket_PainAndCelebration(Params_SS0);
+
 % Plot Pre-Employment opportunity index
 % Decomposes the pre-employment youth cohort across 4 Regions (Status Quo SS0 vs Reform SS1) into:
 %   1. Stay in NZ & Attain >= Parents by Age 30 (%)

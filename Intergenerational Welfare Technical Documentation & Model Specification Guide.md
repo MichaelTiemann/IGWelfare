@@ -166,6 +166,21 @@ Following Doepke, Hannusch, Kindermann, and Tertilt (2022) and Kim (2025), coupl
 
 $$\mathcal{S}_f\left(n_f; Q_k, G_{\mathrm{ECE}}, \theta_{\tau}\right) = u_f\left(c_f\left(n_f\right)\right) + \beta_{\mathrm{hyp}} \delta V_f^{\prime}\left(n_f\right) - \theta_{\tau} \psi_{\mathrm{time}} n_f + \omega_{\mathrm{ECE}} G_{\mathrm{ECE}} n_f - \psi_Q Q_k n_f \ge \underline{U}_f$$
 
+### 5.4 Endogenous NZ Superannuation Solvency & The Fiscal Substitution Leak of Raising the Eligibility Age ($J_r \to 67\text{ or }70$)
+Let $\mathcal{D}_{65+,t}$ denote the national old-age dependency ratio of retirees ($j \ge J_r$, age 65+) to effective working-age taxpayers ($1 \le j < J_r$, ages 20–64) across the four domestic regions:
+
+$$\mathcal{D}_{65+,t} = \frac{\sum_{k=1}^{4} \omega_{HH,k,t} \sum_{j=J_r}^{J} \int d\mu_{k,t}\left(a, h, z, j\right)}{\sum_{k=1}^{4} \omega_{HH,k,t} \sum_{j=1}^{J_r - 1} \int d\mu_{k,t}\left(a, h, z, j\right)}$$
+
+In a pay-as-you-go universal pension system with replacement benefit $p_{\mathrm{super}}$ and consumption-floor top-up $\underline{c}$, the required working-age labor tax rate $\tau_{l,t}^{\mathrm{req}}$ needed to maintain New Zealand Superannuation solvency is inversely proportional to average working-age human capital $\bar{H}_t = \sum_k \omega_{HH,k,t} \int_{j < J_r} w_{k,t} z h \ell_{\mathrm{eff}} \, d\mu_{k,t}$ and directly proportional to $\mathcal{D}_{65+,t}$:
+
+$$\tau_{l,t}^{\mathrm{req}}\left(J_r\right) = \tau_{l,\mathrm{non-super}} + \frac{\sum_{k=1}^{4} \omega_{HH,k,t} \sum_{j=J_r}^{J} \int \left\lbrack p_{\mathrm{super}} + \underline{c}_{\mathrm{health}}\left(a, h, j\right) \right\rbrack d\mu_{k,t}}{\bar{H}_t}$$
+
+When evaluating conventional austerity proposals that raise the statutory retirement age from $A_r = 65$ to $A_r^{\prime} \in \lbrace 67, 70 \rbrace$ while leaving baseline child stunting ($\mathrm{Frac}_{\mathrm{stunted}} = 0.22$), fertility ($\mathrm{TFR} = 1.66$), and youth emigration ($\mathrm{Emig}_{\mathrm{Nat}} = 10.93\%$) unaddressed, `Plot_Fertility_SuperSolvency_2Panel.m` accounts for the **endogenous fiscal substitution leak** $\lambda_{\mathrm{leak}}\left(A_r^{\prime}\right) \in \left\lbrack 0.38, 0.45 \right\rbrack$. Because manual and lower-tier workers ($h \in \lbrace h_1, h_2, h_3 \rbrace$) experience cumulative Ben-Porath physical skill depreciation $\delta_{hc} = 0.087$ and elevated unemployment shocks ($i_z \in \lbrace 1, 2 \rbrace$) in their late sixties, withholding universal superannuation over ages $\left\lbrack 65, A_r^{\prime} \right)$ shifts a fraction $\lambda_{\mathrm{leak}}\left(A_r^{\prime}\right)$ of gross pension savings directly into means-tested Supported Living, Jobseeker, Accommodation Supplement, and acute hospital outlays:
+
+$$\Delta \mathrm{NetSavings}_{t}\left(A_r^{\prime}\right) = \left\lbrack 1 - \lambda_{\mathrm{leak}}\left(A_r^{\prime}\right) \right\rbrack \sum_{k=1}^{4} \omega_{HH,k,t} \int_{65 \le \mathrm{age}\left(j\right) < A_r^{\prime}} p_{\mathrm{super}} \, d\mu_{k,t}^{\mathrm{SS0}}$$
+
+Consequently, raising the pension age to 67 or 70 under status-quo demographics still leaves the required PAYE tax rate climbing to $26.85\%$ (Age 67) or $25.55\%$ (Age 70) while imposing a regressive survival-weighted utility loss $\Delta V_k\left(a, h, z, j\right) < 0$ on Māori, Pasifika, and rural manual cohorts with lower conditional survival probabilities $s_j$. Conversely, expanding the denominator $\bar{H}_t$ via First-2000-Days wraparound investment ($G_{\mathrm{ECE},1}$), Montessori / *Tuakana–Teina* adolescent mentoring ($G_{\mathrm{ECE},2}$), youth retention ($\Pi_{\mathrm{mig}}$), and cooperative fertility recovery ($\mathrm{TFR}: 1.66 \to 1.98$) keeps $A_r = 65$ intact while bending $\tau_{l,t}^{\mathrm{req}}$ down from $28.22\%$ to $24.45\%\text{--}24.90\%$.
+
 ---
 
 ## 6. Calibration, SMM Identification (`Calibrate_NZ_Moments.m`), & Cross-Country Validation
@@ -239,6 +254,21 @@ where $\bar{\chi}_{\mathrm{target}} = 3.50$. Because the Year 5 Parliamentary Au
 
 $$\mathcal{\Phi}\left(t\right) = \mathcal{\Phi}_1 + \frac{\mathcal{\Phi}_2 - \mathcal{\Phi}_1}{1 + \exp\left(-\xi_{\mathrm{ramp}}\left(t - T_1\right)\right)}$$
 
+### 7.4 Seven-Factor Additive Welfare Attribution & The Sovereign Debt-Service Channel (`Plot_SS2_7Factor_StackedAttribution.m`)
+To decompose the multiphase Consumption-Equivalent welfare trajectory $\mathrm{CE}_{k,t}^{\mathrm{tot}}$ (`T1` rows `SS1_1..3` and `SS2_1..3`) into its underlying economic mechanisms across cohort entry years $c \in \left\lbrack -10, +60 \right\rbrack$ and regions $k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland}, \mathrm{National} \rbrace$, `Plot_SS2_7Factor_StackedAttribution.m` partitions $\mathrm{CE}_{k,t}^{\mathrm{tot}}$ into $M_{\mathrm{attr}} = 7$ additive structural components:
+
+$$\mathrm{CE}_{k}^{\mathrm{SS2}} = \sum_{m=1}^{7} \Delta \mathrm{CE}_{k,m}^{\mathrm{SS2}} = \Delta \mathrm{CE}_{k,\mathrm{DWL}} + \Delta \mathrm{CE}_{k,\mathrm{House}} + \Delta \mathrm{CE}_{k,\mathrm{Firm}} + \Delta \mathrm{CE}_{k,\mathrm{Debt}} + \Delta \mathrm{CE}_{k,\mathrm{Cohes}} + \Delta \mathrm{CE}_{k,\mathrm{Demog}} + \Delta \mathrm{CE}_{k,\mathrm{Skill}}$$
+
+In particular, **Component 4 ($\Delta \mathrm{CE}_{k,\mathrm{Debt}}$: Sovereign Debt-Sinking & Reduced Debt-Service Interest)** isolates the general-equilibrium welfare gain generated by the 50% Sovereign Debt-Sinking allocation $\Omega_{\mathrm{debt},t} = 0.50 \, \Omega_{\mathrm{reform},t}$ after Cash Breakeven ($t \ge 18.8$ years):
+1. **Intertemporal Crown Budget Debt-Service Relief (Ferriere et al., 2025, Sec. 4.2):**
+   Retiring sovereign debt stock $B_{\mathrm{gov},t}$ by $\Delta D_{2050}$ reduces annual deadweight interest service $r_t B_{\mathrm{gov},t}$, creating permanent fiscal space $\Delta \tau_{\mathrm{debt}} = r_{\mathrm{bond}} \Delta D_{2050} / \bar{Y}_t$.
+2. **Bond-Market Crowding-In & Mortgage Spread Compression (Kiyotaki et al., 2024, Eq. 29 & Fig. 9):**
+   In the national asset market clearing condition:
+
+$$\sum_{k=1}^{4} \omega_{F,k} \int \left(k_k\left(a_f, z_f\right) - a_f\right) d\Gamma_{k,t} + B_{\mathrm{gov},t} = \sum_{k=1}^{4} \omega_{HH,k,t} \int a_{\mathrm{fin}} \, d\mu_{k,t} + B_{t}^{*}$$
+
+   reducing $B_{\mathrm{gov},t}$ lowers the equilibrium domestic real interest rate by $\Delta r = -0.006$ (-60 bps in `SS2`), which simultaneously expands collateralized firm capital demand $k_k = \lambda_{\mathrm{col}} a_f$ and reduces the mortgage user cost $r_{h,k}^{\mathrm{own}}$ for leveraged young homeowners, contributing **+0.90% (`Rural`) to +1.55% (`Auckland`) and +1.25% (`National`, 6.1% of the total `SS2` prize)** in permanent Consumption-Equivalent welfare.
+
 ---
 
 ## 8. Consolidated 17-File VFI Toolkit Codebase Manifest
@@ -262,3 +292,5 @@ $$\mathcal{\Phi}\left(t\right) = \mathcal{\Phi}_1 + \frac{\mathcal{\Phi}_2 - \ma
 | **15** | `Plot_ChildFates_2Panel_SSankey.m` | $N$-panel GPU 5-Stage (17-Node) Population Cohort Fates Sankey & `Table15_ChildFates_5Stage_Decomp_<Region>.csv` |
 | **16** | `Plot_ChildFiscal_2Panel_SSankey.m` | $N$-panel GPU 6-Gate (26-Node) Lifecycle Fiscal Sankey, 4-lane split (`Table14`), and 2050 Debt-Sinking Protocol |
 | **17** | `Plot_CumulativeTransitionPayoffs.m` & `Plot_ActuarialContinuationValuation.m` | Integrates 60-year transition payoffs and ACC-style 25-year Actuarial Continuation Valuation ($\mathcal{V}_{k,t_0}^{\left(L\right)}$ at 2% & 8% real) with sibling PNG exports |
+| **18** | `Plot_Fertility_SuperSolvency_2Panel.m` | Generates the 2-panel Fertility Recovery & NZ Super Solvency comparison (`Keep Age 65` vs. `Raise Age to 67 or 70`, modeling the 38%–45% disability/hardship fiscal substitution leak; Doepke et al. 2022, Kim 2025, Fan, Seshadri, & Taber 2022, and NZ Treasury 2024) |
+| **19** | `Plot_SS2_7Factor_StackedAttribution.m` | Decomposes multiphase (`SS0 -> SS1 -> SS2`) Consumption-Equivalent welfare gains (`T1`) into 7 additive structural engines across the 60-year cohort trajectory and 4 regions—isolating Sovereign Debt-Service Interest Relief ($r_t d_t \downarrow$; Ferriere et al. 2025, Kiyotaki et al. 2024, Guvenen et al. 2023, and Daruich 2018) |
