@@ -64,7 +64,7 @@ for m = 1:numel(allObjs)
     end
 end
 
-% 3. Cache BlockHdl bounding boxes, Gate Column IDs, and ALL Text Label Extents
+% 3. Cache BlockHdl bounding boxes, exact Gate Column (1..6), and Block Y-midpoints
 nBlocks = numel(SK.BlockHdl);
 blkBBox = nan(nBlocks, 4); % [xMin, xMax, yMin, yMax] in axes units
 for b = 1:nBlocks
@@ -75,7 +75,8 @@ for b = 1:nBlocks
     end
 end
 blkXMid = 0.5 * (blkBBox(:, 1) + blkBBox(:, 2));
-[~, ~, blkGateCol] = uniquetol(blkXMid, 0.25); % Gate column ID (1..5 or 1..6) for each block
+blkYMid = 0.5 * (blkBBox(:, 3) + blkBBox(:, 4));
+[~, ~, blkGateCol] = uniquetol(blkXMid, 0.25, 'DataScale', 1); % Exact Gate column 1..6!
 
 % Read the EXACT Extent [xMin, xMax, yMin, yMax] of every text label inside the chart area
 ylAx    = axHdl.YLim;
@@ -303,36 +304,42 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
 
         switch evt.Key
             case {'uparrow', 'downarrow'}
-                % Find all blocks in the same Gate column as anchorBlk
+                % 1. Outer Hierarchy: All blocks in the current Gate column, sorted bottom-to-top
                 currGate = blkGateCol(anchorBlk);
                 gateBlks = find(blkGateCol == currGate);
+                [~, blkOrd] = sort(blkYMid(gateBlks), 'ascend'); % bottom block -> top block
+                gateBlks = gateBlks(blkOrd);
 
-                % Gather all ribbons in this entire Gate column on anchorSide,
-                % sorted continuously from bottom-most ribbon to top-most ribbon!
-                if strcmp(anchorSide, 'src')
-                    colLinks = find(ismember(linkSrcBlk, gateBlks));
-                    [~, sortOrd] = sort(yMidLeft(colLinks), 'ascend');
-                else
-                    colLinks = find(ismember(linkTgtBlk, gateBlks));
-                    [~, sortOrd] = sort(yMidRight(colLinks), 'ascend');
+                % 2. Inner Hierarchy: Within each block b in this Gate, sort its ribbons
+                %    by the vertical height (blkYMid) of the partner block at the other end!
+                hierLinks = [];
+                for bIdx = 1:numel(gateBlks)
+                    b = gateBlks(bIdx);
+                    if strcmp(anchorSide, 'src')
+                        bLinks = find(linkSrcBlk == b);
+                        [~, partnerOrd] = sort(blkYMid(linkTgtBlk(bLinks)), 'ascend');
+                    else
+                        bLinks = find(linkTgtBlk == b);
+                        [~, partnerOrd] = sort(blkYMid(linkSrcBlk(bLinks)), 'ascend');
+                    end
+                    hierLinks = [hierLinks; bLinks(partnerOrd(:))]; %#ok<AGROW>
                 end
-                colLinks = colLinks(sortOrd);
 
-                if numel(colLinks) <= 1, return; end
+                if numel(hierLinks) <= 1, return; end
 
-                currPos = find(colLinks == activeIdx, 1);
+                currPos = find(hierLinks == activeIdx, 1);
                 if isempty(currPos), currPos = 1; end
 
+                % UpArrow moves UP the hierarchy (increasing Y); DownArrow moves DOWN (decreasing Y)
                 if strcmp(evt.Key, 'uparrow')
                     nextPos = currPos + 1;
-                    if nextPos > numel(colLinks), nextPos = 1; end % wrap bottom->top of Gate
+                    if nextPos > numel(hierLinks), nextPos = 1; end
                 else
                     nextPos = currPos - 1;
-                    if nextPos < 1, nextPos = numel(colLinks); end % wrap top->bottom of Gate
+                    if nextPos < 1, nextPos = numel(hierLinks); end
                 end
 
-                nextIdx = colLinks(nextPos);
-                % Update anchorBlk to the block owning the newly selected ribbon!
+                nextIdx = hierLinks(nextPos);
                 if strcmp(anchorSide, 'src')
                     anchorBlk = linkSrcBlk(nextIdx);
                 else
