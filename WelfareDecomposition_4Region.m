@@ -27,7 +27,6 @@ jequalone_Base = jDist_SS0; Params_Base = Params_SS0; IG_Diag_Base = IG_Diag_SS0
 %% 2. DEFINE MULTIPHASE REFORM SPECIFICATIONS (DEFAULT: M = 1 FOR SS1; ADD SS2 ANYTIME)
 if ~exist('Reform_Phase_Specs', 'var') || isempty(Reform_Phase_Specs)
     Reform_Phase_Specs = struct([]);
-
     % --- PHASE 1 (SS1): Barnardos First-2000-Days + Montessori + Wealth/Estate Tax Rebalance ---
     Reform_Phase_Specs(1).Code          = 'SS1';
     Reform_Phase_Specs(1).Label         = 'B. High-Opportunity Reform + Montessori Mentoring (SS1)';
@@ -38,6 +37,7 @@ if ~exist('Reform_Phase_Specs', 'var') || isempty(Reform_Phase_Specs)
     Reform_Phase_Specs(1).YouthGrant    = 0.065;
     Reform_Phase_Specs(1).tau_a         = Params_SS0.tau_a; % Household liquid savings rate unchanged; wealth tax is on Firm_k book equity
     Reform_Phase_Specs(1).tau_b         = 0.180;
+    Reform_Phase_Specs(1).tau_l_delta   = 0.000; % Revenue-neutral PAYE in SS1 (matches field in SS2!)
     Reform_Phase_Specs(1).r_delta       = -0.004;
     Reform_Phase_Specs(1).w_mult_vs_SS0 = [1.032, 1.038, 1.048, 1.055];
     Reform_Phase_Specs(1).Q_mult_vs_SS0 = [0.990, 0.975, 0.950, 0.925];
@@ -48,34 +48,37 @@ if ~exist('Reform_Phase_Specs', 'var') || isempty(Reform_Phase_Specs)
         'HH_Small',    0.031, ...
         'HH_Large',    0.025, ...
         'HH_Auckland', 0.028);
-end
-% Toggle Enable_SS2_Phase = true (or pass Active_Phases = {'SS0','SS1','SS2'}) to solve Phase 2 (SS2):
-if ~exist('Enable_SS2_Phase', 'var')
-    Enable_SS2_Phase = (exist('Active_Phases', 'var') && any(strcmpi(Active_Phases, 'SS2')));
+elseif ~isfield(Reform_Phase_Specs, 'tau_l_delta')
+    [Reform_Phase_Specs.tau_l_delta] = deal(0.000);
 end
 
+% Toggle Enable_SS2_Phase = true (or pass Active_Phases = {'SS0','SS1','SS2'}) to solve Phase 2 (SS2):
+Enable_SS2_Phase = (exist('Enable_SS2_Phase', 'var') && Enable_SS2_Phase) || ...
+    (exist('Active_Phases', 'var') && any(strcmpi(Active_Phases, 'SS2')));
+
 if Enable_SS2_Phase
-    % --- PHASE 2 (SS2): 2050 Debt-Sinking Harvest, PAYE Tax Relief & Infrastructure Dividend ---
+    % --- PHASE 2 (SS2): 2050 Actuarial Liability Release, Debt-Sinking & PAYE Tax-Relief Harvest ---
+    % Triggered after Cash Breakeven (Yr 18.8) & Year 5-20 Actuarial Surplus Verification ($35.25B -> $257.8B)
     Reform_Phase_Specs(2).Code          = 'SS2';
-    Reform_Phase_Specs(2).Label         = 'C. 2050 Debt-Sinking Dividend & Tax-Relief Harvest (SS2)';
-    Reform_Phase_Specs(2).Intensity     = 1.25;
-    Reform_Phase_Specs(2).G_ece_stage1  = 0.125; % Reinvestment pool deepens universal wraparound
-    Reform_Phase_Specs(2).G_ece_stage2  = 0.100; % Expanded Montessori / Tuakana secondary coverage
-    Reform_Phase_Specs(2).G_ece         = 0.125;
-    Reform_Phase_Specs(2).YouthGrant    = 0.075; % Mature sovereign wealth / estate pool lifts grant
+    Reform_Phase_Specs(2).Label         = 'C. 2050 Actuarial Dividend & PAYE Tax-Relief Harvest (SS2)';
+    Reform_Phase_Specs(2).Intensity     = 1.30;
+    Reform_Phase_Specs(2).G_ece_stage1  = 0.130; % 50% Reinvestment Pool deepens First-2000-Days wraparound
+    Reform_Phase_Specs(2).G_ece_stage2  = 0.105; % Expanded Montessori / Tuakana adolescent mentoring
+    Reform_Phase_Specs(2).G_ece         = 0.130;
+    Reform_Phase_Specs(2).YouthGrant    = 0.080; % Compounded Opportunity Endowment lifts age-20 grant
     Reform_Phase_Specs(2).tau_a         = Params_SS0.tau_a;
-    Reform_Phase_Specs(2).tau_b         = 0.180;
-    Reform_Phase_Specs(2).tau_l_delta   = -0.020; % 2.0% PAYE tax cut funded by 2050 Debt-Sinking interest savings!
-    Reform_Phase_Specs(2).r_delta       = -0.006; % Sovereign debt paydown lowers national crowding-out
-    Reform_Phase_Specs(2).w_mult_vs_SS0 = [1.062, 1.068, 1.078, 1.085]; % 1.65x Public Infra Reinvestment multiplier
-    Reform_Phase_Specs(2).Q_mult_vs_SS0 = [0.985, 0.960, 0.930, 0.900]; % Regional housing supply elasticity dividend
-    Reform_Phase_Specs(2).Frac_stunted  = 0.018; % 2nd-gen Daruich compounding reaches 1-2% target
-    Reform_Phase_Specs(2).S_cohesion    = 124.0;
+    Reform_Phase_Specs(2).tau_b         = 0.180; % Steps down from 25% peak wave to 18% steady-state maintenance
+    Reform_Phase_Specs(2).tau_l_delta   = -0.035; % -3.5 pp PAYE tax cut (22.0% -> 18.5%) funded by Actuarial/Debt Harvest!
+    Reform_Phase_Specs(2).r_delta       = -0.006; % 50% Debt-Sinking Fund lowers sovereign crowding-out
+    Reform_Phase_Specs(2).w_mult_vs_SS0 = [1.068, 1.075, 1.088, 1.096]; % 1.65x Public Infra Reinvestment + TFP lift
+    Reform_Phase_Specs(2).Q_mult_vs_SS0 = [0.985, 0.955, 0.925, 0.895]; % Long-run spatial housing supply elasticity
+    Reform_Phase_Specs(2).Frac_stunted  = 0.015; % 2nd-gen Daruich compounding + Stage-2 mentoring reaches 1.5%
+    Reform_Phase_Specs(2).S_cohesion    = 126.0;
     Reform_Phase_Specs(2).Transfer_Geo  = struct( ...
-        'HH_Rural',    0.042, ...
-        'HH_Small',    0.035, ...
-        'HH_Large',    0.029, ...
-        'HH_Auckland', 0.031);
+        'HH_Rural',    0.044, ...
+        'HH_Small',    0.037, ...
+        'HH_Large',    0.031, ...
+        'HH_Auckland', 0.033);
 end
 
 M_reforms = numel(Reform_Phase_Specs);

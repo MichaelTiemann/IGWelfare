@@ -282,6 +282,49 @@ $$\left(\mathbf{w}_{\mathrm{sav}}\left(\mathcal{A}\right), \, \mathbf{w}_{\mathr
   * `Fig_Actuarial_WideGDP_<Region>_<Anchor>.png` (Panel B sibling: Economy-Wide GDP Lens)
   * `Fig_Actuarial_Dashboard_All4_<Anchor>.png` and `Fig_Actuarial_Year5Audit_All4_<Anchor>.png` (`'All4'` spatial comparison suite)
 
+## 7.6 Multiphase Policy Announcements, Credibility-Weighted Belief Blending, and Logistic Seam Smoothing (`TransPath_4Region_Master.m`)
+
+### 7.6.1 Six Structural Announcement Challenges in a Multiphase Spatial OLG Transition (`SS0 -> SS1 -> SS2`)
+When the policy transition path chains multiple distinct reform phases—specifically, an initial incubation and capital-reallocation regime $\mathcal{\Phi}_1$ (`SS1`, spanning $t = 1, \dots, T_1 - 1$) followed by a fiscal-harvest and PAYE tax-relief regime $\mathcal{\Phi}_2$ (`SS2`, enacted at $t = T_1$, corresponding to Year 25 / the 2050 Protocol)—rational or boundedly rational forward-looking expectations introduce six cross-phase boundary challenges along the backward induction loop ($t = T_{\mathrm{trans}} - 1, \dots, 1$):
+1. **Intertemporal Labor Supply & Ben-Porath Training Substitution ($\tau_{l,t}$):** Pre-announcing the Phase-2 PAYE labor tax cut ($\Delta \tau_l = -0.035$ at $t = T_1$) alters the intertemporal return to early-career Ben-Porath human-capital training $I_{h,t}$ during $t < T_1$, as young cohorts ($j \in \lbrace 1, 2, 3 \rbrace$) invest more time in skill accumulation before $T_1$ to harvest higher net-of-tax wages $\left(1 - \tau_{l,2}\right) w_{k,t}$ after $T_1$.
+2. **Estate & Wealth Tax Front-Running Across Seam $T_1$ ($\tau_{b,t}, \tau_{a,t}$):** If the emergency estate levy steps down discontinuously at $T_1$ ($\tau_b: 25.0\% \to 18.0\%$), elderly cohorts ($j \ge J_r$) near the seam $t = T_1 - 1$ face an artificial incentive to distort savings decumulation $a^{\prime}$.
+3. **Cunha-Heckman Cross-Stage Complementarity Under Anticipated Stage-2 Expansion ($\varphi_2 = -0.95$):** Parents of newborns at $t = T_1 - 2$ anticipate that by the time their children reach the Adolescent Gate ($J = 5$) at $t \ge T_1$, Phase-2 public Montessori mentoring (`G_ece_stage2 = 0.105`) will be active. Because $\varphi_2 = -0.95 < 0$ enforces strong complementarity between Stage-1 readiness and Stage-2 enrichment, credible anticipation of $\mathcal{\Phi}_2$ raises optimal Stage-1 parental investment $i_{c,1}$ prior to $T_1$.
+4. **Asset-Price Capitalization in Regional Housing Markets ($Q_{k,t}$):** Forward-looking housing equilibrium conditions capitalize future Phase-2 disposable income gains and sovereign interest rate reductions ($\Delta r = -0.006$) smoothly along the transition path rather than jumping discontinuously at $T_1$.
+5. **Option Value of Staying vs. Emigrating in the Two-Stage Funnel ($\Pi_{\mathrm{mig},t}$):** Young adults at $j = 1$ (age 20) compare full-lifetime domestic utility $V_{k,t}\left(a_1, h_1, z_1, 1\right)$ (spanning 45 working years across $t, \dots, t + J_r - 1$) against $V_{\mathrm{Abroad},t}$. Credible belief at $t = 1$ that $\mathcal{\Phi}_2$ will lower career PAYE taxes from age 40 onward immediately lifts $V_{k,1}$ and reduces skilled youth emigration $P_{\mathrm{emig},1}$ in Period 1.
+6. **Imperfect Policy Credibility During the Cash Incubation Window ($t < T_1$):** Because cash-basis fiscal breakeven occurs at Year 18.8 whereas the Phase-2 tax cut is scheduled for Year 25 ($T_1$), private agents may initially attach imperfect credibility $\lambda_{\mathrm{cred}}\left(t\right) < 1$ to the government's promise to enact $\mathcal{\Phi}_2$.
+
+### 7.6.2 The Credibility-Weighted Belief Blending Operator ($\lambda_{\mathrm{cred}}\left(t\right)$)
+To solve Challenges 1–6 on the GPU without expanding the individual state space $\left(a, h, \theta_c, z, j\right)$, `TransPath_4Region_Master.m` computes two reference continuation value paths during backward induction for $t < T_1$:
+* $V_{k,t+1}^{\mathrm{perm\,SS1}}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right)$: The continuation value function solved under the belief that Phase-1 policy vector $\mathcal{\Phi}_1$ remains permanent for all $\tau \ge t$ (converging to terminal steady state $\mathrm{SS1}$).
+* $V_{k,t+1}^{\mathrm{full\,SS2}}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right)$: The continuation value function solved under perfect foresight of the Phase-2 transition $\mathcal{\Phi}_1 \to \mathcal{\Phi}_2$ at seam $T_1$ (converging to terminal steady state $\mathrm{SS2}$).
+
+At each transition period $t \in \lbrace 1, \dots, T_1 - 1 \rbrace$, households in region $k$ and infinite-horizon firms evaluate the **credibility-blended continuation value** $\tilde{V}_{k,t+1}$ inside the Bellman operator:
+
+$$V_{k,t}\left(a, h, z, j\right) = \max_{d_t \in \mathcal{D}} \left\lbrace u_k\left(d_t, a, h, z, j; \mathcal{\Phi}\left(t\right)\right) + s_j \beta_{hh} \, \mathbb{E}_{z^{\prime} \vert z} \left\lbrack \tilde{V}_{k,t+1}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right) \right\rbrack + \left(1 - s_j\right) \nu_b\left(a^{\prime}; \tau_b\left(t\right)\right) \right\rbrace$$
+
+where $\tilde{V}_{k,t+1}$ is the convex combination governed by the time-$t$ credibility weight $\lambda_{\mathrm{cred}}\left(t\right) \in \lbrack 0, 1\rbrack$:
+
+$$\tilde{V}_{k,t+1}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right) = \left(1 - \lambda_{\mathrm{cred}}\left(t\right)\right) V_{k,t+1}^{\mathrm{perm\,SS1}}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right) + \lambda_{\mathrm{cred}}\left(t\right) V_{k,t+1}^{\mathrm{full\,SS2}}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right)$$
+
+The credibility trajectory $\lambda_{\mathrm{cred}}\left(t\right)$ is parameterized by the announcement date $t_{\mathrm{ann}} \le T_1$, initial announcement credibility $\bar{\lambda}_0 \in \lbrack 0, 1\rbrack$, and learning curvature $\kappa_{\mathrm{cred}} > 0$:
+
+$$\lambda_{\mathrm{cred}}\left(t\right) = \begin{cases}
+0 & \text{if } t < t_{\mathrm{ann}} \\
+\bar{\lambda}_0 + \left(1 - \bar{\lambda}_0\right)\left(\frac{t - t_{\mathrm{ann}}}{T_1 - t_{\mathrm{ann}}}\right)^{\kappa_{\mathrm{cred}}} & \text{if } t_{\mathrm{ann}} \le t < T_1 \\
+1 & \text{if } t \ge T_1
+\end{cases}$$
+
+### 7.6.3 Endogenous Actuarial Updating of $\lambda_{\mathrm{cred}}\left(t\right)$ and Logistic Seam Smoothing
+In the **Earned Fiscal Credibility** specification ($\bar{\lambda}_0 = 0.25$), private credibility $\lambda_{\mathrm{cred}}\left(t\right)$ can also be linked directly to the audited ratio of recognised actuarial fiscal return $\mathcal{V}_{\mathrm{National},t}^{\left(\mathrm{Fiscal}\right)}\left(H; r_{2\%}\right)$ to cumulative investment outlay $\mathcal{C}_{\mathrm{National},\mathrm{realized}}^{\left(\mathrm{Inv}\right)}\left(t\right)$ from Section 7.5.2:
+
+$$\lambda_{\mathrm{cred}}^{\mathrm{actuarial}}\left(t\right) = \min\left\lbrace 1, \, \bar{\lambda}_0 + \left(1 - \bar{\lambda}_0\right) \max\left(0, \, \frac{\mathcal{V}_{\mathrm{National},t}^{\left(\mathrm{Fiscal}\right)}\left(H; r_{2\%}\right) / \mathcal{C}_{\mathrm{National},\mathrm{realized}}^{\left(\mathrm{Inv}\right)}\left(t\right) - 1}{\bar{\chi}_{\mathrm{target}} - 1}\right) \right\rbrace$$
+
+where $\bar{\chi}_{\mathrm{target}} = 3.50$ denotes the full-credibility actuarial coverage multiple. Because the Year 5 Parliamentary Audit ($t = 1$) already achieves an actuarial coverage multiple of $\mathcal{V}_{\mathrm{National},5}^{\left(\mathrm{Fiscal}\right)} / \mathcal{C}_{\mathrm{National},\mathrm{realized}}^{\left(\mathrm{Inv}\right)} = 35.25 / 9.19 = 3.84 > \bar{\chi}_{\mathrm{target}}$, publishing the ACC-style actuarial audit at Year 5 drives $\lambda_{\mathrm{cred}}^{\mathrm{actuarial}}\left(t\right) \to 1$, locking in early youth retention and parental investment gains across $t \in \lbrace 1, 2, 3, 4 \rbrace$.
+
+Finally, to eliminate discrete step-function tax arbitrage at the Phase-2 transition seam $t = T_1$ (Challenge 2), all continuous fiscal and endowment instruments $\mathcal{\Phi}\left(t\right) \in \lbrace \tau_l\left(t\right), \tau_b\left(t\right), G_{\mathrm{ECE},1}\left(t\right), G_{\mathrm{ECE},2}\left(t\right), E\left(t\right) \rbrace$ follow a smooth **logistic phase-in ramp** with steepness parameter $\xi_{\mathrm{ramp}} > 0$:
+
+$$\mathcal{\Phi}\left(t\right) = \mathcal{\Phi}_1 + \frac{\mathcal{\Phi}_2 - \mathcal{\Phi}_1}{1 + \exp\left(-\xi_{\mathrm{ramp}}\left(t - T_1\right)\right)}$$
+
 ---
 
 ## 8. Methodological Appendices (Appendices A.1–A.4)

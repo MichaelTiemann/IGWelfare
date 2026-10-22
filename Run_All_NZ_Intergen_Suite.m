@@ -205,7 +205,13 @@ if exist('WelfareDecomposition_4Region.m', 'file')
         load(Cache_Step6);
     else
         run('WelfareDecomposition_4Region.m');
-        save(Cache_Step6, 'T1', 'T2', 'T3', 'CE_Stage', 'CE_Quint', 'CE_Ten', 'V_SS1', 'jDist_SS1', 'IG_Diag_SS1');
+        vars_step6 = {'T1', 'T2', 'T3', 'CE_Stage', 'CE_Quint', 'CE_Ten', ...
+            'V_SS1', 'Policy_SS1', 'StatDist_SS1', 'jDist_SS1', 'Params_SS1', 'IG_Diag_SS1', ...
+            'Phases', 'WelfareResults', 'Reform_Phase_Specs', 'Active_Phases'};
+        if exist('V_SS2', 'var')
+            vars_step6 = [vars_step6, {'V_SS2', 'Policy_SS2', 'StatDist_SS2', 'jDist_SS2', 'Params_SS2', 'IG_Diag_SS2'}];
+        end
+        save(Cache_Step6, vars_step6{:});
         fprintf('    [CACHE SAVED] Saved Step 6 checkpoint to %s\n', Cache_Step6);
     end
     fprintf('    Step 6 completed in %.2f seconds.\n\n', toc(step6_timer));
@@ -232,10 +238,12 @@ end
 run('Plot_PreEmployment_OpportunityIndex.m');
 
 % 1. Standard Dunedin 22% Anchor (Default):
-Out_Dunedin = Plot_ActuarialContinuationValuation([], struct('Calibration_Anchor', 'Dunedin_22'), 'Auckland');
+Out_Auckland_Dunedin = Plot_ActuarialContinuationValuation([], struct('Calibration_Anchor', 'Dunedin_22'), 'Auckland');
+Out_National_Dunedin = Plot_ActuarialContinuationValuation([], struct('Calibration_Anchor', 'Dunedin_22'), 'National');
 
 % 2. Growing Up in NZ / Metro Rental Squeeze Sensitivity (~36.6% Metro Stunted):
-Out_GUiNZ   = Plot_ActuarialContinuationValuation([], struct('Calibration_Anchor', 'MetroSqueeze_GUiNZ'), 'Auckland');
+Out_Auckland_GUiNZ   = Plot_ActuarialContinuationValuation([], struct('Calibration_Anchor', 'MetroSqueeze_GUiNZ'), 'Auckland');
+Out_National_GUiNZ   = Plot_ActuarialContinuationValuation([], struct('Calibration_Anchor', 'MetroSqueeze_GUiNZ'), 'National');
 
 %% 8. EXPORT ALL 4-REGION + ABROAD TABLES (.CSV), FIGURES (.PNG/.FIG), AND WORKSPACE (.MAT)
 if Export_Tables_Figures
