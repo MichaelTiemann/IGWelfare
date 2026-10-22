@@ -1,365 +1,264 @@
-# DOCUMENT 2: Intergenerational Welfare Technical Documentation & Model Specification Guide
-**A Mixed Finite/Infinite-Horizon 4-Region + Abroad Spatial OLG Model of Intergenerational Welfare, Housing Wealth, and Human Capital in New Zealand (Parameterized Period Length $\Delta t$)**[cite: 1, 5, 22]
+# Intergenerational Welfare Technical Documentation & Model Specification Guide
+**A GPU-Accelerated Mixed Finite/Infinite-Horizon 4-Region + Abroad Spatial Overlapping Generations Framework (Multiphase Edition)**
 
 ---
 
-## 1. Executive Overview & 8-PType GPU Computational Architecture
-This specification guide documents the mathematical structure, $\Delta t$-parameterized time-grid equations, calibration mapping, post-hoc 6-gate fiscal accounting, and VFI Toolkit implementation for evaluating intergenerational welfare across **four domestic New Zealand geographic tiers** (**Rural**, **Small**, **Large**, **Auckland**) plus an endogenous **Abroad** (Australia/OECD) emigration margin[cite: 5, 11, 20, 22]. The framework integrates three coupled life-cycle and macroeconomic lenses[cite: 8, 35]:
-1. **Lens 1: Childhood Skill Formation (First 2000 Days & Adolescent Gate):** Anchored cognitive and noncognitive skill production (`ChildCES_aprimeFn.m`), public in-kind provision of luxury goods with "pro-equality" externalities, and Two-Way Montessori Cross-Age Peer Mentoring at the early-adolescent vulnerability gate ($J=5$, ages 12–14)[cite: 8, 9, 20, 35, 43].
-2. **Lens 2: The Active Working Generation:** Quantity-quality fertility and cooperative childcare bargaining (`FertilityBargaining_Module.m`), adult Ben-Porath human capital maintenance and part-time/full-time labor supply, and the young renter vs. leveraged homeowner tenure cleavage[cite: 8, 15, 16, 35].
-3. **Lens 3: Retirement, The NZD 1.6T Property Transfer, and Capital Allocation:** Universal pension fiscal dynamics, luxury bequest motives and estate taxation, unbalanced sectoral growth driving metropolitan land overvaluation, "use-it-or-lose-it" wealth taxation on heterogeneous-return firms, and the **2050 Sovereign Debt-Sinking & Public Reinvestment Protocol**[cite: 2, 8, 20, 31, 32, 35].
+## 1. Model Overview, Spatial Taxonomy, & Flexible Period Resolution ($\Delta t \in \lbrace 5, 3, 2, 1 \rbrace$)
+
+### 1.1 Mixed-Horizon 8-PType GPU Architecture
+We formulate a quantitative general-equilibrium Spatial Overlapping Generations (OLG) model of Aotearoa New Zealand implemented on the GPU via the VFI Toolkit mixed finite/infinite-horizon permanent-type engines (`ValueFnIter_MixHorz_PType` and `StationaryDist_MixHorz_PType`). The domestic economy is partitioned into $N_{\mathrm{reg}} = 4$ geographic tiers indexed by $k \in \lbrace 1, 2, 3, 4 \rbrace \equiv \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace$, augmented by a 5th endogenous outside option $k = 5 \equiv \mathrm{Abroad}$ (representing skilled youth emigration to Australia and the wider OECD):
+1. **`HH_Rural` & `Firm_Rural` (16.0% Base Household Share, 15.0% Firm Share):** Agricultural, primary-sector, and remote districts characterized by responsive land supply ($Q_{\mathrm{Rural},\mathrm{SS0}} = 1.05$) and elevated mandatory fuel/transport subsistence costs ($\bar{e}_{\mathrm{Rural}} = 0.048$).
+2. **`HH_Small` & `Firm_Small` (24.0% Base Household Share, 23.0% Firm Share):** Secondary provincial towns (population under 100,000) with moderate housing user costs ($Q_{\mathrm{Small},\mathrm{SS0}} = 1.40$) and compressed wage ceilings.
+3. **`HH_Large` & `Firm_Large` (25.9% Base Household Share, 26.9% Firm Share):** Major regional metropolitan centers (population over 100,000: Wellington, Christchurch, Hamilton, Tauranga, and Dunedin) featuring tertiary university hubs, constrained urban land ($Q_{\mathrm{Large},\mathrm{SS0}} = 2.05$), and high outward youth turnover.
+4. **`HH_Auckland` & `Firm_Auckland` (34.1% Base Household Share, 35.1% Firm Share):** The primate metropolitan agglomeration featuring the highest entrepreneurial productivity ceiling ($z_{h,\mathrm{Akl}} = 1.75$), the steepest land supply inelasticity ($Q_{\mathrm{Auckland},\mathrm{SS0}} = 3.10$), and severe young-renter crowd-out.
 
 ```text
-+-----------------------------------------------------------------------------------+  
-|                        THE UNIFIED INTERGENERATIONAL LOOP                         |  
-|                                                                                   |  
-|  [LENS 1: CHILDHOOD & ADOLESCENCE (Ages 0-19)]                                    |  
-|   * Gate 1-2 (Ages 0-5): Private (i_c) + Public Wraparound (G_ECE) + Luxury Floor |  
-|   * Gate 3 (Ages 12-14): Unemp Stress vs Two-Way Montessori Cross-Age Mentoring   |  
-|         |                                                       ^                 |  
-|         v (Determines Adult Skill Tier h_1..h_7 & Stunting)     |                 |  
-|  [LENS 2: ACTIVE WORKING GENERATION (Ages 20-64)]               | (Funds Youth    |  
-|   * 4x5 Spatial Sorting: Rural, Small, Large, Auckland, Abroad  |  Grant E &      |  
-|   * Housing Tenure Cleavage: Young Renters vs Leveraged Owners  |  Public G_ECE)  |  
-|   * Adult Ben-Porath Skill Maintenance (I_h) & Fertility        |                 |  
-|         |                                                       |                 |  
-|         v (Accumulates Property/Financial Net Worth & Pays Tax) |                 |  
-|  [LENS 3: RETIREMENT, NZD 1.6T TRANSFER & 2050 PROTOCOL (65+)]  |                 |  
-|   * Universal PAYG NZ Superannuation + Consumption Floor        |                 |  
-|   * NZD 1.6T Property Estate Transfer (Taxed at tau_b) ---------+                 |  
-|   * Guvenen "Use-It-or-Lose-It" Wealth Tax (tau_a) -> Reallocates K to z_h Firms  |  
-|   * 50/50 Reform Surplus Split -> 2050 Debt-Sinking Fund & Infra/NZSF Pool        |  
++-----------------------------------------------------------------------------------+
+|               8-PTYPE MIXED-HORIZON GPU ARCHITECTURE (Names_i)                    |
+|                                                                                   |
+|  FINITE-HORIZON HOUSEHOLDS (Ages 20-99, J = round(80/dt), Case 1 MixHorz)         |
+|   * HH_Rural (16.0%)  |  HH_Small (24.0%)  |  HH_Large (25.9%)  |  HH_Auckland    |
+|   * 4D Compact Grid: (a, h, z, j) + 5th Outside Option: Emigration Abroad (k = 5) |
+|         |                                                       ^                 |
+|         v (Supplies Effective Labor H_k, Rent/Owner Demand, & Estates)            |
+|  INFINITE-HORIZON ENTREPRENEURIAL FIRMS (Guvenen et al. 2023, InfHorz)            |
+|   * Firm_Rural (15.0%) | Firm_Small (23.0%) | Firm_Large (26.9%) | Firm_Auckland  |
+|   * 2D Grid: (a_f, z_f) with Collateral Constraint k <= lambda_col * a_f          |
 +-----------------------------------------------------------------------------------+
 ```
 
-### 1.1 Parameterized Time Period Length ($\Delta t \in \lbrace 5, 3, 2, 1 \rbrace$ Years)
-To allow researchers to trade off execution speed against life-cycle and early-childhood granularity without altering structural equations, the model is parameterized by the period length $\Delta t$ (`Params.dt`, configured via `Configure_TimeGrid_Params.m`)[cite: 7]:
-* **Adult Life-Cycle Horizon ($J$):** Economic adulthood spans 80 years from age 20 to age 99 across $J = \mathrm{round}\left(80 / \Delta t\right)$ periods ($J = 16$ for $\Delta t = 5$; $J = 27$ for $\Delta t = 3$; $J = 40$ for $\Delta t = 2$)[cite: 5, 7].
-* **NZ Superannuation Retirement Boundary ($J_r$):** Mandatory retirement at age 65 (after 45 working years) begins at period $J_r = 1 + \mathrm{round}\left(45 / \Delta t\right)$ ($J_r = 10$ for $\Delta t = 5$; $J_r = 16$ for $\Delta t = 3$; $J_r = 23$ for $\Delta t = 2$)[cite: 5, 7].
-* **Childhood & Adolescent Development Windows ($\mathcal{J}_{c,1}, \mathcal{J}_{c,2}$):** Given parental age index at childbirth $j_{\mathrm{birth}} = 1 + \mathrm{round}\left(6 / \Delta t\right)$, the **First 2000 Days** (child ages 0–5, 6 years; Gate 2, $J=2\text{--}3$ in child timeline) span $n_{s1} = \max\left(1, \mathrm{round}\left(6 / \Delta t\right)\right)$ periods $\mathcal{J}_{c,1} = \lbrace j_{\mathrm{birth}}, \dots, j_{\mathrm{birth}} + n_{s1} - 1 \rbrace$, and **Primary/Secondary Schooling & Early Adolescence** (child ages 6–17, 12 years; including the Ages 12–14 Adolescent Gate at $J=5$) span $n_{s2} = \max\left(1, \mathrm{round}\left(12 / \Delta t\right)\right)$ periods $\mathcal{J}_{c,2} = \lbrace j_{\mathrm{birth}} + n_{s1}, \dots, j_{\mathrm{birth}} + n_{s1} + n_{s2} - 1 \rbrace$, with completed childhood skill extracted at $j_{\mathrm{launch}} = j_{\mathrm{birth}} + n_{s1} + n_{s2}$ (Child $J=6\text{--}7$, Age 20)[cite: 7, 11, 20, 22, 43].
+### 1.2 Exact $\Delta t$-Scaling Laws (`Configure_TimeGrid_Params.m`)
+Let $\Delta t \in \lbrace 5, 3, 2, 1 \rbrace$ denote the model period length in years (with $\Delta t = 3$ as the high-resolution developmental default and $\Delta t = 5$ as the fast benchmark). `Configure_TimeGrid_Params(Params, dt)` maps all annual flow rates, stocks, and lifecycle age indices so steady-state and transition magnitudes remain invariant across $\Delta t$:
+* **Lifecycle Horizon & Age Brackets:** Adult biological ages span 20 to 99 ($80$ years), yielding $J = \mathrm{round}\left(80 / \Delta t\right)$ model periods (`J = 16` at $\Delta t = 5$; `J = 27` at $\Delta t = 3$). Retirement begins at age 65: $J_r = \mathrm{round}\left(45 / \Delta t\right) + 1$ (`Jr = 10` at $\Delta t = 5$; `Jr = 16` at $\Delta t = 3$).
+* **Childhood Developmental Sub-Stages ($\mathcal{J}_{c,1}$ and $\mathcal{J}_{c,2}$):** Children are born when parents are age 26 ($j_{\mathrm{birth}} = \mathrm{round}\left(6 / \Delta t\right) + 1$).
+  * **Stage 1 (First 2000 Days, Child Ages 0–5):** Spans $n_{s1} = \mathrm{round}\left(6 / \Delta t\right)$ parental periods $\mathcal{J}_{c,1} = \lbrace j_{s1,\mathrm{start}}, \dots, j_{s1,\mathrm{end}} \rbrace$ ($j_p = 3$ at $\Delta t = 5$; $j_p \in \lbrace 3, 4 \rbrace$ at $\Delta t = 3$).
+  * **Stage 2 (Primary/Secondary Schooling & Adolescent Gate, Child Ages 6–17):** Spans $n_{s2} = \mathrm{round}\left(12 / \Delta t\right)$ parental periods $\mathcal{J}_{c,2} = \lbrace j_{s2,\mathrm{start}}, \dots, j_{s2,\mathrm{end}} \rbrace$ ($j_p \in \lbrace 4, 5 \rbrace$ at $\Delta t = 5$; $j_p \in \lbrace 5, 6, 7, 8 \rbrace$ at $\Delta t = 3$).
+* **Compound Discounting & Flow Scaling ($\mathrm{dt\_scale} = \Delta t / 5$):**
 
-### 1.2 The 8 Permanent Types (`Names_i`) Dispatched on the GPU
-To capture heterogeneous life-cycle households and collateral-constrained entrepreneurial firms across all four domestic regions without expanding individual grid dimensions, the model dispatches **8 Permanent Types (`Names_i`)** sequentially on the GPU[cite: 5, 11]:
+$$\beta_{hh}\left(\Delta t\right) = \beta_{\mathrm{ann}}^{\Delta t}, \qquad r\left(\Delta t\right) = \left(1 + r_{\mathrm{ann}}\right)^{\Delta t} - 1, \qquad s_j\left(\Delta t\right) = \left(s_{j,\mathrm{5yr}}\right)^{\Delta t / 5}$$
 
-| Permanent Type (`Names_i`) | Horizon ($N_j$) | Pop / Firm Share (2025 Base) | Economic Role & Spatial Domain | VFI Toolkit Solver Dispatched |
-| :--- | :--- | :---: | :--- | :--- |
-| **`HH_Rural`** | Finite ($J = 80/\Delta t$) | $16.0\%$ of HH | Rural & primary districts; elastic land ($\delta_H = 0.35$), high fuel/transport burden ($\bar{e} = 0.048$)[cite: 5, 11, 39]. | `ValueFnIter_Case1_FHorz_ExpAsset` |
-| **`HH_Small`** | Finite ($J = 80/\Delta t$) | $24.0\%$ of HH | Small/medium provincial towns (<100k); compressed middle wages, elevated transport cost ($\bar{e} = 0.036$)[cite: 5, 11, 39]. | `ValueFnIter_Case1_FHorz_ExpAsset` |
-| **`HH_Large`** | Finite ($J = 80/\Delta t$) | $25.9\%$ of HH | Non-Auckland major metros (>100k: Wgtn, Chch, Hamilton, Tauranga, Dunedin); university/service stepping-stone hubs[cite: 5, 11, 39]. | `ValueFnIter_Case1_FHorz_ExpAsset` |
-| **`HH_Auckland`** | Finite ($J = 80/\Delta t$) | $34.1\%$ of HH | Primate metropolitan agglomeration ("Paris" analog); high wage variance ($\sigma_z = 0.24$), severely inelastic land ($\delta_H = 0.10$)[cite: 5, 11, 26, 39]. | `ValueFnIter_Case1_FHorz_ExpAsset` |
-| **`Firm_Rural`** | Infinite ($N_j = \infty$) | $15.0\%$ of Firms | Primary/land-intensive producers ($z_f \in \lbrace 0.70, 1.15 \rbrace$) with annual trend growth $G_{\mathrm{ann}} = 1.007$[cite: 5, 11]. | `ValueFnIter_Case1` |
-| **`Firm_Small`** | Infinite ($N_j = \infty$) | $23.0\%$ of Firms | Provincial processing, retail & trade enterprises ($z_f \in \lbrace 0.75, 1.28 \rbrace$) with $G_{\mathrm{ann}} = 1.011$[cite: 5, 11]. | `ValueFnIter_Case1` |
-| **`Firm_Large`** | Infinite ($N_j = \infty$) | $26.9\%$ of Firms | Regional metro manufacturing, tech & service firms ($z_f \in \lbrace 0.83, 1.50 \rbrace$) with $G_{\mathrm{ann}} = 1.018$[cite: 5, 11]. | `ValueFnIter_Case1` |
-| **`Firm_Auckland`** | Infinite ($N_j = \infty$) | $35.1\%$ of Firms | High-return knowledge & tradable scale-ups ($z_f \in \lbrace 0.90, 1.75 \rbrace$) with $G_{\mathrm{ann}} = 1.025$[cite: 5, 11, 14]. | `ValueFnIter_Case1` |
+$$G_{\mathrm{ECE}}\left(\Delta t\right) = \left(\frac{\Delta t}{5}\right) G_{\mathrm{ECE,5yr}}, \qquad T_k\left(\Delta t\right) = \left(\frac{\Delta t}{5}\right) T_{k,\mathrm{5yr}}, \qquad \bar{e}_k\left(\Delta t\right) = \left(\frac{\Delta t}{5}\right) \bar{e}_{k,\mathrm{5yr}}$$
+
+while stock endowments (`YouthGrant` $E$) and proportional tax rates ($\tau_l, \tau_c, \tau_k, \tau_b$) are invariant to $\Delta t$, and the book-value wealth tax compounds as $\left(1 - \tau_a\right)^{\Delta t}$.
 
 ---
 
-## 2. Macro Demographic & Dynamic Regional Population Law of Motion
-Following the NZ Treasury OLG demographic framework (Binning et al., 2024)[cite: 12], cohorts age across $J = \mathrm{round}\left(80 / \Delta t\right)$ brackets via $\Delta t$-period survival probabilities $s_j = \left(s_{j,\mathrm{ann}}\right)^{\Delta t}$, fertility rates $f_j$, and age-specific net migration flows[cite: 5, 12]:
+## 2. Infinite-Horizon Entrepreneurial Firms & Capital Reallocation (Lens 3)
 
-$$\mathbf{N}_t = \mathbf{T}_{t-1} \mathbf{N}_{t-1} + \mathbf{M}_{t-1}$$
+Following Guvenen, Kambourov, Kuruscu, Ocampo, and Chen (2023), each region $k$ contains a unit measure of infinite-horizon entrepreneurial firms (`Firm_Rural`, `Firm_Small`, `Firm_Large`, `Firm_Auckland`) with state vector $\left(a_f, z_f\right) \in \mathcal{A}_f \times \mathcal{Z}_{f,k}$, where $a_f$ is firm book equity and $z_f \in \lbrace z_{\ell,k}, z_{h,k} \rbrace$ is idiosyncratic entrepreneurial productivity evolving via Markov matrix $\Pi_{f,k}$.
 
-Along the 60-year transition path ($t = 1, \dots, T_{\mathrm{trans}}$ where $T_{\mathrm{trans}} = \mathrm{round}\left(60 / \Delta t\right)$), the 4-region household population share vector $\mathbf{s}_{HH,t} = \lbrack s_{\mathrm{Rural},t}, s_{\mathrm{Small},t}, s_{\mathrm{Large},t}, s_{\mathrm{Auckland},t}\rbrack$ and firm share vector $\mathbf{s}_{F,t}$ evolve endogenously from their Stats NZ 2025 base (`[0.160, 0.240, 0.259, 0.341]` and `[0.150, 0.230, 0.269, 0.351]`) via the domestic youth sorting step rate $\nu_{\mathrm{dom}}\left(\Delta t\right) = 1 - \left(1 - 0.12\right)^{\Delta t / 5}$, the normalized $4 \times 4$ domestic migration submatrix $\Pi_{\mathrm{mig},t}^{\mathrm{dom}}$, and the international net migration inflow rate $\zeta_{\mathrm{inflow}}\left(\Delta t\right) = 1 - \left(1 - 0.085\right)^{\Delta t / 5}$ over destination shares $\mathbf{m}_{\mathrm{intl}} = \lbrack 0.115, 0.210, 0.270, 0.405\rbrack$[cite: 5, 11]:
+### 2.1 Collateral-Constrained Profit Maximization & "Use-It-Or-Lose-It" Return
+Firms rent capital $k_f \le \lambda_{\mathrm{col}} a_f$ (with collateral multiplier $\lambda_{\mathrm{col}} = 2.50$) and hire regional effective labor $\ell_f$ at wage $w_k$ to produce output $y_f = z_f \left(k_f^{\alpha_k} \ell_f^{1 - \alpha_k}\right)^{1 - \nu_{\mathrm{span}}}$. Integrating out static factor demands yields the gross-of-equity-tax rate of return on firm equity $R_k\left(z_f; \Delta t\right)$ (`ReturnFn_Firm.m`):
 
-$$\tilde{\mathbf{s}}_{HH,t} = \left(1 - \nu_{\mathrm{dom}}\left(\Delta t\right)\right)\mathbf{s}_{HH,t} + \nu_{\mathrm{dom}}\left(\Delta t\right) \left(\mathbf{s}_{HH,t} \Pi_{\mathrm{mig},t}^{\mathrm{dom}}\right)$$
+$$R_k\left(z_f; \Delta t\right) = \left(1 - \tau_a\right)^{\Delta t} + \left(1 - \tau_k\right) \left\lbrack r\left(\Delta t\right) + \max\left\lbrace 0, \, \pi_k^{*}\left(z_f, w_k\right) - \left(r\left(\Delta t\right) + \delta_k\left(\Delta t\right)\right) \right\rbrace \lambda_{\mathrm{col}} \right\rbrack$$
 
-$$\mathbf{s}_{HH,t+1} = \frac{\left(1 - \zeta_{\mathrm{inflow}}\left(\Delta t\right)\right)\tilde{\mathbf{s}}_{HH,t} + \zeta_{\mathrm{inflow}}\left(\Delta t\right) \mathbf{m}_{\mathrm{intl}}}{\sum_{k=1}^4 \left\lbrack\left(1 - \zeta_{\mathrm{inflow}}\left(\Delta t\right)\right)\tilde{s}_{HH,k,t} + \zeta_{\mathrm{inflow}}\left(\Delta t\right) m_{\mathrm{intl},k}\right\rbrack}, \qquad \mathbf{s}_{F,t+1} = 0.85^{\Delta t / 5} \mathbf{s}_{F,t} + \left(1 - 0.85^{\Delta t / 5}\right) \mathbf{s}_{HH,t+1}$$
+$$\pi_k^{*}\left(z_f, w_k\right) = \alpha_k \left(\frac{1 - \alpha_k}{w_k}\right)^{\frac{1 - \alpha_k}{\alpha_k}} z_f^{\frac{1}{\alpha_k}}$$
 
-*(Full 60-year trajectory output to [`Table9_4Region_Dynamic_Population_Shares.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table9_4Region_Dynamic_Population_Shares.csv))[cite: 11].*
+### 2.2 Firm Bellman Equation & Stationary Equity Distribution ($\Gamma_k$)
+Each firm solves the infinite-horizon Bellman equation:
+
+$$V_{F,k}\left(a_f, z_f\right) = \max_{a_f^{\prime} \in \left\lbrack 0, \, R_k\left(z_f; \Delta t\right) a_f \right\rbrack} \left\lbrace \ln\left(R_k\left(z_f; \Delta t\right) a_f - a_f^{\prime} + \varepsilon_c\right) + \beta_{\mathrm{firm}}\left(\Delta t\right) \sum_{z_f^{\prime}} \Pi_{f,k}\left(z_f^{\prime} \;\middle|\; z_f\right) V_{F,k}\left(a_f^{\prime}, z_f^{\prime}\right) \right\rbrace$$
+
+Replacing distortionary capital income taxation ($\tau_k$) with a book-value wealth/land tax ($\tau_a = 0.015$) penalizes low-productivity land-banking firms ($z_{\ell,k}$) while leaving high-productivity firms ($z_{h,k}$) with a higher marginal saving propensity, shifting the stationary equity distribution $\Gamma_k\left(a_f, z_f\right)$ toward $z_{h,k}$ and raising endogenous regional total factor productivity $Z_k\left(\Gamma_k\right)$.
 
 ---
 
-## 3. Finite-Horizon Household Problem (Lenses 1, 2, and 3)
-In the full 5D experience-asset specification (`UpgradeB`), a household of age $j \in \lbrace 1, \dots, J \rbrace$ in region $k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace$ has state vector[cite: 5, 11]:
+## 3. Finite-Horizon Household Problem Across Lenses 1, 2, and 3
 
-$$\mathbf{s}_{HH} = \left(a, h, \theta_c, z, j; k\right)$$
+### 3.1 State Vector, Decision Grids, & Return Function Signature
+In the compact 4D GPU specification (`ReturnFn_SpatialHH_Compact4D.m`, 40 arguments), a household in region $k$ at age bracket $j \in \lbrace 1, \dots, J \rbrace$ has state vector $\left(a, h, z, j\right)$ and chooses decision vector $d = \left(\ell, I_h, i_c\right)$ and next-period states $\left(a^{\prime}, h^{\prime}\right)$:
+* `d_grid`: $\ell \in \lbrack 0.2, 1.0\rbrack$ ($n_{d1} = 5$, labor supply), $I_h \in \lbrack 0, 0.35\rbrack$ ($n_{d2} = 4$, adult Ben-Porath training time), $i_c \in \lbrack 0, 0.45\rbrack$ ($n_{d3} = 5$, private early/school child investment).
+* `a_grid`: $a \in \lbrack 0.001, 15.0\rbrack$ ($n_{a1} = 25$, household net worth) and $h \in \lbrack 0.45, 0.65, 0.85, 1.00, 1.20, 1.45, 1.80\rbrack$ ($n_{a2} = 7$, adult human capital tiers $h_1 \dots h_7$).
+* `z_grid`: $z \in \mathcal{Z}_{hh}$ ($n_z = 5$, Rouwenhorst idiosyncratic earnings shock, where $i_z = 1$ denotes unemployment/severe distress).
 
-where $a \in \mathcal{A}_{HH}$ ($n_a(1) = 61$ points) is consolidated net worth ($Q_k h_{\mathrm{house}} - b_{\mathrm{debt}}$)[cite: 5, 15], $h \in \mathcal{H}$ ($n_a(2) = 7$ points) is adult human capital[cite: 5, 35], $\theta_c \in \Theta_c$ ($n_a(3) = 9$ points) is the child's multi-stage skill experience asset[cite: 5, 9, 11], and $z \in \mathcal{Z}_k$ ($n_z = 5$ points) is a region-specific Markov labor productivity shock[cite: 5]. Decisions are $d = \left(i_c, \ell, I_h\right)$ (childhood skill investment, labor supply, and adult Ben-Porath training)[cite: 5, 19, 35].
+*(In the full two-stage CES experience-asset specification with 5D Emigration Abroad, `ReturnFn_SpatialHH.m` and `HumanCapital_Lifecycle_aprimeFn.m`, `a_grid` also tracks the 5-point child skill experience asset $\theta_c \in \mathcal{G}_{\theta}$ across childhood stages $\mathcal{J}_{c,1}$ and $\mathcal{J}_{c,2}$).**(In the full two-stage CES experience-asset specification with Emigration Abroad, `ReturnFn_SpatialHH.m` and `HumanCapital_Lifecycle_aprimeFn.m`, `a_grid` also tracks the 5-point child skill experience asset $\theta_c \in \mathcal{G}_{\theta}$ across childhood stages $\mathcal{J}_{c,1}$ and $\mathcal{J}_{c,2}$).*
 
-### 3.1 Housing Tenure Choice, User Costs, and 4-Region Unbalanced Growth
-Following Kiyotaki, Michaelides, and Nikolov (2024) and Hirano and Toda (2025)[cite: 11, 15, 32], let $Q_k$ denote the regional house price, $R_{\mathrm{ann}} = \left(1 + r\right)^{1/\Delta t}$ the gross annualized interest rate (where $r$ is the $\Delta t$-period interest rate), $\mu_{\mathrm{maint}} = 0.04$ annual maintenance/rates, $\upsilon_h = 0.008$ the owner-occupied tax wedge, and $G_{k,\mathrm{ann}}$ the regional annual trend growth factor ($G_{\mathrm{Auckland},\mathrm{ann}} = 1.025 > G_{\mathrm{Large},\mathrm{ann}} = 1.018 > G_{\mathrm{Small},\mathrm{ann}} = 1.011 > G_{\mathrm{Rural},\mathrm{ann}} = 1.007$)[cite: 11]:
+### 3.2 Budget Constraint, Stone-Geary Subsistence, & Housing Tenure Cutoff
+Effective labor supply during working life ($j < J_r$) is $\ell_{\mathrm{eff}} = \max\left(0, \, \ell - I_h\right)$, generating gross labor income $y_{\mathrm{lab}} = w_k z h \ell_{\mathrm{eff}}$. In retirement ($j \ge J_r$), households receive universal New Zealand Superannuation $p_{\mathrm{super}}$ plus means-tested consumption floor support $\underline{c}$. Total disposable cash-on-hand available for composite expenditure $e_{\mathrm{tot}}$ is:
 
-$$rr_k = \left(1 + \mu_{\mathrm{maint}} - \frac{G_{k,\mathrm{ann}}}{R_{\mathrm{ann}}}\right) Q_k, \qquad rh_k = \left(1 + \mu_{\mathrm{maint}} - \upsilon_h - \frac{G_{k,\mathrm{ann}}}{R_{\mathrm{ann}}}\right) Q_k$$
+$$y_{\mathrm{disp}} = \left(1 - \tau_a\right)^{\Delta t} a + \left(1 - \tau_k\right) r\left(\Delta t\right) a + \left(1 - \tau_l\right) y_{\mathrm{lab}} + \mathbb{I}_{\left\lbrace j \ge J_r\right\rbrace} p_{\mathrm{super}} + \mathbb{I}_{\left\lbrace j = 1\right\rbrace} E + T_k\left(a, y_{\mathrm{lab}}\right)$$
 
-Young working households ($j < J_r$) draw an idiosyncratic rental utility penalty $\chi \sim U\lbrack 0, \bar{\chi}\rbrack$ ($\bar{\chi} = 2.55$), yielding the analytical regional homeownership share $\xi_k$ and composite housing price index $p_{H,k}\left(j\right)$[cite: 15]:
+$$e_{\mathrm{tot}} = \frac{y_{\mathrm{disp}} - \bar{e}_k - \mathbb{I}_{\left\lbrace j \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}\right\rbrace} \left(1 - s_{\mathrm{sub}}\right) i_c - a^{\prime}}{1 + \tau_c}$$
 
-$$\xi_k = \min\left\lbrace 1, \frac{1}{\bar{\chi}} \left(\frac{rr_k}{rh_k}\right)\right\rbrace, \qquad p_{H,k}\left(j\right) = \begin{cases}
-\xi_k rh_k + \left(1 - \xi_k\right) \frac{rr_k}{0.5 \bar{\chi}} & \text{if } j < J_r \\
-rh_k & \text{if } j \ge J_r
+Following Kiyotaki, Michaelides, and Nikolov (2024), households with net worth below the regional down-payment threshold ($a < \xi_k Q_k$, where $\xi_k = 0.20$) are **Renters** facing rental user cost $r_{h,k}^{\mathrm{rent}} = \left(1 + \mu_{\mathrm{maint}} - G_k / R\right) Q_k$, while households with $a \ge \xi_k Q_k$ are **Homeowners** facing user cost $r_{h,k}^{\mathrm{own}} = \left(1 + \mu_{\mathrm{maint}} - G_k / R - \psi_{\mathrm{own}}\right) Q_k$. Optimal non-durable consumption $c_{nd} = \phi_{nd} e_{\mathrm{tot}}$ and housing services $c_H = \left(1 - \phi_{nd}\right) e_{\mathrm{tot}} / r_{h,k}$ combine in the Cobb-Douglas bundle $c_{\mathrm{comp}} = c_{nd}^{\phi_{nd}} c_H^{1 - \phi_{nd}}$.
+
+### 3.3 Per-Period Utility, Altruistic Child-Skill Payoff, & Relational Cohesion Dividend
+Total flow utility $u_k\left(d, a, h, z, j\right)$ unifies five structural terms:
+
+$$u_k = \frac{c_{\mathrm{comp}}^{1 - \eta_c}}{1 - \eta_c} - \psi_{\ell} \frac{\ell^{1 + 1/\varepsilon_{\ell}}}{1 + 1/\varepsilon_{\ell}} + \mathbb{I}_{\left\lbrace j \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}\right\rbrace} u_{\mathrm{child}}\left(i_c, h, a; k\right) + \left(1 - s_j\right) u_{\mathrm{beq}}\left(a^{\prime}; \tau_b\right) + u_{\mathrm{rel}}\left(\mathrm{Frac}_{\mathrm{stunted}}, S_t\right)$$
+
+1. **Two-Stage Child Skill Formation & Ferriere et al. (2025) Luxury Threshold ($\bar{g}_{\mathrm{ECE}} > 0$):**
+   During Stage 1 ($j \in \mathcal{J}_{c,1}$, First 2000 Days, $\varphi_1 = 0.35$) and Stage 2 ($j \in \mathcal{J}_{c,2}$, Schooling & Montessori / *Tuakana–Teina* Mentoring, $\varphi_2 = -0.95$), effective developmental input is $I_{c,\mathrm{eff}} = \max\left(0, \, i_c + G_{\mathrm{ECE},s} - \bar{g}_{\mathrm{ECE}}\right)$, yielding perceived child-skill utility:
+
+$$u_{\mathrm{child}}\left(i_c, h, a; k\right) = \omega_{ic} \ln\left(1 + \gamma_{s,1} h^{\varphi_s} + \gamma_{s,2} I_{c,\mathrm{eff}}^{\varphi_s}\right)^{\frac{1}{\varphi_s}} - \psi_{\mathrm{crowd}} \ln\left(Q_k\right) \mathbb{I}_{\left\lbrace a < 0.08 Q_k\right\rbrace}$$
+
+2. **De Nardi (2004) Luxury Warm-Glow Bequest Motive:**
+
+$$u_{\mathrm{beq}}\left(a^{\prime}; \tau_b\right) = b_1 \frac{\left\lbrack \left(1 + \frac{\left(1 - \tau_b\right) a^{\prime}}{b_2}\right)^{1 - \eta_c} - 1 \right\rbrack}{1 - \eta_c}$$
+
+3. **Relational Altruism & Social Cohesion Utility ($u_{\mathrm{rel}}$):**
+   Captures the utility gain experienced by citizens and aging parents when cohort stunting (`Frac_stunted`) is compressed and domestic social cohesion ($S_t$, `S_cohesion`) rises as educated youth remain in New Zealand:
+
+$$u_{\mathrm{rel}}\left(\mathrm{Frac}_{\mathrm{stunted}}, S_t\right) = \chi_{\mathrm{rel}} \left\lbrack \left(0.285 - \mathrm{Frac}_{\mathrm{stunted}}\right) + 0.015 \left(S_t - 100\right) \right\rbrack$$
+
+---
+
+## 4. 100% GPU-Vectorized Intergenerational & $4 \times 5$ Spatial Migration Operators (`Build_IntergenTransitionMatrix.m`)
+
+To eliminate CPU nested loops, `Build_IntergenTransitionMatrix.m` executes all three intergenerational operators via 4D/5D GPU tensor broadcasting and `accumarray` projection, mapping the stationary distribution $\mu_k\left(a, h, z, j\right)$ and policy arrays `Policy` into the newborn adult distribution `jequaloneDist` ($\mu_{1,k}\left(a_1, h_1, z_1\right)$).
+
+### 4.1 Stage 1 Operator ($\mathbf{Q}_h$): Two-Stage Childhood Skill & Montessori / *Tuakana–Teina* Gate
+For fertile parental cohorts $j_p \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}$, expected log pre-labor-market skill $\ln\left(\hat{h}_{\mathrm{child}}\right)$ integrates Stage-1 private/public investment $\left(i_{c,1}, G_{\mathrm{ECE},1}\right)$, housing crowding penalties, and the **Gate 3 ($J = 5$, Ages 12–14) Montessori / *Tuakana–Teina* & Graeme Dingle Foundation Mentoring Operator**:
+
+$$\ln\left(\hat{h}_{\mathrm{child}}\right) = \rho_{hc} \ln\left(h_p\right) + \gamma_{ic} \ln\left(1 + i_{c,\mathrm{eff}} + G_{\mathrm{ECE,eff}}\right) - \psi_{\mathrm{crowd}} \ln\left(Q_k\right) \mathbb{I}_{\mathrm{hard}} + \Delta_{\mathrm{Adol}}\left(z_p, \mathcal{M}_{\mathrm{Tuakana}}\right) + \eta_h$$
+
+where the Adolescent Gate ($J = 5$) transition term $\Delta_{\mathrm{Adol}}\left(z_p, \mathcal{M}_{\mathrm{Tuakana}}\right)$ captures both family unemployment vulnerability (`iz == 1`) and the reciprocal *Tuakana–Teina* / *Ako* / Montessori *Erdkinder* mentoring dividend:
+
+$$\Delta_{\mathrm{Adol}}\left(z_p, \mathcal{M}_{\mathrm{Tuakana}}\right) = \begin{cases}
+-0.22 & \text{if } z_p = z_1 \text{ and unbuffered by mentoring } \left(\mathcal{M}_{\mathrm{Tuakana}} = 0\right) \\
+0.00 & \text{if standard schooling } \left(z_p > z_1, \, \mathcal{M}_{\mathrm{Tuakana}} = 0\right) \\
++0.05 \text{ in } \mathrm{SS0} \;\left(+0.11 \text{ in } \mathrm{SS1}, \, +0.14 \text{ in } \mathrm{SS2}\right) & \text{if enrolled in Montessori / \textit{Tuakana--Teina} mentoring } \left(\mathcal{M}_{\mathrm{Tuakana}} = 1\right)
 \end{cases}$$
 
-### 3.2 Two-Stage Childhood CES Skill Law (`ChildCES_aprimeFn.m`), The Adolescent Gate ($J=5$), & Adult Ben-Porath Dynamics
-* **Child Experience Asset ($\theta^{\prime}_c$):** Driven by private parental investment $i_c$, stage-specific public wraparound provision ($G_{\mathrm{ECE},1}$ during Stage 1 $j \in \mathcal{J}_{c,1}$ vs. $G_{\mathrm{ECE},2}$ during Stage 2 $j \in \mathcal{J}_{c,2}$), and Stone-Geary luxury floor $\bar{g}_{\mathrm{ECE}} = 0.02$[cite: 9, 10, 21, 35]. When $\Delta t < 5$ so that Stage 1 spans $n_{s1} = \mathrm{round}\left(6/\Delta t\right)$ sub-periods and Stage 2 spans $n_{s2} = \mathrm{round}\left(12/\Delta t\right)$ sub-periods, the one-step transition maps onto the 6-year and 12-year cumulative CES operator via step weight $\omega_{s} = 1 / n_{s}$[cite: 7, 9, 22]:
+### 4.2 Stage 2 Operator ($\mathbf{Q}_a$): The NZD 1.6T Property Estate Wave & Youth Capital Grant $E$
+Dying retirees ($j \ge J_r$, weighted by mortality $1 - s_j$) in region $k$ leave net-of-tax estates $\left(1 - \tau_b\right) a^{\prime *}\left(a, h, z, j; k\right)$. Adding the universal age-20 Youth Capital Grant $E$ (`YouthGrant`) induces the initial young-adult asset distribution $P_{a,k}\left(a_1\right)$ over `a_grid`.
 
-$$\theta_{\mathrm{step}}\left(\theta_c, i_c, G_{\mathrm{ECE},s}, \varphi_s\right) = \left\lbrack \gamma_{s,\mathrm{self}} \theta_c^{\varphi_s} + \gamma_{s,\mathrm{inv}} \left(i_c + G_{\mathrm{ECE},s} + \bar{g}_{\mathrm{ECE}}\right)^{\varphi_s} + \gamma_{s,\mathrm{par}} \bar{h}_p^{\varphi_s} \right\rbrack^{1/\varphi_s}$$
+### 4.3 Stage 3 Operator ($\Pi_{\mathrm{mig}}$): The $4 \times 5$ Domestic & International (`Abroad`) Gumbel Youth Sorting Matrix
+Upon launching at $j = 1$ (age 20) in origin region $k \in \lbrace 1, 2, 3, 4 \rbrace$ with state $\left(a_1, h_1, z_1\right)$, young adults evaluate the 4 domestic regions $m \in \lbrace 1, 2, 3, 4 \rbrace$ (incurring moving/entry cost $\kappa_{k \to m}$) against the **5th outside option: emigrating to `Abroad` (Australia/OECD)** with continuation value $V_{\mathrm{Abroad},t}\left(a_1, h_1, z_1, 1\right)$ and Gumbel scale parameter $\varrho_{\mathrm{mig}} > 0$:
 
-$$\theta^{\prime}_c = \begin{cases}
-\left(1 - \omega_{s1}\right)\theta_c + \omega_{s1} \theta_{\mathrm{step}}\left(\theta_c, i_c, G_{\mathrm{ECE},1}, \varphi_1\right) & \text{if } j \in \mathcal{J}_{c,1} \text{ (First 2000 Days, } \varphi_1 = 0.35\text{)} \\
-\left(1 - \omega_{s2}\right)\theta_c + \omega_{s2} \theta_{\mathrm{step}}\left(\theta_c, i_c, G_{\mathrm{ECE},2}, \varphi_2\right) & \text{if } j \in \mathcal{J}_{c,2} \text{ (School Years, } \varphi_2 = -0.95\text{)} \\
-\theta_c & \text{otherwise}
-\end{cases}$$
+$$P_t\left(k \to m \;\middle|\; a_1, h_1, z_1\right) = \frac{\exp\left(V_{m,t}\left(\max\left(a_{\min}, a_1 - \kappa_{k \to m}\right), h_1, z_1, 1\right) / \varrho_{\mathrm{mig}}\right)}{\exp\left(V_{\mathrm{Abroad},t}\left(a_1, h_1, z_1, 1\right) / \varrho_{\mathrm{mig}}\right) + \sum_{r=1}^{4} \exp\left(V_{r,t}\left(\max\left(a_{\min}, a_1 - \kappa_{k \to r}\right), h_1, z_1, 1\right) / \varrho_{\mathrm{mig}}\right)}$$
 
-* **The Early-Adolescent Gate (Ages 12–14, Child $J=5$) & Two-Way Montessori Cross-Age Mentoring:** During Stage 2 ($\mathcal{J}_{c,2}$), adolescents in households experiencing unemployment or acute hardship stress (`iz == 1` or `iz == 2 && is_hardship`) face an unbuffered skill-erosion shock $\Delta \ln\left(h_{\mathrm{adol}}\right) = -0.22$ and immediate service-cost risk across Exits 1, 2, and 4[cite: 20, 43]. Conversely, **Two-Way Montessori Cross-Age Peer Mentoring** buffers vulnerable mentees while consolidating executive function in $h_6\text{--}h_7$ peer mentors ($\Delta \ln\left(h_{\mathrm{adol}}\right) = +0.05$ in $\mathrm{SS}_0$, rising to $+0.11$ in $\mathrm{SS}_1$ alongside effective wraparound amplification $G_{\mathrm{ECE,eff}} = 1.15 \times G_{\mathrm{ECE}}$)[cite: 20, 43].
-* **Adult Ben-Porath Human Capital ($h^{\prime}$):** During working ages ($j < J_r$), adult skill evolves over $\Delta t$ years with depreciation $\delta_{hc}\left(\Delta t\right) = 1 - \left(1 - \delta_{hc,\mathrm{ann}}\right)^{\Delta t}$ and training elasticities $\alpha_I = 0.090, \alpha_H = 0.064$ (unified with childhood CES inside `HumanCapital_Lifecycle_aprimeFn.m`)[cite: 9, 16, 35]:
-
-$$h^{\prime} = \left(1 - \delta_{hc}\left(\Delta t\right)\right) h + \left(\frac{\Delta t}{5}\right) \mathbb{I}\left(\ell > 0\right) I_h^{\alpha_I} h^{\alpha_H}$$
-
-### 3.3 Budget Constraint, "Income x Geography" Transfer, and Recursive Bellman Equation
-Total household disposable cash-on-hand before consumption and child investment in region $k$ is[cite: 20, 26, 39]:
-
-$$y_{\mathrm{disp},k} = \left(1 + r\left(1 - \tau_k\right)\right) a + \left(1 - \tau_a\right)^{\Delta t} a - a + \left(1 - \tau_l\right) w_k h z \max\left(0, \ell - I_h\right) + T_k\left(w_k h z \ell\right) + \mathbb{I}\left(j = 1\right) E + \mathbb{I}\left(j \ge J_r\right) P_{\mathrm{super}}$$
-
-where $T_k\left(y\right) = m_k \bar{y} \frac{2 \exp\left(-\xi_{\mathrm{phase}} \left(y / \bar{y}\right)\right)}{1 + \exp\left(-\xi_{\mathrm{phase}} \left(y / \bar{y}\right)\right)}$ is the **Income $\times$ Geography** transfer rule (Ferriere et al. / Labrousse & Perdereau, 2025)[cite: 21, 26, 30, 39]. Deducting savings $a^{\prime}$, net-of-subsidy private child investment $\left(1 - s_{\mathrm{sub}}\right)i_c$, and mandatory regional fuel/transport subsistence $\bar{e}_k$ yields net expenditure $e_{\mathrm{net}} = \frac{y_{\mathrm{disp},k} - a^{\prime} - \left(1 - s_{\mathrm{sub}}\right)i_c - \bar{e}_k}{1 + \tau_c} > 0$, which splits via Cobb-Douglas share $\phi_{nd} = 0.78$ into non-durable consumption $c_{nd} = \phi_{nd} e_{\mathrm{net}}$ and housing services $c_H = \left(1 - \phi_{nd}\right) e_{\mathrm{net}} / p_{H,k}\left(j\right)$, forming composite consumption $u_{\mathrm{comp}} = c_{nd}^{\phi_{nd}} c_H^{1 - \phi_{nd}}$[cite: 15, 20, 39].
-
-The household Bellman equation in region $k$ with discount factor $\beta_{hh}\left(\Delta t\right) = \beta_{\mathrm{ann}}^{\Delta t}$ (and optional quasi-hyperbolic fertility factor $\beta_{\mathrm{hyp}} \in \lbrace 0.72, 1.00 \rbrace$ in `FertilityBargaining_Module.m`)[cite: 36, 44, 45] solves:
-
-$$V_k\left(a, h, \theta_c, z, j\right) = \max_{i_c, \ell, I_h, a^{\prime}, h^{\prime}} \left\lbrace \frac{u_{\mathrm{comp}}^{1 - \eta_c}}{1 - \eta_c} - \psi_l \frac{\ell^2}{2} + X_t + \Phi_{\mathrm{child}}\left(i_c, \theta^{\prime}_c, j\right) + \Phi_{\mathrm{ret}}\left(a^{\prime}, \mathrm{Frac}_{\mathrm{stunted}}, S_t, j\right) + \beta_{hh}\left(\Delta t\right) s_j \sum_{z^{\prime}} \Pi_{z,k}\left(z^{\prime}\vert z\right) V_k\left(a^{\prime}, h^{\prime}, \theta^{\prime}_c, z^{\prime}, j+1\right) \right\rbrace$$
-
-where the intergenerational linkage terms are:
-* **Luxury Child Investment & Pro-Equality Externality ($X_t, \Phi_{\mathrm{child}}$):** Following Labrousse and Perdereau and Ferriere et al., early childhood investment is a luxury good ($\bar{g}_{\mathrm{ECE}} > 0$) combining private parental spending $i_c$ and public in-kind provision $G_{\mathrm{ECE}}$ (the Barnardos *Te Korowai Mokopuna* ECE-plus-whānau-support mechanism)[cite: 7, 10, 21, 35]:
-
-$$\Phi_{\mathrm{child}}\left(i_c, G_{\mathrm{ECE}}, j\right) = \mathbb{I}\left(j \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}\right) \omega_{ic} \ln\left(i_c + G_{\mathrm{ECE}} + \bar{g}_{\mathrm{ECE}}\right), \qquad X_t = \frac{\chi}{\alpha} \ln\left( \int \left(i_c + G_{\mathrm{ECE}} + \bar{g}_{\mathrm{ECE}}\right)^\alpha \, d\mu \right)$$
-
-Because $\bar{g}_{\mathrm{ECE}} > 0$, low-income and housing-stressed parents hit the corner solution $i_c = 0$[cite: 7, 10, 20, 21]. Public in-kind provision $G_{\mathrm{ECE}}$ directly lifts their children's skill formation and raises the concave societal externality $X_t$ ($\alpha < 1$) in a way that linear Pigouvian subsidies or cash transfers cannot replicate[cite: 10, 21, 35].
-* **Retiree Relational Well-Being & Luxury Property Bequests ($\Phi_{\mathrm{ret}}$):** Following De Nardi (2004) and Piketty and Saez, retirees ($j \ge J_r$) derive relational altruism from the thriving share of the younger generation ($1 - \mathrm{Frac}_{\mathrm{stunted}}$) and social cohesion ($S_t$), alongside warm-glow utility over net-of-tax estates $\left(1 - \tau_b\right)a^{\prime}$ upon mortality risk $1 - s_j$[cite: 31, 37, 39, 40]:
-
-$$\Phi_{\mathrm{ret}}\left(a^{\prime}, \mathrm{Frac}_{\mathrm{stunted}}, S_t, j\right) = \mathbb{I}\left(j \ge J_r\right) \left\lbrack \gamma_{\mathrm{rel}} \ln\left(1 - \mathrm{Frac}_{\mathrm{stunted}}\right) + \gamma_{\mathrm{coh}} \ln\left(S_t\right) + \left(1 - s_j\right) b_1 \frac{\left(b_2 + \left(1 - \tau_b\right)\max\left(0, a^{\prime}\right)\right)^{1 - \eta_c}}{1 - \eta_c} \right\rbrace$$
+$$P_{\mathrm{emig},t}\left(k \to \mathrm{Abroad} \;\middle|\; a_1, h_1, z_1\right) = 1 - \sum_{m=1}^{4} P_t\left(k \to m \;\middle|\; a_1, h_1, z_1\right)$$
 
 ---
 
-## 4. Infinite-Horizon Firm Sector (The Guvenen et al. Engine Across 4 Regions)
-In each region $k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace$, a continuum of infinite-horizon entrepreneurs (`Firm_k`, $N_j = \infty$) with persistent talent $z_f \in \lbrace z_{\ell,k}, z_{h,k} \rbrace$ operates a constant-returns technology subject to collateral constraint $k \le \lambda_{\mathrm{col}} a_f$ ($\lambda_{\mathrm{col}} = 1.80$) and discount factor $\beta_{\mathrm{firm}}\left(\Delta t\right) = 0.95^{\Delta t}$[cite: 5, 11, 42]:
+## 5. Post-Hoc Lifecycle Operators: The 6-Gate Fiscal Ledger, 2050 Protocol, & Fertility Bargaining
 
-$$V_{F,k}\left(a_f, z_f\right) = \max_{a^{\prime}_f \in \lbrack 0, R_k\left(z_f; \Delta t\right) a_f\rbrack} \left\lbrace \ln\left( R_{k}\left(z_f; \Delta t\right) a_f - a^{\prime}_f \right) + \beta_{\mathrm{firm}}\left(\Delta t\right) \sum_{z^{\prime}_f} \Pi_{f,k}\left(z^{\prime}_f \vert z_f\right) V_{F,k}\left(a^{\prime}_f, z^{\prime}_f\right) \right\rbrace$$
+### 5.1 The 6-Gate (26-Node) Lifecycle Fiscal Ledger Operator (`Plot_ChildFiscal_2Panel_SSankey.m`)
+To map all private parental commitments and public fiscal flows from Birth ($J = 1$) to Retirement ($J = 16$) without expanding the VFI state space, `Plot_ChildFiscal_2Panel_SSankey.m` defines linear integral operators over the solved stationary distribution $\mu_k\left(a, h, z, j\right)$ and policy functions `Policy`:
+* **Cohort-Weighted Ribbon Width Identity:** Every node $i \in \lbrace 1, \dots, 26 \rbrace$ at Gate $g \in \lbrace 1, \dots, 6 \rbrace$ has ribbon thickness strictly equal to its cohort-weighted annual monetary flow (in real 2025 NZD thousands per year per cohort birth):
 
-where the $\Delta t$-period gross after-tax return on entrepreneurial equity $R_k\left(z_f; \Delta t\right)$ is[cite: 42]:
+$$\mathrm{Flow}_{g,i}^{\mathrm{cohort}} = p_{g,i} \times c_{g,i}^{\mathrm{cond}}$$
 
-$$R_k\left(z_f; \Delta t\right) = \left(1 - \tau_a\right)^{\Delta t} + \left(1 - \tau_k\right) \left\lbrace r + \max\left(0, \alpha_k \left(\frac{1 - \alpha_k}{w_k}\right)^{\frac{1 - \alpha_k}{\alpha_k}} z_f - \left(r + \delta_k\left(\Delta t\right)\right) \right) \lambda_{\mathrm{col}} \right\rbrace$$
+  where $p_{g,i} = \int_{\mathcal{S}_{g,i}} d\mu_k$ is the fraction of the cohort in node $\mathcal{S}_{g,i}$ and $c_{g,i}^{\mathrm{cond}}$ is the conditional annual dollar flow per person in that node.
+* **4-Block Childhood Split at Gate 2 ($J = 2\text{--}3$) and Gate 3 ($J = 5$):**
+  Separates childhood resource flows into four orthogonal accounting lanes:
+  1. **Lane A (`LaneA_Priv_Cash_kNZD`):** Out-of-pocket parental cash $\left(1 - s_{\mathrm{sub}}\right) i_c + \theta_{\mathrm{child}}\left(c_{nd} + r_{h,k} c_H\right)$.
+  2. **Lane B (`LaneB_Priv_Time_kNZD`):** Imputed parental care and mentoring time $w_k z_p h_p \ell_{\mathrm{child}}$.
+  3. **Lane C (`LaneC_Pub_DevInv_kNZD`):** Universal PPL/BestStart, public wraparound ECE $G_{\mathrm{ECE},1}$, public schooling $d_2$, and Montessori / *Tuakana–Teina* & Graeme Dingle Foundation mentoring $G_{\mathrm{ECE},2}$.
+  4. **Lane D (`LaneD_Pub_Remed_kNZD`):** Means-tested hardship transfers $T_k$ and in-childhood acute Exits 1, 2, and 4.
 
-Replacing corporate/capital income taxation ($\tau_k$) with a book-value wealth tax ($\tau_a = 0.015$) shifts stationary firm net worth $\Gamma_k\left(a_f, z_f\right)$ toward high-talent entrepreneurs $z_{h,k}$ ($d\log Z / d\tau_a > 0$, Guvenen et al., 2023 Proposition 3)—with the largest productivity multiplier occurring in `Firm_Auckland` ($z_h = 1.75$, $35.1\%$ of NZ businesses) and `Firm_Large` ($z_h = 1.50$, $26.9\%$ of NZ businesses)[cite: 2, 11, 14, 42].
+### 5.2 Net Fiscal Balance ($\Omega_{\mathrm{fiscal}}$) & The 2050 Sovereign Debt-Sinking Protocol
+At **Gate 5 (Age 30, $J = 10$)** and **Gate 6 (Career to Retirement, $J = 11\text{--}16$)**, the cohort-weighted **Net Fiscal Balance** $\Omega_{\mathrm{fiscal},g}$ is:
 
----
+$$\Omega_{\mathrm{fiscal},g} = \underbrace{\left(\mathrm{Tax}_{\mathrm{PAYE},g} + \mathrm{Tax}_{\mathrm{GST+Cap+Beq},g}\right)}_{\text{Good Taxes Collected}} - \underbrace{\left(\mathrm{Burden}_{\mathrm{Exits\,1,2,4},g} + \mathrm{Outlay}_{\mathrm{Infra+Health+Super},g}\right)}_{\text{Direct Public Outlays}}$$
 
-## 5. The 100% GPU-Vectorized 3-Stage Intergenerational & $4 \times 5$ Abroad Spatial Transition Operator ($\mathcal{T}_{\mathrm{IG}}$)
-The stationary distribution of newborn households entering adulthood at $j=1$ in region $k$, denoted $\mu_{1,k}\left(a_1, h_1, z_1\right)$ (`jequaloneDist`), is computed as a fixed point of three coupled GPU-vectorized operators inside `Build_IntergenTransitionMatrix_UpgradeB.m` (5D) and `Build_IntergenTransitionMatrix.m` (4D), replacing CPU loops with 4D/5D GPU tensor broadcasting and `accumarray` projection[cite: 11, 22]:
+Under the **2050 Sovereign Debt-Sinking & Public Reinvestment Protocol** (`Build_Custom_Protocol_2050_Table`), any positive net fiscal surplus $\Omega_{\mathrm{reform},g} = \max\left(0, \, \Omega_{\mathrm{fiscal},g}\right)$ is partitioned 50/50:
 
-### Stage 1: Completed Childhood Skill Formation ($\mathbf{Q}_h$)
-* In the 5D experience-asset model (`UpgradeB`), completed Stage-2 childhood skill $\theta_3 = \theta_c\left(j = j_{\mathrm{launch}}\right)$ is extracted directly from parents reaching $j = j_{\mathrm{launch}}$ and mapped onto the child's adult human capital grid `a_grid_hc`, penalized by metropolitan housing crowding $\psi_{\mathrm{crowd}} \ln\left(Q_k\right)\mathbb{I}\left(a_p < 0.05 Q_k\right)$[cite: 7, 11, 22].
-* In the compact 4D projection, expected log skill integrates parental investments over $j \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}$[cite: 22]:
+$$\Omega_{\mathrm{debt},g} = 0.50 \, \Omega_{\mathrm{reform},g}, \qquad \Omega_{\mathrm{reinv},g} = 0.50 \, \Omega_{\mathrm{reform},g}$$
 
-$$\ln\left(h_{\mathrm{child}}\right) = \rho_{hc} \ln\left(h_p\right) + \gamma_{ic} \ln\left(1 + \bar{i}_c\left(a_p, h_p, z_p, k\right) + G_{\mathrm{ECE}}\right) - \psi_{\mathrm{crowd}} \ln\left(Q_k\right) \mathbb{I}\left(a_p < 0.05 Q_k\right) + \eta_h, \qquad \eta_h \sim \mathcal{N}\left(0, \sigma_{hc}^2\right)$$
+$$\Delta D_{2050,g} = N_{\mathrm{births}} \, \Omega_{\mathrm{debt},g} \sum_{\tau=1}^{25} \left(1 + r_{\mathrm{bond}}\right)^{\tau - 1}, \qquad \mathcal{S}_{\mathrm{reinv},g} = \mu_{\mathrm{infra}} \, \Omega_{\mathrm{reinv},g}$$
 
-### Stage 2: The NZD 1.6T Property Bequest & Youth Grant Operator ($\mathbf{Q}_a$)
-Dying retirees ($j \ge J_r$, weighted by mortality $1 - s_j$) in region $k$ leave net-of-tax property estates $\left(1 - \tau_b\right)a^{\prime}_j\left(k\right)$[cite: 22, 31]. Combined with the universal Youth Capital Grant $E$ (`YouthGrant`), this induces the initial wealth distribution $P_{a,k}\left(a_1\right)$ (`MeanBequest.(reg)`)[cite: 11, 22].
+with $N_{\mathrm{births}} = 60,000/\text{yr}$, sovereign bond yield $r_{\mathrm{bond}} = 0.042$, and public infrastructure multiplier $\mu_{\mathrm{infra}} = 1.65$.
 
-### Stage 3: The $4 \times 5$ Domestic & International (`Abroad`) Gumbel Youth Sorting Matrix ($\Pi_{\mathrm{mig}}$)
-Before settling into working life at $j=1$, young adults in origin region $k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace$ evaluate the 4 domestic regions $m \in \lbrace 1, 2, 3, 4 \rbrace$ (paying moving/entry cost $\kappa\left(k, m\right)$) against the **5th outside option: emigrating to `Abroad` (Australia/OECD)** with value $V_{\mathrm{Abroad},t}\left(a_1, h_1, z_1, 1\right)$ and Gumbel scale $\varrho$[cite: 11, 22, 37, 40]:
+### 5.3 Cooperative Childcare Bargaining & Hyperbolic Fertility (`FertilityBargaining_Module.m`)
+Following Doepke, Hannusch, Kindermann, and Tertilt (2022) and Kim (2025), couples in fertile brackets $j \in \lbrace 2, 3, 4 \rbrace$ with female/male productivity $\left(h_f, h_m\right)$ and present-bias parameter $\beta_{\mathrm{hyp}} = 0.72$ bargain cooperatively over fertility $n_f \in \lbrace 0, 1, 2, 3 \rbrace$. A birth occurs if and only if both partners achieve positive net marital surplus over their outside options:
 
-$$\mathbb{P}_t\left(k \to m \mid a_1, h_1, z_1\right) = \frac{\exp\left(V_{m,t}\left(a_1 - \kappa\left(k,m\right), h_1, z_1, 1\right) / \varrho\right)}{\exp\left(V_{\mathrm{Abroad},t}\left(a_1, h_1, z_1, 1\right) / \varrho\right) + \sum_{r=1}^4 \exp\left(V_{r,t}\left(a_1 - \kappa\left(k,r\right), h_1, z_1, 1\right) / \varrho\right)}$$
-
-$$P_{\mathrm{emig},t}\left(a_1, h_1, z_1; k\right) = \frac{\exp\left(V_{\mathrm{Abroad},t}\left(a_1, h_1, z_1, 1\right) / \varrho\right)}{\exp\left(V_{\mathrm{Abroad},t}\left(a_1, h_1, z_1, 1\right) / \varrho\right) + \sum_{r=1}^4 \exp\left(V_{r,t}\left(a_1 - \kappa\left(k,r\right), h_1, z_1, 1\right) / \varrho\right)}$$
-
----
-
-## 6. Market Clearing, 6-Gate Intergenerational Fiscal Ledger, & The 2050 Debt-Targeting Protocol
-### 6.1 General Equilibrium Market Clearing Across the 4 Regions
-Equilibrium across the four domestic regions $k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace$ requires simultaneous clearing of regional labor markets, regional housing markets, the national capital/bond market, and the Crown fiscal ledger[cite: 15, 25, 32]:
-* **Regional Labor Markets Clear ($k \in \lbrace 1, 2, 3, 4 \rbrace$):**
-
-$$\int n_k\left(a_f, z_f; w_k, r\right) \, d\Gamma_k = \sum_{j=1}^{J_r-1} \mu_j \int z h \max\left(0, \ell - I_h\right) \, d\mu_{k,j}$$
-
-* **Regional Housing Markets Clear ($k \in \lbrace 1, 2, 3, 4 \rbrace$):** Total owner-occupied and rental housing space demanded by young and old households in region $k$ equals elastic regional supply $HS\left(k\right) = H_k \left(Q_k\right)^{\delta_{H,k}}$[cite: 5, 15, 26]:
-
-$$\sum_{j=1}^J \mu_j \int h_{\mathrm{space}}\left(a, h, z, j; k\right) \, d\mu_{k,j} = H_k \left(Q_k\right)^{\delta_{H,k}}$$
-
-* **National Capital / Bond Market Clears:**
-
-$$\sum_{k=1}^4 \omega_{F,k} \int \left(k_k\left(a_f, z_f\right) - a_f\right) d\Gamma_k + B_{\mathrm{gov}} = \sum_{k=1}^4 \omega_{HH,k} \sum_{j=1}^J \mu_j \int a_{\mathrm{fin}}\left(a, h, z, j; k\right) \, d\mu_{k,j}$$
-
-### 6.2 Post-Hoc 6-Gate Intergenerational Fiscal Ledger (`FiscalLedger`) & The 2050 Protocol
-The core VFI state space and policy functions remain unmodified, while `FiscalLedger` (implemented in `Plot_ChildFiscal_2Panel_SSankey.m`) operates strictly post-hoc as a linear operator on `StationaryDist` and `Policy` across 6 life-course gates (anchored to `NZD_Base_Scale = 95.0`, where $1.0\text{ model unit} = \mathrm{NZD\ } 95\mathrm{k/yr}$ reference household labor income)[cite: 7, 20]:
-1. **Gate 1 ($J = 1$, Birth / Entry, Age 0):** Separates birth-year investments into (1) **Means-Tested Birth & Hardship Support** (Accommodation Supplement, BestStart years 2–3 means-tested infant support, Sole Parent birth grants, and neonatal acute care for mothers in hardship `is_hardship` or `iz == 1`), (2) **Universal Birth Benefit** (Paid Parental Leave, universal Year-1 BestStart, free LMC midwifery, and Well Child Tamariki Ora / Plunket for $100\%$ of births), and (3) **Private Out-of-Pocket Birth Costs** (infant equipment, housing space, and uncompensated parental leave earnings foregone)[cite: 20].
-2. **Gate 2 ($J = 2..3$, First 2000 Days) & Gate 3 ($J = 5$, Ages 12–14 Adolescent Gate):** Tracks the Ferriere et al. luxury corner ($i_c = 0$) vs. public wraparound $G_{\mathrm{ECE},1}$ at Gate 2, and unbuffered family unemployment stress (`iz == 1`) with in-childhood Exits 1, 2, and 4 vs. Two-Way Montessori Cross-Age Peer Mentoring at Gate 3[cite: 7, 20, 21, 43].
-3. **Gate 4 ($J = 6..7$, Adult Skill Launch, Age 20), Boundary Rules, & Remediation Outlays (Exits 1, 2, 4):** Acute remediation outlays—Oranga Tamariki state care ($\approx \mathrm{NZD\ } 180\mathrm{k/care\text{-}yr}$, or $\mathrm{NZD\ } 37,054\mathrm{/child\text{-}yr}$ custody average and $\mathrm{NZD\ } 181\mathrm{k}$ Crown lifetime substantiated abuse cost in the Barnardos Generational Plan scorecard)[cite: 20, 29], adult corrections, and acute hospitalizations—are tied directly to childhood stunting ($h_1\text{--}h_2$ tier, `@NZD 32k/stunted` annualized cohort burden)[cite: 7, 20]. Following the strict Barnardos Generational Plan separation between the **Economy-Wide Lens** and the **Crown Fiscal Lens**, **Exit 3 (Lower Lifetime Income)** is never double-counted inside direct Crown spending; instead, only the **28.8% foregone Crown tax revenue** (`Lost Tax: Exit 3 + Emig`) is displayed as a top-of-column tax leak[cite: 7, 20].
-4. **Gate 5 ($J = 10$, Age 30) & Gate 6 ($J = 11..16$, Career to Retirement) — Macro Public Residual ($\Omega_{\mathrm{fiscal}}$) & The 2050 50/50 Split:** The cohort net fiscal balance $\Omega_{\mathrm{fiscal}}$ reconciles total good taxes collected ($\tau_l$ PAYE, $\tau_c$ GST, $\tau_k$ capital income, $\tau_a$ book-value wealth, $\tau_{\mathrm{corp}}$ indirect corporate, and $\tau_b$ estate taxes) against acute remediation (Exits 1, 2, 4) and universal public overhead (infrastructure, roads, base healthcare, and NZ Super $P_{\mathrm{super}}$)[cite: 7, 20]:
-
-$$\Omega_{\mathrm{fiscal}} = \left(\mathrm{Tax}_{\mathrm{PAYE}} + \mathrm{Tax}_{\mathrm{GST}} + \mathrm{Tax}_{\mathrm{Cap/Wealth}} + \mathrm{Tax}_{\mathrm{Corp}} + \mathrm{Tax}_{\mathrm{Estate}}\right) - \left(\mathrm{Cost}_{\mathrm{Exits\,1,2,4}} + \mathrm{Cost}_{\mathrm{Infra/Health/Super}}\right)$$
-
-Under the **2050 Debt-Sinking Fund & Reinvestment Allocation Protocol**, any net reform tax surplus $\Omega_{\mathrm{reform}} = \max\left(0, \Omega_{\mathrm{fiscal}}^{\mathrm{SS1}} - \Omega_{\mathrm{fiscal}}^{\mathrm{SS0}}\right) > 0$ ($\Omega_{\mathrm{reform}} = +\mathrm{NZD\ } 15.80\mathrm{k/yr}$ at Age 30; $+\mathrm{NZD\ } 16.10\mathrm{k/yr}$ Career-to-Retirement) is dynamically partitioned 50/50 into[cite: 20]:
-
-$$\Omega_{\mathrm{reform}} = \underbrace{0.50 \, \Omega_{\mathrm{reform}}}_{\text{Sovereign Debt Sinking Fund (`SinkingFund\_50Pct\_kNZD`)}} + \underbrace{0.50 \, \Omega_{\mathrm{reform}}}_{\text{Public Reinvestment Pool (`ReinvestmentPool\_50Pct\_kNZD`)}}$$
+$$\mathcal{S}_f\left(n_f; Q_k, G_{\mathrm{ECE}}, \theta_{\tau}\right) = u_f\left(c_f\left(n_f\right)\right) + \beta_{\mathrm{hyp}} \delta V_f^{\prime}\left(n_f\right) - \theta_{\tau} \psi_{\mathrm{time}} n_f + \omega_{\mathrm{ECE}} G_{\mathrm{ECE}} n_f - \psi_Q Q_k n_f \ge \underline{U}_f$$
 
 ---
 
-## 7. Master 4-Region Calibration Table & SMM Identification (`Calibrate_NZ_Moments.m`)
+## 6. Calibration, SMM Identification (`Calibrate_NZ_Moments.m`), & Cross-Country Validation
 
-| Parameter | Symbol | Value (`Rural`, `Small`, `Large`, `Auckland`) | Target Moment & Empirical Source |
-| :--- | :--- | :--- | :--- |
-| **Time Grid & Demographics** | | | |
-| Period length switch (years) | $\Delta t$ (`dt`) | $5$ (default), $3$, $2$, or $1$ | Configured via `Configure_TimeGrid_Params.m`[cite: 7] |
-| Adult horizon & retirement index | $J, J_r$ | $\mathrm{round}\left(80/\Delta t\right), 1+\mathrm{round}\left(45/\Delta t\right)$ | Ages 20–99; NZ Super at age 65 ($16, 10$ at $\Delta t=5$; $27, 16$ at $\Delta t=3$)[cite: 5, 7, 12] |
-| Regional Household Pop Shares (Base) | $\omega_{HH,k}$ | $0.160, 0.240, 0.259, 0.341$ | Stats NZ Subnational Pop Estimates (June 2025: Akl $= 34.1\%$)[cite: 5, 11, 14] |
-| Regional Business Firm Shares (Base) | $\omega_{F,k}$ | $0.150, 0.230, 0.269, 0.351$ | Stats NZ Business Demography (Feb 2025: Akl $= 35.1\%$)[cite: 5, 11, 14] |
-| Intl. Migration Inflow Shares | $\mathbf{m}_{\mathrm{intl}}$ | $0.115, 0.210, 0.270, 0.405$ | Stats NZ projection (Auckland share rises to $\sim 36.5\%$ by Year 30)[cite: 11, 14] |
-| Discount factors & CRRA curvature | $\beta_{hh}, \beta_{\mathrm{firm}}, \eta_c$ | $0.96^{\Delta t}, 0.95^{\Delta t}, 2.0$ | Standard OLG life-cycle benchmark[cite: 11, 15] |
-| **Lens 1: Two-Stage Child Skill Formation** | | | |
-| Stage 1 (Ages 0–5) CES weights & $\varphi_1$ | $\gamma_{1,s}, \gamma_{1,i}, \gamma_{1,p}, \varphi_1$ | $0.53, 0.24, 0.23, 0.35$ | Cunha, Heckman, & Schennach (2010) Stage 1 estimates[cite: 9] |
-| Stage 2 (Ages 6–17) CES weights & $\varphi_2$ | $\gamma_{2,s}, \gamma_{2,i}, \gamma_{2,p}, \varphi_2$ | $0.87, 0.07, 0.06, -0.95$ | Cunha et al. (2010) Stage 2 dynamic complementarity[cite: 9, 35] |
-| Public ECE Stage 1, Stage 2 & floor | $G_{\mathrm{ECE},1}, G_{\mathrm{ECE},2}, \bar{g}_{\mathrm{ECE}}$ | $0.045, 0.065, 0.020$ | Ferriere et al. luxury corner share $S = \Pr\left(i_c = 0\right) \approx 0.25\text{--}0.58$[cite: 10, 20, 21] |
-| Adolescent Montessori & Unemp Shocks | $\Delta \ln h_{\mathrm{ment}}, \Delta \ln h_{\mathrm{unemp}}$ | $+0.05 \to +0.11, -0.22$ | Gate 3 ($J=5$, ages 12–14) peer mentoring vs. job-loss erosion[cite: 20, 43] |
-| Hyperbolic discount factor (Fertility) | $\beta_{\mathrm{hyp}}$ | $1.00$ (Base) vs. $0.72$ (No Commit) | Cao & Li (2021) / Laibson quasi-hyperbolic discounting[cite: 36, 44, 45] |
-| **Lens 2: 4-Region Wages, Transport & Ben-Porath** | | | |
-| Regional baseline wage levels | $w_k$ | $0.85, 0.93, 1.05, 1.18$ | Spatial wage gradient across NZ urban/rural hierarchy[cite: 11] |
-| Regional log-income AR(1) dispersion | $\sigma_z$ | $0.11, 0.14, 0.18, 0.24$ | Labrousse & Perdereau (2025) spatial income variance[cite: 5, 26, 39] |
-| Mandatory transport/energy subsistence | $\bar{e}_k$ | $0.048, 0.036, 0.022, 0.016$ | Rural/Small 2.7x–2.8x fuel budget share vs. Auckland[cite: 5, 39] |
-| Baseline `Income x Geography` transfer | $T_k$ | $0.025, 0.020, 0.016, 0.014$ | Reforms scale to $0.038, 0.031, 0.025, 0.028$[cite: 26, 39] |
-| Adult Ben-Porath depreciation & elasticities | $\delta_{hc,\mathrm{ann}}, \alpha_I, \alpha_H$ | $0.0180\text{/yr}, 0.090, 0.064$ | Fan, Seshadri, & Taber (2022) late-career PT share & wage drop[cite: 16] |
-| **Lens 3: 4-Region Housing, Bequests & Firms** | | | |
-| Regional baseline house prices | $Q_k$ | $1.05, 1.40, 2.05, 3.10$ | Metropolitan land overvaluation gradient[cite: 7, 11, 14] |
-| Regional housing supply elasticity | $\delta_H$ | $0.35, 0.28, 0.18, 0.10$ | Labrousse & Perdereau (2025) regional housing supply[cite: 5, 26, 39] |
-| Regional annual trend growth factors | $G_{k,\mathrm{ann}}$ | $1.007, 1.011, 1.018, 1.025$ | Hirano & Toda (2025) unbalanced sectoral growth[cite: 5, 11, 32] |
-| Firm productivity ceilings ($z_\ell, z_h$) | $z_{f,k}$ | $\lbrack 0.70,1.15\rbrack, \lbrack 0.75,1.28\rbrack, \lbrack 0.83,1.50\rbrack, \lbrack 0.90,1.75\rbrack$ | Guvenen et al. (2023) heterogeneous firm returns[cite: 5, 42] |
-| Warm-glow bequest & Youth Grant (Base $\to$ Ref) | $b_1, b_2, E$ | $4.20, 0.45, 0.030 \to 0.065$ | De Nardi (2004) estate concentration & Piketty/Saez grant[cite: 14, 31] |
-| **Fiscal Ledger & 2050 Protocol Anchors** | | | |
-| Household income scale & OT Care cost | $\bar{Y}_{HH}, c_{\mathrm{OT}}$ | $\mathrm{NZD\ } 95\mathrm{k/yr}, \approx \mathrm{NZD\ } 180\mathrm{k/care\text{-}yr}$ | NZ Treasury CBAx, Oranga Tamariki & Barnardos Table 2 anchors[cite: 20, 29] |
+### 6.1 Exact SMM Parameter Identification Matrix (15 Parameters $\leftrightarrow$ 15 NZ Empirical Moments)
 
-## 7.5 Post-Hoc Transition Integrals & Actuarial Continuation Valuation Operators (`Plot_CumulativeTransitionPayoffs.m` & `Plot_ActuarialContinuationValuation.m`)
+| Parameter | Symbol | Value | Empirical Target Moment & Source | Model Fit |
+| :--- | :---: | :---: | :--- | :---: |
+| Stage-1 CES Substitution | $\varphi_1$ | `0.350` | Cunha, Heckman, & Schennach (2010): Stage-1 elasticity $\sigma_1 = 1/(1-\varphi_1) = 1.54$ | Exact |
+| Stage-2 CES Complementarity | $\varphi_2$ | `-0.950` | Cunha et al. (2010): Stage-2 complementarity $\sigma_2 = 1/(1-\varphi_2) = 0.51$ | Exact |
+| Parental Skill Persistence | $\rho_{hc}$ | `0.420` | Lee & Seshadri (2019) / NZ IDI baseline Intergenerational Elasticity $\mathrm{IGE} = 0.350$ | `0.350` |
+| ECE Stone-Geary Threshold | $\bar{g}_{\mathrm{ECE}}$ | `0.032` | Barnardos / GUiNZ share of births in material hardship / $i_c=0$ corner (25.8%) | `25.79%` |
+| Montessori / *Tuakana* Boost | $\Delta_{\mathrm{Tuakana}}$ | `0.110` | Graeme Dingle Foundation (*Stars* / *Project K*) & *Kura* NCEA Level 3 lift (+11 log pts) | `+0.110` |
+| Dunedin Acute Cost Weight | $c_{\mathrm{acute}}$ | `0.380` | Caspi et al. (2016) Dunedin Study: 22% stunted tier drives 57%–81% of Exits 1, 2, 4 | `74.1%` |
+| Rural Transport Subsistence | $\bar{e}_{\mathrm{Rural}}$ | `0.048` | Stats NZ HES rural vs. metro mandatory fuel/transport budget share (2.75x) | `2.74x` |
+| Auckland Land Supply Factor | $Q_{\mathrm{Akl},\mathrm{SS0}}$ | `3.100` | Demographia / Stats NZ Auckland house price-to-income ratio vs. Rural (2.95x) | `2.95x` |
+| Renter Down-Payment Cutoff | $\xi_k$ | `0.200` | RBNZ LVR 20% deposit rule; Auckland young adult homeownership rate (28.0%) | `28.0%` |
+| Firm Collateral Multiplier | $\lambda_{\mathrm{col}}$ | `2.500` | Guvenen et al. (2023) / RBNZ SME business credit-to-equity ratio | `2.50` |
+| Warm-Glow Bequest Scale | $b_1$ | `12.50` | NZ 20-year intergenerational property estate transfer wave (NZD 1.6T) | `NZD 1.6T` |
+|Warm-Glow Bequest Threshold | $b_2$ | `2.800` | De Nardi (2004) / Stats NZ top-30% estate skewness | `70th pct` |
+| Gumbel Migration Scale | $\varrho_{\mathrm{mig}}$ | `0.180` | OECD / Stats NZ age 20–35 skilled trans-Tasman emigration rate (19.3% Akl / 10.9% Nat.) | `10.93%` |
+| Present-Bias Fertility | $\beta_{\mathrm{hyp}}$ | `0.720` | Kim (2025) / Stats NZ baseline national Total Fertility Rate ($\mathrm{TFR} = 1.66$) | `1.66` |
+| Female Childcare Share | $\theta_{\tau}$ | `0.680` | Doepke et al. (2022) / Stats NZ Time Use Survey maternal share of childcare | `68.0%` |
 
-### 7.5.1 State-Space Invariance & Continuous-Time Trapezoidal Integration Over $\mu_{k,t}$ and $\Gamma_{k,t}$
-To evaluate cumulative public investment, avoided acute fiscal burdens, and macroeconomic output expansion across the $T_{\mathrm{trans}}$-period transition path ($t = 1, \dots, T_{\mathrm{trans}}$ with step length $\Delta t \in \lbrace 5, 3, 2 \rbrace$ years spanning $T_{\mathrm{trans}} \Delta t = 60$ years) without expanding the household state vector $\left(a, h, \theta_c, z, j\right)$, `Plot_CumulativeTransitionPayoffs.m` defines four linear integral operators over the solved transition sequence of regional household distributions $\mu_{k,t}\left(a, h, z, j\right)$ (`StationaryDist_t`) and infinite-horizon firm equity distributions $\Gamma_{k,t}\left(a_f, z_f\right)$:
+---
 
-1. **Regional Annual Public Investment Outlay ($\mathcal{I}_{k,t}$):**
-   Integrates incremental early-childhood wraparound provision $\Delta G_{\mathrm{ECE},k}$, private-enrichment matching subsidies $s_{\mathrm{sub}} i_{c,t}$, and the universal Youth Capital Grant $E$ weighted by the dynamic regional household share $\omega_{HH,k,t}$ (`PTypeWeights_path`):
+## 7. Multiphase Transition Path, Actuarial Continuation Valuation, & Credibility-Weighted Belief Blending
 
-$$\mathcal{I}_{k,t} = \Lambda_{\mathrm{NZD}} \, \omega_{HH,k,t} \left\lbrack \int_{j \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}} \left(\Delta G_{\mathrm{ECE},k} + s_{\mathrm{sub}} i_{c,t}\left(a, h, z, j; k\right)\right) d\mu_{k,t} + \int_{j=1} E \, d\mu_{1,k,t} \right\rbrack$$
+### 7.1 Exact Multiphase Parameter Vector (`SS0 -> SS1 -> SS2` in `WelfareDecomposition_4Region.m`)
 
-2. **Regional Annual Direct Cost Avoidance ($\mathcal{S}_{k,t}$):**
-   Integrates the reduction in acute public remediation outlays anchored to the Caspi et al. (2016) Dunedin Study concentration of hospital nights, Oranga Tamariki state care, and justice costs in the stunted human-capital tier $h \in \lbrace h_1, h_2 \rbrace$ across working-age brackets $j \in \lbrace 1, \dots, J_r - 1 \rbrace$, plus means-tested transfer reductions $\Delta T_{k,t}$:
+| Parameter Field | Symbol | `SS0` (Status Quo) | `SS1` (Incubation & Reallocation) | `SS2` (2050 Actuarial & PAYE Harvest) | Structural Role in `ReturnFn_SpatialHH_Compact4D` & `Build_IntergenTransitionMatrix` |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| `G_ece` / `G_ece_stage1` | $G_{\mathrm{ECE},1}$ | `0.045` | `0.110` | `0.130` | Universal First-2000-Days in-kind wraparound input; eliminates $i_c = 0$ corners |
+| `G_ece_stage2` | $G_{\mathrm{ECE},2}$ | `0.045` | `0.085` | `0.105` | Universal Stage-2 Montessori / *Tuakana–Teina* & Graeme Dingle mentoring ($J = 5$) |
+| `YouthGrant` | $E$ | `0.030` | `0.065` | `0.080` | Age-20 ($j = 1$) universal capital endowment relaxing young-adult deposit constraint |
+| `tau_l` (`tau_l_delta`) | $\tau_l$ ($\Delta \tau_l$) | `0.220` (`0.000`) | `0.220` (`0.000`) | `0.185` (`-0.035`) | Working-age PAYE labor tax rate (-3.5 pp cut in `SS2` from Actuarial & NZ Super dividend) |
+| `tau_b` | $\tau_b$ | `0.150` | `0.180`–`0.250` | `0.180` | Estate/bequest levy on the NZD 1.6T intergenerational property transfer wave |
+| `r_delta` | $\Delta r$ | `0.000` | `-0.004` | `-0.006` | Reduction in domestic real interest rate from 50% Sovereign Debt-Sinking Fund |
+| `w_mult_vs_SS0` | $w_k / w_{k,\mathrm{SS0}}$ | `[1, 1, 1, 1]` | `[1.032, 1.038, 1.048, 1.055]` | `[1.068, 1.075, 1.088, 1.096]` | Guvenen firm reallocation TFP lift (`SS1`) + 1.65x public infrastructure reinvestment (`SS2`) |
+| `Q_mult_vs_SS0` | $Q_k / Q_{k,\mathrm{SS0}}$ | `[1, 1, 1, 1]` | `[0.990, 0.975, 0.950, 0.925]` | `[0.985, 0.955, 0.925, 0.895]` | Cooling of regional housing price-to-income ratios (-7.5% `SS1` to -10.5% `SS2` in Auckland) |
+| `Frac_stunted` | $\mathrm{Frac}_{\mathrm{stunted}}$ | `0.220` | `0.045` | `0.015` | Compression of $h_1\text{--}h_2$ stunted cohort share (lifting relational utility $u_{\mathrm{rel}}$) |
+| `Transfer_Geo` | $T_k$ | `[0.025, 0.020, 0.016, 0.014]` | `[0.038, 0.031, 0.025, 0.028]` | `[0.044, 0.037, 0.031, 0.033]` | Labrousse-Perdereau Income $\times$ Geography transfer schedule across 4 regions |
 
-$$\mathcal{B}_{k,t}^{\mathrm{acute}} = \Lambda_{\mathrm{NZD}} \, \omega_{HH,k,t} \left\lbrack c_{\mathrm{acute,Dunedin}} \sum_{j=1}^{J_r - 1} \sum_{i_h=1}^{2} \int_{a,z} d\mu_{k,t}\left(a, h_{i_h}, z, j\right) + \int T_{k,t}\left(a, h, z, j\right) d\mu_{k,t} \right\rbrack$$
+### 7.2 Post-Hoc Transition Integrals & Actuarial Continuation Valuation Operators (`Plot_CumulativeTransitionPayoffs.m` & `Plot_ActuarialContinuationValuation.m`)
+At each transition period $t = 1, \dots, T_{\mathrm{trans}}$ ($\Delta t \in \lbrace 5, 3, 2 \rbrace$ years spanning 60 years), `Plot_CumulativeTransitionPayoffs.m` integrates four regional and national annual flow series from `StationaryDist_t` ($\mu_{k,t}$) and $\Gamma_{k,t}$:
 
-$$\mathcal{S}_{k,t} = \max\left(0, \, \mathcal{B}_{k,\mathrm{SS0}}^{\mathrm{acute}} - \mathcal{B}_{k,t}^{\mathrm{acute}}\right)$$
+$$\mathcal{I}_{k,t} = \Lambda_{\mathrm{NZD}} \, \omega_{HH,k,t} \left\lbrack \int_{j \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}} \left(\Delta G_{\mathrm{ECE},k} + s_{\mathrm{sub}} i_{c,t}\right) d\mu_{k,t} + \int_{j=1} E \, d\mu_{1,k,t} \right\rbrack$$
 
-3. **Regional Macroeconomic Output Gain ($\Delta Y_{k,t}$) & Endogenous Tax Base Expansion ($\Delta \mathcal{T}_{k,t}$):**
-   Combines the immediate Guvenen et al. (2023) firm capital reallocation channel ($\tau_k \to \tau_a$, shifting $\Gamma_{k,t}\left(a_f, z_f\right)$ toward $z_{h,k}$ and raising sectoral TFP $Z_{k,t}$) with the delayed Cunha-Heckman / Daruich (2018) human-capital cohort wave ($\mu_{1,k,t}$ entering $j = 1$ at Year 20 and parenting the second generation at Years 35–40):
+$$\mathcal{S}_{k,t} = \max\left(0, \, \mathcal{B}_{k,\mathrm{SS0}}^{\mathrm{acute}} - \Lambda_{\mathrm{NZD}} \, \omega_{HH,k,t} \left\lbrack c_{\mathrm{acute,Dunedin}} \sum_{j=1}^{J_r - 1} \sum_{i_h=1}^{2} \int_{a,z} d\mu_{k,t}\left(a, h_{i_h}, z, j\right) + \int T_{k,t} d\mu_{k,t} \right\rbrack \right)$$
 
-$$\Delta Y_{k,t} = \max\left(0, \, \Lambda_{\mathrm{NZD}} \left\lbrack Z_{k,t}\left(\Gamma_{k,t}\right) K_{k,t}^{\alpha_k} H_{k,t}^{1 - \alpha_k} - Y_{k,\mathrm{SS0}} \right\rbrack \right)$$
+$$\Delta Y_{k,t} = \max\left(0, \, \Lambda_{\mathrm{NZD}} \left\lbrack Z_{k,t}\left(\Gamma_{k,t}\right) K_{k,t}^{\alpha_k} H_{k,t}^{1 - \alpha_k} - Y_{k,\mathrm{SS0}} \right\rbrack \right), \qquad \mathcal{F}_{k,t}^{\mathrm{tot}} = \mathcal{S}_{k,t} + \Delta \mathcal{T}_{k,t}$$
 
-$$\Delta \mathcal{T}_{k,t} = \max\left(0, \, \Lambda_{\mathrm{NZD}} \left(\mathrm{TaxRev}_{k,t} - \mathrm{TaxRev}_{k,\mathrm{SS0}}\right)\right), \qquad \mathcal{F}_{k,t}^{\mathrm{tot}} = \mathcal{S}_{k,t} + \Delta \mathcal{T}_{k,t}$$
+To align transition reporting with New Zealand's Accident Compensation Corporation (ACC) forward liability valuation and New Zealand Treasury Circular 2024/15 Cost-Benefit Analysis (CBAx) incidence accounting, `Plot_ActuarialContinuationValuation.m` projects each region's annual flows onto a 1-year `pchip` grid $y \in \lbrace 0, 1, \dots, 100 \rbrace$ and evaluates the rolling $H = 25$-year **Conditional Continuation Valuation Operator**:
 
-4. **Trapezoidal Cumulative Cash-Basis Integrals ($\mathcal{C}_{k,\mathrm{realized}}^{\left(L\right)}\left(t_m\right)$):**
-   For any discrete transition grid point $t_m = m \Delta t$ ($m = 1, \dots, T_{\mathrm{trans}}$) and flow lens $L \in \lbrace \mathrm{Inv}, \mathrm{Sav}, \mathrm{Fiscal}, \mathrm{Econ} \rbrace$ with annual flow series $f_{k,n}^{\left(L\right)}$:
+$$\mathcal{V}_{k,t_0}^{\left(L\right)}\left(H; r_{\mathrm{disc}}, \mathcal{A}\right) = \mathcal{C}_{k,\mathrm{realized}}^{\left(L\right)}\left(t_0; \mathcal{A}\right) + \left(1 - \alpha_{\mathrm{attr}}\right) \Phi_{\mathrm{pipe}}\left(t_0\right) \sum_{s=1}^{H} \left(\frac{1 + g_{\mathrm{cost}}}{1 + r_{\mathrm{disc}}}\right)^{s} \left(\psi_{k,0}\right)^{s} f_{k, t_0 + s}^{\left(L\right)}\left(\mathcal{A}\right)$$
 
-$$\mathcal{C}_{k,\mathrm{realized}}^{\left(L\right)}\left(t_m\right) = \sum_{n=1}^{m} \frac{\Delta t}{2} \left(f_{k,n-1}^{\left(L\right)} + f_{k,n}^{\left(L\right)}\right)$$
+with dual Treasury discount rates $r_{\mathrm{disc}} \in \lbrace 0.020, 0.080 \rbrace$, real cost-base growth $g_{\mathrm{cost}} = 0.015$, attribution haircut $\alpha_{\mathrm{attr}} = 0.30$, pipeline maturity $\Phi_{\mathrm{pipe}}\left(t_0\right) = \min\left(1, t_0 / 15\right)$, and regional Markov skill retention $\left\lbrack \psi_{\mathrm{Rural},0}, \psi_{\mathrm{Small},0}, \psi_{\mathrm{Large},0}, \psi_{\mathrm{Auckland},0} \right\rbrack = \left\lbrack 0.984, 0.984, 0.986, 0.987 \right\rbrack$.
 
-### 7.5.2 The Actuarial Continuation Valuation Operator ($\mathcal{V}_{k,t_0}^{\left(L\right)}\left(H\right)$)
-Because childhood human capital investments occur during parental stages $j \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}$ whereas adult earnings $w_{k,t} z h \ell$ and avoided acute adult remediation costs $c_{\mathrm{acute,Dunedin}}$ materialize across $j = 1, \dots, J_r - 1$ (15 to 45 years later), cash-basis integrals $\mathcal{C}_{k,\mathrm{realized}}^{\left(L\right)}\left(t_0\right)$ exhibit an incubation lag prior to $t_0 = 20$.
+### 7.3 Multiphase Policy Announcements, Credibility-Weighted Belief Blending, and Logistic Seam Smoothing (`TransPath_4Region_Master.m`)
+At each transition period $t \in \lbrace 1, \dots, T_1 - 1 \rbrace$ prior to the Phase-2 (`SS2`) enactment date $T_1$ (Year 25), households and firms evaluate the **credibility-blended continuation value** $\tilde{V}_{k,t+1}$ inside the backward-induction Bellman operator:
 
-To align transition reporting with New Zealand's Accident Compensation Corporation (ACC) forward liability valuation and New Zealand Treasury Circular 2024/15 Cost-Benefit Analysis (CBAx) incidence accounting, `Plot_ActuarialContinuationValuation.m` projects each region's annual flows onto a 1-year piecewise cubic Hermite interpolating polynomial (`pchip`) grid $y \in \lbrace 0, 1, \dots, 100 \rbrace$ and evaluates the rolling $H$-year ($H = 25$) **Conditional Continuation Valuation Operator**:
-
-$$\mathcal{V}_{k,t_0}^{\left(L\right)}\left(H; r_{\mathrm{disc}}, \mathcal{A}\right) = \mathcal{C}_{k,\mathrm{realized}}^{\left(L\right)}\left(t_0; \mathcal{A}\right) + \left(1 - \alpha_{\mathrm{attr}}\right) \Phi_{\mathrm{pipe}}\left(t_0\right) \sum_{s=1}^{H} D\left(s; r_{\mathrm{disc}}, g_{\mathrm{cost}}\right) \psi_{k,\mathrm{persist}}\left(s\right) f_{k, t_0 + s}^{\left(L\right)}\left(\mathcal{A}\right)$$
-
-where the structural discounting, region-specific Markov persistence (`psi_base_map`), and pipeline maturity components are defined by:
-
-$$D\left(s; r_{\mathrm{disc}}, g_{\mathrm{cost}}\right) = \left(\frac{1 + g_{\mathrm{cost}}}{1 + r_{\mathrm{disc}}}\right)^{s}, \qquad \psi_{k,\mathrm{persist}}\left(s\right) = \left(\psi_{k,0}\right)^{s}, \qquad \Phi_{\mathrm{pipe}}\left(t_0\right) = \min\left\lbrace 1, \, \frac{t_0}{15} \right\rbrace$$
-
-$$\left\lbrack \psi_{\mathrm{Rural},0}, \, \psi_{\mathrm{Small},0}, \, \psi_{\mathrm{Large},0}, \, \psi_{\mathrm{Auckland},0} \right\rbrack = \left\lbrack 0.984, \, 0.984, \, 0.986, \, 0.987 \right\rbrack$$
-
-* **Dual Treasury Discount Rates (`r_2pct`, `r_8pct`):** Evaluated simultaneously at $r_{\mathrm{disc}} = 0.020$ (Circular 2024/15 central social rate) and $r_{\mathrm{disc}} = 0.080$ (mandatory commercial sensitivity rate) with real productivity/cost-base growth $g_{\mathrm{cost}} = 0.015$.
-* **Macro Attribution Haircut (`alpha_att`):** $\alpha_{\mathrm{attr}} = 0.30$ enforces a 30% conservative deduction on all unrealized forward continuation claims.
-* **Calibration Anchor Switch ($\mathcal{A} \in \lbrace \mathrm{Dunedin\_22}, \mathrm{MetroSqueeze\_GUiNZ} \rbrace$):** Toggles the spatial allocation weights $\left(\mathbf{w}_{\mathrm{sav}}\left(\mathcal{A}\right), \mathbf{w}_{\mathrm{gdp}}\left(\mathcal{A}\right)\right)$ and national remediation/human-capital multipliers between the baseline Dunedin Study stunted share (~17.9%–22.0%) and the Growing Up in New Zealand metropolitan rental-squeeze sensitivity (~36.6% stunted share concentrated in high-$Q_k$ `Auckland` and `Large`):
-
-$$\left(\mathbf{w}_{\mathrm{sav}}\left(\mathcal{A}\right), \, \mathbf{w}_{\mathrm{gdp}}\left(\mathcal{A}\right)\right) = \begin{cases}
-\left(\lbrack 0.143, \, 0.225, \, 0.260, \, 0.372\rbrack, \; \lbrack 0.130, \, 0.207, \, 0.269, \, 0.394\rbrack\right) & \text{if } \mathcal{A} = \mathrm{Dunedin\_22} \\
-\left(\lbrack 0.115, \, 0.195, \, 0.275, \, 0.415\rbrack, \; \lbrack 0.120, \, 0.195, \, 0.275, \, 0.410\rbrack\right) & \text{if } \mathcal{A} = \mathrm{MetroSqueeze\_GUiNZ}
-\end{cases}$$
-
-### 7.5.3 Codebase Manifest & Canonical Output Filenames (Files 15 & 16)
-* **`Plot_CumulativeTransitionPayoffs.m`:** Integrates `Annual_Inv`, `Annual_Savings`, `Annual_dGDP`, `Annual_dTax`, and `Annual_TotFisc` across all 4 regions (`Rural`, `Small`, `Large`, `Auckland`) and the `National` aggregate from `StationaryDist_t`, `Policy_t`, and `PricePath`, returning trapezoidal cumulative cash integrals `Cum_Inv`, `Cum_Savings`, `Cum_dGDP`, and `Cum_TotFisc`.
-* **`Plot_ActuarialContinuationValuation.m`:** Computes and plots the 25-year rolling Conditional Continuation Valuation $\mathcal{V}_{k,t_0}^{\left(L\right)}\left(H\right)$ at the 2.0% and 8.0% NZ Treasury discount rates, supporting `RegionOption` (`'National'`, `'Rural'`, `'Small'`, `'Large'`, `'Auckland'`, `'All4'`) and `Params.Calibration_Anchor` (`'Dunedin_22'` vs. `'MetroSqueeze_GUiNZ'`), and exporting the sibling figure suite into `Output_NZ_4Region_Intergen/`:
-  * `Fig_Actuarial_2Panel_<Region>_<Anchor>.png` (2-panel combined Fiscal + Economy-Wide GDP view)
-  * `Fig_Actuarial_Fiscal_<Region>_<Anchor>.png` (Panel A sibling: Crown Fiscal Ledger)
-  * `Fig_Actuarial_WideGDP_<Region>_<Anchor>.png` (Panel B sibling: Economy-Wide GDP Lens)
-  * `Fig_Actuarial_Dashboard_All4_<Anchor>.png` and `Fig_Actuarial_Year5Audit_All4_<Anchor>.png` (`'All4'` spatial comparison suite)
-
-## 7.6 Multiphase Policy Announcements, Credibility-Weighted Belief Blending, and Logistic Seam Smoothing (`TransPath_4Region_Master.m`)
-
-### 7.6.1 Six Structural Announcement Challenges in a Multiphase Spatial OLG Transition (`SS0 -> SS1 -> SS2`)
-When the policy transition path chains multiple distinct reform phases—specifically, an initial incubation and capital-reallocation regime $\mathcal{\Phi}_1$ (`SS1`, spanning $t = 1, \dots, T_1 - 1$) followed by a fiscal-harvest and PAYE tax-relief regime $\mathcal{\Phi}_2$ (`SS2`, enacted at $t = T_1$, corresponding to Year 25 / the 2050 Protocol)—rational or boundedly rational forward-looking expectations introduce six cross-phase boundary challenges along the backward induction loop ($t = T_{\mathrm{trans}} - 1, \dots, 1$):
-1. **Intertemporal Labor Supply & Ben-Porath Training Substitution ($\tau_{l,t}$):** Pre-announcing the Phase-2 PAYE labor tax cut ($\Delta \tau_l = -0.035$ at $t = T_1$) alters the intertemporal return to early-career Ben-Porath human-capital training $I_{h,t}$ during $t < T_1$, as young cohorts ($j \in \lbrace 1, 2, 3 \rbrace$) invest more time in skill accumulation before $T_1$ to harvest higher net-of-tax wages $\left(1 - \tau_{l,2}\right) w_{k,t}$ after $T_1$.
-2. **Estate & Wealth Tax Front-Running Across Seam $T_1$ ($\tau_{b,t}, \tau_{a,t}$):** If the emergency estate levy steps down discontinuously at $T_1$ ($\tau_b: 25.0\% \to 18.0\%$), elderly cohorts ($j \ge J_r$) near the seam $t = T_1 - 1$ face an artificial incentive to distort savings decumulation $a^{\prime}$.
-3. **Cunha-Heckman Cross-Stage Complementarity Under Anticipated Stage-2 Expansion ($\varphi_2 = -0.95$):** Parents of newborns at $t = T_1 - 2$ anticipate that by the time their children reach the Adolescent Gate ($J = 5$) at $t \ge T_1$, Phase-2 public Montessori mentoring (`G_ece_stage2 = 0.105`) will be active. Because $\varphi_2 = -0.95 < 0$ enforces strong complementarity between Stage-1 readiness and Stage-2 enrichment, credible anticipation of $\mathcal{\Phi}_2$ raises optimal Stage-1 parental investment $i_{c,1}$ prior to $T_1$.
-4. **Asset-Price Capitalization in Regional Housing Markets ($Q_{k,t}$):** Forward-looking housing equilibrium conditions capitalize future Phase-2 disposable income gains and sovereign interest rate reductions ($\Delta r = -0.006$) smoothly along the transition path rather than jumping discontinuously at $T_1$.
-5. **Option Value of Staying vs. Emigrating in the Two-Stage Funnel ($\Pi_{\mathrm{mig},t}$):** Young adults at $j = 1$ (age 20) compare full-lifetime domestic utility $V_{k,t}\left(a_1, h_1, z_1, 1\right)$ (spanning 45 working years across $t, \dots, t + J_r - 1$) against $V_{\mathrm{Abroad},t}$. Credible belief at $t = 1$ that $\mathcal{\Phi}_2$ will lower career PAYE taxes from age 40 onward immediately lifts $V_{k,1}$ and reduces skilled youth emigration $P_{\mathrm{emig},1}$ in Period 1.
-6. **Imperfect Policy Credibility During the Cash Incubation Window ($t < T_1$):** Because cash-basis fiscal breakeven occurs at Year 18.8 whereas the Phase-2 tax cut is scheduled for Year 25 ($T_1$), private agents may initially attach imperfect credibility $\lambda_{\mathrm{cred}}\left(t\right) < 1$ to the government's promise to enact $\mathcal{\Phi}_2$.
-
-### 7.6.2 The Credibility-Weighted Belief Blending Operator ($\lambda_{\mathrm{cred}}\left(t\right)$)
-To solve Challenges 1–6 on the GPU without expanding the individual state space $\left(a, h, \theta_c, z, j\right)$, `TransPath_4Region_Master.m` computes two reference continuation value paths during backward induction for $t < T_1$:
-* $V_{k,t+1}^{\mathrm{perm\,SS1}}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right)$: The continuation value function solved under the belief that Phase-1 policy vector $\mathcal{\Phi}_1$ remains permanent for all $\tau \ge t$ (converging to terminal steady state $\mathrm{SS1}$).
-* $V_{k,t+1}^{\mathrm{full\,SS2}}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right)$: The continuation value function solved under perfect foresight of the Phase-2 transition $\mathcal{\Phi}_1 \to \mathcal{\Phi}_2$ at seam $T_1$ (converging to terminal steady state $\mathrm{SS2}$).
-
-At each transition period $t \in \lbrace 1, \dots, T_1 - 1 \rbrace$, households in region $k$ and infinite-horizon firms evaluate the **credibility-blended continuation value** $\tilde{V}_{k,t+1}$ inside the Bellman operator:
-
-$$V_{k,t}\left(a, h, z, j\right) = \max_{d_t \in \mathcal{D}} \left\lbrace u_k\left(d_t, a, h, z, j; \mathcal{\Phi}\left(t\right)\right) + s_j \beta_{hh} \, \mathbb{E}_{z^{\prime} \vert z} \left\lbrack \tilde{V}_{k,t+1}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right) \right\rbrack + \left(1 - s_j\right) \nu_b\left(a^{\prime}; \tau_b\left(t\right)\right) \right\rbrace$$
-
-where $\tilde{V}_{k,t+1}$ is the convex combination governed by the time-$t$ credibility weight $\lambda_{\mathrm{cred}}\left(t\right) \in \lbrack 0, 1\rbrack$:
+$$V_{k,t}\left(a, h, z, j\right) = \max_{d_t \in \mathcal{D}} \left\lbrace u_k\left(d_t, a, h, z, j; \mathcal{\Phi}\left(t\right)\right) + s_j \beta_{hh} \, \mathbb{E}_{z^{\prime} \vert z} \left\lbrack \tilde{V}_{k,t+1}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right) \right\rbrack + \left(1 - s_j\right) u_{\mathrm{beq}}\left(a^{\prime}; \tau_b\left(t\right)\right) \right\rbrace$$
 
 $$\tilde{V}_{k,t+1}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right) = \left(1 - \lambda_{\mathrm{cred}}\left(t\right)\right) V_{k,t+1}^{\mathrm{perm\,SS1}}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right) + \lambda_{\mathrm{cred}}\left(t\right) V_{k,t+1}^{\mathrm{full\,SS2}}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right)$$
 
-The credibility trajectory $\lambda_{\mathrm{cred}}\left(t\right)$ is parameterized by the announcement date $t_{\mathrm{ann}} \le T_1$, initial announcement credibility $\bar{\lambda}_0 \in \lbrack 0, 1\rbrack$, and learning curvature $\kappa_{\mathrm{cred}} > 0$:
-
-$$\lambda_{\mathrm{cred}}\left(t\right) = \begin{cases}
-0 & \text{if } t < t_{\mathrm{ann}} \\
-\bar{\lambda}_0 + \left(1 - \bar{\lambda}_0\right)\left(\frac{t - t_{\mathrm{ann}}}{T_1 - t_{\mathrm{ann}}}\right)^{\kappa_{\mathrm{cred}}} & \text{if } t_{\mathrm{ann}} \le t < T_1 \\
-1 & \text{if } t \ge T_1
-\end{cases}$$
-
-### 7.6.3 Endogenous Actuarial Updating of $\lambda_{\mathrm{cred}}\left(t\right)$ and Logistic Seam Smoothing
-In the **Earned Fiscal Credibility** specification ($\bar{\lambda}_0 = 0.25$), private credibility $\lambda_{\mathrm{cred}}\left(t\right)$ can also be linked directly to the audited ratio of recognised actuarial fiscal return $\mathcal{V}_{\mathrm{National},t}^{\left(\mathrm{Fiscal}\right)}\left(H; r_{2\%}\right)$ to cumulative investment outlay $\mathcal{C}_{\mathrm{National},\mathrm{realized}}^{\left(\mathrm{Inv}\right)}\left(t\right)$ from Section 7.5.2:
+Under endogenous actuarial credibility updating, $\lambda_{\mathrm{cred}}^{\mathrm{actuarial}}\left(t\right)$ updates as a function of the audited ratio of recognised actuarial fiscal return $\mathcal{V}_{\mathrm{National},t}^{\left(\mathrm{Fiscal}\right)}\left(H; r_{2\%}\right)$ to cumulative investment outlay $\mathcal{C}_{\mathrm{National},\mathrm{realized}}^{\left(\mathrm{Inv}\right)}\left(t\right)$:
 
 $$\lambda_{\mathrm{cred}}^{\mathrm{actuarial}}\left(t\right) = \min\left\lbrace 1, \, \bar{\lambda}_0 + \left(1 - \bar{\lambda}_0\right) \max\left(0, \, \frac{\mathcal{V}_{\mathrm{National},t}^{\left(\mathrm{Fiscal}\right)}\left(H; r_{2\%}\right) / \mathcal{C}_{\mathrm{National},\mathrm{realized}}^{\left(\mathrm{Inv}\right)}\left(t\right) - 1}{\bar{\chi}_{\mathrm{target}} - 1}\right) \right\rbrace$$
 
-where $\bar{\chi}_{\mathrm{target}} = 3.50$ denotes the full-credibility actuarial coverage multiple. Because the Year 5 Parliamentary Audit ($t = 1$) already achieves an actuarial coverage multiple of $\mathcal{V}_{\mathrm{National},5}^{\left(\mathrm{Fiscal}\right)} / \mathcal{C}_{\mathrm{National},\mathrm{realized}}^{\left(\mathrm{Inv}\right)} = 35.25 / 9.19 = 3.84 > \bar{\chi}_{\mathrm{target}}$, publishing the ACC-style actuarial audit at Year 5 drives $\lambda_{\mathrm{cred}}^{\mathrm{actuarial}}\left(t\right) \to 1$, locking in early youth retention and parental investment gains across $t \in \lbrace 1, 2, 3, 4 \rbrace$.
-
-Finally, to eliminate discrete step-function tax arbitrage at the Phase-2 transition seam $t = T_1$ (Challenge 2), all continuous fiscal and endowment instruments $\mathcal{\Phi}\left(t\right) \in \lbrace \tau_l\left(t\right), \tau_b\left(t\right), G_{\mathrm{ECE},1}\left(t\right), G_{\mathrm{ECE},2}\left(t\right), E\left(t\right) \rbrace$ follow a smooth **logistic phase-in ramp** with steepness parameter $\xi_{\mathrm{ramp}} > 0$:
+where $\bar{\chi}_{\mathrm{target}} = 3.50$. Because the Year 5 Parliamentary Audit ($t = 1$) already achieves an actuarial coverage multiple of $35.25 / 9.19 = 3.84 > \bar{\chi}_{\mathrm{target}}$, publishing the ACC-style actuarial audit at Year 5 drives $\lambda_{\mathrm{cred}}^{\mathrm{actuarial}}\left(t\right) \to 1$. Finally, to prevent step-function tax arbitrage at seam $T_1$, continuous policy levers follow a logistic phase-in ramp:
 
 $$\mathcal{\Phi}\left(t\right) = \mathcal{\Phi}_1 + \frac{\mathcal{\Phi}_2 - \mathcal{\Phi}_1}{1 + \exp\left(-\xi_{\mathrm{ramp}}\left(t - T_1\right)\right)}$$
 
 ---
 
-## 8. Methodological Appendices (Appendices A.1–A.4)
-### Appendix A.1: Why Calibrated Warm-Glow + Experience Asset ($\theta_c$) Replaces Outer-Loop Dynastic VFI
-As De Nardi (2004) establishes, embedding a child's full multi-dimensional recursive value function $V_{\mathrm{child}}\left(a_c, h_c, z_c, 1\right)$ directly inside the parent's Bellman equation expands the state space and introduces strategic parent-child gaming without improving empirical fit in the upper tail of the wealth distribution[cite: 13, 31]. Our architecture splits intergenerational altruism across two tractable mechanisms:
-1. **End-of-Life Property Estates ($j \ge J_r$):** Andreoni's luxury warm-glow specification $b_1 \frac{\left(b_2 + \left(1 - \tau_b\right)a^{\prime}\right)^{1 - \eta_c}}{1 - \eta_c}$ replicates the exact empirical concentration of the NZD 1.6T intergenerational property transfer and retiree saving profiles without requiring retirees to track their adult children's state vector on the GPU grid[cite: 2, 31].
-2. **Active Parenthood Skill Formation ($j \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}$):** Because `UpgradeB` tracks the child's multi-stage skill stock $\theta_c$ dynamically as a VFI Toolkit `experienceasset`, and because a young adult's initial value function $V_{1,k}\left(a_1, h_1, z_1\right)$ in a CRRA/log-utility economy is approximately log-linear in initial human capital $h_1 = \theta_3$, the terminal parental utility reward $\omega_{ic}\ln\left(\theta_3\right)$ at $j = j_{\mathrm{launch}}$ serves as an exact functional proxy for $\mathbb{E}\left\lbrack V_1\left(\cdot, \theta_3\right)\right\rbrack$ while solving in a single backward induction pass[cite: 9, 11, 13, 19].
+## 8. Consolidated 17-File VFI Toolkit Codebase Manifest
 
-### Appendix A.2: Capturing Daruich's (2018) 75% Intergenerational Distribution Multiplier
-In Daruich (2018, Section 6 & Table 7), roughly three-fourths of the long-run welfare gain from early childhood investment operates through the **endogenous shift in the stationary distribution of parent states $\mu\left(a_p, h_p, z_p\right)$ across generations**—creating a stronger parental background for the next generation—rather than changes in the curvature of the continuation value function[cite: 6, 10, 11, 13]. `WelfareDecomposition_4Region.m` isolates this exact channel by solving the reform twice: first holding `jequaloneDist` fixed at the baseline steady state (Exogenous Skills), and second allowing `Build_IntergenTransitionMatrix.m` to iterate `jequaloneDist` to its new fixed point (Endogenous Intergenerational Transmission)[cite: 11].
-
-### Appendix A.3: Dimension-Free Spatial Housing & Unbalanced Growth Land Overvaluation
-Combining Kiyotaki, Michaelides, and Nikolov's (2024) net-worth consolidation ($a = Q_k h_{\mathrm{house}} - b_{\mathrm{debt}}$) and analytical rental-vs.-ownership cutoff $\xi_k = \min\left\lbrace 1, \frac{1}{\bar{\chi}}\left(\frac{rr_k}{rh_k}\right)\right\rbrace$ with Hirano and Toda's (2025) unbalanced sectoral growth mechanism ($G_{\mathrm{Auckland},\mathrm{ann}} > G_{\mathrm{Large},\mathrm{ann}} > G_{\mathrm{Small},\mathrm{ann}} > G_{\mathrm{Rural},\mathrm{ann}}$) allows the model to capture regional house-price-to-income divergence and tenure cleavage within a single continuous asset grid `a_grid`[cite: 5, 11, 15, 32].
-
-### Appendix A.4: Two-Speed 5D-to-4D Projection & `.mat` Checkpoint Caching for 60-Year Transition Shooting
-Solving the full 5D experience-asset problem (`(a, h, theta_c, z, j)` across 4 regions) directly inside a 12-to-20 period general equilibrium transition shooting loop would require hundreds of GPU value-function iterations[cite: 5, 11]. By solving the exact 5D Cunha–Heckman experience-asset problem in Steps 1–3 (`NZ_4Region_Master_UpgradeB.m` and `PolicyExperiment_LeeSeshadri_4Region.m`), caching `.mat` checkpoints in `Cache_NZ_Intergen`, and projecting the resulting effective childhood investment policies onto the compact 4D state space `(a, h, z, j)` in Step 4, the full 4-region + Abroad equilibrium, 60-year transition path, and 2-panel Population & Fiscal Sankey suites execute in under 4 minutes[cite: 5, 11, 20].
-
----
-
-## 9. Complete 14-File VFI Toolkit Pipeline Manifest (4-Region + Abroad Suite)
-All output CSV tables and 300-DPI PNG figures generated by this pipeline are archived in [`Output_NZ_4Region_Intergen`](https://github.com/MichaelTiemann/IGWelfare/tree/main/Output_NZ_4Region_Intergen)[cite: 8, 11, 14, 22]:
-
-| # | File Name | Role in the Parameterized 4-Region + Abroad VFI Toolkit Pipeline |
+| File # | MATLAB Script / Function Name | Primary Role in the 4-Region + Abroad Multiphase Suite |
 | :---: | :--- | :--- |
-| **1** | `Configure_TimeGrid_Params.m` | **Time-Grid Parameterizer:** Sets `Params.dt` ($\Delta t \in \lbrace 5, 3, 2, 1 \rbrace$) and computes $J, J_r, \mathcal{J}_{c,1}, \mathcal{J}_{c,2}, j_{\mathrm{launch}}, T_{\mathrm{trans}}$, and $\Delta t$-compounded rates[cite: 7]. |
-| **2** | `Run_All_NZ_Intergen_Suite.m` | **Master Runner (With Checkpoint Caching):** Executes Steps 1–8 across all 4 regions (`Rural`, `Small`, `Large`, `Auckland`), manages `Cache_NZ_Intergen` `.mat` checkpoints and 5D $\to$ 4D projection, and exports all CSV tables and PNG figures[cite: 11]. |
-| **3** | `NZ_4Region_Master_UpgradeB.m` | **Upgrade B Baseline Master:** Initializes the 8 PTypes (4 Regions $\times$ Household/Firm) with Stats NZ 2025 weights (`[0.160, 0.240, 0.259, 0.341]`) and `experienceasset = 1`[cite: 5, 11]. |
-| **4** | `ChildCES_aprimeFn.m` & `HumanCapital_Lifecycle_aprimeFn.m` | **Experience Asset Laws of Motion:** Implement Cunha, Heckman & Schennach's two-stage CES skill production ($\varphi_1 = 0.35, \varphi_2 = -0.95$) across $\mathcal{J}_{c,1}$ and $\mathcal{J}_{c,2}$ plus adult Ben-Porath skill accumulation[cite: 5, 9, 16, 35]. |
-| **5** | `ReturnFn_SpatialHH_UpgradeB.m` | **5D Household Return Function:** Embeds Kiyotaki tenure choice, 4-region subsistence $\bar{e}_k$, Ben-Porath training, two-stage child altruism, and luxury bequests[cite: 5, 15, 31]. |
-| **6** | `Build_IntergenTransitionMatrix_UpgradeB.m` | **5D GPU-Vectorized Intergenerational Operator:** Extracts completed Stage-2 skill $\theta_3$ at $j = j_{\mathrm{launch}}$, maps NZD 1.6T estates at $j \ge J_r$, and computes $4 \times 5$ domestic/Abroad sorting[cite: 11, 22]. |
-| **7** | `PolicyExperiment_LeeSeshadri_4Region.m` | **Stage Counterfactuals:** Runs `BM_Baseline`, `P0_Early_0to5`, `P1P2_Late_6to17`, `BN_FrontLoad`, and `P0_Plus_GrantE`; outputs [`Table12A`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table12A_LeeSeshadri_4Region_IGE.csv), [`Table12B`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table12B_LeeSeshadri_4Region_VarExpl.csv), [`Table12C`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table12C_LeeSeshadri_4Region_Welfare.csv), and [`FigE8`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/FigE8_LeeSeshadri_4Region_Counterfactuals.png)[cite: 17, 18, 19, 23, 24, 27, 28]. |
-| **8** | `FertilityBargaining_Module.m` | **Fertility & Bargaining:** Evaluates childcare bargaining, hyperbolic discounting ($\beta_{\mathrm{hyp}} = 0.72$), differential fertility, and NZ Super tax rates; outputs [`Table_Fert1`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table_Fert1_4Region_TFR_DiffFertility.csv), [`Table_Fert2`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table_Fert2_4Region_Stunting_NZSuper.csv), and [`FigFert`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/FigFert_4Region_Bargaining_Solvency.png)[cite: 36, 44, 45]. |
-| **9** | `ReturnFn_SpatialHH.m` & `ReturnFn_Firm.m` | **Compact 4D Household & Firm Return Functions:** Used after Step 4 projection for fast SMM calibration, 3-way decomposition, and the $T_{\mathrm{trans}}$-step transition shooting loop[cite: 5, 11, 42]. |
-| **10** | `Build_IntergenTransitionMatrix.m` | **Compact 100% GPU-Vectorized $4 \times 5$ Abroad Brain-Drain Operator:** Computes age 20–35 emigration to Australia/OECD, selective $h_6\text{--}h_7$ skill depletion, replacement migration churn, and social cohesion $S_t$[cite: 11, 22, 37, 40]. |
-| **11** | `WelfareDecomposition_4Region.m` | **3-Way Welfare Decomposition:** Outputs the 4-region Daruich/Lee-Seshadri ([`Table1`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table1_4Region_Welfare_Decomposition.csv)), Labrousse & Perdereau $4 \times 5$ quintile ([`Table2`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table2_4Region_Quintile_Matrix.csv)), and Kiyotaki tenure cleavage ([`Table3`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table3_4Region_Tenure_Cleavage.csv)) CE % tables[cite: 11, 13, 15, 26]. |
-| **12** | `TransPath_4Region_Master.m` & `Calibrate_NZ_Moments.m` | **60-Year Transition & Dynamic Pop Weights:** Solves the $T_{\mathrm{trans}}$-period transition path with endogenous `PTypeWeights_path` ([`Table9`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table9_4Region_Dynamic_Population_Shares.csv)), [`Fig1`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Fig1_Daruich_Cohort_Welfare_4Region.png), [`Fig2`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Fig2_Kiyotaki_Housing_Estates_4Region.png), and [`Fig3`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Fig3_BrainDrain_Cohesion_4Region.png)[cite: 11, 40]. |
-| **13** | `Plot_ChildFates_2Panel_SSankey.m` | **6-Gate Population Cohort Sankey Suite:** 100% GPU-vectorized pairwise Sankey tracing cohort headcount shares (%) from Birth ($J=1$), First 2000 Days ($J=2..3$), Adolescent Montessori Gate ($J=5$), Adult Skill Launch ($J=6..7$), Age 30 ($J=10$), and Retirement ($J=11..16$)[cite: 7, 20, 43]. |
-| **14** | `Plot_ChildFiscal_2Panel_SSankey.m` | **6-Gate Intergenerational Fiscal Ledger & 2050 Debt-Sinking Sankey:** Evaluates post-hoc fiscal flows (`NZD k/yr` per birth) across Gates 1–6, computes the Macro Public Residual ($\Omega_{\mathrm{fiscal}}$), and partitions reform surpluses 50/50 into the 2050 Sovereign Debt Sinking Fund and Public Reinvestment Pool (`FiscalLedger.Protocol_2050_Summary`)[cite: 7, 20]. |
+| **1** | `Run_All_NZ_Intergen_Suite.m` | Master 9-step execution pipeline with `.mat` checkpoint caching (`Cache_NZ_Intergen/`) and `Active_Phases = {'SS0', 'SS1', 'SS2'}` |
+| **2** | `Configure_TimeGrid_Params.m` | Maps all flow rates, survival curves, and developmental stage indices across $\Delta t \in \lbrace 5, 3, 2, 1 \rbrace$ |
+| **3** | `Build_Phase_Registry.m` | Assembles the $N$-phase registry struct array `Phases(1:N)` for `SS0`, `SS1`, `SS2`, or additional phases |
+| **4** | `ReturnFn_SpatialHH_Compact4D.m` | 40-argument GPU household return function (`(l, Ih, ic, aprime, hprime, a, h, z, ...)` on compact 4D grid) |
+| **5** | `NZ_4Region_Master.m` & `ReturnFn_SpatialHH.m` | Baseline 4-Region + Emigration Abroad master initializer (5D) and two-stage CES child skill experience-asset return function |
+| **6** | `HumanCapital_Lifecycle_aprimeFn.m` | Endogenous human capital and two-stage child skill transition function (`aprimeFn`) |
+| **7** | `ReturnFn_Firm.m` | Infinite-horizon Guvenen et al. (2023) collateral-constrained firm return function (`Firm_k`) |
+| **8** | `Build_IntergenTransitionMatrix.m` | 100% GPU-vectorized 3-stage operator ($\mathbf{Q}_h$ with Montessori / *Tuakana–Teina* Gate, $\mathbf{Q}_a$, and $4 \times 5$ $\Pi_{\mathrm{mig}}$) |
+| **9** | `Solve_Spatial_GE_Loop.m` | Mixed-horizon General Equilibrium solver (`ValueFnIter_MixHorz_PType` & `StationaryDist_MixHorz_PType`) |
+| **10** | `Calibrate_NZ_Moments.m` | Simulated Method of Moments (SMM) calibration engine matching the 15 NZ empirical moments |
+| **11** | `WelfareDecomposition_4Region.m` | Solves multiphase (`SS1`, `SS2`) 3-step Daruich / Lee-Seshadri decomposition (`T1`), quintiles (`T2`), and tenure (`T3`) |
+| **12** | `Counterfactuals_LeeSeshadri_4Region.m` | Multi-stage counterfactual suite (`BM`, `P0_Early`, `P1P2_Late`, `BN_FrontLoad`, `P0_Plus_GrantE`) exporting Tables 4–6 & 12A–C |
+| **13** | `FertilityBargaining_Module.m` | Cooperative childcare bargaining, hyperbolic fertility ($\beta_{\mathrm{hyp}} = 0.72$), and NZ Super solvency tax module (Tables 7–8) |
+| **14** | `TransPath_4Region_Master.m` | 60-year multiphase shooting algorithm with dynamic `PTypeWeights_path`, credibility blending $\lambda_{\mathrm{cred}}\left(t\right)$, and Figs 1–3 |
+| **15** | `Plot_ChildFates_2Panel_SSankey.m` | $N$-panel GPU 5-Stage (17-Node) Population Cohort Fates Sankey & `Table15_ChildFates_5Stage_Decomp_<Region>.csv` |
+| **16** | `Plot_ChildFiscal_2Panel_SSankey.m` | $N$-panel GPU 6-Gate (26-Node) Lifecycle Fiscal Sankey, 4-lane split (`Table14`), and 2050 Debt-Sinking Protocol |
+| **17** | `Plot_CumulativeTransitionPayoffs.m` & `Plot_ActuarialContinuationValuation.m` | Integrates 60-year transition payoffs and ACC-style 25-year Actuarial Continuation Valuation ($\mathcal{V}_{k,t_0}^{\left(L\right)}$ at 2% & 8% real) with sibling PNG exports |

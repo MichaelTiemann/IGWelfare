@@ -122,6 +122,10 @@ if Use_ExpAsset_Pipeline && Run_Fertility_Module && exist('FertilityBargaining_M
         save(Cache_Step3, 'T_Fert1', 'T_Fert2', 'TFR_mat', 'DiffFert_mat', 'Stunted_mat', 'DepRatio_vec', 'ReqTax_vec');
         fprintf('    [CACHE SAVED] Saved Step 3 checkpoint to %s\n', Cache_Step3);
     end
+    %% PLOT 2-PANEL FERTILITY RECOVERY & NZ SUPER SOLVENCY (AGE 65 PLAN VS. AGE 67 / 70)
+    if ~exist('Table7_TFR', 'var'),   Table7_TFR   = []; end
+    if ~exist('Table8_Super', 'var'), Table8_Super = []; end
+    Out_FertPlot = Plot_Fertility_SuperSolvency_2Panel(Params_SS0, Table7_TFR, Table8_Super);
     fprintf('    Step 3 completed in %.2f seconds.\n\n', toc(step3_timer));
 end
 

@@ -1,176 +1,192 @@
-# DOCUMENT 1B: Intergenerational Welfare — Strategy and Policy Answer Key
-**Exact Cross-Reference Guide Linking Strategic Claims in Document 1A to VFI Toolkit Variables, Structural Equations, 6-Gate Fiscal Ledgers, and CSV/PNG Outputs (4-Region + Abroad Edition)**[cite: 7, 11]
+# Strategy and Policy Answer Key
+**Quantitative Companion & Technical Audit Reference for Document 1A (4-Region + Abroad Multiphase Edition)**
 
 ---
 
-## 1. Purpose & Scope of This Answer Key
-This document is the quantitative companion ("Answer Key") to **Document 1A (*Intergenerational Welfare, Capital Allocation, and Human Potential in New Zealand — Executive Reader's Edition*)**[cite: 7, 12]. Every strategic claim, welfare percentage, fertility shift, migration flow, and fiscal ledger figure in Document 1A is mapped below to its exact **MATLAB script**, **VFI Toolkit parameter/grid index**, **structural equation**, and **output CSV/PNG file** in [`Output_NZ_4Region_Intergen`](https://github.com/MichaelTiemann/IGWelfare/tree/main/Output_NZ_4Region_Intergen)[cite: 7, 11].
+## 1. Purpose & Cross-Document Mapping
+
+This **Strategy and Policy Answer Key (Document 1B)** serves as the quantitative bridge between the executive narrative in **Document 1A** (*Intergenerational Welfare, Capital Allocation, and Human Potential in New Zealand.md*) and the formal mathematical and VFI Toolkit codebase specifications in **Document 2** (*Intergenerational Welfare Technical Documentation & Model Specification Guide.md*). Every headline statistic, Sankey node flow, multiphase welfare gain, actuarial continuation valuation, and historical benchmark in Document 1A is mapped below to its exact MATLAB script, CSV output table, parameter struct field, and empirical literature anchor.
+
+| Document 1A Part & Section | Primary MATLAB Script(s) | Exported CSV Table(s) in `Output_NZ_4Region_Intergen/` | Canonical Figure Filename(s) |
+| :--- | :--- | :--- | :--- |
+| **Part I & Part II:** Three Coupled Lenses & Montessori / *Tuakana–Teina* Gate | `Run_All_NZ_Intergen_Suite.m`, `Configure_TimeGrid_Params.m`, `Build_Phase_Registry.m` | `Table3B_4Region_Abroad_SteadyState_Summary.csv` | Unified Loop Diagram & Cultural Pedagogy Mapping |
+| **Part III, Sec. 1:** 5-Stage (17-Node) Population Cohort Fates Sankey | `Plot_ChildFates_2Panel_SSankey.m` | `Table15_ChildFates_5Stage_Decomp_<Region>.csv` | `Fig_ChildFates_5Stage_2Panel_<Region>_Dunedin_22.png` (and `3Panel` for `SS0-SS1-SS2`) |
+| **Part III, Sec. 2:** 6-Gate (26-Node) Lifecycle Fiscal Sankey & 4-Lane Split | `Plot_ChildFiscal_2Panel_SSankey.m` | `Table14_FiscalLedger_6Gate_Decomp_<Region>.csv` | `Fig_ChildFiscal_2Panel_<Region>_Dunedin_22.jpg` (and `3Panel` for `SS0-SS1-SS2`) |
+| **Part IV, Sec. 1:** Multiphase 4-Region Welfare Decomposition (`SS1` & `SS2`) | `WelfareDecomposition_4Region.m`, `TransPath_4Region_Master.m` | `Table1_4Region_Daruich_LeeSeshadri_Decomposition.csv`, `Table2_4Region_LabroussePerdereau_SpatialQuintiles.csv` | `Fig1_Daruich_Cohort_Welfare_4Region.png` |
+| **Part IV, Sec. 2:** Multi-Stage Counterfactuals (First 2000 Days vs. Late) | `Counterfactuals_LeeSeshadri_4Region.m` | `Table4_4Region_LeeSeshadri_IGE.csv`, `Table5_4Region_LeeSeshadri_Output_Welfare.csv`, `Table6_4Region_LeeSeshadri_Table12_VarianceExplained.csv` | `FigE8_LeeSeshadri_4Region_Counterfactuals.png` |
+| **Part IV, Sec. 3:** Housing Tenure & Generational Cleavage | `TransPath_4Region_Master.m` | `Table3_4Region_Kiyotaki_TenureGenerationalCleavage.csv` | `Fig2_Kiyotaki_Housing_Estates_4Region.png` |
+| **Part IV, Sec. 4:** Dynamic Population Shares & Brain-Drain Closure | `Build_IntergenTransitionMatrix.m`, `TransPath_4Region_Master.m` | `Table9_4Region_Dynamic_Population_Shares.csv`, `Table10_4Region_Abroad_BrainDrain_Cohesion.csv` | `Fig3_BrainDrain_Cohesion_4Region.png` |
+| **Part IV, Sec. 5:** Childcare Bargaining, Fertility, & NZ Super Solvency | `FertilityBargaining_Module.m` | `Table7_4Region_Endogenous_TFR_DiffFertility.csv`, `Table8_4Region_Fertility_Stunting_NZSuperTax.csv` | `FigFert_4Region_Fertility_SuperSolvency.png` |
+| **Part V, Sec. 1:** 2050 Sovereign Debt-Sinking & Reinvestment Protocol | `Plot_ChildFiscal_2Panel_SSankey.m` (`Build_Custom_Protocol_2050_Table`) | `FiscalLedger.Protocol_2050_Summary` | Gate 5 & Gate 6 Net-Zero Breakeven Overlay |
+| **Part V, Sec. 2–3:** ACC-Style Actuarial Continuation Valuation & Credibility | `Plot_CumulativeTransitionPayoffs.m`, `Plot_ActuarialContinuationValuation.m` | `Out_Dunedin` / `Out_GUiNZ` Console & Struct Audit | `Fig_Actuarial_2Panel_<Region>_<Anchor>.png`, `Fig_Actuarial_Fiscal_<Region>_<Anchor>.png`, `Fig_Actuarial_WideGDP_<Region>_<Anchor>.png` |
+| **Part VI:** Historical Precedents & Cautionary Tales (10 Cases) | Cross-Country Macro-Calibration Benchmarks | Section 5.5 Literature & Parameter Verification Table | 10-Case Comparative Matrix |
 
 ---
 
-## 2. Audience-by-Audience Claim-to-Code Cross-Reference
+## 2. Sankey Architecture, Montessori / *Tuakana–Teina* Pathways, & 2050 Protocol Answer Key
 
-### A. Philanthropist Section Cross-Reference (`Lens 1: HumanCapital_Lifecycle_aprimeFn.m`, `Plot_ChildFates_2Panel_SSankey.m`, & `PolicyExperiment_LeeSeshadri_4Region.m`)[cite: 7, 8, 9]
-* **4-Region Household Population Shares (Stats NZ June 2025 Base):**
-  * *Document 1A Claim:* Rural (16.0%), Small provincial towns (24.0%), Large regional cities (25.9%), Auckland (34.1%)[cite: 7].
-  * *Code & CSV Mapping:* Initialized in `NZ_4Region_Master.m` via `Params.PTypeWeights(1:4)` normalized to `[0.160, 0.240, 0.259, 0.341]`; tracked dynamically over the 60-year transition path ($t = 1, \dots, T_{\mathrm{trans}}$) in [`Table9_4Region_Dynamic_Population_Shares.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table9_4Region_Dynamic_Population_Shares.csv)[cite: 7, 8].
-* **Intergenerational Borrowing Constraint & Private Corner Solution ($i_c = 0$):**
-  * *Document 1A Claim:* Cash-poor and rent-squeezed parents in metropolitan centers hit a mathematical wall where discretionary private early childhood enrichment collapses to zero, leaving only baseline food and shelter sustenance[cite: 7, 8].
-  * *Code & Math Mapping:* In `ReturnFn_SpatialHH.m`, parents during active child-rearing windows $j \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}$ cannot borrow against the child's future adult human capital $h^{\prime}_1$ ($a^{\prime} \ge 0$ on `a_grid_assets`)[cite: 7, 8]. When regional house prices $Q_k$ (`Params.Q_reg`: Rural = 1.05, Small = 1.40, Large = 2.05, Auckland = 3.10) inflate user costs $rr_k, rh_k$ or mandatory transport subsistence $\bar{e}_k$ (`Params.ebar_energy`: Rural = 0.048, Small = 0.036, Large = 0.022, Auckland = 0.016) binds, optimal private enrichment investment $d_3 = i_c \in \lbrack 0, 0.50\rbrack$ hits `d_grid_ic(1) = 0` alongside asset/income hardship (25.79% of the national cohort in Baseline `SS0`, falling to 5.67% in Reform `SS1`, Gate 2 Node 4 of `Plot_ChildFiscal_2Panel_SSankey.m` and [`Table14_FiscalLedger_6Gate_Decomp_National.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table14_FiscalLedger_6Gate_Decomp_National.csv))[cite: 8, 11].
-* **Gate 1 — Two-Stage CES Skill Technology ($\theta_c$ Experience Asset, Ages 0–5 vs. 6–17):**
-  * *Document 1A Claim:* First 2000 Days (ages 0–5) exhibit high substitutability, while primary/secondary schooling (ages 6–17) exhibits strong dynamic complementarity, yielding a NZD 112B–162B present-value societal payoff[cite: 7, 9, 10].
-  * *Code & Math Mapping:* Implemented in `ChildCES_aprimeFn.m` and `HumanCapital_Lifecycle_aprimeFn.m` with `vfoptions.experienceasset = 1` over the 9-point grid `a_grid_thetac`[cite: 7, 8, 9]:
-    * **Stage 1 (First 2000 Days, $j \in \mathcal{J}_{c,1}$, child ages 0–5):** `Params.phi1_ces` gives $\varphi_1 = 0.35 > 0$ (elasticity of substitution $\sigma_1 = \frac{1}{1 - \varphi_1} = 1.54 > 1$), `gamma1_self = 0.53`, `gamma1_inv = 0.24`, `gamma1_par = 0.23`, public wraparound lever `Params.G_ece_stage1 = 0.045` (scaling to 0.190 in reform), and Stone-Geary luxury floor `Params.gbar_ece = 0.020`[cite: 7, 8, 9, 10].
-    * **Stage 2 (School Years, $j \in \mathcal{J}_{c,2}$, child ages 6–17):** `Params.phi2_ces` gives $\varphi_2 = -0.95 < 0$ (elasticity of substitution $\sigma_2 = \frac{1}{1 - \varphi_2} = 0.51 < 1$), `gamma2_self = 0.87`, `gamma2_inv = 0.07`, `gamma2_par = 0.06`, public lever `Params.G_ece_stage2 = 0.065`[cite: 7, 9, 10, 15].
-* **Gate 2 — The Early-Adolescent Vulnerability Window (Ages 12–14, $J = 5$) & Two-Way Montessori / Tuakana Peer Mentoring:**
-  * *Document 1A Claim:* Parental unemployment and housing distress at ages 12–14 trigger skill erosion and acute exits, whereas Two-Way Montessori / Tuakana Cross-Age Peer Mentoring buffers vulnerable mentees and boosts high-performing mentors[cite: 8, 9, 11].
-  * *Code & Math Mapping:* In `Plot_ChildFates_2Panel_SSankey.m` and `Plot_ChildFiscal_2Panel_SSankey.m` (Column 3, $J = 5$), family unemployment stress is identified on the solved Markov state space via `is_unemp_4D = (z_idx_3D == 1) | (n_z1 >= 5 & (z_idx_3D == 2) & is_hard_4D)`[cite: 8, 11]:
-    * **Node 8 (`8. Unemp Stress + Exits 1,2,4` in Fiscal / Node 6 in Fates):** Unbuffered parental job loss imposes a skill-erosion penalty $\Delta \ln\left(h_{\mathrm{mean}}\right) = -0.22$ (18.92% of cohort costing NZD 7.45k/yr cohort-weighted or NZD 39.36k/affected child-yr in Baseline `SS0`, cut to 4.88% and NZD 1.92k/yr in Reform `SS1`)[cite: 8, 11].
-    * **Node 9 (`9. Public Schooling` in Fiscal / Node 7 in Fates):** Neutral trajectory maintenance $\Delta \ln\left(h_{\mathrm{mean}}\right) = 0.00$ (63.74% of cohort costing NZD 6.46k/yr public in `SS0`; 37.84% and NZD 3.83k/yr in `SS1` as students shift into mentoring)[cite: 8, 11].
-    * **Node 10 (`10. Montessori / Tuakana Mentoring` in Fiscal / Node 8 in Fates):** Encompasses public and state-integrated Montessori adolescent units (*Wāora*, *Berhampore*, *Royal Oak*), high-agency state schools (*Ao Tawhiti*, *Hobsonville Point*), Māori-medium *Tuakana–Teina* kura, and structured state-school peer mentoring (*Graeme Dingle Stars / Project K*). Cross-age mentoring banks Stage-1 skill gains with $\Delta \ln\left(h_{\mathrm{mean}}\right) = +0.05$ in Baseline `SS0` (17.34% of cohort, NZD 2.43k/yr public flow) and rises to $\Delta \ln\left(h_{\mathrm{mean}}\right) = +0.11$ in Reform `SS1` (57.27% of cohort, NZD 7.91k/yr public flow), while amplifying effective Stage-1 public wraparound productivity via $G_{\mathrm{ECE,eff}} = 1.15 \times G_{\mathrm{ECE}}$[cite: 8, 9, 11].
-    * **Node 11 (`11. Private Adol. Commit: Cash+Time` in Fiscal):** Tracks private parental adolescent sustenance, activities, and mentoring time across the non-hardship complement (81.08% of cohort spending NZD 15.40k/yr cohort-weighted or NZD 19.00k/child-yr in `SS0`, rising to 95.12% of cohort spending NZD 18.83k/yr cohort-weighted or NZD 19.80k/child-yr in `SS1`).
+### 2.1 Cultural & Pedagogical Synthesis at Gate 3 ($J = 5$, Ages 12–14): Montessori *Erdkinder* Meets *Tuakana–Teina* and the Graeme Dingle Foundation
+In `Build_IntergenTransitionMatrix.m` and both Sankey scripts (`Plot_ChildFates_2Panel_SSankey.m` and `Plot_ChildFiscal_2Panel_SSankey.m`), **Gate 3 ($J = 5$ under $\Delta t = 3$, corresponding to parental period $j_p = 4$ and adolescent ages 12–14 / Years 8–10)** models the early-adolescent vulnerability window.
 
----
+* **Why Early-Childhood Gains Can Erode at Ages 12–14:** In Cunha, Heckman, and Schennach (2010), Stage-2 schooling investments exhibit strong dynamic complementarity ($\varphi_2 = -0.95$, elasticity of substitution $\sigma_2 \approx 0.51$) alongside heightened vulnerability to household distress. When a parent experiences an unbuffered unemployment or severe low-income shock (`is_unemp_stress = (iz == 1) || (n_z1 >= 5 && iz == 2 && is_hardship)`), adolescent skill formation suffers a structural erosion penalty $\Delta \ln\left(h_{\mathrm{mean}}\right) = -0.22$.
+* **Indigenous Te Ao Māori & Pasifika Foundations Alongside Montessori's *Erdkinder*:**
+  While Maria Montessori's *Erdkinder* ("land-children") framework describes ages 12–15 as a sensitive period requiring real-world social contribution, economic agency, and cross-age mentoring, Aotearoa New Zealand's indigenous **Te Ao Māori** and **Pasifika** traditions provide the primary cultural anchor for this parameter:
+  * ***Tuakana–Teina* (Older-to-Younger Kinship Responsibility):** An older or more skilled *tuakana* guides and protects a younger *teina*, buffering the *teina* against family or school alienation while building executive function, empathy, and *mana* in the *tuakana*.
+  * ***Ako* (Reciprocal Two-Way Learning):** Teacher and learner roles flow bidirectionally, generating the **two-way skill dividend** in our transition matrix ($\Delta \ln\left(h_{\mathrm{mean}}\right) = +0.05$ in `SS0`, rising to $+0.11$ in `SS1` and $+0.14$ in `SS2`, while amplifying effective Stage-1 wraparound productivity $G_{\mathrm{ECE,eff}} = 1.15 \times G_{\mathrm{ECE}}$).
+  * ***Manaakitanga*, *Whanaungatanga*, & *Rangatiratanga*:** Uplifting the *mana* of peers through care (*manaakitanga*), school kinship belonging (*whanaungatanga*), and youth self-determination (*rangatiratanga*).
+* **Empirical Breakdown of the 17.3% Baseline (`SS0`) Scaling to 57.3% (`SS1`) and 65.0% (`SS2`):**
 
-### B. Venture & Growth Capital Section Cross-Reference (`Lens 2 & Lens 3: ReturnFn_Firm.m` & `Build_IntergenTransitionMatrix.m`)[cite: 7, 8]
-* **4-Region Business Firm Shares & Entrepreneurial Productivity Ceilings:**
-  * *Document 1A Claim:* 35.1% of NZ businesses operate in Auckland and 26.9% in Large regional cities, holding the highest productivity scale-up ceilings[cite: 7].
-  * *Code Mapping:* `Params.PTypeWeights(5:8)` normalized to `[0.150, 0.230, 0.269, 0.351]` (Stats NZ Feb 2025 Business Demography)[cite: 7]. Infinite-horizon firm productivity grids `z_grid.Firm_k` ($z_f \in \lbrace z_{\ell,k}, z_{h,k} \rbrace$) and annual regional trend growth rates $G_{k,\mathrm{ann}}$ are calibrated as[cite: 7]:
-    * `Firm_Rural`: $\lbrack 0.70, 1.15\rbrack$, $G_{\mathrm{Rural,ann}} = 1.007$.
-    * `Firm_Small`: $\lbrack 0.75, 1.28\rbrack$, $G_{\mathrm{Small,ann}} = 1.011$.
-    * `Firm_Large`: $\lbrack 0.83, 1.50\rbrack$, $G_{\mathrm{Large,ann}} = 1.018$.
-    * `Firm_Auckland`: $\lbrack 0.90, 1.75\rbrack$, $G_{\mathrm{Auckland,ann}} = 1.025$.
-* **Guvenen et al. (2023) Tax Shift & Wage / House Price Multipliers:**
-  * *Document 1A Claim:* Shifting from capital income tax $\tau_k$ to a book-value wealth/land tax ($\tau_a = 1.5\%$) and estate levy ($\tau_b = 25\%$) on the NZD 1.6T property transfer lifts regional wages by +3.2% to +5.5% and cools urban house overvaluation by -5.0% to -7.5%[cite: 7, 8].
-  * *Code Mapping:* In `WelfareDecomposition_4Region.m`, `Params_Reform.tau_a = 0.015`, `Params_Reform.tau_b = 0.25`, `Params_Reform.YouthGrant = 0.065` (up from baseline 0.030), with general equilibrium multipliers `w_mult_GE = [1.032, 1.038, 1.048, 1.055]` and `Q_mult_GE = [0.990, 0.975, 0.950, 0.925]` across `{Rural, Small, Large, Auckland}`[cite: 7, 8].
+| Aotearoa Delivery Pathway at Gate 3 ($J = 5$, Ages 12–14 / Years 8–10) | Representative New Zealand Programs & Institutions | Status Quo Share (`SS0`) | Phase 1 Reform (`SS1`) | Phase 2 Harvest (`SS2`) | Primary Mechanism in `Build_IntergenTransitionMatrix.m` |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **1. Structured School Peer-Mentoring Charities** | **Graeme Dingle Foundation** (*Stars / Te Kāhui Whetū* Year 12–13 *tuakana* mentoring Year 9 *teina*; *Project K* wilderness & community mentoring), *I Have a Dream NZ* | 10.0% | 28.5% | 32.0% | Insulates at-risk Year 8–10 students against `z1` family unemployment stress; cuts truancy and Exit 1/Exit 4 entry |
+| **2. *Kura Kaupapa Māori*, *Kura-ā-Iwi*, & Pasifika *Tuakana* Academies** | *Te Runanga Nui o Ngā Kura Kaupapa Māori*, *Ngā Kura ā Iwi o Aotearoa*, bilingual *whānau* classes, Pasifika *Tuakana–Teina* & polyfest leadership hubs | 4.7% | 16.8% | 19.5% | Embeds *Tuakana–Teina*, *Ako*, and *Whanaungatanga* across vertical age cohorts; lifts NCEA Level 3 retention |
+| **3. High-Agency Vertical-*Whānau* State Secondary/Intermediate Schools** | *Ao Tawhiti Unlimited Discovery* (Christchurch), *Hobsonville Point Secondary School*, *Tai Wananga*, project-based state *whānau* houses | 1.8% | 8.5% | 9.5% | Replaces rigid age-segregated tracking with multi-age advisory *whānau* and community enterprise projects |
+| **4. State & State-Integrated Montessori Adolescent Units (*Erdkinder*)** | *Wāora Montessori School* (Lower Hutt), *Berhampore*, *Royal Oak Intermediate*, Montessori Aotearoa adolescent units | 0.8% | 3.5% | 4.0% | Direct Montessori *Erdkinder* micro-economy and cross-age mentoring |
+| **Combined Montessori / *Tuakana–Teina* Gate 3 Participation** | **All Four Pathways Combined (`Node 8` in Fates / `Node 10` in Fiscal)** | **17.3%** | **57.3%** | **65.0%** | **Two-way skill boost ($\Delta \ln h = +0.11\text{ to }+0.14$) + buffers family job-loss shock** |
 
 ---
 
-### C. Policy-Maker Section Cross-Reference (`FertilityBargaining_Module.m`, `WelfareDecomposition_4Region.m`, & `Plot_ChildFiscal_2Panel_SSankey.m`)[cite: 7, 8, 18]
-* **4-Region "Income x Geography" Transfer Vector (`Params_Reform.Transfer_Geo`):**
-  * Baseline regional transfers `[0.025, 0.020, 0.016, 0.014]` scale under the High-Opportunity Reform to `Params_Reform.Transfer_Geo = [0.038, 0.031, 0.025, 0.028]` across `{HH_Rural, HH_Small, HH_Large, HH_Auckland}` to offset Rural/Small mandatory transport subsistence $\bar{e}_k$ and Large/Auckland rental stress[cite: 7, 8, 15].
-* **6-Gate Intergenerational Fiscal Ledger (`FiscalLedger.National.SS0`, `FiscalLedger.National.SS1`) & The 2050 Debt-Targeting Protocol:**
-  * Computed post-hoc in `Plot_ChildFiscal_2Panel_SSankey.m` with `NZD_Base_Scale = 95.0` (1.0 model unit = NZD 95.0k/yr mean prime household earnings) and Oranga Tamariki acute state care anchored at approximately NZD 180k/care-yr (`@NZD 32k/stunted` annualized cohort burden across Exits 1, 2, and 4)[cite: 8, 14].
-  * Summarized in `FiscalLedger.Protocol_2050_Summary` and exported to [`Table14_FiscalLedger_6Gate_Decomp_National.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table14_FiscalLedger_6Gate_Decomp_National.csv) (Section 3 below), partitioning 100% of the net reform fiscal surplus $\Omega_{\mathrm{reform}} = \max\left(0, \Omega_{\mathrm{fiscal}}^{\mathrm{SS1}} - \Omega_{\mathrm{fiscal}}^{\mathrm{SS0}}\right)$ 50/50 into `SinkingFund_50Pct_kNZD` and `ReinvestmentPool_50Pct_kNZD`[cite: 8].
+### 2.2 The 5-Stage (17-Node) Population Cohort Fates Sankey (`Table15_ChildFates_5Stage_Decomp_<Region>.csv`)
+*Source Script: `Plot_ChildFates_2Panel_SSankey.m` (Supports $N = 1, 2, 3, \dots$ phases via `Active_Phases` and `Build_Phase_Registry.m`)*
+
+Each node's ribbon width in the Population Fates Sankey represents the exact percentage of the birth cohort (`Pop_17Nodes_Pct`) passing through that developmental state:
+
+| Stage (Child $J$ Axis) | Node ID & Canonical Label | `National` `SS0` (%) | `National` `SS1` (%) | `National` `SS2` (%) | `Auckland` `SS0` (%) | `Auckland` `SS1` (%) | Structural Definition in `Plot_ChildFates_2Panel_SSankey.m` |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Stage 1 ($J = 1$)**<br>*Birth, Age 0* | `1_Birth_Material_Hardship_Squeeze`<br>`2_Birth_Secure_Parental_Buffer` | 25.79%<br>74.21% | 7.74%<br>92.26% | 4.38%<br>95.62% | 29.40%<br>70.60% | 8.82%<br>91.18% | `is_birth_squeeze_4D`: low asset buffer (`a < 0.15*Q_k`) or low-income corner (`iz <= 2 & ic == 0`) |
+| **Stage 2 ($J = 2\text{--}3$)**<br>*First 2000 Days* | `3_ECE_Unmitigated_Corner_ic0`<br>`4_ECE_Public_Wraparound_Mod_Inv`<br>`5_ECE_High_Wraparound_Parental_Inv` | 25.79%<br>47.51%<br>26.70% | 5.67%<br>67.63%<br>26.70% | 2.06%<br>69.44%<br>28.50% | 29.40%<br>43.90%<br>26.70% | 6.47%<br>66.83%<br>26.70% | `m_corner = (ic <= 1e-5) & (is_hard | iz <= 2)`; `G_ECE` lifts families into `m_mod` & `m_high` |
+| **Stage 3 ($J = 5$)**<br>*Adol. Gate, 12–14* | `6_Adol_Family_Unemp_Stress_z1`<br>`7_Adol_Standard_Schooling`<br>`8_Adol_Montessori_Tuakana_Mentoring` | 18.88%<br>63.82%<br>17.30% | 4.91%<br>37.79%<br>57.30% | 2.45%<br>32.55%<br>65.00% | 21.15%<br>61.55%<br>17.30% | 5.50%<br>37.20%<br>57.30% | Evaluates parental employment shock `iz == 1` vs. Montessori / *Tuakana–Teina* & Graeme Dingle buffer |
+| **Stage 4 ($J = 6\text{--}7$)**<br>*Adult Launch, 20* | `9_Launch_Stunted_Tier_h1_h2`<br>`10_Launch_Core_Tier_h3_h5`<br>`11_Launch_Thriving_Tier_h6_h7` | 22.00%<br>54.50%<br>23.50% | 4.02%<br>38.68%<br>57.30% | 1.50%<br>33.50%<br>65.00% | 24.80%<br>52.10%<br>23.10% | 4.50%<br>37.50%<br>58.00% | Completed pre-labor skill mapped onto 7-point grid `h_vec = [0.45..1.80]` (`Dunedin_22` anchor) |
+| **Stage 5 ($J = 10$)**<br>*Adulthood, 30+* | `12_Exit1_State_Care_Placement`<br>`13_Exit2_Avoidable_Hospitalisation`<br>`14_Exit3_Lower_Lifetime_Income`<br>`15_Exit4_Benefit_Justice_Burden`<br>`16_Retained_NZ_Thriving_Adult`<br>`17_Emigrated_Abroad_Brain_Drain` | 2.10%<br>4.82%<br>9.63%<br>11.38%<br>61.14%<br>10.93% | 0.49%<br>1.62%<br>4.15%<br>3.89%<br>81.29%<br>8.56% | 0.24%<br>1.12%<br>2.95%<br>2.44%<br>85.65%<br>7.60% | 2.35%<br>5.28%<br>10.42%<br>12.55%<br>50.11%<br>19.29% | 0.54%<br>1.75%<br>4.38%<br>4.18%<br>74.23%<br>14.92% | Dunedin concentration: 22% stunted tier drives **74.1%** of acute Exits 1, 2, 4 in `SS0` (benchmark: 57%–81%) |
 
 ---
 
-## 3. Complete Empirical CSV & Fiscal Ledger Audit Tables
+### 2.3 The 6-Gate (26-Node) Lifecycle Fiscal Ledger Sankey & 4-Lane Reconciliation (`Table14_FiscalLedger_6Gate_Decomp_<Region>.csv`)
+*Source Script: `Plot_ChildFiscal_2Panel_SSankey.m` (26 Nodes across 6 Gates; Dual-Regime Scaling with Wiggly Vertical Scale Break at Gate 4, $X = 4.0$)*
 
-### Table 14: 6-Gate (26-Node) Lifecycle Fiscal & 4-Lane Child-Cost Reconciliation (`Table14_FiscalLedger_6Gate_Decomp_National.csv`)
-*Source Script & Figure: `Plot_ChildFiscal_2Panel_SSankey.m` / [`Fig_ChildFiscal_5Stage_2Panel_National_Dunedin_22.png`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Fig_ChildFiscal_5Stage_2Panel_National_Dunedin_22.png)*[cite: 8, 14]
+To resolve the unit disambiguation problem and reconcile model flows with the **NZD 15,000 to NZD 19,000 per child per year** conventional household expenditure survey benchmark, `Table14_FiscalLedger_6Gate_Decomp_<Region>.csv` records both the **Cohort-Weighted Flow (`_Cohort_Flow_kNZD`)** and the **4-Lane Decomposition**:
+* `LaneA_Priv_Cash_kNZD`: Private parental out-of-pocket cash expenditure (net child investment $(1 - s_{\mathrm{sub}})i_c$ + child sustenance share of food, clothing, utilities, and housing $c_{nd} + c_H$).
+* `LaneB_Priv_Time_kNZD`: Imputed value of parental care and mentoring time ($w_k z_p h_p \ell_{\mathrm{child}}$).
+* `LaneC_Pub_DevInv_kNZD`: Proactive public developmental investment (Paid Parental Leave, BestStart, Plunket, universal ECE $G_{\mathrm{ECE},1}$, public schooling $d_2$, Montessori / *Tuakana–Teina* & Graeme Dingle mentoring $G_{\mathrm{ECE},2}$, and Youth Grant $E$).
+* `LaneD_Pub_Remed_kNZD`: Reactive public remediation outlays (means-tested hardship transfers $T_k$, emergency housing, and in-childhood/adult Exits 1, 2, and 4).
 
-| Gate & Column ($J$) | Node # & Flow Name | `SS0` Pop (%) | `SS0` Cohort Flow (NZD k/yr) | `SS0` Per-Child Rate (NZD k/yr) | `SS1` Pop (%) | `SS1` Cohort Flow (NZD k/yr) | `SS1` Per-Child Rate (NZD k/yr) | 4-Lane Accounting & Empirical Anchor |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Gate 1 ($J=1$)**<br>*Birth, Age 0* | **1.** Means-Tested Birth Support<br>**2.** Universal Birth Benefit<br>**3.** Private Birth Out-of-Pocket | 25.79%<br>100.00%<br>74.21% | 1.20<br>8.90<br>13.73 | 4.65<br>8.90<br>18.50 | **5.67%**<br>100.00%<br>**94.33%** | 2.02<br>22.11<br>**17.64** | 35.61<br>22.11<br>**18.70** | Lane D: WFF/Accommodation Supp.<br>Lane C: PPL + BestStart Yr1 + LMC<br>Lanes A+B: Infant sustenance + leave |
-| **Gate 2 ($J=2..3$)**<br>*First 2000 Days* | **4.** ECE Corner + Benefit Need<br>**5.** Public ECE Wraparound<br>**6.** High-Intensity Public ECE<br>**7.** Private Parental ECE (Cash+Time) | 25.79%<br>70.07%<br>4.14%<br>74.21% | 3.49<br>6.01<br>0.60<br>13.73 | 13.52<br>8.58<br>14.49<br>**18.50** | **5.67%**<br>**90.18%**<br>4.14%<br>**94.33%** | **0.77**<br>**22.10**<br>1.26<br>**17.64** | 13.52<br>24.51<br>30.43<br>**18.70** | Lane D: Hardship corner ($i_c = 0$)<br>Lane C: *Te Korowai Mokopuna* $G_{\mathrm{ECE},1}$<br>Lane C: High-intensity public ECE<br>Lanes A+B: Matches NZD 15k–19k survey! |
-| **Gate 3 ($J=5$)**<br>*Adol. Ages 12–14* | **8.** Unemp Stress + Exits 1,2,4<br>**9.** Public Schooling ($d_2$)<br>**10.** Montessori / Tuakana Mentoring<br>**11.** Private Adol. Commit (Cash+Time) | 18.92%<br>63.74%<br>17.34%<br>81.08% | 7.45<br>6.46<br>2.43<br>15.40 | 39.36<br>10.14<br>13.99<br>**19.00** | **4.88%**<br>37.84%<br>**57.27%**<br>**95.12%** | **1.92**<br>3.83<br>**7.91**<br>**18.83** | 39.36<br>10.11<br>13.81<br>**19.80** | Lane D: Parental job loss + Exits 1,2,4<br>Lane C: Secondary schooling $d_2$<br>Lane C: Cross-age peer mentoring<br>Lanes A+B: Sustenance + mentoring time |
-| **Gate 4 ($J=6..7$)**<br>*Adult Launch, 20* | **12.** Stunted Tier $h_1\text{--}h_2$ [Exits 1,2,4]<br>**13.** Core Skill Tier $h_3\text{--}h_5$<br>**14.** Thriving Tier $h_6\text{--}h_7$ | 74.69%<br>22.84%<br>2.47% | 17.94<br>5.29<br>0.60 | 24.02<br>23.14<br>24.43 | **3.99%**<br>**80.64%**<br>**15.37%** | **1.69**<br>**33.38**<br>**6.69** | 42.35<br>41.40<br>43.55 | Dunedin Study high-need trajectory<br>Vocational/secondary skill launch<br>Tertiary/high-skill launch + Grant $E$ |
-| **Gate 5 ($J=10$)**<br>*Age 30 Ledger* | **15.** Exits 1,2,4: Care/Hosp/Just<br>**16.** Infra, Roads & Base Health<br>**17.** Age 30 GST & Cap Tax<br>**18.** Age 30 PAYE Income Tax<br>**19.** Exit 3: Stunting Lost Tax<br>**20.** Age 30 Emig Tax Loss | 100.0%<br>100.0%<br>100.0%<br>100.0%<br>100.0%<br>100.0% | 16.82<br>4.08<br>5.12<br>5.74<br>*(3.15)*<br>*(0.71)* | 16.82<br>4.08<br>5.12<br>5.74<br>*(3.15)*<br>*(0.71)* | 100.0%<br>100.0%<br>100.0%<br>100.0%<br>100.0%<br>100.0% | **3.28**<br>4.10<br>**9.28**<br>**8.45**<br>*(0.73)*<br>*(1.04)* | **3.28**<br>4.10<br>**9.28**<br>**8.45**<br>*(0.73)*<br>*(1.04)* | Acute remediation (`@NZD 32k/stunted`)<br>Universal per-adult public overhead<br>$\tau_c c_{nd} + \tau_k r a + \tau_a a$<br>$\tau_l w_k z h \ell$<br>28.8% foregone tax from Exit 3<br>Foregone tax from 20–35 brain drain |
-| **Gate 6 ($J=11..16$)**<br>*Career to Ret.* | **21.** Exits 1,2,4: Ongoing Burden<br>**22.** NZ Super, Infra & Health<br>**23.** GST, Cap & Estate Tax Pool<br>**24.** Career PAYE Income Tax<br>**25.** Exit 3: Career Lost Tax<br>**26.** Perm. Abroad Tax Loss | 100.0%<br>100.0%<br>100.0%<br>100.0%<br>100.0%<br>100.0% | 12.59<br>7.85<br>6.11<br>3.52<br>*(2.42)*<br>*(0.63)* | 12.59<br>7.85<br>6.11<br>3.52<br>*(2.42)*<br>*(0.63)* | 100.0%<br>100.0%<br>100.0%<br>100.0%<br>100.0%<br>100.0% | **2.49**<br>7.87<br>**12.65**<br>**5.07**<br>*(0.57)*<br>*(1.04)* | **2.49**<br>7.87<br>**12.65**<br>**5.07**<br>*(0.57)*<br>*(1.04)* | Chronic adult justice/welfare/hospital<br>Universal $P_{\mathrm{super}}$ + old-age health<br>$\tau_c + \tau_k + \tau_a + \tau_b(1-s_j)a^{\prime}$<br>Annuitized career PAYE stream<br>Foregone career tax from Exit 3<br>Permanent Abroad tax loss |
-
----
-
-### Table 2: The 2050 Sovereign Debt-Sinking Fund & Public Reinvestment Protocol (`FiscalLedger.Protocol_2050_Summary`)
-*Source Script: Section 3.2 of `Plot_ChildFiscal_2Panel_SSankey.m` (National Cohort-Weighted NZD k/yr per Birth)*[cite: 8]
-
-| Lifecycle Ledger Stage | `Baseline_SS0_kNZD` ($\Omega_{\mathrm{fiscal}}^{\mathrm{SS0}}$) | `Reform_SS1_kNZD` ($\Omega_{\mathrm{fiscal}}^{\mathrm{SS1}}$) | `Reform_Gain_Omega_kNZD` ($\Omega_{\mathrm{reform}}$) | `DebtSinking_50Pct_kNZD` (50% of Surplus to 2050 Debt) | `ReinvestPool_50Pct_kNZD` (50% of Surplus to Infra/NZSF) | `DebtInterestSaved_2050_kNZD` ($r_{\mathrm{gov}} = 4.2\%$) | `Infra_NZSF_YieldDiv_2050_kNZD` ($\mu_{\mathrm{infra}} = 1.65\times$) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **`Gate5_Age30_J10`** (Age 30) | -10.04 | +10.35 | **+20.39** | +5.18 | +5.18 | +0.22 | +8.54 |
-| **`Gate6_CareerToRet_J11_16`** | -10.81 | +7.36 | **+18.17** | +3.68 | +3.68 | +0.15 | +6.07 |
+| Gate & Lifecycle Window | Node ID & 26-Node Canonical Name | `SS0` Cohort Flow (`_kNZD/yr`) | `SS1` Cohort Flow (`_kNZD/yr`) | `SS1` 4-Lane Split (`Priv Cash` / `Priv Time` / `Pub Dev` / `Pub Remed`) | Conditional Per-Child Rate in Node (`_Cond_PerChild_kNZD`) |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **Gate 1 ($J = 1$)**<br>*Birth, Age 0* | `1_MeansTested_Birth_Support`<br>`2_Universal_Birth_Benefit`<br>`3_Private_Birth_OutOfPocket` | 3.70<br>2.70<br>9.60 | 1.15<br>5.20<br>12.40 | 0.0 / 0.0 / 0.0 / 1.15<br>0.0 / 0.0 / 5.20 / 0.0<br>7.80 / 4.60 / 0.0 / 0.0 | NZD 14.3k/hardship birth<br>NZD 5.2k/birth (PPL+BestStart)<br>NZD 16.7k/buffered birth |
+| **Gate 2 ($J = 2\text{--}3$)**<br>*First 2000 Days* | `4_ECE_Corner_Benefit_Need`<br>`5_Public_ECE_Wraparound`<br>`6_High_Intensity_Public_ECE`<br>`7_Private_Parental_ECE_CashTime` | 12.30<br>0.30<br>0.50<br>15.80 | 2.70<br>13.00<br>0.60<br>18.80 | 0.0 / 0.0 / 0.0 / 2.70<br>0.0 / 0.0 / 13.00 / 0.0<br>0.0 / 0.0 / 0.60 / 0.0<br>**11.80 / 7.00** / 0.0 / 0.0 | NZD 47.6k/corner child<br>**NZD 13.5k/child (Daruich ECE)**<br>NZD 15.8k/high-ECE child<br>**NZD 19.9k/child (Cash+Time)** |
+| **Gate 3 ($J = 5$)**<br>*Adol. Gate, 12–14* | `8_Unemp_Stress_Exits124`<br>`9_Public_Schooling_d2`<br>`10_Montessori_Tuakana_Public`<br>`11_Private_Adol_Commit_CashTime` | 13.60<br>8.00<br>1.10<br>16.20 | 2.50<br>5.30<br>6.50<br>19.40 | 0.0 / 0.0 / 0.0 / 2.50<br>0.0 / 0.0 / 5.30 / 0.0<br>0.0 / 0.0 / 6.50 / 0.0<br>**12.10 / 7.30** / 0.0 / 0.0 | NZD 50.9k/crisis teen (Exits 1,2,4)<br>NZD 14.0k/student<br>NZD 11.3k/mentored teen<br>**NZD 20.4k/teen (Cash+Time)** |
+| **Gate 4 ($J = 6\text{--}7$)**<br>*Launch, Age 20* | `12_Stunted_Launch_h1_h2`<br>`13_Core_Launch_h3_h5`<br>`14_Thriving_Launch_h6_h7` | 10.00<br>15.60<br>13.00 | 2.20<br>15.50<br>26.20 | 0.0 / 0.0 / 0.40 / 1.80<br>4.50 / 1.80 / 8.20 / 1.00<br>9.80 / 3.40 / 13.00 / 0.0 | Carries Exits 1, 2, 4 into adulthood<br>Core skill launch + Youth Grant $E$<br>Thriving launch + Youth Grant $E$ |
+| **Gate 5 ($J = 10$)**<br>*Age 30 Ledger* | `15_Age30_Exits124_Burden`<br>`16_Age30_Infra_Base_Health`<br>`17_Age30_GST_Cap_Tax`<br>`18_Age30_PAYE_Income_Tax`<br>`19_Age30_Exit3_Lost_Tax`<br>`20_Age30_Emig_Abroad_Lost_Tax` | 10.00<br>3.90<br>4.20<br>4.40<br>1.80<br>1.10 | 2.70<br>3.90<br>8.20<br>8.90<br>0.90<br>1.30 | **Net Fiscal Balance at Age 30:**<br>`SS0`: **-NZD 5.30k/yr**<br>`SS1`: **+NZD 10.50k/yr**<br>`SS2`: **+NZD 12.40k/yr** | Good Taxes (`Nodes 17+18`) minus Public Outlays (`Nodes 15+16`) swings by **+NZD 15.80k/yr per birth**! |
+| **Gate 6 ($J = 11\text{--}16$)**<br>*Career to Ret.* | `21_Career_Exits124_Burden`<br>`22_NZSuper_Infra_Health`<br>`23_GST_Cap_Estate_Tax_Pool`<br>`24_Career_PAYE_Income_Tax`<br>`25_Career_Exit3_Lost_Tax`<br>`26_Perm_Abroad_Lost_Tax` | 7.10<br>5.40<br>8.40<br>1.70<br>1.60<br>1.10 | 2.00<br>6.50<br>16.90<br>5.30<br>1.10<br>1.50 | **Net Fiscal Balance to Ret.:**<br>`SS0`: **-NZD 2.40k/yr**<br>`SS1`: **+NZD 13.70k/yr**<br>`SS2`: **+NZD 16.80k/yr** | Good Taxes (`Nodes 23+24`) minus Outlays (`Nodes 21+22`) swings by **+NZD 16.10k/yr per birth**! |
 
 ---
 
-### Table 12A: Intergenerational Elasticity of Earnings (`IGE`) — Short-Run PE (`SR`) vs. Long-Run GE (`LR`)
-*Source File: [`Table12A_LeeSeshadri_4Region_IGE.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table12A_LeeSeshadri_4Region_IGE.csv) (with 3-year time grid sensitivity in [`Table4_4Region_LeeSeshadri_IGE.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table4_4Region_LeeSeshadri_IGE.csv))*[cite: 7]
+### 2.4 The 2050 Sovereign Debt-Sinking & Public Reinvestment Protocol (`FiscalLedger.Protocol_2050_Summary`)
+*Source Function: `Build_Custom_Protocol_2050_Table` in `Plot_ChildFiscal_2Panel_SSankey.m` (`Cohort_Births = 60,000/yr`, `r_bond_yield = 0.042`, `mult_reinvest = 1.65`, `Horizon_2050 = 25 yrs`)*
 
-| `Row` (Policy Regime) | `Rural_SR` | `Small_SR` | `Large_SR` | `Auckland_SR` | `Rural_LR` | `Small_LR` | `Large_LR` | `Auckland_LR` |
+| Lifecycle Horizon & Phase | Good Taxes (`_kNZD/yr`) | Exits 1,2,4 + Base Outlays (`_kNZD/yr`) | Net Fiscal Balance $\Omega_{\mathrm{fiscal}}$ (`_kNZD/yr`) | 50% Debt-Sinking Allocation $\Omega_{\mathrm{debt}}$ (`_kNZD/yr`) | Annual Interest Saved (`_kNZD/yr`) | 50% Reinvestment Pool $\Omega_{\mathrm{reinv}}$ (`_kNZD/yr`) | Reinvestment Societal Value at 1.65x (`_kNZD/yr`) | 25-Yr Cumulative Sovereign Debt Retired per Cohort (`_MNZD`) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **`BM_Baseline`** | 0.2535 | 0.2383 | 0.3488 | 0.4448 | 0.2535 | 0.2383 | 0.3488 | 0.4448 |
-| **`P0_Early_0to5`** | 0.2535 | 0.2391 | 0.3274 | 0.4387 | 0.2653 | 0.2388 | 0.3655 | **0.4218** |
-| **`P1P2_Late_6to17`** | 0.2764 | 0.2626 | 0.3466 | 0.4335 | 0.2882 | 0.2660 | 0.3555 | 0.4215 |
-| **`BN_FrontLoad`** | **0.2345** | **0.2202** | 0.3522 | 0.4475 | **0.2347** | **0.2193** | 0.3635 | 0.4477 |
-| **`P0_Plus_GrantE`** | 0.2558 | 0.2412 | **0.3279** | **0.4377** | 0.2571 | **0.2359** | 0.3620 | **0.4264** |
+| **`Age30_SS0`** | 8.60 | 13.90 | **-5.30** | 0.00 | 0.00 | 0.00 | 0.00 | NZD 0M |
+| **`Age30_SS1`** | 17.10 | 6.60 | **+10.50** | 5.25 | 0.22 | 5.25 | 8.66 | **NZD 13,658M** (NZD 13.66B) |
+| **`Age30_SS2`** | 18.60 | 6.20 | **+12.40** | 6.20 | 0.26 | 6.20 | 10.23 | **NZD 16,130M** (NZD 16.13B) |
+| **`CareerRet_SS0`** | 10.10 | 12.50 | **-2.40** | 0.00 | 0.00 | 0.00 | 0.00 | NZD 0M |
+| **`CareerRet_SS1`** | 22.20 | 8.50 | **+13.70** | 6.85 | 0.29 | 6.85 | 11.30 | **NZD 17,821M** (NZD 17.82B) |
+| **`CareerRet_SS2`** | 24.80 | 8.00 | **+16.80** | 8.40 | 0.35 | 8.40 | 13.86 | **NZD 21,853M** (NZD 21.85B) |
 
 ---
 
-### Table 12B: Variance of Adult Human Capital ($h_1$) & Lifetime Earnings (`LFE`) Explained by Parental State at Age 30–35, Plus Log Earnings Variance (`VarLogE`)
-*Source File: [`Table12B_LeeSeshadri_4Region_VarExpl.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table12B_LeeSeshadri_4Region_VarExpl.csv)*[cite: 7, 20, 21]
+## 3. Core Model Output Tables Answer Key (Tables 1 to 12)
 
-| `Row` (Policy Regime) | `VarExpl_h1_Rural` (%) | `VarExpl_h1_Small` (%) | `VarExpl_h1_Large` (%) | `VarExpl_h1_Auckland` (%) | `VarExpl_LFE_Rural` (%) | `VarExpl_LFE_Small` (%) | `VarExpl_LFE_Large` (%) | `VarExpl_LFE_Auckland` (%) | `VarLogE_Rural` | `VarLogE_Small` | `VarLogE_Large` | `VarLogE_Auckland` |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **`BM_Baseline`** | 42.84% | 41.01% | 42.67% | 46.77% | 70.06% | 69.29% | 69.99% | 71.74% | 0.6635 | 0.4695 | 0.4040 | 0.5460 |
-| **`P0_Early_0to5`** | **40.06%** | **38.75%** | **39.78%** | **45.77%** | **68.90%** | **68.36%** | **68.78%** | **71.31%** | 0.6624 | 0.4607 | 0.4013 | 0.5451 |
-| **`P1P2_Late_6to17`** | 41.63% | 39.73% | 41.59% | 44.64% | 69.55% | 68.76% | 69.54% | 70.82% | 0.6654 | 0.4670 | 0.4040 | 0.5444 |
-| **`BN_FrontLoad`** | 42.40% | 40.94% | 42.34% | 47.41% | 69.87% | 69.27% | 69.85% | 72.02% | 0.6653 | 0.4687 | 0.4036 | 0.5468 |
-| **`P0_Plus_GrantE`** | **39.79%** | **38.15%** | **40.34%** | **45.30%** | **68.79%** | **68.11%** | **69.02%** | **71.11%** | **0.6366** | **0.4138** | **0.3823** | **0.5380** |
+### 3.1 Table 1: Multiphase 4-Region Daruich (2018) & Lee-Seshadri (2019) Welfare Decomposition (`SS0 -> SS1 -> SS2`)
+*Source File: [`Table1_4Region_Daruich_LeeSeshadri_Decomposition.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table1_4Region_Daruich_LeeSeshadri_Decomposition.csv) (Generated by `WelfareDecomposition_4Region.m` with `Active_Phases = {'SS0', 'SS1', 'SS2'}`)*
 
----
-
-### Table 12C: Percentage Change in Average Lifetime Earnings (`Ebar` %) & Newborn Consumption Equivalent Welfare (`CE_LR` %)
-*Source File: [`Table12C_LeeSeshadri_4Region_Welfare.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table12C_LeeSeshadri_4Region_Welfare.csv)*[cite: 7, 23, 24]
-
-| `Row` (Policy Regime) | `Ebar_SR_Rural` (%) | `Ebar_SR_Small` (%) | `Ebar_SR_Large` (%) | `Ebar_SR_Auckland` (%) | `Ebar_LR_Rural` (%) | `Ebar_LR_Small` (%) | `Ebar_LR_Large` (%) | `Ebar_LR_Auckland` (%) | `CE_LR_Rural` (%) | `CE_LR_Small` (%) | `CE_LR_Large` (%) | `CE_LR_Auckland` (%) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **`BM_Baseline`** | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% |
-| **`P0_Early_0to5`** | -0.11% | +0.04% | -0.00% | +0.12% | **+1.81%** | **+2.34%** | **+1.63%** | **+1.10%** | **+0.63%** | **+0.64%** | **+0.89%** | **+0.68%** |
-| **`P1P2_Late_6to17`** | -0.09% | +0.05% | +0.12% | +0.15% | +0.81% | +1.21% | +1.17% | +0.96% | +0.28% | +0.08% | +0.14% | +0.24% |
-| **`BN_FrontLoad`** | -0.02% | -0.00% | -0.04% | -0.02% | -0.01% | +0.26% | +0.08% | -0.01% | +0.09% | +0.19% | +0.21% | +0.11% |
-| **`P0_Plus_GrantE`** | +3.29% | +3.57% | +3.51% | +3.77% | **+7.08%** | **+7.54%** | **+5.48%** | **+5.08%** | **+1.67%** | **+3.23%** | **+5.92%** | **+6.52%** |
+| Row Label (`T1`) | `Rural_CE_Pct` | `Small_CE_Pct` | `Large_CE_Pct` | `Auckland_CE_Pct` | Share of Phase Gain from Endogenous Intergenerational Matrix |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **`SS1_1_ShortRun_PE`** | **+1.78%** (`1.7848`) | **+1.16%** (`1.1598`) | **+0.60%** (`0.5954`) | **+0.47%** (`0.4736`) | Direct policy levers ($G_{\mathrm{ECE},1}=0.110, G_{\mathrm{ECE},2}=0.085, E=0.065, T_k$) at fixed $\mathrm{SS0}$ prices & $\mu_1$ |
+| **`SS1_2_LongRun_GE_ExoSkills`** | **+2.62%** (`2.6224`) | **+3.14%** (`3.1425`) | **+3.77%** (`3.7699`) | **+4.56%** (`4.5634`) | Guvenen firm reallocation ($w_k \uparrow$) + housing cooling ($Q_{\mathrm{Akl}} -7.5\%$) at fixed $\mu_1^{\mathrm{SS0}}$ |
+| **`SS1_3_LongRun_GE_EndoIntergen`** | **+8.13%** (`8.1324`) | **+10.41%** (`10.4120`) | **+12.48%** (`12.4750`) | **+15.44%** (`15.4410`) | **67.8% (`Rural`), 69.8% (`Small`), 69.8% (`Large`), 70.4% (`Auckland`)** from $\mu_1^{\mathrm{SS1}}$ shift |
+| **`SS2_1_ShortRun_PE`** | **+4.85%** (`4.8547`) | **+4.49%** (`4.4897`) | **+3.76%** (`3.7606`) | **+3.48%** (`3.4761`) | Adds `-3.5 pp` PAYE tax cut ($\tau_l: 22.0\% \to 18.5\%$), $G_{\mathrm{ECE},1}=0.130, G_{\mathrm{ECE},2}=0.105, E=0.080$ |
+| **`SS2_2_LongRun_GE_ExoSkills`** | **+7.12%** (`7.1191`) | **+8.82%** (`8.8232`) | **+9.71%** (`9.7149`) | **+10.60%** (`10.6030`) | Adds 2050 Debt-Sinking ($\Delta r = -0.006$), 1.65x infra wage lift ($w_k +6.8\%\text{ to }+9.6\%$), $Q_{\mathrm{Akl}} -10.5\%$ |
+| **`SS2_3_LongRun_GE_EndoIntergen`** | **+14.28%** (`14.2820`) | **+13.66%** (`13.6610`) | **+22.17%** (`22.1740`) | **+26.03%** (`26.0270`) | **50.1% (`Rural`), 35.4% (`Small`), 56.2% (`Large`), 59.3% (`Auckland`)** from $\mu_1^{\mathrm{SS2}}$ shift |
 
 ---
 
-### Table Fert1 & Table Fert2: Fertility, Stunted Cohort Share, 65+ Aged Dependency Ratio, and Required Labor Tax Rate ($\tau_l$)
-*Source Files: [`Table_Fert1_4Region_TFR_DiffFertility.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table_Fert1_4Region_TFR_DiffFertility.csv) & [`Table_Fert2_4Region_Stunting_NZSuper.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table_Fert2_4Region_Stunting_NZSuper.csv)*[cite: 7, 18, 19]
+### 3.2 Table 2: Labrousse & Perdereau (2026) Spatial Wealth Quintile Welfare Gains (CE %)
+*Source File: [`Table2_4Region_LabroussePerdereau_SpatialQuintiles.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table2_4Region_LabroussePerdereau_SpatialQuintiles.csv)*
 
-| `Row` (Fertility Scenario) | `Stunted_Pct_Rural` | `Stunted_Pct_Small` | `Stunted_Pct_Large` | `Stunted_Pct_Auckland` | `DepRatio_65Plus_Pct` | `Required_LaborTax_Pct` |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **`1_Baseline_StatusQuo`** | 19.80% | 18.20% | 15.60% | 14.30% | 30.45% | 26.20% |
-| **`2_Hyperbolic_NoCommit` ($\beta_{\mathrm{hyp}} = 0.72$)** | 21.35% | 19.93% | 17.51% | 16.39% | **39.62%** | **28.22%** |
-| **`3_Barnardos_ECE_Bargaining_Relief`** | 13.89% | 11.59% | 8.30% | 6.30% | **29.58%** | **25.45%** |
-| **`4_Full_Package` (ECE1 + Housing Cool + Commit)** | **13.45%** | **11.10%** | **7.75%** | **5.70%** | **27.45%** | **24.90%** |
+| Wealth Quintile | `Rural_CE_Pct` | `Small_CE_Pct` | `Large_CE_Pct` | `Auckland_CE_Pct` | Primary Mechanism Driving Quintile Payoff |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **`Q1_Bottom20` (Hardship Renters)** | +14.8% | +16.2% | +19.5% | +22.4% | Elimination of $i_c=0$ corner via universal $G_{\mathrm{ECE}}$, `Transfer_Geo`, Youth Grant $E$, & rent relief |
+| **`Q2_20to40`** | +10.2% | +12.1% | +14.3% | +17.1% | Montessori / *Tuakana–Teina* mentoring + lower metropolitan rental user cost $r_{h,k}$ |
+| **`Q3_Middle20`** | +7.9% | +9.8% | +11.6% | +14.2% | Wage lift ($w_k \uparrow$) + accelerated homeownership entry ($\xi_k \uparrow$) + `SS2` PAYE cut |
+| **`Q4_60to80`** | +5.4% | +6.9% | +8.2% | +10.1% | Higher enterprise equity returns & child skill compounding outweigh modest property cooling |
+| **`Q5_Top20` (Property/Business Owners)** | +2.1% | +2.8% | +3.4% | +4.2% | High-$z_h$ firm reallocation gain + relational utility $u_{\mathrm{rel}}$ (children retained in NZ) offset $\tau_b$ |
 
 ---
 
-## 4. Visual Output Manifest & Core Structural Equations
+### 3.3 Table 3 & Table 3B: Kiyotaki et al. (2024) Housing Tenure Cleavage & Steady-State Summary
+*Source Files: [`Table3_4Region_Kiyotaki_TenureGenerationalCleavage.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table3_4Region_Kiyotaki_TenureGenerationalCleavage.csv) and [`Table3B_4Region_Abroad_SteadyState_Summary.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table3B_4Region_Abroad_SteadyState_Summary.csv)*
 
-### 4.1 Embedded Repository Graphics (`Output_NZ_4Region_Intergen`)
-* **Figure 1 (`Fig1_Daruich_Cohort_Welfare_4Region.png`):** Cohort-by-cohort lifetime Consumption Equivalent welfare trajectory across the 60-year transition path in Rural, Small, Large, and Auckland, isolating Jump 1 ($c = 0$) and Jump 2 ($c = 3\text{--}4$, Year-20 intergenerational multiplier)[cite: 7, 15].
-* **Figure 2 (`Fig2_Kiyotaki_Housing_Estates_4Region.png`):** Dynamic impulse responses of regional house prices $Q_{k,t}$, rental yields $rr_{k,t}$, and tenure-disaggregated consumption (Young Renters vs. Leveraged Young Owners vs. Older Retirees) across the NZD 1.6T estate transfer window[cite: 7, 15].
-* **Figure 3 (`Fig3_BrainDrain_Cohesion_4Region.png`):** Three-wave closure of the age 20–35 emigration rate to Australia/OECD, the Social Cohesion Index ($S_t$), and the Effective Tax Base per 65+ Retiree[cite: 7, 15].
-* **Figure E8 (`FigE8_LeeSeshadri_4Region_Counterfactuals.png`):** 4-region replication of Lee and Seshadri's stage-investment profiles showing how `P0_Early_0to5` crowds *in* private parental effort during school years ($\varphi_2 = -0.95 < 0$)[cite: 7, 15].
-* **Figure Fert (`FigFert_4Region_Bargaining_Solvency.png`):** Childcare bargaining, hyperbolic discounting ($\beta_{\mathrm{hyp}} = 0.72$), and NZ Superannuation fiscal solvency across the 4 regions[cite: 7, 18, 19].
-* **2-Panel Population & Fiscal Sankey Diagrams (`Plot_ChildFates_2Panel_SSankey.m` & `Plot_ChildFiscal_2Panel_SSankey.m`):** 5-stage cohort population flows (`Table15`) and 6-gate dollar-weighted fiscal flows (`Table14`, in NZD k/yr) across National, Auckland, Large, Small, Urban, and Rural catchments[cite: 8, 11, 14].
+| Tenure / Generation Group (`T3`) | `Rural_CE_Pct` | `Small_CE_Pct` | `Large_CE_Pct` | `Auckland_CE_Pct` | Regional House Price $Q_k$ (`SS0 -> SS1 -> SS2`) & Young Ownership |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **`1_Young_Renters_20to44`** | +9.8% | +11.4% | +13.9% | +16.4% | $Q_{\mathrm{Rural}}: 1.05 \to 1.04 \to 1.03$; Young ownership: $58.0\% \to 64.5\%$ |
+| **`2_Young_Leveraged_Owners`** | +4.2% | +5.1% | +6.0% | +6.9% | $Q_{\mathrm{Small}}: 1.40 \to 1.36 \to 1.34$; Young ownership: $49.0\% \to 57.2\%$ |
+| **`3_Older_Retirees_Landlords_65plus`** | -1.1% | -1.8% | -2.5% | -3.4% | $Q_{\mathrm{Large}}: 2.05 \to 1.95 \to 1.90$; $Q_{\mathrm{Akl}}: 3.10 \to 2.87 \to 2.77$ (Ownership: $28.0\% \to 41.2\%$) |
 
-### 4.2 Core Reference Equations for Technical Reviewers
-* **Infinite-Horizon Firm Bellman Equation & After-Tax Return (`ReturnFn_Firm.m`):**
-  In region $k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace$, firms with productivity $z_f \in \lbrace z_{\ell,k}, z_{h,k} \rbrace$ and collateral limit $k \le \lambda_{\mathrm{col}} a_f$ ($\lambda_{\mathrm{col}} = 1.80$) solve:
+---
 
-$$V_{F,k}\left(a_f, z_f\right) = \max_{a^{\prime}_f \in \lbrack 0, R_k\left(z_f; \Delta t\right) a_f\rbrack} \left\lbrace \ln\left(R_k\left(z_f; \Delta t\right) a_f - a^{\prime}_f\right) + \beta_{\mathrm{firm}}\left(\Delta t\right) \sum_{z^{\prime}_f} \Pi_{f,k}\left(z^{\prime}_f \vert z_f\right) V_{F,k}\left(a^{\prime}_f, z^{\prime}_f\right) \right\rbrace$$
+### 3.4 Tables 4, 5, & 6 (and 12A–12C): Lee & Seshadri (2019) Multi-Stage Counterfactuals
+*Source Files: [`Table4_4Region_LeeSeshadri_IGE.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table4_4Region_LeeSeshadri_IGE.csv), [`Table5_4Region_LeeSeshadri_Output_Welfare.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table5_4Region_LeeSeshadri_Output_Welfare.csv), and [`Table6_4Region_LeeSeshadri_Table12_VarianceExplained.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table6_4Region_LeeSeshadri_Table12_VarianceExplained.csv)*
 
-$$R_k\left(z_f; \Delta t\right) = \left(1 - \tau_a\right)^{\Delta t} + \left(1 - \tau_k\right) \left\lbrace r + \max\left(0, \alpha_k \left(\frac{1 - \alpha_k}{w_k}\right)^{\frac{1 - \alpha_k}{\alpha_k}} z_f - \left(r + \delta_k\left(\Delta t\right)\right) \right) \lambda_{\mathrm{col}} \right\rbrace$$
+| Counterfactual Regime | National Long-Run IGE | `Auckland` Long-Run IGE | Variance of LFE Explained at Age 20 (`Auckland`) | Long-Run Output $\Delta \bar{E}_{\mathrm{LR}}$ (`Rural` / `Auckland`) | Long-Run Welfare `CE_LR` (`Auckland`) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **`BM_Baseline` (`SS0`)** | 0.350 (`0.441` unadjusted) | 0.497 | 71.74% (46.77% by $h_1$ alone) | 0.00% / 0.00% | 0.00% |
+| **`P0_Early_0to5` (First 2000 Days)** | 0.233 (-33.4%) | 0.489 | 71.31% (45.77% by $h_1$) | +1.81% / +1.10% | +0.68% (Stage-1 alone) |
+| **`P1P2_Late_6to17` (Late Schooling Only)** | 0.338 (-3.4%) | 0.488 | 70.82% (44.64% by $h_1$) | +0.81% / +0.96% | +0.24% (Fails to fix early stunting) |
+| **`BN_FrontLoad` (Budget-Neutral Shift)** | 0.281 (-19.7%) | 0.485 | 69.85% (`Large`) | +0.26% (`Small`) | +0.21% (`Large`, zero net fiscal cost) |
+| **`P0_Plus_GrantE` (Full Package + Grant $E$)** | **0.218 (-37.7%)** | **0.482** | **68.11% (`Small`) / 44.8% Nat.** | **+7.08% / +5.08%** | **+6.52% (PE) / +15.44% (Full GE)** |
 
-* **Two-Stage Childhood CES Skill Law of Motion (`ChildCES_aprimeFn.m` / `HumanCapital_Lifecycle_aprimeFn.m`):**
-  With step weight $\omega_s = 1 / n_s$ across Stage 1 ($\mathcal{J}_{c,1}$, $\varphi_1 = 0.35$) and Stage 2 ($\mathcal{J}_{c,2}$, $\varphi_2 = -0.95$)[cite: 7, 8, 9]:
+---
 
-$$\theta_{\mathrm{step}}\left(\theta_c, i_c, G_{\mathrm{ECE},s}, \varphi_s\right) = \left\lbrack \gamma_{s,\mathrm{self}} \theta_c^{\varphi_s} + \gamma_{s,\mathrm{inv}} \left(i_c + G_{\mathrm{ECE},s} + \bar{g}_{\mathrm{ECE}}\right)^{\varphi_s} + \gamma_{s,\mathrm{par}} \bar{h}_p^{\varphi_s} \right\rbrack^{1/\varphi_s}$$
+### 3.5 Tables 7 & 8: Cooperative Childcare Bargaining, Fertility, & NZ Super Solvency
+*Source Files: [`Table7_4Region_Endogenous_TFR_DiffFertility.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table7_4Region_Endogenous_TFR_DiffFertility.csv) and [`Table8_4Region_Fertility_Stunting_NZSuperTax.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table8_4Region_Fertility_Stunting_NZSuperTax.csv)*
 
-$$\theta^{\prime}_c = \begin{cases}
-\left(1 - \omega_{s1}\right)\theta_c + \omega_{s1} \theta_{\mathrm{step}}\left(\theta_c, i_c, G_{\mathrm{ECE},1}, \varphi_1\right) & \text{if } j \in \mathcal{J}_{c,1} \\
-\left(1 - \omega_{s2}\right)\theta_c + \omega_{s2} \theta_{\mathrm{step}}\left(\theta_c, i_c, G_{\mathrm{ECE},2}, \varphi_2\right) & \text{if } j \in \mathcal{J}_{c,2} \\
-\theta_c & \text{otherwise}
-\end{cases}$$
+| Region | Baseline TFR (`SS0`) | Reformed TFR (`SS1`) | Low- vs. High-Skill Fertility Gap (`SS0 -> SS1`) | Old-Age 65+ Dependency Ratio (`SS0 -> SS1`) | Required PAYE Tax Rate for NZ Super Solvency (`SS0 -> SS1`) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **`Rural`** | 1.88 | 2.06 | +0.42 $\to$ +0.18 | 0.540 $\to$ 0.452 | 29.10% $\to$ 25.85% (-3.25 pp) |
+| **`Small`** | 1.76 | 1.99 | +0.38 $\to$ +0.15 | 0.525 $\to$ 0.438 | 28.60% $\to$ 25.25% (-3.35 pp) |
+| **`Large`** | 1.57 | 1.86 | +0.35 $\to$ +0.13 | 0.502 $\to$ 0.415 | 27.95% $\to$ 24.60% (-3.35 pp) |
+| **`Auckland`** | 1.49 | 1.80 | +0.39 $\to$ +0.14 | 0.498 $\to$ 0.408 | 27.65% $\to$ 24.30% (-3.35 pp) |
+| **`National`** | **1.66** | **1.93** | **+0.38 $\to$ +0.15 (-61%)** | **0.514 $\to$ 0.425** | **28.22% $\to$ 24.90% (-3.32 pp)** |
 
-$$h^{\prime} = \left(1 - \delta_{hc}\left(\Delta t\right)\right) h + \left(\frac{\Delta t}{5}\right) \mathbb{I}\left(\ell > 0\right) I_h^{\alpha_I} h^{\alpha_H}$$
+---
 
-* **Macro Public Residual ($\Omega_{\mathrm{fiscal}}$) & The 2050 50/50 Dynamic Surplus Split (`Plot_ChildFiscal_2Panel_SSankey.m`):**
-  At Gate 5 ($J = 10$, Age 30) and Gate 6 ($J = 11..16$, Career to Retirement), the net cohort fiscal balance $\Omega_{\mathrm{fiscal}}$ and positive fiscal surplus allocation are defined as[cite: 8]:
+### 3.6 Tables 9 & 10: Dynamic Regional Population Shares & Brain-Drain Closure (60-Year Path)
+*Source Files: [`Table9_4Region_Dynamic_Population_Shares.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table9_4Region_Dynamic_Population_Shares.csv) and [`Table10_4Region_Abroad_BrainDrain_Cohesion.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table10_4Region_Abroad_BrainDrain_Cohesion.csv)*
 
-$$\Omega_{\mathrm{fiscal}} = \left(\mathrm{Tax}_{\mathrm{PAYE}} + \mathrm{Tax}_{\mathrm{GST}} + \mathrm{Tax}_{\mathrm{Cap}} + \mathrm{Tax}_{\mathrm{Estate}}\right) - \left(\mathrm{Cost}_{\mathrm{Exits\,1,2,4}} + \mathrm{Cost}_{\mathrm{Infra,Health,Super}}\right)$$
+| Transition Year | `PopPct_Rural` | `PopPct_Small` | `PopPct_Large` | `PopPct_Auckland` | `Emig_Large_Pct` | `Emig_Auckland_Pct` | `Nat_Emig_Abroad_Pct` | `Social_Cohesion_Index_St` (`SS1` / `SS2`) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Year 0 (2026 Base)** | 16.00% | 24.00% | 25.90% | 34.10% | 23.41% | 19.29% (7.02% net) | 10.93% | 100.0 (104.3) |
+| **Year 6 ($t = 2$)** | 15.62% | 23.68% | 26.04% | 34.66% | 21.55% | 17.65% (6.46% net) | 10.07% | 104.8 |
+| **Year 15 ($t = 5$)** | 15.18% | 23.29% | 26.21% | 35.32% | 19.70% | 16.12% (5.91% net) | 9.22% | 108.5 |
+| **Year 24 ($t = 8$)** | 14.85% | 22.98% | 26.35% | 35.82% | 18.92% | 15.48% (5.67% net) | 8.86% | 112.0 (`SS1`) |
+| **Year 36 ($t = 12$)** | 14.58% | 22.74% | 26.46% | 36.22% | 18.61% | 15.21% (5.58% net) | 8.72% | 119.5 |
+| **Year 57 ($t = 19$)** | **14.39%** | **22.56%** | **26.54%** | **36.51%** | **18.26%** | **14.92% (5.47% net)** | **8.56%** | **126.0 (`SS2`)** |
 
-$$\Omega_{\mathrm{surplus}}^{\mathrm{SS1}} = \max\left(0, \Omega_{\mathrm{fiscal}}^{\mathrm{SS1}}\right) = 0.50 \, \Omega_{\mathrm{surplus}}^{\mathrm{SS1}} \;\left(\mathrm{DebtSinking}\right) + 0.50 \, \Omega_{\mathrm{surplus}}^{\mathrm{SS1}} \;\left(\mathrm{ReinvestPool}\right)$$
+---
 
-## 5. Actuarial Continuation Valuation & Cumulative Transition Payoffs Answer Key (`Plot_CumulativeTransitionPayoffs.m` & `Plot_ActuarialContinuationValuation.m`)
+## 4. Methodological Defense & Accounting Guardrails
+
+1. **Strict Separation of the Crown Fiscal Lens and the Economy-Wide GDP Lens (Counting Rule #1):**
+   Avoided public service outlays (Oranga Tamariki care at NZD 180k/yr, acute hospital nights, youth/adult justice, and main welfare benefit transfers $T_k$) belong strictly to the **Crown Fiscal Ledger**, whereas additional adult gross output $\Delta Y_t$ belongs to the **Economy-Wide GDP Lens**. Benefit transfers are fiscal redistributions (not net additions to GDP), and public tax revenue on $\Delta Y_t$ ($\approx 28.8\%$ of $\Delta \mathrm{GDP}$) is reported inside the Fiscal Ledger and **never added to GDP**.
+2. **Global Dual-Regime Visual Scaling in the 6-Gate Fiscal Sankey:**
+   Because childhood developmental investments (`Gates 1–3`, totaling NZD 18.8k–35.1k/yr) and adult tax/pension flows (`Gates 5–6`, totaling NZD 25.9k–30.7k/yr) operate on different institutional ledgers, `Plot_ChildFiscal_2Panel_SSankey.m` enforces a **uniform vertical dollar-to-pixel scale across Gates 1–3** and a **uniform adult fiscal scale across Gates 5–6**, separated by a dual-wave scale break at **Gate 4 (Age 20 Adult Skill Launch, $X = 4.0$)**.
+3. **Defending Warm-Glow Bequests + Exact Intergenerational Transition Matrix vs. Outer Dynastic VFI:**
+   As established by De Nardi (2004) and Daruich (2018, Sec. 6), 75% of the long-run welfare gain from early childhood investment operates through the shift in the **stationary distribution of parent states $\mu_k\left(a, h, z, j\right)$** across generations rather than changes in the curvature of the continuation value function. Because `Build_IntergenTransitionMatrix.m` maps exact optimal child investments $i_c^{*}\left(a_p, h_p, z_p, k\right)$ and net-of-tax estates $\left(1 - \tau_b\right)a^{\prime *}_j\left(k\right)$ into the next generation's initial distribution `jequaloneDist` ($\mu_{1,k}\left(a_1, h_1, z_1\right)$), our GPU-vectorized architecture captures 100% of this dynastic general-equilibrium feedback loop without adding parent-child strategic gaming states.
+
+---
+
+## 5. Actuarial Continuation Valuation, Credibility-Weighted Belief Blending, & Historical Precedents Answer Key
 
 ### 5.1 Cross-Reference of Terminology, NZ Treasury CBAx Rules, and Sibling Figure Naming Convention
 * **Three Equivalent Institutional Names for the Forward Discounting Operator:**
@@ -181,10 +197,7 @@ $$\Omega_{\mathrm{surplus}}^{\mathrm{SS1}} = \max\left(0, \Omega_{\mathrm{fiscal
   * **Combined 2-Panel Figure (Panel A Fiscal + Panel B Economy-Wide GDP):** `Fig_Actuarial_2Panel_<Region>_<Anchor>.png` (e.g., `Fig_Actuarial_2Panel_National_Dunedin_22.png`, `Fig_Actuarial_2Panel_Auckland_Dunedin_22.png`).
   * **Panel A Sibling (Crown Fiscal Ledger):** `Fig_Actuarial_Fiscal_<Region>_<Anchor>.png` (e.g., `Fig_Actuarial_Fiscal_National_Dunedin_22.png`, `Fig_Actuarial_Fiscal_Auckland_Dunedin_22.png`).
   * **Panel B Sibling (Economy-Wide GDP Lens):** `Fig_Actuarial_WideGDP_<Region>_<Anchor>.png` (e.g., `Fig_Actuarial_WideGDP_National_Dunedin_22.png`, `Fig_Actuarial_WideGDP_Auckland_Dunedin_22.png`).
-  * **All-4-Region Spatial Dashboard & Year 5 Audit Bar Chart:** `Fig_Actuarial_Dashboard_All4_<Anchor>.png` and `Fig_Actuarial_Year5Audit_All4_<Anchor>.png`.
-* **Strict Lens Separation & NZ Treasury Acceptance Boundary (Counting Rule #1):**
-  * *Accepted & Mandated by NZ Treasury:* Evaluating long-tail social investments over a rolling forward window ($H = 25$ years) using the **NZ Treasury Circular 2024/15** non-commercial social discount rate of **2.0% real** (`r_2pct = 0.020`) printed side-by-side with the mandatory **8.0% real** commercial sensitivity rate (`r_8pct = 0.080`), net of a conservative **30% attribution haircut** (`alpha_att = 0.30`, within the 20%–40% Barnardos/Danalytics macro attribution band) and real cost-base growth `g_cost = 0.015`.
-  * *Rejected if Violated (How Our Code Enforces Compliance):* NZ Treasury rejects blending fiscal cost avoidance (avoided benefit transfers and acute Oranga Tamariki/Corrections/hospital outlays) with GDP gains, and rejects booking unappropriated 25-year savings into the 4-year cash Operating Balance (OBEGAL). Consequently, `Plot_ActuarialContinuationValuation.m` computes two strictly separate continuation operators—$\mathcal{V}_{k,t_0}^{\left(\mathrm{Fiscal}\right)}\left(H\right)$ in `Fig_Actuarial_Fiscal_<Region>_<Anchor>.png` and $\mathcal{V}_{k,t_0}^{\left(\mathrm{Econ}\right)}\left(H\right)$ in `Fig_Actuarial_WideGDP_<Region>_<Anchor>.png`—and never adds avoided fiscal costs to GDP.
+  * **All-4-Region Spatial Dashboard & Year 5 Audit Bar Chart:** `Fig_Actuarial_Dashboard_All4_<Anchor>.png`, `Fig_Actuarial_Year5Audit_All4_<Anchor>.png`, `Fig_Actuarial_Year5Audit_Fiscal_All4_<Anchor>.png`, and `Fig_Actuarial_Year5Audit_WideGDP_All4_<Anchor>.png`.
 
 ### 5.2 Exact Conditional Continuation Equations Justifying the Findings
 At transition period $t_0$ (in years, $t_0 \in \lbrace 5, 10, \dots, 60 \rbrace$), let $\mathcal{C}_{k,\mathrm{realized}}^{\left(L\right)}\left(t_0\right)$ denote the cumulative realized cash flow integrated via the trapezoidal rule (`cumtrapz`) from Year 0 to Year $t_0$ under lens $L \in \lbrace \mathrm{Sav}, \mathrm{Fiscal}, \mathrm{Econ} \rbrace$. Annual flows are interpolated onto a 1-year grid ($y \in \lbrace 0, 1, \dots, 100 \rbrace$) via piecewise cubic Hermite interpolation (`pchip`). The **Actuarial Continuation Valuation** $\mathcal{V}_{k,t_0}^{\left(L\right)}\left(H\right)$ over a rolling $H = 25$-year recognition window for region $k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace$ is:
@@ -200,7 +213,7 @@ where:
 * $\psi_{k,\mathrm{persist}}^{s}$ (`psi_persist`) is the region-specific Stage-2-to-Adulthood Markov skill-retention conditioning factor (`psi_base_map`: Rural = 0.984, Small = 0.984, Large = 0.986, Auckland = 0.987), reflecting the probability under $\Pi_h\left(h^{\prime} \vert h, i_{c,2}\right)$ and dynamic complementarity ($\varphi_2 = -0.95$) that a child exiting hardship at age 5 remains out of the stunted tier $h_1\text{--}h_2$ at age $5 + s$.
 
 ### 5.3 Year 5 Parliamentary Audit ($t = 1$) & Year 60 Convergence by Region (`Dunedin_22` vs. `MetroSqueeze_GUiNZ`)
-*Source Script: `Plot_ActuarialContinuationValuation.m` (`Out_Dunedin` console verification table; figures saved as `Fig_Actuarial_2Panel_<Region>_Dunedin_22.png`, `Fig_Actuarial_Fiscal_<Region>_Dunedin_22.png`, and `Fig_Actuarial_WideGDP_<Region>_Dunedin_22.png`)*
+*Source Script: `Plot_ActuarialContinuationValuation.m` (`Out_Dunedin` console verification table)*
 
 | Region (`RegionOption`) | Base Pop / Firm Share (`PTypeWeights`) | Yr 5 Cum. Outlay (`Cum_Inv`) | Yr 5 Cash Fiscal (`Cum_TotFisc`) | Yr 5 Booked Cost Avoidance Alone (2.0% Real) | Yr 5 Booked Total Fiscal Return (2.0% / 8.0%) | Yr 5 Realized Cash GDP (`Cum_dGDP`) | Yr 5 Booked 25-Yr GDP Prize (2.0% / 8.0%) | Yr 60 Realized / Booked GDP Prize (2.0% Real) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -212,10 +225,8 @@ where:
 | **`National` (`MetroSqueeze_GUiNZ`)** | **100.0%** | **NZD 9.19B** | **NZD 5.14B** | **NZD 13.69B** | **NZD 39.14B / NZD 20.21B** | **NZD 15.30B** | **NZD 89.95B / NZD 50.18B** | **NZD 1,634.5B / NZD 2,270.3B** |
 
 ### 5.4 Credibility-Weighted Belief Blending & Multiphase Policy Announcement Answer Key (`TransPath_4Region_Master.m`)
-* **Why Policy Credibility Matters Across Multiphase Seams (`SS0 -> SS1 -> SS2`):**
-  When the government announces a two-stage generational reform—where **Phase 1 (`SS1`, Years 0–24)** maintains revenue-neutral tax rates ($\tau_l = 22.0\%$, $\tau_a = 1.5\%$, $\tau_b = 25.0\%$) to fund First-2000-Days wraparound investment and cool housing, and **Phase 2 (`SS2`, Years 25+ / 2050 Protocol)** harvests the resulting fiscal surplus to cut working-age PAYE taxes by 3.5 percentage points (`tau_l_delta = -0.035`, $\tau_l: 22.0\% \to 18.5\%$) and step down the emergency estate tax ($\tau_b: 25.0\% \to 18.0\%$)—private households, firms, and potential youth migrants form expectations over whether Phase 2 will actually be delivered.
 * **The Credibility Weight $\lambda_{\mathrm{cred}}\left(t\right) \in \lbrack 0, 1\rbrack$ and Perceived Continuation Value $\tilde{V}_{k,t+1}$:**
-  Let $V_{k,t+1}^{\mathrm{perm\,SS1}}$ denote the backward-induction continuation value if agents believe Phase 1 (`SS1`) parameters remain frozen forever, and let $V_{k,t+1}^{\mathrm{full\,SS2}}$ denote the continuation value under perfect foresight of the Phase 2 (`SS2`) tax-relief and infrastructure dividend at transition seam $T_1$ (Year 25). At every transition period $t < T_1$, households and firms evaluate the credibility-weighted continuation value:
+  Let $V_{k,t+1}^{\mathrm{perm\,SS1}}$ denote the backward-induction continuation value if agents believe Phase 1 (`SS1`) parameters remain frozen forever, and let $V_{k,t+1}^{\mathrm{full\,SS2}}$ denote the continuation value under perfect foresight of the Phase 2 (`SS2`) `-3.5 pp` PAYE tax-relief and infrastructure dividend at transition seam $T_1$ (Year 25). At every transition period $t < T_1$, households and firms evaluate the credibility-weighted continuation value:
 
 $$\tilde{V}_{k,t+1}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right) = \left(1 - \lambda_{\mathrm{cred}}\left(t\right)\right) V_{k,t+1}^{\mathrm{perm\,SS1}}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right) + \lambda_{\mathrm{cred}}\left(t\right) V_{k,t+1}^{\mathrm{full\,SS2}}\left(a^{\prime}, h^{\prime}, z^{\prime}, j+1\right)$$
 
@@ -228,15 +239,12 @@ $$\lambda_{\mathrm{cred}}\left(t\right) = \begin{cases}
 \end{cases}$$
 
 * **Three Nested Policy Announcement Regimes in `TransPath_4Region_Master.m`:**
-  1. **Regime A — Unanticipated Sequential Reform (MIT Shock at $T_1$, $\lambda_{\mathrm{cred}}\left(t\right) = 0$ for $t < T_1$):** Agents solve Phase 1 believing `SS1` is permanent. At $t = T_1$ (Year 25), the Crown observes the realized cash surplus ($\Omega_{\mathrm{reform}} > 0$) and enacts `SS2` as an unanticipated fiscal dividend. Eliminates pre-$T_1$ tax front-running, but delays youth retention and parental investment responses until $t = T_1$.
+  1. **Regime A — Unanticipated Sequential Reform (MIT Shock at $T_1$, $\lambda_{\mathrm{cred}}\left(t\right) = 0$ for $t < T_1$):** Agents solve Phase 1 believing `SS1` is permanent. At $t = T_1$ (Year 25), the Crown observes the realized cash surplus ($\Omega_{\mathrm{reform}} > 0$) and enacts `SS2` as an unanticipated fiscal dividend.
   2. **Regime B — Fully Credible Pre-Announced Multiphase Plan ($t_{\mathrm{ann}} = 1, \bar{\lambda}_0 = 1.0$):** Full commitment from Day 1 maximizes immediate youth retention ($P_{\mathrm{emig},t} \downarrow$ at $t = 1$) as 20-to-35-year-old graduates price in future career PAYE tax relief ($\tau_l = 18.5\%$).
   3. **Regime C — Earned Fiscal Credibility via the Year 5 Actuarial Audit ($\bar{\lambda}_0 = 0.25, \kappa_{\mathrm{cred}} > 0$):** Private agents initially discount the Phase-2 tax-cut promise ($\bar{\lambda}_0 = 0.25$). However, when the **Year 5 Parliamentary Actuarial Audit (`Plot_ActuarialContinuationValuation.m`)** verifies NZD 35.25B in recognised fiscal returns (3.84x cumulative outlays) and NZD 10.66B in direct cost avoidance alone, $\lambda_{\mathrm{cred}}\left(t\right)$ surges upward—accelerating skilled youth retention (`Emig_Large_Pct`: 23.41% down to 18.26%; `Nat_Emig_Abroad_Pct`: 10.93% down to 8.56%) and parental Stage-2 engagement fifteen years before the cash tax cut takes effect.
-* **Logistic Phase-In Ramp Across Seam $T_1$ ($\mathcal{\Phi}\left(t\right)$):**
-  To prevent artificial one-period estate or wealth tax arbitrage right at $t = T_1$ under Regimes B and C, policy instruments $\mathcal{\Phi}\left(t\right)$ transition smoothly via a logistic ramp with steepness parameter $\xi_{\mathrm{ramp}}$:
 
-$$\mathcal{\Phi}\left(t\right) = \mathcal{\Phi}_1 + \frac{\mathcal{\Phi}_2 - \mathcal{\Phi}_1}{1 + \exp\left(-\xi_{\mathrm{ramp}}\left(t - T_1\right)\right)}$$
+### 5.5 Symbolic Cross-Country Matrix & Empirical Citations for Part VI Historical Precedents
 
-### 5.5 Literature & Empirical Citations for Part VI Historical Precedents
 | Historical / International Case | Time Horizon | Primary Policy Instruments Deployed | Corresponding Model Channels (`SS0 -> SS1 -> SS2`) | Observed Empirical Payoff |
 | :--- | :---: | :--- | :--- | :--- |
 | **Sweden & Finland** (*Nordic Dual-Dividend Model*) | 25–50 Years (1970–2020) | Universal ECE & maternal/infant *Neuvola* clinics (1.6%–2.0% of GDP) + 1993 dual capital/labor tax reform | **Lens 1** ($\Delta G_{\mathrm{ECE}}$) + **Lens 2** female labor supply + **Lens 3** tax modernization | Cut earnings shock variance $\sigma_y^2$ in half (0.14 vs. 0.30 in US); lifted female employment above 80%; top-decile intergenerational mobility |
