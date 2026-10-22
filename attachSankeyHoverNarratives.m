@@ -1,61 +1,48 @@
-function attachSankeyHoverNarratives(axOrFig, SK, linksCell, narrativeMap, unitFormatStr)
-% attachSankeyHoverNarratives Interactive Click + Arrow-Key Narrative Engine for SSankey
-%   1. Exact True-Center Anchor Pin: Interpolates top and bottom rails at the
-%      exact same X = xPin and places the anchor dot at the true geometric
-%      vertical center of the ribbon: yMidAtPin = 0.5 * (yTopAtPin + yBotAtPin).
-%   2. Canvas-Text Block Verification: Reads the actual text labels rendered
-%      next to each block on the axes so the narrative box ALWAYS matches the
-%      highlighted ribbon 100% of the time.
-%   3. Full-Span Clearance & Arrow-Key Navigation (Up/Down/Left/Right/Esc).
+function attachSankeyHoverNarratives(axHdl, SK, linksCell, narrativeMap, valFmtStr)
+% attachSankeyHoverNarratives Interactive click & arrow-key narrative inspector for SSankey
+%
+%   - Click any ribbon to spotlight it, bold its Source & Target block legends,
+%     place an anchor dot dead-center on the ribbon, and display the policy narrative.
+%   - Up/Down Arrow Keys: Traverse ribbons in strict 2-level Gate -> Block hierarchy.
+%   - Left/Right Arrow Keys: Switch the anchor between Source (Left) and Target (Right) block.
+%   - Click background or press Esc to clear selection.
 
-if nargin < 4 || isempty(narrativeMap)
-    narrativeMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
+if nargin < 5 || isempty(valFmtStr)
+    valFmtStr = '%.2f';
 end
-
-% 1. Resolve Figure and Axes handles
-figHdl = ancestor(axOrFig, 'figure');
-if isa(axOrFig, 'matlab.graphics.axis.Axes')
-    axHdl = axOrFig;
-else
-    axHdl = findobj(figHdl, 'Type', 'axes', '-not', 'Tag', 'legend');
-    if ~isempty(axHdl), axHdl = axHdl(1); end
+if isempty(axHdl) || ~isgraphics(axHdl)
+    return;
 end
-
-if isempty(figHdl) || ~isgraphics(figHdl, 'figure')
-    warning('attachSankeyHoverNarratives:NoFigure', 'Could not resolve figure handle.');
+figHdl = ancestor(axHdl, 'figure');
+if isempty(figHdl) || ~isgraphics(figHdl)
     return;
 end
 
-try set(figHdl, 'GraphicsSmoothing', 'on'); catch, end
-
-if nargin < 5 || isempty(unitFormatStr)
-    sampleLabel = '';
-    if ~isempty(linksCell), sampleLabel = linksCell{1, 1}; end
-    if ~contains(sampleLabel, '$') && contains(sampleLabel, '%')
-        unitFormatStr = '%.1f%% of cohort';
-    else
-        unitFormatStr = 'NZD $%.2fk/yr per cohort birth';
-    end
+% 1. Disable default axes interactivity/toolbars that can intercept mouse clicks
+try
+    disableDefaultInteractivity(axHdl);
+    axHdl.Toolbar.Visible = 'off';
+    axHdl.Interactions = [];
+catch
 end
 
-% 2. Clean up built-in MATLAB DataTips & any prior overlay objects
+% 2. Clean up built-in MATLAB DataTips, AnnotationPane objects, & prior overlays
 nukeAllDataTips(figHdl, axHdl);
-delete(findall(axHdl, 'Tag', 'SSankeyLeaderLine'));
-delete(findall(axHdl, 'Tag', 'SSankeyAnchorDot'));
-delete(findall(axHdl, 'Tag', 'SSankeyThinSpine'));
-delete(findall(axHdl, 'Tag', 'SSankeyHighlightRails'));
-delete(findall(axHdl, 'Tag', 'SSankeyGradHighlight'));
-delete(findall(axHdl, 'Tag', 'SSankeyRibbonOutline'));
+delete(findall(figHdl, 'Tag', 'SSankeyHoverBox'));
+delete(findall(axHdl,  'Tag', 'SSankeyLeaderLine'));
+delete(findall(axHdl,  'Tag', 'SSankeyAnchorDot'));
+delete(findall(axHdl,  'Tag', 'SSankeyThinSpine'));
 
-% Make all objects inside the figure click-transparent so clicks pass
-% cleanly to figHdl.WindowButtonDownFcn without DataTip interference
+% Make all child objects click-transparent AND also wire their ButtonDownFcn
+% directly to onFigureClick so even if an object intercepts a click, it still fires!
 allObjs = findall(figHdl);
 for m = 1:numel(allObjs)
     obj = allObjs(m);
     if obj ~= figHdl && obj ~= axHdl
-        try if isprop(obj, 'ButtonDownFcn'), obj.ButtonDownFcn = ''; end; catch, end
-        try if isprop(obj, 'PickableParts'), obj.PickableParts = 'none'; end; catch, end
-        try if isprop(obj, 'HitTest'),       obj.HitTest       = 'off';  end; catch, end
+        try if isprop(obj, 'Interactions'),   obj.Interactions   = [];     end; catch, end
+        try if isprop(obj, 'PickableParts'),  obj.PickableParts  = 'none'; end; catch, end
+        try if isprop(obj, 'HitTest'),        obj.HitTest        = 'off';  end; catch, end
+        try if isprop(obj, 'ButtonDownFcn'),  obj.ButtonDownFcn  = @onFigureClick; end; catch, end
         try
             if isprop(obj, 'DataTipTemplate') && ~isempty(obj.DataTipTemplate)
                 obj.DataTipTemplate.DataTipRows = [];
@@ -64,10 +51,9 @@ for m = 1:numel(allObjs)
         end
     end
 end
-% CRITICAL: Because axis(ax, 'off') sets axHdl.Visible = 'off', PickableParts
-% MUST be 'all' (not 'visible'), otherwise MATLAB ignores clicks on the axes!
 axHdl.HitTest       = 'on';
 axHdl.PickableParts = 'all';
+axHdl.ButtonDownFcn = @onFigureClick;
 
 % 3. Cache BlockHdl bounding boxes, exact Gate Column (1..6), and Block Y-midpoints
 nBlocks = numel(SK.BlockHdl);
@@ -84,19 +70,6 @@ blkYMid = 0.5 * (blkBBox(:, 3) + blkBBox(:, 4));
 [~, ~, blkGateCol] = uniquetol(blkXMid, 0.25, 'DataScale', 1); % Exact Gate column 1..6!
 
 % Build 1-to-1 right-hand label avoidance zones (nBlocks x 4) indexed by block b
-% so computeFullSpanBoxAndCenterPin can look up lblBBox(sBlk,:) and lblBBox(tBlk,:) directly
-ySpanAx = diff(axHdl.YLim);
-lblBBox = nan(nBlocks, 4);
-for b = 1:nBlocks
-    if ~isnan(blkBBox(b, 1))
-        ymB = blkYMid(b);
-        lblBBox(b, :) = [blkBBox(b, 2), blkBBox(b, 2) + 0.48, ...
-            ymB - 0.045 * ySpanAx, ymB + 0.045 * ySpanAx];
-    end
-end
-
-% Build 1-to-1 right-hand label avoidance zones (nBlocks x 4) indexed by block b
-% so computeFullSpanBoxAndCenterPin can look up lblBBox(sBlk,:) and lblBBox(tBlk,:) directly
 ySpanAx = diff(axHdl.YLim);
 lblBBox = nan(nBlocks, 4);
 for b = 1:nBlocks
@@ -108,10 +81,10 @@ for b = 1:nBlocks
 end
 
 % Cache each block's text handle (SK.LabelHdl) & original font styling for bold highlighting
-blkLblHdl      = gobjects(nBlocks, 1);
-origLblWeight  = cell(nBlocks, 1);
-origLblSize    = zeros(nBlocks, 1);
-origLblColor   = cell(nBlocks, 1);
+blkLblHdl     = gobjects(nBlocks, 1);
+origLblWeight = cell(nBlocks, 1);
+origLblSize   = zeros(nBlocks, 1);
+origLblColor  = cell(nBlocks, 1);
 if isprop(SK, 'LabelHdl') && numel(SK.LabelHdl) == nBlocks
     blkLblHdl = SK.LabelHdl(:);
 else
@@ -128,6 +101,11 @@ for b = 1:nBlocks
         origLblWeight{b} = blkLblHdl(b).FontWeight;
         origLblSize(b)   = blkLblHdl(b).FontSize;
         origLblColor{b}  = blkLblHdl(b).Color;
+        % Use the EXACT rendered Extent [xLeft, yBottom, width, height] of block b's label!
+        extB = double(blkLblHdl(b).Extent);
+        if numel(extB) == 4 && extB(3) > 0
+            lblBBox(b, :) = [extB(1), extB(1) + extB(3), extB(2), extB(2) + extB(4)];
+        end
     end
 end
 
@@ -139,18 +117,17 @@ xGrid      = cell(1, nLinks);
 yTopGrid   = cell(1, nLinks);
 yBotGrid   = cell(1, nLinks);
 yMidGrid   = cell(1, nLinks);
-polyX      = cell(1, nLinks);
-polyY      = cell(1, nLinks);
+rawX1      = cell(1, nLinks);
+rawY1      = cell(1, nLinks);
+rawX2      = cell(1, nLinks);
+rawY2      = cell(1, nLinks);
 ribThick   = zeros(nLinks, 1);
 rgbStrip   = cell(1, nLinks);
 bbox       = zeros(nLinks, 4);
 linkSrcBlk = zeros(nLinks, 1);
 linkTgtBlk = zeros(nLinks, 1);
-yMidLeft   = zeros(nLinks, 1);
-yMidRight  = zeros(nLinks, 1);
 linkRow    = (1:nLinks)';
 
-% Replicate SSankey.drawLink's exact column-major find() on BoolMat / AdjMat
 if isprop(SK, 'BoolMat') && ~isempty(SK.BoolMat)
     [sIndVec, tIndVec] = find(SK.BoolMat);
 elseif isprop(SK, 'AdjMat') && ~isempty(SK.AdjMat)
@@ -166,18 +143,19 @@ for k = 1:nLinks
         origAlpha(k) = hP.FaceAlpha;
         hP.EdgeColor = 'none';
 
-        [xg, yt, yb, ym, px, py, cProfile] = getTrueAlignedRibbonRails(hP);
+        [xg, yt, yb, ym, x1, y1, x2, y2, cProfile] = getTrueAlignedRibbonRails(hP);
         xGrid{k}    = xg;
         yTopGrid{k} = yt;
         yBotGrid{k} = yb;
         yMidGrid{k} = ym;
-        polyX{k}    = px;
-        polyY{k}    = py;
+        rawX1{k}    = x1;
+        rawY1{k}    = y1;
+        rawX2{k}    = x2;
+        rawY2{k}    = y2;
         ribThick(k) = median(yt - yb);
         rgbStrip{k} = cProfile;
-        bbox(k, :)  = [min(px), max(px), min(py), max(py)];
-        yMidLeft(k) = ym(1);
-        yMidRight(k)= ym(end);
+        bbox(k, :)  = [min([x1(:); x2(:)]), max([x1(:); x2(:)]), ...
+            min([y1(:); y2(:)]), max([y1(:); y2(:)])];
 
         if k <= numel(sIndVec) && sIndVec(k) > 0 && tIndVec(k) > 0
             sBlk = sIndVec(k);
@@ -185,7 +163,6 @@ for k = 1:nLinks
             linkSrcBlk(k) = sBlk;
             linkTgtBlk(k) = tBlk;
 
-            % Interpolate exact RGB profile from Source Block color to Target Block color!
             cS = getBlockRGB(SK, sBlk);
             cT = getBlockRGB(SK, tBlk);
             wVec = linspace(0, 1, numel(xg))';
@@ -201,10 +178,13 @@ for k = 1:nLinks
     end
 end
 
-% 5. Create Thin-Ribbon Visibility Spine + Leader Line + Center Anchor Dot
+% 5. Create Leader Line + Center Anchor Dot + Native Axes Text Callout Box
+%    (Using native axes text() instead of annotation('textbox') avoids MATLAB's
+%    AnnotationPane overlay layer, which can block mouse clicks in the middle of the figure!)
+hold(axHdl, 'on');
 leaderHdl = plot(axHdl, nan, nan, ':', ...
     'Tag',           'SSankeyLeaderLine', ...
-    'LineWidth',     1.5, ...
+    'LineWidth',     1.6, ...
     'HitTest',       'off', ...
     'PickableParts', 'none', ...
     'Visible',       'off');
@@ -215,32 +195,31 @@ dotHdl = plot(axHdl, nan, nan, 'o', ...
     'HitTest',       'off', ...
     'PickableParts', 'none', ...
     'Visible',       'off');
+hoverBox = text(axHdl, 0, 0, '', ...
+    'Tag',                 'SSankeyHoverBox', ...
+    'Units',               'data', ...
+    'HorizontalAlignment', 'left', ...
+    'VerticalAlignment',   'bottom', ...
+    'FontName',            'Helvetica', ...
+    'FontSize',            8.4, ...
+    'Color',               [0.08, 0.08, 0.10], ...
+    'BackgroundColor',     [0.98, 0.99, 1.00], ...
+    'EdgeColor',           [0.20, 0.45, 0.65], ...
+    'LineWidth',           1.5, ...
+    'Margin',              4.0, ...
+    'Interpreter',         'none', ...
+    'Clipping',            'off', ...
+    'HitTest',             'off', ...
+    'PickableParts',       'none', ...
+    'Visible',             'off');
 
-% 6. Create the floating Narrative Box
-delete(findall(figHdl, 'Tag', 'SSankeyHoverBox'));
-hoverBox = annotation(figHdl, 'textbox', [0.20, 0.50, 0.42, 0.14], ...
-    'Tag',               'SSankeyHoverBox', ...
-    'String',            '', ...
-    'BackgroundColor',   [1.00, 0.99, 0.95], ...
-    'EdgeColor',         [0.25, 0.45, 0.55], ...
-    'LineWidth',         2.2, ...
-    'FontName',          'Helvetica', ...
-    'FontSize',          9.5, ...
-    'Interpreter',       'none', ...
-    'FitBoxToText',      'on', ...
-    'Margin',            8, ...
-    'HitTest',           'off', ...
-    'PickableParts',     'none', ...
-    'Visible',           'off');
-
+% 6. Interactive State Variables
 activeIdx  = 0;
-anchorBlk  = 0;
-anchorSide = 'src';
+anchorBlk  = 1;
+anchorSide = 'src'; % 'src' (Left) or 'tgt' (Right)
 
-% 7. Bind Mouse Click & Keyboard Arrow Callbacks
-set(figHdl, 'WindowButtonMotionFcn', '');
-set(figHdl, 'WindowButtonDownFcn',   @onFigureClick);
-set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
+figHdl.WindowButtonDownFcn = @onFigureClick;
+figHdl.WindowKeyPressFcn   = @onKeyPress;
 
 % =====================================================================
 %  MOUSE CLICK CALLBACK
@@ -249,15 +228,13 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
         nukeAllDataTips(figHdl, axHdl);
         if ~isgraphics(axHdl), return; end
 
-        % Convert figHdl.CurrentPoint directly into axes data coordinates (mx, my)!
-        % (Because axis(ax,'off') sets axHdl.Visible='off', axHdl.CurrentPoint can
-        % freeze in dead-zones, whereas figHdl.CurrentPoint updates on 100% of clicks!)
+        % Convert figHdl.CurrentPoint directly into axes data coordinates (mx, my)
         oldFigU = figHdl.Units;
         oldAxU  = axHdl.Units;
         figHdl.Units = 'normalized';
         axHdl.Units  = 'normalized';
-        fpt   = figHdl.CurrentPoint; % [figX, figY] in [0..1]
-        axPos = axHdl.Position;      % [axL, axB, axW, axH] in [0..1]
+        fpt   = figHdl.CurrentPoint;
+        axPos = axHdl.Position;
         figHdl.Units = oldFigU;
         axHdl.Units  = oldAxU;
 
@@ -271,41 +248,62 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
             return;
         end
 
-        % Check if user clicked directly on a Node Block
-        clickedBlk = find(mx >= blkBBox(:,1) & mx <= blkBBox(:,2) & ...
-            my >= blkBBox(:,3) & my <= blkBBox(:,4), 1);
-        if ~isempty(clickedBlk)
-            outLinks = find(linkSrcBlk == clickedBlk);
-            inLinks  = find(linkTgtBlk == clickedBlk);
-            if ~isempty(outLinks)
-                anchorBlk  = clickedBlk;
-                anchorSide = 'src';
-                [~, topOrd]= max(yMidLeft(outLinks));
-                xg         = xGrid{outLinks(topOrd)};
-                selectRibbon(outLinks(topOrd), xg(round(0.28 * numel(xg))));
-                return;
-            elseif ~isempty(inLinks)
-                anchorBlk  = clickedBlk;
-                anchorSide = 'tgt';
-                [~, topOrd]= max(yMidRight(inLinks));
-                xg         = xGrid{inLinks(topOrd)};
-                selectRibbon(inLinks(topOrd), xg(round(0.72 * numel(xg))));
-                return;
+        % 1. Check if user clicked directly on a Node Block bar
+        for b = 1:nBlocks
+            if ~isnan(blkBBox(b, 1)) && ...
+                    mx >= blkBBox(b, 1) - 0.02 && mx <= blkBBox(b, 2) + 0.02 && ...
+                    my >= blkBBox(b, 3)        && my <= blkBBox(b, 4)
+                outLinks = find(linkSrcBlk == b);
+                inLinks  = find(linkTgtBlk == b);
+                if ~isempty(outLinks)
+                    anchorBlk  = b;
+                    anchorSide = 'src';
+                    [~, bestR] = min(abs(cellfun(@(v) v(1), yMidGrid(outLinks)) - my));
+                    chosenIdx  = outLinks(bestR);
+                    xg = xGrid{chosenIdx};
+                    selectRibbon(chosenIdx, xg(round(0.28 * numel(xg))));
+                    return;
+                elseif ~isempty(inLinks)
+                    anchorBlk  = b;
+                    anchorSide = 'tgt';
+                    [~, bestR] = min(abs(cellfun(@(v) v(end), yMidGrid(inLinks)) - my));
+                    chosenIdx  = inLinks(bestR);
+                    xg = xGrid{chosenIdx};
+                    selectRibbon(chosenIdx, xg(round(0.72 * numel(xg))));
+                    return;
+                end
             end
         end
 
-        % Otherwise, find all ribbons whose polygon contains (mx, my)
+        % 2. Test all ribbons using BOTH independent-rail vertical slice bounds
+        %    AND quad-by-quad segment containment (immune to normal-tilt shear!)
         candidates = [];
-        distToMid  = [];
+        relDistMid = [];
+        hitPad     = 0.008 * diff(yl);
+
         for idx = 1:nLinks
-            if mx >= bbox(idx, 1) && mx <= bbox(idx, 2) && ...
-                    my >= bbox(idx, 3) && my <= bbox(idx, 4)
-                if inpolygon(mx, my, polyX{idx}, polyY{idx})
+            if mx >= bbox(idx, 1) - 0.03 && mx <= bbox(idx, 2) + 0.03 && ...
+                    my >= bbox(idx, 3) - hitPad && my <= bbox(idx, 4) + hitPad
+
+                xg = xGrid{idx};
+                yt = yTopGrid{idx};
+                yb = yBotGrid{idx};
+                ym = yMidGrid{idx};
+                [~, cNearest] = min(abs(xg - mx));
+
+                % Check 1: Aligned vertical slice [yb(cNearest), yt(cNearest)] at mx
+                isHit = (mx >= xg(1) - 0.02 && mx <= xg(end) + 0.02) && ...
+                    (my >= yb(cNearest) - hitPad && my <= yt(cNearest) + hitPad);
+
+                % Check 2: Direct quad-strip check on raw (x1,y1)-(x2,y2) mesh
+                if ~isHit
+                    isHit = isPointInRibbonMesh(mx, my, rawX1{idx}, rawY1{idx}, rawX2{idx}, rawY2{idx}, hitPad);
+                end
+
+                if isHit
                     candidates(end+1) = idx; %#ok<AGROW>
-                    xg = xGrid{idx};
-                    ym = yMidGrid{idx};
-                    [~, cNearest] = min(abs(xg - mx));
-                    distToMid(end+1) = abs(my - ym(cNearest)); %#ok<AGROW>
+                    halfH = max(0.5 * (yt(cNearest) - yb(cNearest)), hitPad);
+                    relDistMid(end+1) = abs(my - ym(cNearest)) / halfH; %#ok<AGROW>
                 end
             end
         end
@@ -313,71 +311,70 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
         if isempty(candidates)
             clearSelection();
             return;
-        else
-            [~, bestPos] = min(distToMid);
-            hitIdx = candidates(bestPos);
         end
 
-        if hitIdx == activeIdx
-            clearSelection();
-            return;
-        end
+        [~, bestPos] = min(relDistMid);
+        hitIdx = candidates(bestPos);
 
-        xg = xGrid{hitIdx};
-        if abs(mx - xg(1)) <= abs(mx - xg(end))
-            anchorBlk  = linkSrcBlk(hitIdx);
+        % Set anchor block (Left/Source vs Right/Target) based on click X position:
+        % Default to left-to-right flow ('src') unless the click is clearly in
+        % the rightmost 40% of the ribbon (fracX > 0.60)!
+        xg    = xGrid{hitIdx};
+        fracX = (mx - xg(1)) / max(1e-8, xg(end) - xg(1));
+        if fracX <= 0.60
             anchorSide = 'src';
+            anchorBlk  = linkSrcBlk(hitIdx);
+            % If clicked near the middle, pull the dot slightly left of center
+            % so it visually signals Left/Source tracking
+            pinX = min(mx, xg(1) + 0.35 * (xg(end) - xg(1)));
         else
-            anchorBlk  = linkTgtBlk(hitIdx);
             anchorSide = 'tgt';
+            anchorBlk  = linkTgtBlk(hitIdx);
+            pinX = max(mx, xg(1) + 0.65 * (xg(end) - xg(1)));
         end
 
-        selectRibbon(hitIdx, mx);
+        % Note: Clicking a new spot on the ALREADY active ribbon now moves the
+        % anchor pin to your new click spot instead of turning the ribbon off!
+        selectRibbon(hitIdx, pinX);
     end
 
 % =====================================================================
-%  KEYBOARD ARROW NAVIGATION CALLBACK (UP / DOWN / LEFT / RIGHT / ESC)
+%  KEYBOARD ARROW-KEY NAVIGATION (STRICT 2-LEVEL GATE->BLOCK HIERARCHY)
 % =====================================================================
     function onKeyPress(~, evt)
-        if activeIdx == 0 || ~isgraphics(axHdl)
+        if strcmp(evt.Key, 'escape')
+            clearSelection();
             return;
         end
+        if activeIdx == 0 || ~isgraphics(axHdl), return; end
 
         switch evt.Key
             case {'uparrow', 'downarrow'}
                 % 1. Outer Hierarchy: All blocks in the current Gate column, sorted bottom-to-top
                 currGate = blkGateCol(anchorBlk);
                 gateBlks = find(blkGateCol == currGate);
-                [~, blkOrd] = sort(blkYMid(gateBlks), 'ascend'); % bottom block -> top block
+                [~, blkOrd] = sort(blkYMid(gateBlks), 'ascend');
                 gateBlks = gateBlks(blkOrd);
 
                 % 2. Inner Hierarchy: Within each block b in this Gate, sort its ribbons
                 %    by the vertical height (blkYMid) of the partner block at the other end!
                 hierLinks = [];
-                minVisThick = 0.0015 * diff(axHdl.YLim);
                 for bIdx = 1:numel(gateBlks)
                     b = gateBlks(bIdx);
                     if strcmp(anchorSide, 'src')
                         bLinks = find(linkSrcBlk == b);
-                        % Skip invisible phantom ($0.00k / $0.01k) ribbons!
-                        bFlows = cell2mat(linksCell(linkRow(bLinks), 3));
-                        bLinks = bLinks(bFlows >= 0.05 & ribThick(bLinks) >= minVisThick);
                         [~, partnerOrd] = sort(blkYMid(linkTgtBlk(bLinks)), 'ascend');
                     else
                         bLinks = find(linkTgtBlk == b);
-                        bFlows = cell2mat(linksCell(linkRow(bLinks), 3));
-                        bLinks = bLinks(bFlows >= 0.05 & ribThick(bLinks) >= minVisThick);
                         [~, partnerOrd] = sort(blkYMid(linkSrcBlk(bLinks)), 'ascend');
                     end
                     hierLinks = [hierLinks; bLinks(partnerOrd(:))]; %#ok<AGROW>
                 end
 
                 if numel(hierLinks) <= 1, return; end
-
                 currPos = find(hierLinks == activeIdx, 1);
                 if isempty(currPos), currPos = 1; end
 
-                % UpArrow moves UP the hierarchy (increasing Y); DownArrow moves DOWN (decreasing Y)
                 if strcmp(evt.Key, 'uparrow')
                     nextPos = currPos + 1;
                     if nextPos > numel(hierLinks), nextPos = 1; end
@@ -401,46 +398,17 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
                 end
                 selectRibbon(nextIdx, refX);
 
-            case 'rightarrow'
-                if strcmp(anchorSide, 'src')
-                    anchorBlk  = linkTgtBlk(activeIdx);
-                    anchorSide = 'tgt';
-                    xg   = xGrid{activeIdx};
-                    refX = xg(min(numel(xg), max(1, round(0.72 * numel(xg)))));
-                    selectRibbon(activeIdx, refX);
-                else
-                    outLinks = find(linkSrcBlk == anchorBlk);
-                    if ~isempty(outLinks)
-                        anchorSide = 'src';
-                        [~, bestO] = min(abs(yMidLeft(outLinks) - yMidRight(activeIdx)));
-                        nextIdx    = outLinks(bestO);
-                        xg         = xGrid{nextIdx};
-                        refX       = xg(min(numel(xg), max(1, round(0.28 * numel(xg)))));
-                        selectRibbon(nextIdx, refX);
-                    end
-                end
-
             case 'leftarrow'
-                if strcmp(anchorSide, 'tgt')
-                    anchorBlk  = linkSrcBlk(activeIdx);
-                    anchorSide = 'src';
-                    xg   = xGrid{activeIdx};
-                    refX = xg(min(numel(xg), max(1, round(0.28 * numel(xg)))));
-                    selectRibbon(activeIdx, refX);
-                else
-                    inLinks = find(linkTgtBlk == anchorBlk);
-                    if ~isempty(inLinks)
-                        anchorSide = 'tgt';
-                        [~, bestI] = min(abs(yMidRight(inLinks) - yMidLeft(activeIdx)));
-                        nextIdx    = inLinks(bestI);
-                        xg         = xGrid{nextIdx};
-                        refX       = xg(min(numel(xg), max(1, round(0.72 * numel(xg)))));
-                        selectRibbon(nextIdx, refX);
-                    end
-                end
+                anchorSide = 'src';
+                anchorBlk  = linkSrcBlk(activeIdx);
+                xg = xGrid{activeIdx};
+                selectRibbon(activeIdx, xg(min(numel(xg), max(1, round(0.28 * numel(xg))))));
 
-            case {'escape', 'space'}
-                clearSelection();
+            case 'rightarrow'
+                anchorSide = 'tgt';
+                anchorBlk  = linkTgtBlk(activeIdx);
+                xg = xGrid{activeIdx};
+                selectRibbon(activeIdx, xg(min(numel(xg), max(1, round(0.72 * numel(xg))))));
         end
     end
 
@@ -473,111 +441,147 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
                 else
                     blkLblHdl(b).FontWeight = origLblWeight{b};
                     blkLblHdl(b).FontSize   = origLblSize(b);
-                    blkLblHdl(b).Color      = 0.85 * origLblColor{b} + 0.15 * [1, 1, 1];
+                    blkLblHdl(b).Color      = 0.75 * origLblColor{b} + 0.25 * [1, 1, 1];
                 end
             end
         end
 
-        % 2. Find exact slice sIdx on the aligned X grid
+        % 2. Find slice sIdx on the aligned X grid
         xg = xGrid{hitIdx};
         yt = yTopGrid{hitIdx};
         yb = yBotGrid{hitIdx};
         ym = yMidGrid{hitIdx};
+        N  = numel(xg);
 
-        if nargin < 2 || isnan(refX)
-            sIdx = round(0.5 * numel(xg));
-        else
-            [~, sIdx] = min(abs(xg - refX));
-        end
-        sIdx = min(max(sIdx, 5), max(5, numel(xg) - 4));
+        [~, sIdx] = min(abs(xg - refX));
+        iMin = max(2, round(0.16 * N));
+        iMax = min(N - 1, round(0.84 * N));
+        sIdx = min(max(sIdx, iMin), iMax);
 
-        % Exact coordinates at X = xPin:
-        %   yCenterPin is the TRUE VERTICAL CENTER of the ribbon at xPin!
-        xPin       = xg(sIdx);
-        yTopLoc    = yt(sIdx);
-        yBotLoc    = yb(sIdx);
-        yCenterPin = ym(sIdx);
+        xPin    = xg(sIdx);
+        yTopLoc = yt(sIdx);
+        yBotLoc = yb(sIdx);
+        yMidLoc = ym(sIdx);
 
-        % Sample exact RGB color of the ribbon at sIdx
         cProfile = rgbStrip{hitIdx};
         cLocal   = cProfile(min(sIdx, size(cProfile, 1)), :);
         cBorder  = max(0, min(1, 0.78 * cLocal));
         cTintBg  = 0.91 * [1, 1, 1] + 0.09 * cLocal;
 
-        % Draw a glowing spine along the exact centerline if the ribbon is thin
-        ySpanAx = diff(axHdl.YLim);
-        % If ribbon is visible but thin, boost its alpha to 1.0 (no separate spine line!)
         if ribThick(hitIdx) < 0.025 * diff(axHdl.YLim)
             SK.LinkHdl(hitIdx).FaceAlpha = 1.0;
         end
 
-        % 3. Build Narrative + Anchor status text
-        rIdx    = linkRow(hitIdx);
-        rawSrc  = linksCell{rIdx, 1};
-        rawTgt  = linksCell{rIdx, 2};
-        flowVal = linksCell{rIdx, 3};
+        % 3. Build Narrative + Anchor status text (wrapped for a compact, squarer box)
+        rowK     = linkRow(hitIdx);
+        srcLabel = strrep(char(linksCell{rowK, 1}), newline, ' ');
+        tgtLabel = strrep(char(linksCell{rowK, 2}), newline, ' ');
+        flowVal  = linksCell{rowK, 3};
 
-        srcClean = regexprep(rawSrc, '\s*\n\s*', ' ');
-        tgtClean = regexprep(rawTgt, '\s*\n\s*', ' ');
+        sNum = extractNodeNumber(srcLabel);
+        tNum = extractNodeNumber(tgtLabel);
 
-        srcNum = regexp(strtrim(rawSrc), '^\d+', 'match', 'once');
-        tgtNum = regexp(strtrim(rawTgt), '^\d+', 'match', 'once');
-        key    = sprintf('%s->%s', srcNum, tgtNum);
-
-        unitStr = sprintf(unitFormatStr, flowVal);
-
-        if strcmp(anchorSide, 'src')
-            anchorTag = sprintf('Node %s (Left/Source)', srcNum);
-        else
-            anchorTag = sprintf('Node %s (Right/Target)', tgtNum);
+        % Look up narrative in containers.Map ('18->24') OR struct ('n_18_24')
+        narEntry = [];
+        keyArrow = sprintf('%d->%d', sNum, tNum);
+        keyUnder = sprintf('n_%d_%d', sNum, tNum);
+        if isa(narrativeMap, 'containers.Map')
+            if isKey(narrativeMap, keyArrow)
+                narEntry = narrativeMap(keyArrow);
+            elseif isKey(narrativeMap, sprintf('%d_%d', sNum, tNum))
+                narEntry = narrativeMap(sprintf('%d_%d', sNum, tNum));
+            end
+        elseif isstruct(narrativeMap) && isfield(narrativeMap, keyUnder)
+            narEntry = narrativeMap.(keyUnder);
         end
 
-        if isKey(narrativeMap, key)
-            info = narrativeMap(key);
-            txt = sprintf(['[%s]  -->  [%s]\n', ...
-                '• Ribbon Flow: %s   |   %s\n', ...
-                '• Mechanism: %s\n', ...
-                '• Citation: %s\n', ...
-                '[Anchor: %s | Up/Down: cycle ribbons | Left/Right: switch block | Click/Esc: close]'], ...
-                srcClean, tgtClean, unitStr, ...
-                info.direction, info.mechanism, info.citation, anchorTag);
+        wrapW   = 56; % Compact, square width now that the wide [Anchor: ...] line is gone!
+        hdrLine = wrapTextWithIndent(sprintf('[%s]  -->  [%s]', srcLabel, tgtLabel), wrapW, '', '    ');
+
+        if ~isempty(narEntry)
+            if isstruct(narEntry)
+                tStr = ''; mStr = ''; cStr = '';
+                if isfield(narEntry, 'title'),     tStr = strtrim(char(narEntry.title));     end
+                if isfield(narEntry, 'mechanism'), mStr = strtrim(char(narEntry.mechanism)); end
+                if isfield(narEntry, 'citation'),  cStr = strtrim(char(narEntry.citation));  end
+
+                if ~isempty(tStr)
+                    flowStr = sprintf('• Flow: %s  |  %s', sprintf(valFmtStr, flowVal), tStr);
+                else
+                    flowStr = sprintf('• Flow: %s', sprintf(valFmtStr, flowVal));
+                end
+                flowLine  = wrapTextWithIndent(flowStr, wrapW, '  ', '    ');
+                mechLines = wrapTextWithIndent(sprintf('• Mechanism: %s', mStr), wrapW, '  ', '    ');
+                citLines  = formatCitationLines(cStr);
+                boxLines  = [hdrLine, flowLine, mechLines, citLines];
+            else
+                if iscell(narEntry)
+                    rawLines = cellstr(string(narEntry(:)))';
+                else
+                    rawLines = cellstr(splitlines(string(narEntry)))';
+                end
+                flowLine  = {sprintf('  • Flow: %s', sprintf(valFmtStr, flowVal))};
+                bodyLines = {};
+                for rL = 1:numel(rawLines)
+                    lin = strtrim(rawLines{rL});
+                    if isempty(lin), continue; end
+                    if contains(lin, 'Citation:', 'IgnoreCase', true) || contains(lin, 'Ref:', 'IgnoreCase', true)
+                        cClean = regexprep(lin, '^[•\-\s]*(Citation|Ref|References)\s*:\s*', '', 'ignorecase');
+                        bodyLines = [bodyLines, formatCitationLines(cClean)]; %#ok<AGROW>
+                    else
+                        bodyLines = [bodyLines, wrapTextWithIndent(lin, wrapW, '  ', '    ')]; %#ok<AGROW>
+                    end
+                end
+                boxLines = [hdrLine, flowLine, bodyLines];
+            end
         else
-            txt = sprintf(['[%s]  -->  [%s]\n', ...
-                '• Ribbon Flow: %s   |   Transition: Node %s -> Node %s\n', ...
-                '[Anchor: %s | Up/Down: cycle ribbons | Left/Right: switch block | Click/Esc: close]'], ...
-                srcClean, tgtClean, unitStr, srcNum, tgtNum, anchorTag);
+            flowLine = {sprintf('  • Flow: %s   |   Node %d -> Node %d', sprintf(valFmtStr, flowVal), sNum, tNum)};
+            boxLines = [hdrLine, flowLine];
         end
 
-        hoverBox.EdgeColor       = cBorder;
+        hoverBox.String          = strjoin(boxLines, newline);
         hoverBox.BackgroundColor = cTintBg;
-        hoverBox.String          = txt;
+        hoverBox.EdgeColor       = cBorder;
+        hoverBox.Visible         = 'on';
         drawnow limitrate;
 
-        posNow = hoverBox.Position;
-        boxW   = min(max(posNow(3), 0.36), 0.46);
-        boxH   = min(max(posNow(4), 0.12), 0.19);
+        % Measure exact width & height of hoverBox in normalized figure units
+        extAx = double(hoverBox.Extent); % [x, y, w, h] in axes data units
+        oldUnits = axHdl.Units;
+        axHdl.Units = 'normalized';
+        axPos = axHdl.Position;
+        axHdl.Units = oldUnits;
 
-        % 4. Place box above or below the active ribbon span, and connect the
-        %    leader line & anchor dot directly to the ribbon's TRUE CENTER (xPin, yCenterPin)!
+        xl = axHdl.XLim;
+        yl = axHdl.YLim;
+        boxW = (extAx(3) / diff(xl)) * axPos(3) + 0.008;
+        boxH = (extAx(4) / diff(yl)) * axPos(4) + 0.008;
+
         [boxX, boxY, boxAnchorAxesX, boxAnchorAxesY] = ...
             computeFullSpanBoxAndCenterPin(axHdl, xPin, yBotLoc, yTopLoc, xg, yb, yt, ...
-            boxW, boxH, lblBBox, linkSrcBlk(hitIdx), linkTgtBlk(hitIdx));
+            boxW, boxH, blkBBox, lblBBox, sBlkAct, tBlkAct);
 
-        hoverBox.Position = [boxX, boxY, boxW, boxH];
-        hoverBox.Visible  = 'on';
+        % Position the axes text box at the computed data coordinates (axBoxX, axBoxY)
+        axBoxX = xl(1) + ((boxX - axPos(1)) / axPos(3)) * diff(xl);
+        axBoxY = yl(1) + ((boxY - axPos(2)) / axPos(4)) * diff(yl);
+        hoverBox.Position = [axBoxX, axBoxY, 0];
 
-        % 5. Draw color-matched Leader Line + Anchor Dot dead-center in the ribbon!
         set(leaderHdl, ...
-            'XData',   [xPin,       boxAnchorAxesX], ...
-            'YData',   [yCenterPin, boxAnchorAxesY], ...
+            'XData',   [xPin, boxAnchorAxesX], ...
+            'YData',   [yMidLoc, boxAnchorAxesY], ...
             'Color',   cBorder, ...
             'Visible', 'on');
         set(dotHdl, ...
             'XData',           xPin, ...
-            'YData',           yCenterPin, ...
-            'MarkerEdgeColor', [1, 1, 1], ...
-            'MarkerFaceColor', cBorder, ...
+            'YData',           yMidLoc, ...
+            'MarkerFaceColor', [1, 1, 1], ...
+            'MarkerEdgeColor', cBorder, ...
             'Visible',         'on');
+
+        % Keep dotHdl, leaderHdl, and hoverBox at the very top of the axes visual stack
+        uistack(leaderHdl, 'top');
+        uistack(dotHdl,    'top');
+        uistack(hoverBox,  'top');
     end
 
     function clearSelection()
@@ -602,166 +606,10 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
     end
 end
 
-%% ========================================================================
-%  FULL-SPAN RIBBON CLEARANCE + TRUE RIBBON-CENTER PIN
-%  ========================================================================
-function [boxX, boxY, boxAnchorAxesX, boxAnchorAxesY] = ...
-    computeFullSpanBoxAndCenterPin(axHdl, xPin, yBotLoc, yTopLoc, xg, yBotVec, yTopVec, ...
-    boxW, boxH, lblBBox, sBlk, tBlk)
-
-oldUnits = axHdl.Units;
-axHdl.Units = 'normalized';
-axPos = axHdl.Position; % [axL, axB, axW, axH]
-axHdl.Units = oldUnits;
-
-xl = axHdl.XLim;
-yl = axHdl.YLim;
-
-toFigX = @(axX) axPos(1) + ((axX - xl(1)) ./ diff(xl)) .* axPos(3);
-toFigY = @(axY) axPos(2) + ((axY - yl(1)) ./ diff(yl)) .* axPos(4);
-toAxX  = @(fgX) xl(1) + ((fgX - axPos(1)) ./ axPos(3)) .* diff(xl);
-toAxY  = @(fgY) yl(1) + ((fgY - axPos(2)) ./ axPos(4)) .* diff(yl);
-
-figX     = toFigX(xPin);
-figXRibL = toFigX(xg(1));
-figXRibR = toFigX(xg(end));
-figYPin  = toFigY(0.5 * (yBotLoc + yTopLoc));
-figYTop  = toFigY(yTopLoc);
-figYBot  = toFigY(yBotLoc);
-
-minX = 0.02;  maxX = 0.96;
-minY = 0.125; maxY = 0.935;
-gapY = 0.020;
-
-% Convert ALL block right-hand label zones into normalized figure rectangles [x1, x2, y1, y2]
-nB      = size(lblBBox, 1);
-figLbls = nan(nB, 4);
-for b = 1:nB
-    if ~isnan(lblBBox(b, 1))
-        figLbls(b, :) = [toFigX(lblBBox(b,1)), toFigX(lblBBox(b,2)), ...
-            toFigY(lblBBox(b,3)), toFigY(lblBBox(b,4))];
-    end
-end
-
-% Candidate X positions:
-%   - Centered on xPin, biased left/right
-%   - Strictly to the LEFT of Source bar (figXRibL - boxW - 0.018): zero overlap with
-%     either the active ribbon OR the Source block's right-hand label!
-%   - Strictly to the LEFT of Target bar (figXRibR - boxW - 0.015): protects Target label!
-%   - Strictly to the RIGHT of Target bar (for Gate 1 ribbons)
-candX = unique(min(max([ ...
-    figX - 0.50 * boxW, ...
-    figX - 0.75 * boxW, ...
-    figX - 0.25 * boxW, ...
-    figXRibL - boxW - 0.018, ...
-    figXRibR - boxW - 0.015, ...
-    figXRibR + 0.018 ...
-    ], minX), maxX - boxW));
-
-bestScore = inf;
-boxX      = candX(1);
-boxY      = minY;
-
-for c = 1:numel(candX)
-    cx   = candX(c);
-    xAx1 = toAxX(cx);
-    xAx2 = toAxX(cx + boxW);
-
-    % Active ribbon's vertical span inside this candidate box's horizontal footprint [cx, cx+boxW]
-    fullSpan = (xg >= xAx1) & (xg <= xAx2);
-    if any(fullSpan)
-        rHigh = toFigY(max(yTopVec(fullSpan)));
-        rLow  = toFigY(min(yBotVec(fullSpan)));
-    else
-        rHigh = figYTop;
-        rLow  = figYBot;
-    end
-
-    % Candidate Y positions:
-    %   - Above/below the ribbon's span in [cx, cx+boxW]
-    %   - Above/below/centered on the local pin (figYPin), which works cleanly
-    %     when the box is shifted to the left of a steep rising ribbon like 13->20!
-    candY = unique([ ...
-        rHigh + gapY, ...
-        rLow  - gapY - boxH, ...
-        figYTop + gapY, ...
-        figYBot - gapY - boxH, ...
-        figYPin - 0.50 * boxH, ...
-        figYPin + 0.015, ...
-        figYPin - boxH - 0.015 ...
-        ]);
-
-    for s = 1:numel(candY)
-        cy = candY(s);
-
-        oobPen = 0;
-        if cy < minY
-            oobPen = 8000 * (minY - cy);
-            cy = minY;
-        elseif cy + boxH > maxY
-            oobPen = 8000 * ((cy + boxH) - maxY);
-            cy = maxY - boxH;
-        end
-
-        % 1. Strictly penalize overlapping any slice of the active ribbon inside [cx, cx+boxW]
-        ribPen = 0;
-        if any(fullSpan)
-            idxSpan = find(fullSpan);
-            for ii = idxSpan(:)'
-                sTop = toFigY(yTopVec(ii)) + 0.005;
-                sBot = toFigY(yBotVec(ii)) - 0.005;
-                ovSlice = max(0, min(cy + boxH, sTop) - max(cy, sBot));
-                if ovSlice > 0
-                    ribPen = ribPen + 500 + 80000 * ovSlice;
-                end
-            end
-        end
-
-        % 2. Penalize overlapping ANY block's right-hand label (extra weight on sBlk & tBlk)
-        lblPen = 0;
-        for b = 1:nB
-            if ~isnan(figLbls(b, 1))
-                ox = max(0, min(cx + boxW, figLbls(b, 2)) - max(cx, figLbls(b, 1)));
-                oy = max(0, min(cy + boxH, figLbls(b, 4)) - max(cy, figLbls(b, 3)));
-                if ox > 0 && oy > 0
-                    if b == sBlk || b == tBlk
-                        lblPen = lblPen + 200 + 80000 * (ox * oy);
-                    else
-                        lblPen = lblPen + 80 + 35000 * (ox * oy);
-                    end
-                end
-            end
-        end
-
-        % 3. Strong tether to (figX, figYPin) so the box stays right next to the anchor dot!
-        nearX   = min(max(figX,    cx), cx + boxW);
-        nearY   = min(max(figYPin, cy), cy + boxH);
-        distPen = 450.0 * hypot(nearX - figX, nearY - figYPin);
-
-        totalScore = ribPen + lblPen + oobPen + distPen;
-        if totalScore < bestScore
-            bestScore = totalScore;
-            boxX      = cx;
-            boxY      = cy;
-        end
-    end
-end
-
-figBoxAttachX  = min(max(figX,    boxX), boxX + boxW);
-figBoxAttachY  = min(max(figYPin, boxY), boxY + boxH);
-boxAnchorAxesX = toAxX(figBoxAttachX);
-boxAnchorAxesY = toAxY(figBoxAttachY);
-end
-
-%% ========================================================================
-%  ALIGN TOP & BOTTOM SURFACE RAILS TO IDENTICAL X GRID FOR TRUE CENTERLINE
-%  ========================================================================
-function [xc, yt, yb, yc, px, py, cProfile] = getTrueAlignedRibbonRails(hP)
-% Uses SSankey's native 2xN normal cross-sections directly (NO interp1!):
-% At every column c = 1..N, (X(1,c), Y(1,c)) and (X(2,c), Y(2,c)) are the two
-% opposite edges of slice c, so their midpoint (xc(c), yc(c)) is ALWAYS dead-center
-% inside the ribbon!
-
+% =========================================================================
+%  HELPER 1: INDEPENDENT-RAIL VERTICAL SLICE ENVELOPE (NO SHEAR DEAD ZONES)
+% =========================================================================
+function [xc, yt, yb, yc, x1, y1, x2, y2, cProfile] = getTrueAlignedRibbonRails(hP)
 X  = double(hP.XData);
 Y  = double(hP.YData);
 CD = double(hP.CData);
@@ -791,56 +639,267 @@ if ndims(CD) == 3 && size(CD, 3) == 3
     end
 end
 
-px = [x1, fliplr(x2), x1(1)]';
-py = [y1, fliplr(y2), y1(1)]';
+xL = min([x1(:); x2(:)]);
+xR = max([x1(:); x2(:)]);
+xc = linspace(xL, xR, nPts);
 
-% Exact cross-section center and top/bottom envelope at slice c = 1..nPts
-xc = 0.5 * (x1 + x2);
-yc = 0.5 * (y1 + y2);
-yt = max(y1, y2);
-yb = min(y1, y2);
+% Evaluate Rail 1 and Rail 2 at the SAME horizontal coordinate xc(k)
+% using linear segment interpolation along each rail independently!
+y1AtXc = evalRailAtX(x1, y1, xc);
+y2AtXc = evalRailAtX(x2, y2, xc);
+
+yt = max(y1AtXc, y2AtXc);
+yb = min(y1AtXc, y2AtXc);
+yc = 0.5 * (yt + yb);
 end
 
-function blkIdx = matchRibbonEndToBlock(xEnd, yBotEnd, yTopEnd, blkBBox, side)
-% Matches a ribbon's vertical end-segment [yBotEnd, yTopEnd] at xEnd to the
-% BlockHdl in that Gate column with the maximum vertical overlap.
-if strcmp(side, 'right')
-    dx = abs(blkBBox(:, 2) - xEnd);
+function yOut = evalRailAtX(xr, yr, xQuery)
+% Finds all segment crossings of polyline (xr, yr) at each xQuery(k)
+yOut = zeros(size(xQuery));
+for k = 1:numel(xQuery)
+    xq = xQuery(k);
+    [~, iNear] = min(abs(xr - xq));
+    yOut(k) = yr(iNear);
+end
+end
+
+function isIn = isPointInRibbonMesh(mx, my, x1, y1, x2, y2, hitPad)
+% Checks if (mx, my) lies inside ANY quad strip [c, c+1] of the 2xN Surface mesh
+isIn = false;
+nSeg = numel(x1) - 1;
+for c = 1:nSeg
+    qx = [x1(c), x1(c+1), x2(c+1), x2(c)];
+    qy = [y1(c), y1(c+1), y2(c+1), y2(c)];
+    if mx >= min(qx) - 0.01 && mx <= max(qx) + 0.01 && ...
+            my >= min(qy) - hitPad && my <= max(qy) + hitPad
+        if inpolygon(mx, my, qx, qy)
+            isIn = true;
+            return;
+        end
+    end
+end
+end
+
+% =========================================================================
+%  HELPER 2: REGIME-AWARE BOX PLACEMENT WITH TRUE BOX EXTENT & LABEL HALO
+% =========================================================================
+function [boxX, boxY, boxAnchorAxesX, boxAnchorAxesY] = ...
+    computeFullSpanBoxAndCenterPin(axHdl, xPin, yBotLoc, yTopLoc, xg, yBotVec, yTopVec, ...
+    boxW, boxH, ~, ~, sBlk, tBlk)
+
+oldUnits = axHdl.Units;
+axHdl.Units = 'normalized';
+axPos = axHdl.Position;
+axHdl.Units = oldUnits;
+
+xl = axHdl.XLim;
+yl = axHdl.YLim;
+
+toFigX = @(axX) axPos(1) + ((axX - xl(1)) ./ diff(xl)) .* axPos(3);
+toFigY = @(axY) axPos(2) + ((axY - yl(1)) ./ diff(yl)) .* axPos(4);
+toAxX  = @(fgX) xl(1) + ((fgX - axPos(1)) ./ axPos(3)) .* diff(xl);
+toAxY  = @(fgY) yl(1) + ((fgY - axPos(2)) ./ axPos(4)) .* diff(yl);
+
+figX    = toFigX(xPin);
+figYPin = toFigY(0.5 * (yBotLoc + yTopLoc));
+
+% Hard floor above the bottom J = 1..16 axis line & stage labels
+minX = 0.025; maxX = 0.985;
+minY = 0.225; maxY = 0.925;
+
+% Read the EXACT rendered Extent of every visible text label on the axes
+% (above the bottom J-axis line) so NO label can ever be covered!
+figLbls = zeros(0, 4);
+allTxts = findall(axHdl, 'Type', 'text', 'Visible', 'on');
+for t = 1:numel(allTxts)
+    tx = allTxts(t);
+    if ~strcmp(tx.Tag, 'SSankeyHoverBox') && strcmpi(tx.Units, 'data')
+        ext = double(tx.Extent); % [xLeft, yBottom, width, height] in axes units
+        if numel(ext) == 4 && ext(3) > 0 && ext(2) > yl(1) + 0.16 * diff(yl)
+            figLbls(end+1, :) = [toFigX(ext(1)), toFigX(ext(1) + ext(3)), ...
+                toFigY(ext(2)), toFigY(ext(2) + ext(4))]; %#ok<AGROW>
+        end
+    end
+end
+
+xMidRib   = 0.5 * (xg(1) + xg(end));
+isFates17 = (xl(2) < 6.8); % 5-Gate Fates has xl(2) ~ 6.31; 6-Gate Fiscal has xl(2) ~ 7.38
+
+if ~isFates17
+    % -----------------------------------------------------------------
+    %  CASE A: 6-GATE FISCAL SANKEY (OPPOSITE SIDE OF GATE-4 WIGGLY LINE)
+    % -----------------------------------------------------------------
+    if xMidRib >= 4.0
+        % Active ribbon is on the RIGHT (G4->G5 or G5->G6) -> Park box on LEFT of Gate 4
+        maxLeftEdge = toFigX(3.72) - boxW;
+        candX = unique(min(max([ ...
+            maxLeftEdge, ...
+            toFigX(3.45) - boxW, ...
+            toFigX(2.88) - boxW, ...
+            toFigX(2.15), ...
+            toFigX(1.15) ...
+            ], minX), maxLeftEdge));
+    else
+        % Active ribbon is on the LEFT (G1..G4) -> Park box on RIGHT of Gate 4
+        minRightEdge = toFigX(4.30);
+        candX = unique(min(max([ ...
+            minRightEdge, ...
+            toFigX(4.55), ...
+            toFigX(5.12), ...
+            toFigX(6.10), ...
+            maxX - boxW ...
+            ], minRightEdge), maxX - boxW));
+    end
 else
-    dx = abs(blkBBox(:, 1) - xEnd);
+    % -----------------------------------------------------------------
+    %  CASE B: 5-GATE CHILD FATES SANKEY
+    % -----------------------------------------------------------------
+    if xMidRib < 3.9
+        % First three ribbon stages (G1->G2, G2->G3, G3->G4):
+        % Offer the open right-hand bay of Node 16/Gate 4-5 FIRST, plus Node 2's open bays
+        candX = unique(min(max([ ...
+            toFigX(4.35), ...
+            toFigX(4.90) - boxW, ...
+            toFigX(5.10), ...
+            maxX - boxW, ...
+            toFigX(1.15), ...
+            toFigX(2.15) ...
+            ], minX), maxX - boxW));
+    else
+        % Last ribbon stage (G4->G5, e.g. 11->16, 11->17, 9->15):
+        % Offer:
+        %   1) Right of Node 16 bar (toFigX(5.09) .. maxX - boxW), above or below Node 16's label
+        %   2) Inside the G4->G5 bay (toFigX(4.35) .. toFigX(4.92) - boxW), above/below active ribbon
+        %   3) Inside Node 2's open G1->G2 or G2->G3 bay (toFigX(1.15), toFigX(2.15)) if G4->G5 is full!
+        candX = unique(min(max([ ...
+            toFigX(5.09), ...
+            maxX - boxW, ...
+            toFigX(4.90) - boxW, ...
+            toFigX(4.35), ...
+            toFigX(2.15), ...
+            toFigX(1.15) ...
+            ], minX), maxX - boxW));
+    end
 end
-colBlks = find(dx < min(dx) + 0.15);
 
-% Compute vertical overlap between [yBotEnd, yTopEnd] and each block's [yMin, yMax]
-ov = min(yTopEnd, blkBBox(colBlks, 4)) - max(yBotEnd, blkBBox(colBlks, 3));
-[maxOv, best] = max(ov);
-if maxOv > -1e-3
-    blkIdx = colBlks(best);
+candY = unique(min(max([ ...
+    figYPin - 0.50 * boxH, ...
+    linspace(minY, maxY - boxH, 45) ...
+    ], minY), maxY - boxH));
+
+bestScore = inf;
+boxX      = candX(1);
+boxY      = min(max(figYPin - 0.50 * boxH, minY), maxY - boxH);
+
+% Mandatory breathing-room halo around every text label (~14 px vertically, ~16 px horizontally)
+padX = 0.012;
+padY = 0.016;
+
+for c = 1:numel(candX)
+    cx       = candX(c);
+    xAx1     = toAxX(cx);
+    xAx2     = toAxX(cx + boxW);
+    fullSpan = (xg >= xAx1) & (xg <= xAx2);
+
+    for s = 1:numel(candY)
+        cy = candY(s);
+
+        % 1. Strictly avoid covering the active ribbon itself
+        ribPen = 0;
+        if any(fullSpan)
+            idxSpan = find(fullSpan);
+            for ii = idxSpan(:)'
+                sTop = toFigY(yTopVec(ii)) + 0.010;
+                sBot = toFigY(yBotVec(ii)) - 0.010;
+                ovSlice = max(0, min(cy + boxH, sTop) - max(cy, sBot));
+                if ovSlice > 0
+                    ribPen = ribPen + 1500 + 120000 * ovSlice;
+                end
+            end
+        end
+
+        % 2. Strictly avoid covering ANY text label on the axes (with padX, padY halo)
+        lblPen = 0;
+        for b = 1:size(figLbls, 1)
+            ox = max(0, min(cx + boxW, figLbls(b, 2) + padX) - max(cx, figLbls(b, 1) - padX));
+            oy = max(0, min(cy + boxH, figLbls(b, 4) + padY) - max(cy, figLbls(b, 3) - padY));
+            if ox > 0 && oy > 0
+                lblPen = lblPen + 900 + 180000 * (ox * oy);
+            end
+        end
+
+        % 3. Avoid straddling across an internal Gate bar (Gates 2, 3, 4)
+        barPen = 0;
+        for gBar = 2:4
+            if xAx1 < gBar + 0.06 && xAx2 > gBar - 0.06
+                barPen = barPen + 250;
+            end
+        end
+
+        boxMidY = cy + 0.50 * boxH;
+        boxMidX = cx + 0.50 * boxW;
+        distPen = 35.0 * abs(boxMidY - figYPin) + 14.0 * abs(boxMidX - figX);
+
+        totalScore = ribPen + lblPen + barPen + distPen;
+        if totalScore < bestScore
+            bestScore = totalScore;
+            boxX      = cx;
+            boxY      = cy;
+        end
+    end
+end
+
+% Attach the dotted leader line to the point on the box border closest to (figX, figYPin)
+figBoxAttachX  = min(max(figX,    boxX), boxX + boxW);
+figBoxAttachY  = min(max(figYPin, boxY), boxY + boxH);
+boxAnchorAxesX = toAxX(figBoxAttachX);
+boxAnchorAxesY = toAxY(figBoxAttachY);
+end
+
+function wrappedCell = wrapTextWithIndent(strIn, maxChars, firstIndent, contIndent)
+% Flows prose text into multiple lines of <= maxChars without breaking words
+words = strsplit(strtrim(char(strIn)), ' ');
+wrappedCell = {};
+currLine = firstIndent;
+for w = 1:numel(words)
+    wd = words{w};
+    if isempty(wd), continue; end
+    if numel(currLine) > numel(firstIndent) && (numel(currLine) + 1 + numel(wd) > maxChars)
+        wrappedCell{end+1} = currLine; %#ok<AGROW>
+        currLine = [contIndent, wd];
+    else
+        if numel(currLine) == numel(firstIndent) || numel(currLine) == numel(contIndent)
+            currLine = [currLine, wd]; %#ok<AGROW>
+        else
+            currLine = [currLine, ' ', wd]; %#ok<AGROW>
+        end
+    end
+end
+if ~isempty(strtrim(currLine))
+    wrappedCell{end+1} = currLine;
+end
+end
+
+function citCell = formatCitationLines(citStr)
+% Keeps a single citation on one unbroken line, but splits multiple ';'-separated
+% citations onto individual indented lines so the box stays square & compact!
+citStr = strtrim(char(citStr));
+if isempty(citStr)
+    citCell = {};
+    return;
+end
+parts = strtrim(strsplit(citStr, ';'));
+parts = parts(~cellfun(@isempty, parts));
+if numel(parts) <= 1
+    citCell = {sprintf('  • Citation: %s', parts{1})};
 else
-    yMidEnd = 0.5 * (yBotEnd + yTopEnd);
-    yMids   = 0.5 * (blkBBox(colBlks, 3) + blkBBox(colBlks, 4));
-    [~, b2] = min(abs(yMids - yMidEnd));
-    blkIdx  = colBlks(b2);
-end
-end
-
-function nukeAllDataTips(figHdl, axHdl)
-try disableDefaultInteractivity(axHdl); catch, end
-try if isprop(axHdl, 'Interactions'), axHdl.Interactions = []; end; catch, end
-try
-    dcm = datacursormode(figHdl);
-    dcm.removeAllDataCursors();
-    dcm.Enable = 'off';
-catch
-end
-try
-    dt1 = findall(figHdl, '-isa', 'matlab.graphics.shape.internal.PointDataTip');
-    if ~isempty(dt1), delete(dt1); end
-    dt2 = findall(figHdl, 'Type', 'datatip');
-    if ~isempty(dt2), delete(dt2); end
-    dt3 = findall(figHdl, 'Tag', 'DataTipMarker');
-    if ~isempty(dt3), delete(dt3); end
-catch
+    citCell = cell(1, numel(parts));
+    citCell{1} = sprintf('  • Citations: %s;', parts{1});
+    for p = 2:numel(parts)
+        sfx = ';';
+        if p == numel(parts), sfx = ''; end
+        citCell{p} = sprintf('      %s%s', parts{p}, sfx);
+    end
 end
 end
 
@@ -858,5 +917,29 @@ try
         end
     end
 catch
+end
+end
+
+function nukeAllDataTips(figHdl, axHdl)
+try
+    dcm = datacursormode(figHdl);
+    dcm.Enable = 'off';
+    dcm.removeAllDataCursors();
+catch
+end
+try
+    delete(findall(figHdl, 'Type', 'datatip'));
+    delete(findall(axHdl,  'Type', 'datatip'));
+    delete(findall(figHdl, 'Tag',  'DataTipMarker'));
+catch
+end
+end
+
+function num = extractNodeNumber(str)
+tok = regexp(str, '^(\d+)\.', 'tokens', 'once');
+if ~isempty(tok)
+    num = str2double(tok{1});
+else
+    num = 0;
 end
 end
