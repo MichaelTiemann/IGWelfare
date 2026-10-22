@@ -394,11 +394,21 @@ Nodes_S5 = {sprintf('12. Exit 1: State Care (%.1f%%)',                S5_Pct(1))
     sprintf('16. Retained NZ Secure/Thriving Adult (%.1f%%)', S5_Pct(5)), ...
     sprintf('17. Emigrated Abroad (20-35 Brain Drain, %.1f%%)',S5_Pct(6))};
 
+% Prune sub-threshold phantom ribbons (< $0.10k/yr) and redistribute pro-rata
+% while preserving exact block heights at every Gate!
+minFatesRibbon_Pct = 0.15; % 0.15% of cohort minimum visible ribbon
+Flow_S1_to_S2 = pruneAndBalanceFlowMatrix(Flow_S1_to_S2, minFatesRibbon_Pct);
+Flow_S2_to_S3 = pruneAndBalanceFlowMatrix(Flow_S2_to_S3, minFatesRibbon_Pct);
+Flow_S3_to_S4 = pruneAndBalanceFlowMatrix(Flow_S3_to_S4, minFatesRibbon_Pct);
+Flow_S4_to_S5 = pruneAndBalanceFlowMatrix(Flow_S4_to_S5, minFatesRibbon_Pct);
+
+% Assemble links cell array (only non-zero surviving ribbons)
 links = {};
+
 row_k = 0;
 for i = 1:2
     for j = 1:3
-        if Flow_S1_to_S2(i, j) > 1e-4
+        if Flow_S1_to_S2(i, j) > 0
             row_k = row_k + 1;
             links(row_k, :) = {Nodes_S1{i}, Nodes_S2{j}, Flow_S1_to_S2(i, j)};
         end
@@ -406,7 +416,7 @@ for i = 1:2
 end
 for i = 1:3
     for j = 1:3
-        if Flow_S2_to_S3(i, j) > 1e-4
+        if Flow_S2_to_S3(i, j) > 0
             row_k = row_k + 1;
             links(row_k, :) = {Nodes_S2{i}, Nodes_S3{j}, Flow_S2_to_S3(i, j)};
         end
@@ -414,7 +424,7 @@ for i = 1:3
 end
 for i = 1:3
     for j = 1:3
-        if Flow_S3_to_S4(i, j) > 1e-4
+        if Flow_S3_to_S4(i, j) > 0
             row_k = row_k + 1;
             links(row_k, :) = {Nodes_S3{i}, Nodes_S4{j}, Flow_S3_to_S4(i, j)};
         end
@@ -422,7 +432,7 @@ for i = 1:3
 end
 for i = 1:3
     for j = 1:6
-        if Flow_S4_to_S5(i, j) > 1e-4
+        if Flow_S4_to_S5(i, j) > 0
             row_k = row_k + 1;
             links(row_k, :) = {Nodes_S4{i}, Nodes_S5{j}, Flow_S4_to_S5(i, j)};
         end

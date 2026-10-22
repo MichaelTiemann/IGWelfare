@@ -78,20 +78,51 @@ blkXMid = 0.5 * (blkBBox(:, 1) + blkBBox(:, 2));
 blkYMid = 0.5 * (blkBBox(:, 3) + blkBBox(:, 4));
 [~, ~, blkGateCol] = uniquetol(blkXMid, 0.25, 'DataScale', 1); % Exact Gate column 1..6!
 
-% Read the EXACT Extent [xMin, xMax, yMin, yMax] of every text label inside the chart area
-ylAx    = axHdl.YLim;
-allTxts = findall(axHdl, 'Type', 'text', 'Visible', 'on');
-lblBBox = zeros(0, 4);
-for t = 1:numel(allTxts)
-    try
-        if strcmpi(allTxts(t).Units, 'data')
-            ext = double(allTxts(t).Extent); % [xLeft, yBottom, width, height]
-            % Include all node labels & callout badges above the bottom J-axis line
-            if numel(ext) == 4 && ext(3) > 0 && (ext(2) > ylAx(1) + 0.08 * diff(ylAx))
-                lblBBox(end+1, :) = [ext(1), ext(1)+ext(3), ext(2), ext(2)+ext(4)]; %#ok<AGROW>
-            end
+% Build 1-to-1 right-hand label avoidance zones (nBlocks x 4) indexed by block b
+% so computeFullSpanBoxAndCenterPin can look up lblBBox(sBlk,:) and lblBBox(tBlk,:) directly
+ySpanAx = diff(axHdl.YLim);
+lblBBox = nan(nBlocks, 4);
+for b = 1:nBlocks
+    if ~isnan(blkBBox(b, 1))
+        ymB = blkYMid(b);
+        lblBBox(b, :) = [blkBBox(b, 2), blkBBox(b, 2) + 0.48, ...
+            ymB - 0.045 * ySpanAx, ymB + 0.045 * ySpanAx];
+    end
+end
+
+% Build 1-to-1 right-hand label avoidance zones (nBlocks x 4) indexed by block b
+% so computeFullSpanBoxAndCenterPin can look up lblBBox(sBlk,:) and lblBBox(tBlk,:) directly
+ySpanAx = diff(axHdl.YLim);
+lblBBox = nan(nBlocks, 4);
+for b = 1:nBlocks
+    if ~isnan(blkBBox(b, 1))
+        ymB = blkYMid(b);
+        lblBBox(b, :) = [blkBBox(b, 2), blkBBox(b, 2) + 0.48, ...
+            ymB - 0.045 * ySpanAx, ymB + 0.045 * ySpanAx];
+    end
+end
+
+% Cache each block's text handle (SK.LabelHdl) & original font styling for bold highlighting
+blkLblHdl      = gobjects(nBlocks, 1);
+origLblWeight  = cell(nBlocks, 1);
+origLblSize    = zeros(nBlocks, 1);
+origLblColor   = cell(nBlocks, 1);
+if isprop(SK, 'LabelHdl') && numel(SK.LabelHdl) == nBlocks
+    blkLblHdl = SK.LabelHdl(:);
+else
+    allAxTxts = findall(axHdl, 'Type', 'text');
+    for b = 1:nBlocks
+        if isprop(SK, 'NodeList') && b <= numel(SK.NodeList)
+            mTxt = findobj(allAxTxts, 'String', SK.NodeList{b});
+            if ~isempty(mTxt), blkLblHdl(b) = mTxt(1); end
         end
-    catch
+    end
+end
+for b = 1:nBlocks
+    if isgraphics(blkLblHdl(b))
+        origLblWeight{b} = blkLblHdl(b).FontWeight;
+        origLblSize(b)   = blkLblHdl(b).FontSize;
+        origLblColor{b}  = blkLblHdl(b).Color;
     end
 end
 
@@ -166,15 +197,9 @@ for k = 1:nLinks
 end
 
 % 5. Create Thin-Ribbon Visibility Spine + Leader Line + Center Anchor Dot
-spineHdl = plot(axHdl, nan, nan, '-', ...
-    'Tag',           'SSankeyThinSpine', ...
-    'LineWidth',     2.6, ...
-    'HitTest',       'off', ...
-    'PickableParts', 'none', ...
-    'Visible',       'off');
-leaderHdl = plot(axHdl, nan, nan, '-', ...
+leaderHdl = plot(axHdl, nan, nan, ':', ...
     'Tag',           'SSankeyLeaderLine', ...
-    'LineWidth',     1.8, ...
+    'LineWidth',     1.5, ...
     'HitTest',       'off', ...
     'PickableParts', 'none', ...
     'Visible',       'off');
@@ -313,13 +338,19 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
                 % 2. Inner Hierarchy: Within each block b in this Gate, sort its ribbons
                 %    by the vertical height (blkYMid) of the partner block at the other end!
                 hierLinks = [];
+                minVisThick = 0.0015 * diff(axHdl.YLim);
                 for bIdx = 1:numel(gateBlks)
                     b = gateBlks(bIdx);
                     if strcmp(anchorSide, 'src')
                         bLinks = find(linkSrcBlk == b);
+                        % Skip invisible phantom ($0.00k / $0.01k) ribbons!
+                        bFlows = cell2mat(linksCell(linkRow(bLinks), 3));
+                        bLinks = bLinks(bFlows >= 0.05 & ribThick(bLinks) >= minVisThick);
                         [~, partnerOrd] = sort(blkYMid(linkTgtBlk(bLinks)), 'ascend');
                     else
                         bLinks = find(linkTgtBlk == b);
+                        bFlows = cell2mat(linksCell(linkRow(bLinks), 3));
+                        bLinks = bLinks(bFlows >= 0.05 & ribThick(bLinks) >= minVisThick);
                         [~, partnerOrd] = sort(blkYMid(linkSrcBlk(bLinks)), 'ascend');
                     end
                     hierLinks = [hierLinks; bLinks(partnerOrd(:))]; %#ok<AGROW>
@@ -414,6 +445,23 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
             end
         end
 
+        % Bold the active Source & Target block labels so they stand out clearly!
+        sBlkAct = linkSrcBlk(hitIdx);
+        tBlkAct = linkTgtBlk(hitIdx);
+        for b = 1:nBlocks
+            if isgraphics(blkLblHdl(b))
+                if b == sBlkAct || b == tBlkAct
+                    blkLblHdl(b).FontWeight = 'bold';
+                    blkLblHdl(b).FontSize   = origLblSize(b) + 0.5;
+                    blkLblHdl(b).Color      = [0.05, 0.05, 0.05];
+                else
+                    blkLblHdl(b).FontWeight = origLblWeight{b};
+                    blkLblHdl(b).FontSize   = origLblSize(b);
+                    blkLblHdl(b).Color      = 0.85 * origLblColor{b} + 0.15 * [1, 1, 1];
+                end
+            end
+        end
+
         % 2. Find exact slice sIdx on the aligned X grid
         xg = xGrid{hitIdx};
         yt = yTopGrid{hitIdx};
@@ -442,14 +490,9 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
 
         % Draw a glowing spine along the exact centerline if the ribbon is thin
         ySpanAx = diff(axHdl.YLim);
-        if ribThick(hitIdx) < 0.025 * ySpanAx
-            set(spineHdl, ...
-                'XData',   xg, ...
-                'YData',   ym, ...
-                'Color',   cBorder, ...
-                'Visible', 'on');
-        else
-            spineHdl.Visible = 'off';
+        % If ribbon is visible but thin, boost its alpha to 1.0 (no separate spine line!)
+        if ribThick(hitIdx) < 0.025 * diff(axHdl.YLim)
+            SK.LinkHdl(hitIdx).FaceAlpha = 1.0;
         end
 
         % 3. Build Narrative + Anchor status text
@@ -528,12 +571,18 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
                     SK.LinkHdl(idx).FaceAlpha = origAlpha(idx);
                 end
             end
+            for b = 1:nBlocks
+                if isgraphics(blkLblHdl(b))
+                    blkLblHdl(b).FontWeight = origLblWeight{b};
+                    blkLblHdl(b).FontSize   = origLblSize(b);
+                    blkLblHdl(b).Color      = origLblColor{b};
+                end
+            end
         end
         activeIdx         = 0;
         hoverBox.Visible  = 'off';
         leaderHdl.Visible = 'off';
         dotHdl.Visible    = 'off';
-        spineHdl.Visible  = 'off';
     end
 end
 
@@ -542,7 +591,7 @@ end
 %  ========================================================================
 function [boxX, boxY, boxAnchorAxesX, boxAnchorAxesY] = ...
     computeFullSpanBoxAndCenterPin(axHdl, xPin, yBotLoc, yTopLoc, xg, yBotVec, yTopVec, ...
-    boxW, boxH, lblBBox, ~, ~)
+    boxW, boxH, lblBBox, sBlk, tBlk)
 
 oldUnits = axHdl.Units;
 axHdl.Units = 'normalized';
@@ -561,28 +610,36 @@ figX     = toFigX(xPin);
 figXRibL = toFigX(xg(1));
 figXRibR = toFigX(xg(end));
 figYPin  = toFigY(0.5 * (yBotLoc + yTopLoc));
+figYTop  = toFigY(yTopLoc);
+figYBot  = toFigY(yBotLoc);
 
 minX = 0.02;  maxX = 0.96;
 minY = 0.125; maxY = 0.935;
-gapY = 0.018;
+gapY = 0.020;
 
-% Convert ALL rendered text label Extents into normalized figure rectangles [x1, x2, y1, y2]
-nLbls   = size(lblBBox, 1);
-figLbls = zeros(nLbls, 4);
-for i = 1:nLbls
-    figLbls(i, :) = [toFigX(lblBBox(i,1)), toFigX(lblBBox(i,2)), ...
-        toFigY(lblBBox(i,3)), toFigY(lblBBox(i,4))];
+% Convert ALL block right-hand label zones into normalized figure rectangles [x1, x2, y1, y2]
+nB      = size(lblBBox, 1);
+figLbls = nan(nB, 4);
+for b = 1:nB
+    if ~isnan(lblBBox(b, 1))
+        figLbls(b, :) = [toFigX(lblBBox(b,1)), toFigX(lblBBox(b,2)), ...
+            toFigY(lblBBox(b,3)), toFigY(lblBBox(b,4))];
+    end
 end
 
-% Build a rich set of candidate horizontal X positions (from left of Source bar to right of Target bar)
+% Candidate X positions:
+%   - Centered on xPin, biased left/right
+%   - Strictly to the LEFT of Source bar (figXRibL - boxW - 0.018): zero overlap with
+%     either the active ribbon OR the Source block's right-hand label!
+%   - Strictly to the LEFT of Target bar (figXRibR - boxW - 0.015): protects Target label!
+%   - Strictly to the RIGHT of Target bar (for Gate 1 ribbons)
 candX = unique(min(max([ ...
     figX - 0.50 * boxW, ...
     figX - 0.75 * boxW, ...
     figX - 0.25 * boxW, ...
-    figXRibL - boxW - 0.015, ...
+    figXRibL - boxW - 0.018, ...
     figXRibR - boxW - 0.015, ...
-    figXRibR + 0.015, ...
-    linspace(max(minX, figX - boxW - 0.12), min(maxX - boxW, figX + 0.12), 7) ...
+    figXRibR + 0.018 ...
     ], minX), maxX - boxW));
 
 bestScore = inf;
@@ -594,63 +651,76 @@ for c = 1:numel(candX)
     xAx1 = toAxX(cx);
     xAx2 = toAxX(cx + boxW);
 
-    inSpan = (xg >= xAx1 - 0.015) & (xg <= xAx2 + 0.015);
-    if any(inSpan)
-        rHigh = toFigY(max(yTopVec(inSpan)));
-        rLow  = toFigY(min(yBotVec(inSpan)));
+    % Active ribbon's vertical span inside this candidate box's horizontal footprint [cx, cx+boxW]
+    fullSpan = (xg >= xAx1) & (xg <= xAx2);
+    if any(fullSpan)
+        rHigh = toFigY(max(yTopVec(fullSpan)));
+        rLow  = toFigY(min(yBotVec(fullSpan)));
     else
-        rHigh = toFigY(yTopLoc);
-        rLow  = toFigY(yBotLoc);
+        rHigh = figYTop;
+        rLow  = figYBot;
     end
 
-    % Candidate Y positions: directly above/below the ribbon in this X window,
-    % plus fine vertical steps above and below so it can slip cleanly between labels!
-    candY = [ ...
+    % Candidate Y positions:
+    %   - Above/below the ribbon's span in [cx, cx+boxW]
+    %   - Above/below/centered on the local pin (figYPin), which works cleanly
+    %     when the box is shifted to the left of a steep rising ribbon like 13->20!
+    candY = unique([ ...
         rHigh + gapY, ...
         rLow  - gapY - boxH, ...
-        linspace(minY, maxY - boxH, 11) ...
-        ];
+        figYTop + gapY, ...
+        figYBot - gapY - boxH, ...
+        figYPin - 0.50 * boxH, ...
+        figYPin + 0.015, ...
+        figYPin - boxH - 0.015 ...
+        ]);
 
     for s = 1:numel(candY)
         cy = candY(s);
 
         oobPen = 0;
         if cy < minY
-            oobPen = 10000 * (minY - cy);
+            oobPen = 8000 * (minY - cy);
             cy = minY;
         elseif cy + boxH > maxY
-            oobPen = 10000 * ((cy + boxH) - maxY);
+            oobPen = 8000 * ((cy + boxH) - maxY);
             cy = maxY - boxH;
         end
 
-        % 1. HARD VETO if the box overlaps ANY slice of the active ribbon
+        % 1. Strictly penalize overlapping any slice of the active ribbon inside [cx, cx+boxW]
         ribPen = 0;
-        if any(inSpan)
-            idxSpan = find(inSpan);
+        if any(fullSpan)
+            idxSpan = find(fullSpan);
             for ii = idxSpan(:)'
-                sTop = toFigY(yTopVec(ii)) + 0.006;
-                sBot = toFigY(yBotVec(ii)) - 0.006;
+                sTop = toFigY(yTopVec(ii)) + 0.005;
+                sBot = toFigY(yBotVec(ii)) - 0.005;
                 ovSlice = max(0, min(cy + boxH, sTop) - max(cy, sBot));
                 if ovSlice > 0
-                    ribPen = ribPen + 1e6 + 1e7 * ovSlice;
+                    ribPen = ribPen + 500 + 80000 * ovSlice;
                 end
             end
         end
 
-        % 2. Heavy penalty against overlapping ANY text label on the chart (Node 10, 17, 23, etc.)
+        % 2. Penalize overlapping ANY block's right-hand label (extra weight on sBlk & tBlk)
         lblPen = 0;
-        for L = 1:nLbls
-            ox = max(0, min(cx + boxW, figLbls(L, 2)) - max(cx, figLbls(L, 1)));
-            oy = max(0, min(cy + boxH, figLbls(L, 4)) - max(cy, figLbls(L, 3)));
-            if ox > 0 && oy > 0
-                lblPen = lblPen + 80000 * (ox * oy) + 250;
+        for b = 1:nB
+            if ~isnan(figLbls(b, 1))
+                ox = max(0, min(cx + boxW, figLbls(b, 2)) - max(cx, figLbls(b, 1)));
+                oy = max(0, min(cy + boxH, figLbls(b, 4)) - max(cy, figLbls(b, 3)));
+                if ox > 0 && oy > 0
+                    if b == sBlk || b == tBlk
+                        lblPen = lblPen + 200 + 80000 * (ox * oy);
+                    else
+                        lblPen = lblPen + 80 + 35000 * (ox * oy);
+                    end
+                end
             end
         end
 
-        % 3. Keep the nearest edge of the box close to the anchor pin (figX, figYPin)
+        % 3. Strong tether to (figX, figYPin) so the box stays right next to the anchor dot!
         nearX   = min(max(figX,    cx), cx + boxW);
         nearY   = min(max(figYPin, cy), cy + boxH);
-        distPen = 18.0 * hypot(nearX - figX, nearY - figYPin);
+        distPen = 450.0 * hypot(nearX - figX, nearY - figYPin);
 
         totalScore = ribPen + lblPen + oobPen + distPen;
         if totalScore < bestScore
@@ -661,7 +731,6 @@ for c = 1:numel(candX)
     end
 end
 
-% Connect leader line to the point on the box border closest to (figX, figYPin)
 figBoxAttachX  = min(max(figX,    boxX), boxX + boxW);
 figBoxAttachY  = min(max(figYPin, boxY), boxY + boxH);
 boxAnchorAxesX = toAxX(figBoxAttachX);
@@ -671,12 +740,11 @@ end
 %% ========================================================================
 %  ALIGN TOP & BOTTOM SURFACE RAILS TO IDENTICAL X GRID FOR TRUE CENTERLINE
 %  ========================================================================
-function [xg, yt, yb, ym, px, py, cProfile] = getTrueAlignedRibbonRails(hP)
-% Because SSankey rotates the ribbon normal along steep curves, XData(1,c)
-% and XData(2,c) have different X coordinates at column index c!
-% Resampling both rails onto a shared monotonic X grid [xLeft .. xRight]
-% ensures yt(c) and yb(c) are evaluated at the EXACT same X coordinate xg(c),
-% so ym(c) = 0.5*(yt(c) + yb(c)) is the true vertical center of the ribbon!
+function [xc, yt, yb, yc, px, py, cProfile] = getTrueAlignedRibbonRails(hP)
+% Uses SSankey's native 2xN normal cross-sections directly (NO interp1!):
+% At every column c = 1..N, (X(1,c), Y(1,c)) and (X(2,c), Y(2,c)) are the two
+% opposite edges of slice c, so their midpoint (xc(c), yc(c)) is ALWAYS dead-center
+% inside the ribbon!
 
 X  = double(hP.XData);
 Y  = double(hP.YData);
@@ -686,52 +754,35 @@ if size(X, 1) == 2 && size(X, 2) > 1
     x1 = X(1, :);  y1 = Y(1, :);
     x2 = X(2, :);  y2 = Y(2, :);
     nPts = size(X, 2);
-    cProfile = repmat([0.25, 0.50, 0.65], nPts, 1);
-    if ndims(CD) == 3 && size(CD, 2) == nPts && size(CD, 3) == 3
-        cProfile = squeeze(mean(CD, 1, 'omitnan'));
-    end
 elseif size(X, 2) == 2 && size(X, 1) > 1
     x1 = X(:, 1)'; y1 = Y(:, 1)';
     x2 = X(:, 2)'; y2 = Y(:, 2)';
     nPts = size(X, 1);
-    cProfile = repmat([0.25, 0.50, 0.65], nPts, 1);
-    if ndims(CD) == 3 && size(CD, 1) == nPts && size(CD, 3) == 3
-        cProfile = squeeze(mean(CD, 2, 'omitnan'));
-    end
 else
     xv = X(:)';    yv = Y(:)';
     nHalf = floor(numel(xv) / 2);
     x1 = xv(1:nHalf);             y1 = yv(1:nHalf);
     x2 = fliplr(xv(nHalf+1:end)); y2 = fliplr(yv(nHalf+1:end));
     nPts = nHalf;
-    cProfile = repmat([0.25, 0.50, 0.65], nPts, 1);
 end
 
-% Keep exact closed polygon for inpolygon hit-testing
+cProfile = repmat([0.25, 0.50, 0.65], nPts, 1);
+if ndims(CD) == 3 && size(CD, 3) == 3
+    if size(CD, 2) == nPts
+        cProfile = squeeze(mean(CD, 1, 'omitnan'));
+    elseif size(CD, 1) == nPts
+        cProfile = squeeze(mean(CD, 2, 'omitnan'));
+    end
+end
+
 px = [x1, fliplr(x2), x1(1)]';
 py = [y1, fliplr(y2), y1(1)]';
 
-% Resample both rails onto a shared X grid xg WITHOUT extrapolation overshoot
-xL = min([x1(:); x2(:)]);
-xR = max([x1(:); x2(:)]);
-xg = linspace(xL, xR, nPts);
-
-[u1, ia1] = unique(x1, 'stable');
-[u2, ia2] = unique(x2, 'stable');
-if numel(u1) >= 2 && numel(u2) >= 2
-    % Clamp query points to [min(u), max(u)] so interp1 NEVER extrapolates!
-    q1 = min(max(xg, min(u1)), max(u1));
-    q2 = min(max(xg, min(u2)), max(u2));
-    y1_interp = interp1(u1, y1(ia1), q1, 'linear');
-    y2_interp = interp1(u2, y2(ia2), q2, 'linear');
-else
-    y1_interp = y1;
-    y2_interp = y2;
-end
-
-yt = max(y1_interp, y2_interp);
-yb = min(y1_interp, y2_interp);
-ym = 0.5 * (yt + yb);
+% Exact cross-section center and top/bottom envelope at slice c = 1..nPts
+xc = 0.5 * (x1 + x2);
+yc = 0.5 * (y1 + y2);
+yt = max(y1, y2);
+yb = min(y1, y2);
 end
 
 function blkIdx = matchRibbonEndToBlock(xEnd, yBotEnd, yTopEnd, blkBBox, side)

@@ -643,7 +643,7 @@ S6_Widths = sum(S4_Totals) * (CR_Col_Dollars  / max(1e-8, sum(CR_Col_Dollars)));
 % Build 3x6 Flow_S4_to_S5 so that:
 %   (1) Row sums equal S4_Totals(1:3) -> ribbons leaving Gate 4 fill 100% of Nodes 12, 13, 14!
 %   (2) Column sums equal S5_Widths(1:6) -> ribbons arriving at Gate 5 fill 100% of Nodes 15..20!
-Flow_S4_to_S5 = max(Age30_Fiscal, 1e-4 * mean(Age30_Fiscal(:)));
+Flow_S4_to_S5 = max(Age30_Fiscal, 0);
 % Keep structural zero where Thriving (Row 3) has zero Exit-3 Stunting Lost Tax (Col 5):
 Flow_S4_to_S5(3, 5) = 0;
 for iter_ras = 1:15
@@ -781,11 +781,22 @@ Nodes_S6 = {sprintf('21. Exits 1,2,4: Ongoing Burden\n($%.1fk/yr)',   CR_Col_Dol
     sprintf('25. Exit 3: Career Lost Tax\n($%.1fk/yr foregone)', CR_Col_Dollars(5)), ...
     sprintf('26. Perm. Abroad Tax Loss\n($%.1fk/yr in Abroad)',  CR_Col_Dollars(6))};
 
+% Prune sub-threshold phantom ribbons (< $0.10k/yr) and redistribute pro-rata
+% while preserving exact block heights at every Gate!
+minFiscalRibbon_k = 0.10; % NZD $0.10k/yr ($100/yr) minimum visible ribbon
+Flow_S1_to_S2_4N = pruneAndBalanceFlowMatrix(Flow_S1_to_S2_4N, minFiscalRibbon_k);
+Flow_S2_to_S3 = pruneAndBalanceFlowMatrix(Flow_S2_to_S3, minFiscalRibbon_k);
+Flow_S3_to_S4 = pruneAndBalanceFlowMatrix(Flow_S3_to_S4, minFiscalRibbon_k);
+Flow_S4_to_S5 = pruneAndBalanceFlowMatrix(Flow_S4_to_S5, minFiscalRibbon_k);
+Flow_S5_to_S6 = pruneAndBalanceFlowMatrix(Flow_S5_to_S6, minFiscalRibbon_k);
+
+% Assemble links cell array (only non-zero surviving ribbons)
 links = {};
+
 row_k = 0;
 for i = 1:3
     for j = 1:4
-        if Flow_S1_to_S2_4N(i, j) > 1e-4
+        if Flow_S1_to_S2_4N(i, j) > 0
             row_k = row_k + 1;
             links(row_k, :) = {Nodes_S1{i}, Nodes_S2{j}, Flow_S1_to_S2_4N(i, j)};
         end
@@ -793,7 +804,7 @@ for i = 1:3
 end
 for i = 1:4
     for j = 1:4
-        if Flow_S2_to_S3_4N(i, j) > 1e-4
+        if Flow_S2_to_S3_4N(i, j) > 0
             row_k = row_k + 1;
             links(row_k, :) = {Nodes_S2{i}, Nodes_S3{j}, Flow_S2_to_S3_4N(i, j)};
         end
@@ -801,7 +812,7 @@ for i = 1:4
 end
 for i = 1:4
     for j = 1:3
-        if Flow_S3_to_S4_4N(i, j) > 1e-4
+        if Flow_S3_to_S4_4N(i, j) > 0
             row_k = row_k + 1;
             links(row_k, :) = {Nodes_S3{i}, Nodes_S4{j}, Flow_S3_to_S4_4N(i, j)};
         end
@@ -809,7 +820,7 @@ for i = 1:4
 end
 for i = 1:3
     for j = 1:6
-        if Flow_S4_to_S5(i, j) > 1e-4
+        if Flow_S4_to_S5(i, j) > 0
             row_k = row_k + 1;
             links(row_k, :) = {Nodes_S4{i}, Nodes_S5{j}, Flow_S4_to_S5(i, j)};
         end
@@ -817,7 +828,7 @@ for i = 1:3
 end
 for i = 1:6
     for j = 1:6
-        if Flow_S5_to_S6(i, j) > 1e-4
+        if Flow_S5_to_S6(i, j) > 0
             row_k = row_k + 1;
             links(row_k, :) = {Nodes_S5{i}, Nodes_S6{j}, Flow_S5_to_S6(i, j)};
         end
