@@ -785,8 +785,8 @@ Nodes_S6 = {sprintf('21. Exits 1,2,4: Ongoing Burden\n($%.1fk/yr)',   CR_Col_Dol
 % while preserving exact block heights at every Gate!
 minFiscalRibbon_k = 0.10; % NZD $0.10k/yr ($100/yr) minimum visible ribbon
 Flow_S1_to_S2_4N = pruneAndBalanceFlowMatrix(Flow_S1_to_S2_4N, minFiscalRibbon_k);
-Flow_S2_to_S3 = pruneAndBalanceFlowMatrix(Flow_S2_to_S3, minFiscalRibbon_k);
-Flow_S3_to_S4 = pruneAndBalanceFlowMatrix(Flow_S3_to_S4, minFiscalRibbon_k);
+Flow_S2_to_S3_4N = pruneAndBalanceFlowMatrix(Flow_S2_to_S3_4N, minFiscalRibbon_k);
+Flow_S3_to_S4_4N = pruneAndBalanceFlowMatrix(Flow_S3_to_S4_4N, minFiscalRibbon_k);
 Flow_S4_to_S5 = pruneAndBalanceFlowMatrix(Flow_S4_to_S5, minFiscalRibbon_k);
 Flow_S5_to_S6 = pruneAndBalanceFlowMatrix(Flow_S5_to_S6, minFiscalRibbon_k);
 

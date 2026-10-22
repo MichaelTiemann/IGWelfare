@@ -47,22 +47,27 @@ delete(findall(axHdl, 'Tag', 'SSankeyHighlightRails'));
 delete(findall(axHdl, 'Tag', 'SSankeyGradHighlight'));
 delete(findall(axHdl, 'Tag', 'SSankeyRibbonOutline'));
 
-allObjs = findall(axHdl);
+% Make all objects inside the figure click-transparent so clicks pass
+% cleanly to figHdl.WindowButtonDownFcn without DataTip interference
+allObjs = findall(figHdl);
 for m = 1:numel(allObjs)
-    if isprop(allObjs(m), 'ButtonDownFcn'), allObjs(m).ButtonDownFcn = ''; end
-    if isprop(allObjs(m), 'PickableParts') && allObjs(m) ~= axHdl
-        allObjs(m).PickableParts = 'none';
-    end
-    if isprop(allObjs(m), 'HitTest') && allObjs(m) ~= axHdl
-        allObjs(m).HitTest = 'off';
-    end
-    try
-        if isprop(allObjs(m), 'DataTipTemplate') && ~isempty(allObjs(m).DataTipTemplate)
-            allObjs(m).DataTipTemplate.DataTipRows = [];
+    obj = allObjs(m);
+    if obj ~= figHdl && obj ~= axHdl
+        try if isprop(obj, 'ButtonDownFcn'), obj.ButtonDownFcn = ''; end; catch, end
+        try if isprop(obj, 'PickableParts'), obj.PickableParts = 'none'; end; catch, end
+        try if isprop(obj, 'HitTest'),       obj.HitTest       = 'off';  end; catch, end
+        try
+            if isprop(obj, 'DataTipTemplate') && ~isempty(obj.DataTipTemplate)
+                obj.DataTipTemplate.DataTipRows = [];
+            end
+        catch
         end
-    catch
     end
 end
+% CRITICAL: Because axis(ax, 'off') sets axHdl.Visible = 'off', PickableParts
+% MUST be 'all' (not 'visible'), otherwise MATLAB ignores clicks on the axes!
+axHdl.HitTest       = 'on';
+axHdl.PickableParts = 'all';
 
 % 3. Cache BlockHdl bounding boxes, exact Gate Column (1..6), and Block Y-midpoints
 nBlocks = numel(SK.BlockHdl);
@@ -244,12 +249,23 @@ set(figHdl, 'WindowKeyPressFcn',     @onKeyPress);
         nukeAllDataTips(figHdl, axHdl);
         if ~isgraphics(axHdl), return; end
 
-        cp = axHdl.CurrentPoint;
-        mx = cp(1, 1);
-        my = cp(1, 2);
+        % Convert figHdl.CurrentPoint directly into axes data coordinates (mx, my)!
+        % (Because axis(ax,'off') sets axHdl.Visible='off', axHdl.CurrentPoint can
+        % freeze in dead-zones, whereas figHdl.CurrentPoint updates on 100% of clicks!)
+        oldFigU = figHdl.Units;
+        oldAxU  = axHdl.Units;
+        figHdl.Units = 'normalized';
+        axHdl.Units  = 'normalized';
+        fpt   = figHdl.CurrentPoint; % [figX, figY] in [0..1]
+        axPos = axHdl.Position;      % [axL, axB, axW, axH] in [0..1]
+        figHdl.Units = oldFigU;
+        axHdl.Units  = oldAxU;
 
         xl = axHdl.XLim;
         yl = axHdl.YLim;
+        mx = xl(1) + ((fpt(1) - axPos(1)) / axPos(3)) * diff(xl);
+        my = yl(1) + ((fpt(2) - axPos(2)) / axPos(4)) * diff(yl);
+
         if mx < xl(1) || mx > xl(2) || my < yl(1) || my > yl(2)
             clearSelection();
             return;

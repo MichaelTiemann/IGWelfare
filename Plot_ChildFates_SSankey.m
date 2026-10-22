@@ -88,7 +88,7 @@ for r_loop = 1:length(Target_Regions)
 
         % 2. If Interactive_Hover_Mode is enabled, wire up hover callbacks & keep figure open!
         if Interactive_Hover_Mode && strcmpi(Target_Region, 'National')
-            attachSankeyHoverNarratives(axP, SK_p, links_p, fiscalNarrativeMap, 'NZD $%.2fk/yr per cohort birth');
+            attachSankeyHoverNarratives(axP, SK_p, links_p, fatesNarrativeMap, '%.1f%% of cohort');
         else
             close(figP);
         end
