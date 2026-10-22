@@ -37,7 +37,7 @@
 * **The 2050 Sovereign Debt-Targeting & Public Reinvestment Protocol:** Tracking cohort fiscal flows from birth to retirement (anchored to **NZD 95,000/yr** reference household earnings and NZ Treasury CBAx unit costs) proves that under the status quo, a birth cohort runs a net fiscal deficit of **-NZD 5.3k/yr at Age 30** and **-NZD 2.4k/yr through retirement** due to acute remediation outlays (state care, hospitalizations, justice) and overseas brain drain[cite: 12]. Under the High-Opportunity Reform, the cohort swings to a net fiscal surplus of **+NZD 10.5k/yr at Age 30** and **+NZD 13.7k/yr through retirement**[cite: 12]. To guarantee fiscal discipline, 100% of the net reform tax surplus is governed by a statutory **50/50 Split Protocol**[cite: 12]:
   1. **50% Sovereign Debt Reduction Sinking Fund:** Dedicated exclusively to paying down Crown net debt toward the 2050 net-debt-to-GDP target, generating compounding annual debt-service interest savings[cite: 12].
   2. **50% Public Reinvestment Pool:** Ring-fenced for productivity-enhancing capital infrastructure, core healthcare capacity, and the NZ Superannuation Fund dividend buffer[cite: 12].
-* **New Zealand Actuarial Standards Can't Be More Clear:** The status quo is our most expensive and riskiest options
+* **New Zealand Actuarial Standards Can't Be More Clear:** The status quo is our most expensive and riskiest option
 
 ---
 
