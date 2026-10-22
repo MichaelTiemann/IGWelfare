@@ -73,6 +73,8 @@ for r_loop = 1:length(Target_Regions)
         % 2. If Interactive_Hover_Mode is enabled, wire up hover callbacks & keep figure open!
         if Interactive_Hover_Mode && strcmpi(Target_Region, 'National')
             attachSankeyHoverNarratives(axP, SK_p, links_p, fiscalNarrativeMap, 'NZD $%.2fk/yr per cohort birth');
+            html_fname = fullfile(OutputDir, sprintf('Interactive_ChildFiscal_%s_%s.html', p_code, Target_Region));
+            exportSankeyToHTML(axP, SK_p, links_p, fiscalNarrativeMap, 'NZD $%.2fk/yr per cohort birth', html_fname);
         else
             close(figP);
         end

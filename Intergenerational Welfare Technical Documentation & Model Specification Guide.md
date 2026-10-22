@@ -223,6 +223,65 @@ $$\Omega_{\mathrm{reform}} = \underbrace{0.50 \, \Omega_{\mathrm{reform}}}_{\tex
 | **Fiscal Ledger & 2050 Protocol Anchors** | | | |
 | Household income scale & OT Care cost | $\bar{Y}_{HH}, c_{\mathrm{OT}}$ | $\mathrm{NZD\ } 95\mathrm{k/yr}, \approx \mathrm{NZD\ } 180\mathrm{k/care\text{-}yr}$ | NZ Treasury CBAx, Oranga Tamariki & Barnardos Table 2 anchors[cite: 20, 29] |
 
+## 7.5 Post-Hoc Transition Integrals & Actuarial Continuation Valuation Operators (`Plot_CumulativeTransitionPayoffs.m` & `Plot_ActuarialContinuationValuation.m`)
+
+### 7.5.1 State-Space Invariance & Continuous-Time Trapezoidal Integration Over $\mu_{k,t}$ and $\Gamma_{k,t}$
+To evaluate cumulative public investment, avoided acute fiscal burdens, and macroeconomic output expansion across the $T_{\mathrm{trans}}$-period transition path ($t = 1, \dots, T_{\mathrm{trans}}$ with step length $\Delta t \in \lbrace 5, 3, 2 \rbrace$ years spanning $T_{\mathrm{trans}} \Delta t = 60$ years) without expanding the household state vector $\left(a, h, \theta_c, z, j\right)$, `Plot_CumulativeTransitionPayoffs.m` defines four linear integral operators over the solved transition sequence of regional household distributions $\mu_{k,t}\left(a, h, z, j\right)$ (`StationaryDist_t`) and infinite-horizon firm equity distributions $\Gamma_{k,t}\left(a_f, z_f\right)$:
+
+1. **Regional Annual Public Investment Outlay ($\mathcal{I}_{k,t}$):**
+   Integrates incremental early-childhood wraparound provision $\Delta G_{\mathrm{ECE},k}$, private-enrichment matching subsidies $s_{\mathrm{sub}} i_{c,t}$, and the universal Youth Capital Grant $E$ weighted by the dynamic regional household share $\omega_{HH,k,t}$ (`PTypeWeights_path`):
+
+$$\mathcal{I}_{k,t} = \Lambda_{\mathrm{NZD}} \, \omega_{HH,k,t} \left\lbrack \int_{j \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}} \left(\Delta G_{\mathrm{ECE},k} + s_{\mathrm{sub}} i_{c,t}\left(a, h, z, j; k\right)\right) d\mu_{k,t} + \int_{j=1} E \, d\mu_{1,k,t} \right\rbrack$$
+
+2. **Regional Annual Direct Cost Avoidance ($\mathcal{S}_{k,t}$):**
+   Integrates the reduction in acute public remediation outlays anchored to the Caspi et al. (2016) Dunedin Study concentration of hospital nights, Oranga Tamariki state care, and justice costs in the stunted human-capital tier $h \in \lbrace h_1, h_2 \rbrace$ across working-age brackets $j \in \lbrace 1, \dots, J_r - 1 \rbrace$, plus means-tested transfer reductions $\Delta T_{k,t}$:
+
+$$\mathcal{B}_{k,t}^{\mathrm{acute}} = \Lambda_{\mathrm{NZD}} \, \omega_{HH,k,t} \left\lbrack c_{\mathrm{acute,Dunedin}} \sum_{j=1}^{J_r - 1} \sum_{i_h=1}^{2} \int_{a,z} d\mu_{k,t}\left(a, h_{i_h}, z, j\right) + \int T_{k,t}\left(a, h, z, j\right) d\mu_{k,t} \right\rbrack$$
+
+$$\mathcal{S}_{k,t} = \max\left(0, \, \mathcal{B}_{k,\mathrm{SS0}}^{\mathrm{acute}} - \mathcal{B}_{k,t}^{\mathrm{acute}}\right)$$
+
+3. **Regional Macroeconomic Output Gain ($\Delta Y_{k,t}$) & Endogenous Tax Base Expansion ($\Delta \mathcal{T}_{k,t}$):**
+   Combines the immediate Guvenen et al. (2023) firm capital reallocation channel ($\tau_k \to \tau_a$, shifting $\Gamma_{k,t}\left(a_f, z_f\right)$ toward $z_{h,k}$ and raising sectoral TFP $Z_{k,t}$) with the delayed Cunha-Heckman / Daruich (2018) human-capital cohort wave ($\mu_{1,k,t}$ entering $j = 1$ at Year 20 and parenting the second generation at Years 35–40):
+
+$$\Delta Y_{k,t} = \max\left(0, \, \Lambda_{\mathrm{NZD}} \left\lbrack Z_{k,t}\left(\Gamma_{k,t}\right) K_{k,t}^{\alpha_k} H_{k,t}^{1 - \alpha_k} - Y_{k,\mathrm{SS0}} \right\rbrack \right)$$
+
+$$\Delta \mathcal{T}_{k,t} = \max\left(0, \, \Lambda_{\mathrm{NZD}} \left(\mathrm{TaxRev}_{k,t} - \mathrm{TaxRev}_{k,\mathrm{SS0}}\right)\right), \qquad \mathcal{F}_{k,t}^{\mathrm{tot}} = \mathcal{S}_{k,t} + \Delta \mathcal{T}_{k,t}$$
+
+4. **Trapezoidal Cumulative Cash-Basis Integrals ($\mathcal{C}_{k,\mathrm{realized}}^{\left(L\right)}\left(t_m\right)$):**
+   For any discrete transition grid point $t_m = m \Delta t$ ($m = 1, \dots, T_{\mathrm{trans}}$) and flow lens $L \in \lbrace \mathrm{Inv}, \mathrm{Sav}, \mathrm{Fiscal}, \mathrm{Econ} \rbrace$ with annual flow series $f_{k,n}^{\left(L\right)}$:
+
+$$\mathcal{C}_{k,\mathrm{realized}}^{\left(L\right)}\left(t_m\right) = \sum_{n=1}^{m} \frac{\Delta t}{2} \left(f_{k,n-1}^{\left(L\right)} + f_{k,n}^{\left(L\right)}\right)$$
+
+### 7.5.2 The Actuarial Continuation Valuation Operator ($\mathcal{V}_{k,t_0}^{\left(L\right)}\left(H\right)$)
+Because childhood human capital investments occur during parental stages $j \in \mathcal{J}_{c,1} \cup \mathcal{J}_{c,2}$ whereas adult earnings $w_{k,t} z h \ell$ and avoided acute adult remediation costs $c_{\mathrm{acute,Dunedin}}$ materialize across $j = 1, \dots, J_r - 1$ (15 to 45 years later), cash-basis integrals $\mathcal{C}_{k,\mathrm{realized}}^{\left(L\right)}\left(t_0\right)$ exhibit an incubation lag prior to $t_0 = 20$.
+
+To align transition reporting with New Zealand's Accident Compensation Corporation (ACC) forward liability valuation and New Zealand Treasury Circular 2024/15 Cost-Benefit Analysis (CBAx) incidence accounting, `Plot_ActuarialContinuationValuation.m` projects each region's annual flows onto a 1-year piecewise cubic Hermite interpolating polynomial (`pchip`) grid $y \in \lbrace 0, 1, \dots, 100 \rbrace$ and evaluates the rolling $H$-year ($H = 25$) **Conditional Continuation Valuation Operator**:
+
+$$\mathcal{V}_{k,t_0}^{\left(L\right)}\left(H; r_{\mathrm{disc}}, \mathcal{A}\right) = \mathcal{C}_{k,\mathrm{realized}}^{\left(L\right)}\left(t_0; \mathcal{A}\right) + \left(1 - \alpha_{\mathrm{attr}}\right) \Phi_{\mathrm{pipe}}\left(t_0\right) \sum_{s=1}^{H} D\left(s; r_{\mathrm{disc}}, g_{\mathrm{cost}}\right) \psi_{k,\mathrm{persist}}\left(s\right) f_{k, t_0 + s}^{\left(L\right)}\left(\mathcal{A}\right)$$
+
+where the structural discounting, region-specific Markov persistence (`psi_base_map`), and pipeline maturity components are defined by:
+
+$$D\left(s; r_{\mathrm{disc}}, g_{\mathrm{cost}}\right) = \left(\frac{1 + g_{\mathrm{cost}}}{1 + r_{\mathrm{disc}}}\right)^{s}, \qquad \psi_{k,\mathrm{persist}}\left(s\right) = \left(\psi_{k,0}\right)^{s}, \qquad \Phi_{\mathrm{pipe}}\left(t_0\right) = \min\left\lbrace 1, \, \frac{t_0}{15} \right\rbrace$$
+
+$$\left\lbrack \psi_{\mathrm{Rural},0}, \, \psi_{\mathrm{Small},0}, \, \psi_{\mathrm{Large},0}, \, \psi_{\mathrm{Auckland},0} \right\rbrack = \left\lbrack 0.984, \, 0.984, \, 0.986, \, 0.987 \right\rbrack$$
+
+* **Dual Treasury Discount Rates (`r_2pct`, `r_8pct`):** Evaluated simultaneously at $r_{\mathrm{disc}} = 0.020$ (Circular 2024/15 central social rate) and $r_{\mathrm{disc}} = 0.080$ (mandatory commercial sensitivity rate) with real productivity/cost-base growth $g_{\mathrm{cost}} = 0.015$.
+* **Macro Attribution Haircut (`alpha_att`):** $\alpha_{\mathrm{attr}} = 0.30$ enforces a 30% conservative deduction on all unrealized forward continuation claims.
+* **Calibration Anchor Switch ($\mathcal{A} \in \lbrace \mathrm{Dunedin\_22}, \mathrm{MetroSqueeze\_GUiNZ} \rbrace$):** Toggles the spatial allocation weights $\left(\mathbf{w}_{\mathrm{sav}}\left(\mathcal{A}\right), \mathbf{w}_{\mathrm{gdp}}\left(\mathcal{A}\right)\right)$ and national remediation/human-capital multipliers between the baseline Dunedin Study stunted share (~17.9%–22.0%) and the Growing Up in New Zealand metropolitan rental-squeeze sensitivity (~36.6% stunted share concentrated in high-$Q_k$ `Auckland` and `Large`):
+
+$$\left(\mathbf{w}_{\mathrm{sav}}\left(\mathcal{A}\right), \, \mathbf{w}_{\mathrm{gdp}}\left(\mathcal{A}\right)\right) = \begin{cases}
+\left(\lbrack 0.143, \, 0.225, \, 0.260, \, 0.372\rbrack, \; \lbrack 0.130, \, 0.207, \, 0.269, \, 0.394\rbrack\right) & \text{if } \mathcal{A} = \mathrm{Dunedin\_22} \\
+\left(\lbrack 0.115, \, 0.195, \, 0.275, \, 0.415\rbrack, \; \lbrack 0.120, \, 0.195, \, 0.275, \, 0.410\rbrack\right) & \text{if } \mathcal{A} = \mathrm{MetroSqueeze\_GUiNZ}
+\end{cases}$$
+
+### 7.5.3 Codebase Manifest & Canonical Output Filenames (Files 15 & 16)
+* **`Plot_CumulativeTransitionPayoffs.m`:** Integrates `Annual_Inv`, `Annual_Savings`, `Annual_dGDP`, `Annual_dTax`, and `Annual_TotFisc` across all 4 regions (`Rural`, `Small`, `Large`, `Auckland`) and the `National` aggregate from `StationaryDist_t`, `Policy_t`, and `PricePath`, returning trapezoidal cumulative cash integrals `Cum_Inv`, `Cum_Savings`, `Cum_dGDP`, and `Cum_TotFisc`.
+* **`Plot_ActuarialContinuationValuation.m`:** Computes and plots the 25-year rolling Conditional Continuation Valuation $\mathcal{V}_{k,t_0}^{\left(L\right)}\left(H\right)$ at the 2.0% and 8.0% NZ Treasury discount rates, supporting `RegionOption` (`'National'`, `'Rural'`, `'Small'`, `'Large'`, `'Auckland'`, `'All4'`) and `Params.Calibration_Anchor` (`'Dunedin_22'` vs. `'MetroSqueeze_GUiNZ'`), and exporting the sibling figure suite into `Output_NZ_4Region_Intergen/`:
+  * `Fig_Actuarial_2Panel_<Region>_<Anchor>.png` (2-panel combined Fiscal + Economy-Wide GDP view)
+  * `Fig_Actuarial_Fiscal_<Region>_<Anchor>.png` (Panel A sibling: Crown Fiscal Ledger)
+  * `Fig_Actuarial_WideGDP_<Region>_<Anchor>.png` (Panel B sibling: Economy-Wide GDP Lens)
+  * `Fig_Actuarial_Dashboard_All4_<Anchor>.png` and `Fig_Actuarial_Year5Audit_All4_<Anchor>.png` (`'All4'` spatial comparison suite)
+
 ---
 
 ## 8. Methodological Appendices (Appendices A.1–A.4)

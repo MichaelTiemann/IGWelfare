@@ -89,6 +89,8 @@ for r_loop = 1:length(Target_Regions)
         % 2. If Interactive_Hover_Mode is enabled, wire up hover callbacks & keep figure open!
         if Interactive_Hover_Mode && strcmpi(Target_Region, 'National')
             attachSankeyHoverNarratives(axP, SK_p, links_p, fatesNarrativeMap, '%.1f%% of cohort');
+            html_fname = fullfile(OutputDir, sprintf('Interactive_ChildFates_%s_%s.html', p_code, Target_Region));
+            exportSankeyToHTML(axP, SK_p, links_p, fatesNarrativeMap, '%.1f%% of cohort', html_fname);
         else
             close(figP);
         end

@@ -9,7 +9,7 @@
 %   Step 4: 5D -> 4D Compact Projection across 4 Regions
 %   Step 5: Optional SMM Calibration & In-Kind Imputation Check (Calibrate_NZ_Moments.m)
 %   Step 6: 4-Region Welfare Decomposition (WelfareDecomposition_4Region.m)
-%   Step 7: 60-Year Non-Linear Transition Path (TransPath_4Region_Master.m)
+%   Step 7: 60-Year Non-Linear Transition Path (TransPath_4Region_Master.m) and other trans path plots (Opportunity Index, Actuarial Continuation Valuation)
 
 clear; clc; close all;
 suite_timer = tic;
@@ -230,6 +230,12 @@ end
 %   - Real PPP wage premium in Australia/OECD at age 30: +32% (dlog_w_Abr = +0.278)
 %   - Positive skill selection + deeper metro job ladders -> ~81% conditional upward attainment.
 run('Plot_PreEmployment_OpportunityIndex.m');
+
+% 1. Standard Dunedin 22% Anchor (Default):
+Out_Dunedin = Plot_ActuarialContinuationValuation([], struct('Calibration_Anchor', 'Dunedin_22'), 'Auckland');
+
+% 2. Growing Up in NZ / Metro Rental Squeeze Sensitivity (~36.6% Metro Stunted):
+Out_GUiNZ   = Plot_ActuarialContinuationValuation([], struct('Calibration_Anchor', 'MetroSqueeze_GUiNZ'), 'Auckland');
 
 %% 8. EXPORT ALL 4-REGION + ABROAD TABLES (.CSV), FIGURES (.PNG/.FIG), AND WORKSPACE (.MAT)
 if Export_Tables_Figures

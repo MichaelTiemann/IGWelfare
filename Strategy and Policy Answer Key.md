@@ -169,3 +169,44 @@ $$h^{\prime} = \left(1 - \delta_{hc}\left(\Delta t\right)\right) h + \left(\frac
 $$\Omega_{\mathrm{fiscal}} = \left(\mathrm{Tax}_{\mathrm{PAYE}} + \mathrm{Tax}_{\mathrm{GST}} + \mathrm{Tax}_{\mathrm{Cap}} + \mathrm{Tax}_{\mathrm{Estate}}\right) - \left(\mathrm{Cost}_{\mathrm{Exits\,1,2,4}} + \mathrm{Cost}_{\mathrm{Infra,Health,Super}}\right)$$
 
 $$\Omega_{\mathrm{surplus}}^{\mathrm{SS1}} = \max\left(0, \Omega_{\mathrm{fiscal}}^{\mathrm{SS1}}\right) = 0.50 \, \Omega_{\mathrm{surplus}}^{\mathrm{SS1}} \;\left(\mathrm{DebtSinking}\right) + 0.50 \, \Omega_{\mathrm{surplus}}^{\mathrm{SS1}} \;\left(\mathrm{ReinvestPool}\right)$$
+
+## 5. Actuarial Continuation Valuation & Cumulative Transition Payoffs Answer Key (`Plot_CumulativeTransitionPayoffs.m` & `Plot_ActuarialContinuationValuation.m`)
+
+### 5.1 Cross-Reference of Terminology, NZ Treasury CBAx Rules, and Sibling Figure Naming Convention
+* **Three Equivalent Institutional Names for the Forward Discounting Operator:**
+  1. *Public Finance & NZ Treasury CBAx:* **Incidence-Based Lifetime Valuation** (or *Present Value of Future Incidence*), which books the discounted lifetime cost avoidance in the year a cohort verifiably exits hardship rather than waiting for annual cash flows to fall due over 40 years.
+  2. *Crown Balance Sheet Accounting (ACC / Social Investment Agency):* **Actuarial Liability Release** (or *Forward Liability Valuation*), directly analogous to the Accident Compensation Corporation (ACC) Outstanding Claims Liability (NZD 63.6B on the Crown balance sheet).
+  3. *Dynamic Programming / OLG Markov Transition Suite:* **Conditional Continuation Valuation** $\mathcal{V}_{k,t_0}^{\left(L\right)}\left(H\right)$, evaluated on the solved sequence of transition distributions `StationaryDist_t` ($\mu_{k,t}\left(a, h, z, j\right)$) and firm equity distributions $\Gamma_{k,t}\left(a_f, z_f\right)$.
+* **Canonical Sibling Figure Naming Convention (`Output_NZ_4Region_Intergen/`):**
+  * **Combined 2-Panel Figure (Panel A Fiscal + Panel B Economy-Wide GDP):** `Fig_Actuarial_2Panel_<Region>_<Anchor>.png` (e.g., `Fig_Actuarial_2Panel_National_Dunedin_22.png`, `Fig_Actuarial_2Panel_Auckland_Dunedin_22.png`).
+  * **Panel A Sibling (Crown Fiscal Ledger):** `Fig_Actuarial_Fiscal_<Region>_<Anchor>.png` (e.g., `Fig_Actuarial_Fiscal_National_Dunedin_22.png`, `Fig_Actuarial_Fiscal_Auckland_Dunedin_22.png`).
+  * **Panel B Sibling (Economy-Wide GDP Lens):** `Fig_Actuarial_WideGDP_<Region>_<Anchor>.png` (e.g., `Fig_Actuarial_WideGDP_National_Dunedin_22.png`, `Fig_Actuarial_WideGDP_Auckland_Dunedin_22.png`).
+  * **All-4-Region Spatial Dashboard & Year 5 Audit Bar Chart:** `Fig_Actuarial_Dashboard_All4_<Anchor>.png` and `Fig_Actuarial_Year5Audit_All4_<Anchor>.png`.
+* **Strict Lens Separation & NZ Treasury Acceptance Boundary (Counting Rule #1):**
+  * *Accepted & Mandated by NZ Treasury:* Evaluating long-tail social investments over a rolling forward window ($H = 25$ years) using the **NZ Treasury Circular 2024/15** non-commercial social discount rate of **2.0% real** (`r_2pct = 0.020`) printed side-by-side with the mandatory **8.0% real** commercial sensitivity rate (`r_8pct = 0.080`), net of a conservative **30% attribution haircut** (`alpha_att = 0.30`, within the 20%–40% Barnardos/Danalytics macro attribution band) and real cost-base growth `g_cost = 0.015`.
+  * *Rejected if Violated (How Our Code Enforces Compliance):* NZ Treasury rejects blending fiscal cost avoidance (avoided benefit transfers and acute Oranga Tamariki/Corrections/hospital outlays) with GDP gains, and rejects booking unappropriated 25-year savings into the 4-year cash Operating Balance (OBEGAL). Consequently, `Plot_ActuarialContinuationValuation.m` computes two strictly separate continuation operators—$\mathcal{V}_{k,t_0}^{\left(\mathrm{Fiscal}\right)}\left(H\right)$ in `Fig_Actuarial_Fiscal_<Region>_<Anchor>.png` and $\mathcal{V}_{k,t_0}^{\left(\mathrm{Econ}\right)}\left(H\right)$ in `Fig_Actuarial_WideGDP_<Region>_<Anchor>.png`—and never adds avoided fiscal costs to GDP.
+
+### 5.2 Exact Conditional Continuation Equations Justifying the Findings
+At transition period $t_0$ (in years, $t_0 \in \lbrace 5, 10, \dots, 60 \rbrace$), let $\mathcal{C}_{k,\mathrm{realized}}^{\left(L\right)}\left(t_0\right)$ denote the cumulative realized cash flow integrated via the trapezoidal rule (`cumtrapz`) from Year 0 to Year $t_0$ under lens $L \in \lbrace \mathrm{Sav}, \mathrm{Fiscal}, \mathrm{Econ} \rbrace$. Annual flows are interpolated onto a 1-year grid ($y \in \lbrace 0, 1, \dots, 100 \rbrace$) via piecewise cubic Hermite interpolation (`pchip`). The **Actuarial Continuation Valuation** $\mathcal{V}_{k,t_0}^{\left(L\right)}\left(H\right)$ over a rolling $H = 25$-year recognition window for region $k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace$ is:
+
+$$\mathcal{V}_{k, t_0}^{\left(L\right)}\left(H; r_{\mathrm{disc}}\right) = \mathcal{C}_{k, \mathrm{realized}}^{\left(L\right)}\left(t_0\right) + \left(1 - \alpha_{\mathrm{attr}}\right) \Phi_{\mathrm{pipe}}\left(t_0\right) \sum_{s=1}^{H} \left(\frac{1 + g_{\mathrm{cost}}}{1 + r_{\mathrm{disc}}}\right)^{s} \psi_{k,\mathrm{persist}}^{s} \cdot \mathbb{E}_{t_0}\left\lbrack \Delta \mathrm{Flow}_{k, t_0 + s}^{\left(L\right)} \;\middle|\; \mu_{k, t_0} \right\rbrack$$
+
+and the national aggregate is obtained by exact spatial summation across the four regional ledgers:
+
+$$\mathcal{V}_{\mathrm{National}, t_0}^{\left(L\right)}\left(H; r_{\mathrm{disc}}\right) = \sum_{k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace} \mathcal{V}_{k, t_0}^{\left(L\right)}\left(H; r_{\mathrm{disc}}\right)$$
+
+where:
+* $\Phi_{\mathrm{pipe}}\left(t_0\right) = \min\left(1.0, \frac{t_0}{15.0}\right)$ (`pipeline_maturity`) measures the fraction of the 0–15 childhood age pipeline that has completed or entered active treatment by year $t_0$ (reaching 1.0 at Year 15 when all childhood brackets are active).
+* $\psi_{k,\mathrm{persist}}^{s}$ (`psi_persist`) is the region-specific Stage-2-to-Adulthood Markov skill-retention conditioning factor (`psi_base_map`: Rural = 0.984, Small = 0.984, Large = 0.986, Auckland = 0.987), reflecting the probability under $\Pi_h\left(h^{\prime} \vert h, i_{c,2}\right)$ and dynamic complementarity ($\varphi_2 = -0.95$) that a child exiting hardship at age 5 remains out of the stunted tier $h_1\text{--}h_2$ at age $5 + s$.
+
+### 5.3 Year 5 Parliamentary Audit ($t = 1$) & Year 60 Convergence by Region (`Dunedin_22` vs. `MetroSqueeze_GUiNZ`)
+*Source Script: `Plot_ActuarialContinuationValuation.m` (`Out_Dunedin` console verification table; figures saved as `Fig_Actuarial_2Panel_<Region>_Dunedin_22.png`, `Fig_Actuarial_Fiscal_<Region>_Dunedin_22.png`, and `Fig_Actuarial_WideGDP_<Region>_Dunedin_22.png`)*
+
+| Region (`RegionOption`) | Base Pop / Firm Share (`PTypeWeights`) | Yr 5 Cum. Outlay (`Cum_Inv`) | Yr 5 Cash Fiscal (`Cum_TotFisc`) | Yr 5 Booked Cost Avoidance Alone (2.0% Real) | Yr 5 Booked Total Fiscal Return (2.0% / 8.0%) | Yr 5 Realized Cash GDP (`Cum_dGDP`) | Yr 5 Booked 25-Yr GDP Prize (2.0% / 8.0%) | Yr 60 Realized / Booked GDP Prize (2.0% Real) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`Rural`** | 16.0% / 15.0% | NZD 1.42B | NZD 0.65B | **NZD 1.48B** | **NZD 4.61B** / NZD 2.39B | NZD 1.99B | **NZD 10.87B** / NZD 6.13B | NZD 196.4B / **NZD 270.3B** |
+| **`Small`** | 24.0% / 23.0% | NZD 2.16B | NZD 1.04B | **NZD 2.33B** | **NZD 7.32B** / NZD 3.79B | NZD 3.17B | **NZD 17.31B** / NZD 9.76B | NZD 312.7B / **NZD 430.3B** |
+| **`Large`** | 25.9% / 26.9% | NZD 2.38B | NZD 1.33B | **NZD 2.79B** | **NZD 9.43B** / NZD 4.88B | NZD 4.12B | **NZD 23.05B** / NZD 12.96B | NZD 406.4B / **NZD 568.7B** |
+| **`Auckland`** | 34.1% / 35.1% | NZD 3.24B | NZD 1.95B | **NZD 4.06B** | **NZD 13.90B** / NZD 7.18B | **NZD 6.03B** | **NZD 34.17B** / **NZD 19.20B** | **NZD 595.2B** / **NZD 826.5B** |
+| **`National` (`Dunedin_22`)** | **100.0%** | **NZD 9.19B** | **NZD 4.98B** | **NZD 10.66B** | **NZD 35.25B / NZD 18.25B** | **NZD 15.30B** | **NZD 85.40B / NZD 48.05B** | **NZD 1,510.7B / NZD 2,095.8B** |
+| **`National` (`MetroSqueeze_GUiNZ`)** | **100.0%** | **NZD 9.19B** | **NZD 5.14B** | **NZD 13.69B** | **NZD 39.14B / NZD 20.21B** | **NZD 15.30B** | **NZD 89.95B / NZD 50.18B** | **NZD 1,634.5B / NZD 2,270.3B** |
