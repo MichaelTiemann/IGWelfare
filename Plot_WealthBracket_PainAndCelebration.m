@@ -283,4 +283,21 @@ Out.T17_Table = T17;
 Out.f_2panel  = f_2p;
 Out.f_panelA  = f_panA;
 Out.f_panelB  = f_panB;
+
+% Optional: Stitch the 7-Segment Gain Graph (Left) directly adjacent to the 12-Tier Pain/Gain Graph (Right)
+f_7fac = fullfile(OutputDir, sprintf('Fig1_SS2_7Factor_AreaTrajectory_National_%s.png', AnchorTag));
+if exist(f_7fac, 'file') && exist(f_panA, 'file')
+    imgL = imread(f_7fac);
+    imgR = imread(f_panA);
+    h_target = max(size(imgL, 1), size(imgR, 1));
+    imgL_rs  = imresize(imgL, [h_target, round(size(imgL, 2) * h_target / size(imgL, 1))]);
+    imgR_rs  = imresize(imgR, [h_target, round(size(imgR, 2) * h_target / size(imgR, 1))]);
+    pad_mid  = uint8(255 * ones(h_target, 30, 3));
+    img_adj  = [imgL_rs, pad_mid, imgR_rs];
+    f_adj    = fullfile(OutputDir, sprintf('Fig_Sec6_Adjacent_7FactorGain_And_12TierPain_%s.png', AnchorTag));
+    imwrite(img_adj, f_adj);
+    Out.f_adjacent = f_adj;
+    fprintf('  -> Saved Adjacent 7-Factor Gain + 12-Tier Pain/Gain composite: %s\n', f_adj);
+end
+
 end

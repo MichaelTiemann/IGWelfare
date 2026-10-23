@@ -220,6 +220,60 @@ Relieving metropolitan housing stress and providing universal First-2000-Days wr
 
 ---
 
+### 6. Welfare Pains and Gains Across Rich and Poor: Seven-Engine Attribution & What Remains to Celebrate
+
+A generational reform of this scale raises two fundamental questions for voters, business leaders, and Cabinet Ministers: **First, which specific economic engines generate the long-run +20.49% national welfare gain (+14.28% in Rural, +13.66% in Small towns, +22.17% in Large regional cities, and +26.03% in Auckland)? Second, how are the fiscal pains and economic gains distributed from low-income renters to ultra-high-net-worth dynasties—and how much do the wealthy have left to celebrate after redistribution?**
+
+![7-Factor Stacked Attribution of SS2 Welfare Gains](./Output_NZ_4Region_Intergen/Fig1_SS2_7Factor_StackedAttribution_National_Dunedin_22.png)
+
+![Redistribution Pain vs Gain and Retained Wealth Across 12 Earn + Own Tiers](./Output_NZ_4Region_Intergen/Fig_WealthBrackets_2Panel_PainAndCelebration_Dunedin_22.png)
+
+#### A. The Seven Structural Engines Driving the Phase 2 (`SS2`) Welfare Prize
+Decomposing the 60-year welfare trajectory into seven additive channels demonstrates that our reform succeeds because it pairs **human-capital formation** with **fiscal debt-sinking and capital reallocation**:
+1. **Human Capital & Dynastic Skill Productivity (32.9% of National Gain | +6.74% CE Nationally, +8.58% in Auckland):** The single largest engine. Universal First-2000-Days wraparound provision and **Montessori / *Tuakana–Teina*** and **Graeme Dingle Foundation** adolescent mentoring compress adult skill stunting from 22.0% down to 1.5%, while second-generation dynastic compounding ensures future children are raised by higher-skilled, higher-earning *whānau*.
+2. **Brain-Drain Reversal, Workforce Retention, & Social Cohesion (15.9% of National Gain | +3.25% CE Nationally, +4.45% in Auckland):** Retaining skilled 20-to-35-year-olds in Large regional cities and Auckland expands the productive workforce, reduces costly replacement-migration turnover, and lifts the national Social Cohesion Index from 100.0 to 126.0—delivering a direct relational well-being dividend to parents and grandparents whose children remain in Aotearoa.
+3. **Demographic Strength, Fertility Recovery, & The NZ Super Tax Dividend (14.4% of National Gain | +2.95% CE Nationally, +3.45% in Auckland):** Relieving metropolitan childcare and housing costs lifts the national Total Fertility Rate from 1.66 to 1.98 and lowers the 65+ old-age dependency ratio from 51.4% to 42.5%—keeping universal New Zealand Superannuation at Age 65 while funding the **-3.5 percentage-point working-age PAYE tax cut (from 22.0% down to 18.5%)**.
+4. **Reduced Deadweight Losses & Acute Exits 1, 2, 4 (11.5% of National Gain | +2.35% CE Nationally):** Slashing avoidable entries into Oranga Tamariki state care, acute hospitalisations, youth and adult justice, and long-term benefit dependency eliminates fiscal deadweight loss and directly relieves early-childhood hardship corners.
+5. **Housing Affordability & Youth Capital Seeding (10.2% of National Gain | +2.10% CE Nationally, +3.05% in Auckland):** Cooling metropolitan house price-to-income ratios (-7.5% in `SS1` to -10.5% in `SS2` in Auckland) lowers rental user costs and pairs with the universal age-20 Youth Capital Grant to accelerate young-family homeownership and business formation.
+6. **Productive Firm Capital Reallocation & The 2050 Infrastructure Multiplier (9.0% of National Gain | +1.85% CE Nationally, +2.40% in Auckland):** Shifting taxation off productive enterprise and onto passive land hoarding reallocates capital to high-talent operating firms, while the 2050 Protocol's 50% Public Infrastructure Reinvestment Pool (at a 1.65x multiplier) lifts real regional wages by +6.8% to +9.6%.
+7. **Sovereign Debt-Sinking & Reduced Debt-Service Interest (6.1% of National Gain | +1.25% CE Nationally, +1.55% in Auckland):** Directly answers debt and deficit hawks. Starting at Cash Breakeven (Year 18.8) and accelerating at Year 25 under the 2050 Protocol, locking 50% of all net fiscal surpluses into the **Sovereign Debt Reduction Sinking Fund** retires **NZD 17.82B (`SS1`) to NZD 21.85B (`SS2`) of public debt per cohort wave**, permanently slashing deadweight Crown bond interest outlays, eliminating sovereign crowding-out in domestic credit markets (lowering equilibrium interest rates by 60 bps), and stemming the outflow of national income to foreign bondholders.
+
+| Seven-Factor Attribution Engine (`SS0 -> SS1 -> SS2`) | `Rural` (`+14.28%`) | `Small` (`+13.66%`) | `Large` (`+22.17%`) | `Auckland` (`+26.03%`) | `National` (`+20.49%`) | Share of National `SS2` Prize |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **1. Reduced Deadweight Losses & Acute Exits 1, 2, 4** | +2.25% | +2.15% | +2.35% | +2.55% | **+2.35%** | **11.5%** |
+| **2. Housing Affordability & Youth Capital Seeding** | +1.15% | +1.35% | +2.30% | +3.05% | **+2.10%** | **10.2%** |
+| **3. Productive Firm Capital Reallocation & 2050 Infra** | +1.20% | +1.30% | +2.00% | +2.40% | **+1.85%** | **9.0%** |
+| **4. Sovereign Debt-Sinking & Reduced Debt-Service Interest** | **+0.90%** | **+0.95%** | **+1.35%** | **+1.55%** | **+1.25%** | **6.1%** |
+| **5. Brain-Drain Reversal, Workforce Retention & Cohesion** | +1.95% | +1.85% | +3.80% | +4.45% | **+3.25%** | **15.9%** |
+| **6. Demographic Strength, Fertility & NZ Super PAYE Dividend** | +2.45% | +2.40% | +3.15% | +3.45% | **+2.95%** | **14.4%** |
+| **7. Human Capital & Dynastic Skill Productivity** | +4.38% | +3.66% | +7.22% | +8.58% | **+6.74%** | **32.9%** |
+| **Total Phase 2 (`SS2`) Long-Run Welfare Gain (CE %)** | **+14.28%** | **+13.66%** | **+22.17%** | **+26.03%** | **+20.49%** | **100.0%** |
+
+#### B. Pains and Gains Across 12 Earn + Own Tiers (From Low-Income Renters to Ultra-High-Net-Worth Dynasties)
+Placing the 12-tier **Earn + Own (`Annual Income + Net Worth`)** incidence chart alongside the 7-factor attribution graph—anchored to Max Rashbrooke's New Zealand wealth distribution benchmarks, the Statistics New Zealand Household Net Worth Survey (median household net worth = NZD 529k; mean = NZD 1.041M), and the Inland Revenue High-Wealth Individuals Research Project (median net worth = NZD 50M+)—reveals three decisive political-economy truths:
+1. **Broad-Based Gains Across the First 95% of New Zealand Households (`50k + 0` through `500k + 3M`):** Every household tier from a low-income renter (`NZD 50k + 0`, gaining **+24.6% CE**) through the median New Zealand household (`NZD 200k + 500k`, gaining **+12.8% CE**), the mean professional household (`NZD 300k + 1M`, gaining **+8.4% CE**), and the Top 5% threshold (`NZD 500k + 3M`, gaining **+2.1% CE**) comes out **net ahead**. For working homeowners, higher real wages, 60 bps lower mortgage rates, the **-3.5 percentage-point PAYE tax cut**, universal early childhood and Montessori / *Tuakana–Teina* support, and retained children and grandchildren far outweigh modest property price cooling.
+2. **The "Use-It-Or-Lose-It" Split Inside the Top 1% (`600k + 5M` to `10M + 250M`):** At the top of the wealth distribution, the reform distinguishes sharply between **passive land hoarding** and **productive enterprise**:
+   * **Passive Residential Land Hoarders (Red Dashed Trajectory):** Wealthy households whose portfolios are concentrated in leveraged, low-yield rental land experience the full bite of metropolitan house price cooling (-7.5% to -10.5%), the 1.5% annual land/wealth levy, and the estate tax—resulting in a net welfare reduction of **-2.1% (at `500k + 3M`) to -11.8% (at `10M + 250M`)**.
+   * **Active Growth Entrepreneurs & Venture Investors (Green Solid Trajectory):** Founders and growth investors who deploy capital into productive operating businesses benefit from lower corporate and PAYE tax drag, cheaper expansion credit, and a vastly deeper pool of thriving domestic talent (rising from 23.2% to 61.0%+ of the cohort)—remaining **net welfare positive all the way up to `NZD 5M + 100M` (+5.8% at `500k + 3M`, +3.4% at `750k + 10M`, +1.1% at `2M + 50M`, and +0.2% at `5M + 100M`)** and virtually flat (**-0.6%**) at `NZD 10M + 250M`!
+3. **How Much the Wealthy Have Left to Celebrate After Redistribution:** Even on a portfolio-average basis, a Top 1% household (`NZD 750k + 10M`) retains **94.2% of its compounded net worth (NZD 9.42M; or 98.4% for active entrepreneurs)** and **NZD 562k/yr in after-tax income**. At the apex of the distribution (`NZD 10M + 250M`), an ultra-high-net-worth dynasty contributes roughly NZD 26.5M over the transition to help eradicate child stunting and reverse the youth brain drain, yet still celebrates **NZD 223.5M in retained net worth (89.4% of baseline; or NZD 236.3M / 94.5% for active business families)** and **NZD 7.05M/yr in after-tax cash flow**—while enjoying a safer, more prosperous, high-cohesion New Zealand where their own children and grandchildren choose to stay and build their lives.
+
+| Tier # & Archetype (`Annual Income + Net Worth`) | NZ Wealth Percentile *(Rashbrooke / Stats NZ / IRD)* | Total Tax & Cooling Pain (`House` + `Wealth` + `Estate`) | Total Economic & Cohesion Gain (`ECE/Rent` + `PAYE` + `Firm` + `Cohesion`) | Net Welfare Impact: **Tier Average** (CE %) | **Active Entrepreneur** vs. **Passive Land Hoarder** | Post-Reform Fortune Left to Celebrate (`Net Worth` & `% Retained`) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **1. `50k + 0`** | P10 (`Q1` Hardship Renter) | 0.0% | +24.6% | **+24.6%** | **+24.6%** vs. **+24.6%** | **NZD 62k** *(Seeds deposit)* |
+| **2. `100k + 100k`** | P35 (`Q2` Young Saver) | -0.2% | +18.6% | **+18.4%** | **+18.4%** vs. **+18.4%** | **NZD 148k** *(148.0% of base)* |
+| **3. `200k + 500k`** | P50 *(Stats NZ Median NW = 529k)* | -1.4% | +14.2% | **+12.8%** | **+13.5%** vs. **+11.2%** | **NZD 545k** *(109.0% of base)* |
+| **4. `300k + 1M`** | P72 *(Stats NZ Mean NW = 1.04M)* | -2.7% | +11.1% | **+8.4%** | **+9.8%** vs. **+5.9%** | **NZD 1.04M** *(104.0% of base)* |
+| **5. `400k + 2M`** | P88 *(Top 12% Threshold)* | -4.7% | +9.3% | **+4.6%** | **+7.2%** vs. **+1.1%** | **NZD 1.98M** *(99.0% of base)* |
+| **6. `500k + 3M`** | P95 *(Rashbrooke Top 5%)* | -6.5% | +8.6% | **+2.1%** | **+5.8%** vs. **-2.1%** | **NZD 2.91M** *(97.0% of base)* |
+| **7. `600k + 5M`** | P98 *(Top 2% Threshold)* | -8.5% | +8.8% | **+0.3%** | **+4.6%** vs. **-4.5%** | **NZD 4.78M** *(95.6% of base)* |
+| **8. `750k + 10M`** | P99 *(Rashbrooke Top 1% Mean)* | -10.7% | +9.3% | **-1.4%** | **+3.4%** vs. **-6.8%** | **NZD 9.42M** *(94.2% of base)* |
+| **9. `1M + 20M`** | P99.7 *(Top 0.3% Threshold)* | -12.1% | +9.3% | **-2.8%** | **+2.2%** vs. **-8.4%** | **NZD 18.60M** *(93.0% of base)* |
+| **10. `2M + 50M`** | P99.9 *(IRD High-Wealth Median)* | -13.3% | +9.1% | **-4.2%** | **+1.1%** vs. **-9.8%** | **NZD 45.80M** *(91.6% of base)* |
+| **11. `5M + 100M`** | P99.97 *(IRD Family Enterprise)* | -14.4% | +8.9% | **-5.5%** | **+0.2%** vs. **-10.9%** | **NZD 90.50M** *(90.5% of base)* |
+| **12. `10M + 250M`** | P99.99 *(NBR Rich List / Ultra)* | -15.5% | +8.7% | **-6.8%** | **-0.6%** vs. **-11.8%** | **NZD 223.50M** *(89.4% of base)* |
+
+---
+
 ## Part V: The 2050 Sovereign Debt-Sinking Protocol & ACC-Style Actuarial Continuation Valuation
 
 ### 1. The 50/50 Dynamic Surplus Split: Retiring Crown Debt & Reinvesting in Infrastructure
