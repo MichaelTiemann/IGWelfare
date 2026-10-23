@@ -17,7 +17,6 @@
 
 %% 1. CONFIGURATION SWITCHES (N-PHASE COMPATIBLE: 1, 2, 3, OR MORE PANELS)
 Target_Regions     = {'National', 'Auckland', 'Large', 'Small', 'Rural', 'Urban'};
-Target_Regions     = {'National'};
 if ischar(Target_Regions) || isstring(Target_Regions), Target_Regions = cellstr(Target_Regions); end
 
 % Specify any 1, 2, 3, or N phases: e.g. {'SS0'}, {'SS0','SS1'}, or {'SS0','SS1','SS2'}
