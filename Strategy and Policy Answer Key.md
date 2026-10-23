@@ -1,6 +1,9 @@
 # Strategy and Policy Answer Key
 **Quantitative Companion & Technical Audit Reference for Document 1A (4-Region + Abroad Multiphase Edition)**
 
+**Author:** Michael Tiemann ([mdtiemann@gmail.com](mailto:mdtiemann@gmail.com))  
+**Date:** October 2026 | **Code & Replication Repository:** [github.com/MichaelTiemann/IGWelfare](https://github.com/MichaelTiemann/IGWelfare)
+
 ---
 
 ## 1. Purpose & Cross-Document Mapping
@@ -116,21 +119,23 @@ To provide an exhaustive accounting of the **+14.28% (`Rural`), +13.66% (`Small`
 
 | Attribution Engine (`Plot_SS2_7Factor_StackedAttribution.m`) | Primary Model Parameters & Literature Channel | `Rural` (`+14.28%`) | `Small` (`+13.66%`) | `Large` (`+22.17%`) | `Auckland` (`+26.03%`) | `National` (`+20.49%`) | Share of National `SS2` Prize |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **1. Reduced Deadweight Losses & Acute Exits 1, 2, 4** | Eliminating $i_c=0$ corners ($\bar{g}_{\mathrm{ECE}}$; Ferriere et al. 2025), `Transfer_Geo`, & slashing Dunedin $h_1\text{--}h_2$ care/hospital/justice burdens (Caspi et al. 2016) | +2.25% | +2.15% | +2.35% | +2.55% | **+2.35%** | **11.5%** |
-| **2. Housing Affordability & Youth Capital Seeding** | Cooling land overvaluation ($Q_{\mathrm{Akl}} -10.5\%$; Hirano & Toda 2025), lower renter user cost $r_{h,k}^{\mathrm{rent}}$ (Kiyotaki et al. 2024), & Youth Grant $E=0.080$ | +1.15% | +1.35% | +2.30% | +3.05% | **+2.10%** | **10.2%** |
-| **3. Productive Firm Capital Reallocation & 2050 Infra** | Guvenen et al. (2023) firm equity shift ($\Gamma_k \to z_{h,k}$ raising TFP $Z_k$) + 50% Public Infrastructure Reinvestment Pool ($\mu_{\mathrm{infra}} = 1.65$) | +1.20% | +1.30% | +2.00% | +2.40% | **+1.85%** | **9.0%** |
-| **4. Sovereign Debt-Sinking & Reduced Debt-Service Interest** | 50% Debt-Sinking Fund ($\Omega_{\mathrm{debt}}$ retiring NZD 17.82B–21.85B debt/wave), lower debt service $r_t d_t \downarrow$, & bond crowding-out relief ($\Delta r = -0.006$) | **+0.90%** | **+0.95%** | **+1.35%** | **+1.55%** | **+1.25%** | **6.1%** |
+| **1. Reduced Deadweight Losses & Acute Exits 1, 2, 4** | Eliminating $i_c=0$ corners ($\bar{g}_{\mathrm{ECE}}$; Ferriere et al. 2025)[cite: 1, 2], `Transfer_Geo`, & slashing Dunedin $h_1\text{--}h_2$ care/hospital/justice burdens (Caspi et al. 2016)[cite: 1, 2] | +2.25% | +2.15% | +2.35% | +2.55% | **+2.35%** | **11.5%** |
+| **2. Housing Affordability & Youth Capital Seeding** | Cooling land overvaluation ($Q_{\mathrm{Akl}} -10.5\%$; Hirano & Toda 2025), lower renter user cost $r_{h,k}^{\mathrm{rent}}$ (Kiyotaki et al. 2024)[cite: 1], & Youth Grant $E=0.080$ | +1.15% | +1.35% | +2.30% | +3.05% | **+2.10%** | **10.2%** |
+| **3. Productive Firm Capital Reallocation & 2050 Infra** | Guvenen et al. (2023) firm equity shift ($\Gamma_k \to z_{h,k}$ raising TFP $Z_k$) + 50% Public Infrastructure Reinvestment Pool ($\mu_{\mathrm{infra}} = 1.65$)[cite: 1, 2] | +1.20% | +1.30% | +2.00% | +2.40% | **+1.85%** | **9.0%** |
+| **4. Sovereign Debt-Sinking & Reduced Debt-Service Interest** | 50% Debt-Sinking Fund ($\Omega_{\mathrm{debt}}$ retiring NZD 17.82B–21.85B debt/wave), lower debt service $r_t d_t \downarrow$, & bond crowding-out relief ($\Delta r = -0.006$)[cite: 3] | **+0.90%** | **+0.95%** | **+1.35%** | **+1.55%** | **+1.25%** | **6.1%** |
 | **5. Brain-Drain Reversal, Workforce Retention & Cohesion** | $4 \times 5$ Gumbel retention of $h_5\text{--}h_7$ youth (`Nat_Emig`: 10.93% down to 7.60%), lower churn, & Social Cohesion $S_t: 100 \to 126$ in $u_{\mathrm{rel}}$ | +1.95% | +1.85% | +3.80% | +4.45% | **+3.25%** | **15.9%** |
 | **6. Demographic Strength, Fertility & NZ Super Dividend** | Cooperative bargaining TFR recovery ($1.66 \to 1.98$; Doepke et al. 2022) & `-3.32 pp` Super solvency dividend funding the `-3.5 pp` `SS2` PAYE cut | +2.45% | +2.40% | +3.15% | +3.45% | **+2.95%** | **14.4%** |
-| **7. Human Capital & Dynastic Skill Productivity** | Cunha-Heckman First 2000 Days ($\varphi_1=0.35, \varphi_2=-0.95$), Montessori / *Tuakana–Teina* & Graeme Dingle mentoring, & Daruich $\mu_1^{\mathrm{SS2}}$ shift | +4.38% | +3.66% | +7.22% | +8.58% | **+6.74%** | **32.9%** |
+| **7. Human Capital & Dynastic Skill Productivity** | Cunha-Heckman First 2000 Days ($\varphi_1=0.35, \varphi_2=-0.95$)[cite: 2, 6], Montessori / *Tuakana–Teina* & Graeme Dingle mentoring[cite: 2], & Daruich $\mu_1^{\mathrm{SS2}}$ shift | +4.38% | +3.66% | +7.22% | +8.58% | **+6.74%** | **32.9%** |
 | **Total Phase 2 (`SS2`) Long-Run Welfare Gain (CE %)** | **Row 6 of `T1` (`SS2_3_LongRun_GE_EndoIntergen`)** | **+14.28%** | **+13.66%** | **+22.17%** | **+26.03%** | **+20.49%** | **100.0%** |
 
 * **Literature Defense of Factor 4 (Sovereign Debt-Service Interest Relief):**
-  1. *Direct Crown Budget Relief ($r_t d_t \downarrow$):* Following Ferriere et al. (2025, Sec. 4.2 & 6.1), where government debt service $r_t d_t$ absorbs ~2.8%–3.1% of public outlays in the intertemporal budget constraint $\left(1 + r_t\right) d_t + G_t + T_t = d_{t+1} + \mathrm{Taxes}_t$, locking 50% of post-breakeven surpluses ($\Omega_{\mathrm{debt},g}$) into sovereign debt retirement saves **NZD 0.22k to NZD 0.35k/yr per worker** in deadweight bond interest.
-  2. *Domestic Bond-Market Crowding-In ($\Delta r = -60\text{ bps}$):* In the national asset market clearing condition $\sum_k \omega_{F,k} \int \left(k_k - a_f\right) d\Gamma_k + B_{\mathrm{gov}} = \sum_k \omega_{HH,k} \int a_{\mathrm{fin}} d\mu_k$, retiring $B_{\mathrm{gov}}$ reduces sovereign crowding-out of private capital, lowering equilibrium interest rates (`r_delta = -0.006`) and reducing SME credit and young-homeowner mortgage costs (Kiyotaki et al., 2024, Fig. 9).
+  1. *Direct Crown Budget Relief ($r_t d_t \downarrow$):* Following Ferriere et al. (2025, Sec. 4.2 & 6.1), where government debt service $r_t d_t$ absorbs ~2.8%–3.1% of public outlays in the intertemporal budget constraint $\left(1 + r_t\right) d_t + G_t + T_t = d_{t+1} + \mathrm{Taxes}_t$, locking 50% of post-breakeven surpluses ($\Omega_{\mathrm{debt},g}$) into sovereign debt retirement saves **NZD 0.22k to NZD 0.35k/yr per worker** in deadweight bond interest[cite: 2].
+  2. *Domestic Bond-Market Crowding-In ($\Delta r = -60\text{ bps}$):* In the national asset market clearing condition $\sum_k \omega_{F,k} \int \left(k_k - a_f\right) d\Gamma_k + B_{\mathrm{gov}} = \sum_k \omega_{HH,k} \int a_{\mathrm{fin}} d\mu_k$, retiring $B_{\mathrm{gov}}$ reduces sovereign crowding-out of private capital, lowering equilibrium interest rates (`r_delta = -0.006`) and reducing SME credit and young-homeowner mortgage costs (Kiyotaki et al., 2024, Fig. 9)[cite: 3].
   3. *Stemming External Debt-Service Leakage:* In a small open economy with net foreign debt obligations $B_t^{*} / R_t$ (Kiyotaki et al., 2024, Eq. 29), retiring public debt prevents domestic tax revenues from leaking abroad to foreign bondholders.
 
 ![7-Factor Stacked Attribution of SS2 Welfare Gains](./Output_NZ_4Region_Intergen/Fig1_SS2_7Factor_StackedAttribution_National_Dunedin_22.png)
+
+* **Empirical Calibration of Factor 5 — The Social Cohesion Index ($S_t: 100.0 \to 118.4 \to 126.0$ across `SS0 -> SS1 -> SS2`) & Transparency International's CPI ("Social Credit Rating"):** New Zealand's slide on Transparency International's Corruption Perceptions Index from **#1 globally (96/100 peak; 88/100 in 2021)** to a 30-year low of **81/100 (#4 equal in the February 2026 release, behind #1 Denmark at 89, #2 Finland at 88, and #3 Singapore at 84)** reflects the institutional and civic strain of rising child material hardship, high demographic churn (`Churn_Rate`), and untaxed property-wealth concentration (Office of the Auditor-General, *New Zealand's Integrity Inheritance*, 2026; TI-NZ *National Integrity System Gap Analysis*, June 2026). Compressing adult stunting to 1.5% and cutting youth brain drain from 10.93% to 7.60% restores New Zealand's social cohesion trajectory ($S_t = 126.0$) back alongside the Nordic and Singaporean integrity leaders.
 
 ---
 
