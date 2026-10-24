@@ -360,7 +360,7 @@ To resolve the unit disambiguation problem and reconcile model flows with the **
 ### 4.4 Tables 4, 5, & 6 (and 12A–12C): Lee & Seshadri (2019) Multi-Stage Counterfactuals
 *Source Files:* [`Table4_4Region_LeeSeshadri_IGE.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table4_4Region_LeeSeshadri_IGE.csv), [`Table5_4Region_LeeSeshadri_Output_Welfare.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table5_4Region_LeeSeshadri_Output_Welfare.csv), and [`Table6_4Region_LeeSeshadri_Table12_VarianceExplained.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table6_4Region_LeeSeshadri_Table12_VarianceExplained.csv) *(Figure: `FigE8_LeeSeshadri_4Region_Counterfactuals.png`)*
 
-<img src="./Output_NZ_4Region_Intergen/FigE8_LeeSeshadri_4Region_Counterfactuals.png" alt="Lee-Seshadri 4-Region Counterfactuals" width="92%" style="display: block; width: 92%; margin: 1.0rem auto; break-inside: avoid; page-break-inside: avoid;" />
+<img src="./Output_NZ_4Region_Intergen/FigE8_LeeSeshadri_4Region_Counterfactuals.png" alt="Lee-Seshadri 4-Region Counterfactuals" width="78%" style="display: block; width: 78%; margin: 1.0rem auto; break-inside: avoid; page-break-inside: avoid;" />
 
 | Counterfactual Regime | National Long-Run IGE | `Auckland` Long-Run IGE | Variance of LFE Explained at Age 20 (`Nat.` / `Auckland`) | Long-Run Output $`\Delta \bar{E}_{\mathrm{LR}}`$ (`Rural` / `Auckland`) | Long-Run Welfare `CE_LR` (`Rural` / `Auckland`) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -369,6 +369,8 @@ To resolve the unit disambiguation problem and reconcile model flows with the **
 | **`P1P2_Late_6to17`** *(Late School Only)* | `0.338` (-3.4%) | `0.488` | `62.8%` Nat. / `70.82%` Akl | `+0.81%` / `+0.96%` | `+0.31%` / `+0.24%` (Fails to fix stunting) |
 | **`BN_FrontLoad`** *(Budget-Neutral)* | `0.281` (-19.7%) | `0.485` | `55.4%` Nat. / `69.85%` (`Large`) | `+0.26%` (`Small`) | `+0.21%` (`Large`, zero net fiscal cost) |
 | **`P0_Plus_GrantE`** *(Full Package)* | **`0.218` (-37.7%)** | **`0.482`** | **44.8% Nat.** / `68.11%` (`Small`) | **`+7.08%` / `+5.08%`** | **`+12.7%` to `+15.8%` (Full GE)** |
+
+<br clear="all" />
 
 ---
 
@@ -380,10 +382,11 @@ To evaluate the political economy of `SS0 -> SS1 -> SS2` without arbitrary brack
 2. **Rashbrooke (*Wealth and New Zealand* / *Too Much Money* Wealth Percentile Tables):** Top 10% (`P90: 240k + 2.15M`), Top 5% (`P95: 310k + 3.10M`), Top 2% (`P98: 450k + 5.20M`), and Top 1% (`P99: 600k + 8.50M`).
 3. **Inland Revenue High-Wealth Individuals Research Project (*HWIRP* April 2023) & *NBR Rich List*:** IRD High-Wealth Median (`Tier 9, P99.9: 2.1M + 50M`, where baseline effective tax rates on economic income averaged just 8.9%) and the *NBR Rich List* Median (`Tier 10, P99.99: 6.5M + 140M`).
 
-<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelA_PainVsGain_Dunedin_22.png" alt="Redistribution Pain vs Gain Across 10 Survey-Anchored Tiers" width="49%" style="display: inline-block; width: 49%; vertical-align: top; break-inside: avoid; page-break-inside: avoid;" />
-<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelB_LeftToCelebrate_Dunedin_22.png" alt="Retained Wealth Across 10 Survey-Anchored Tiers" width="49%" style="display: inline-block; width: 49%; vertical-align: top; break-inside: avoid; page-break-inside: avoid;" />
+<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelA_PainVsGain_Dunedin_22.png" alt="Redistribution Pain vs Gain Across 10 Survey-Anchored Tiers" width="48%" style="display: inline-block; width: 48%; vertical-align: top; break-inside: avoid; page-break-inside: avoid;" />
 
 For each tier $`m \in \{1, \dots, 10\}`$, total Consumption-Equivalent welfare change ($`\Delta \mathrm{CE}_m`$) is decomposed into **3 Pain Channels** (`House` cooling $`\Delta Q_k`$, annual book-value `Wealth` levy $`\tau_a = 1.5\%`$ above the family-home exemption, and the `Estate` levy $`\tau_b`$) and **4 Gain Channels** (`ECE/Rent` relief + Youth Grant $`E`$, the **-3.5 pp `SS2` `PAYE` cut** + **-60 bps** credit relief, `Firm` productive return boost $`\Delta R_k(z_{h,k})`$, and the `Cohesion` / retained-family dividend $`\Delta u_{\mathrm{rel}}`$), reporting separate trajectories for **Active Growth Entrepreneurs** ($`z_f = z_{h,k}`$, 80% operating equity share) versus **Passive Residential Land Hoarders** ($`z_f = z_{\ell,k}`$, 85% passive property share):
+
+<br clear="all" />
 
 | Survey Benchmark & Description (`Table17_Survey10Tier_*`) | Empirical `Income + Net Worth` *(HES / Rashbrooke / IRD / NBR)* | Total Tax & Cooling Pain (`House` + `Wealth` + `Estate`) | Total Economic & Cohesion Gain (`ECE/Rent` + `PAYE` + `Firm` + `Cohesion`) | Net Welfare Impact: **Tier Average** (CE %) | **Active Entrepreneur** ($`z_{h,k}`$) vs. **Passive Land Hoarder** ($`z_{\ell,k}`$) | Post-Reform Fortune Left to Celebrate (`Net Worth` & `% Retained`) | Post-Reform After-Tax Cash Flow (`NZD / yr`) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -397,6 +400,12 @@ For each tier $`m \in \{1, \dots, 10\}`$, total Consumption-Equivalent welfare c
 | **8. Top 1% (`P99`)** | **`600k + 8.50M`** | -10.3% | +9.2% | **-1.1%** | **+3.6%** vs. **-6.2%** | **NZD 8.04M** *(94.6% of base; **98.5%** active)* | **NZD 455.0k/yr** |
 | **9. IRD High-Wealth Median** *(P99.9)* | **`2.1M + 50M`** | -13.2% | +9.1% | **-4.1%** | **+1.2%** vs. **-9.7%** | **NZD 45.85M** *(91.7% of base; **96.4%** active)* | **NZD 1.52M/yr** |
 | **10. NBR Rich List Median** *(P99.99)* | **`6.5M + 140M`** | -14.7% | +8.8% | **-5.9%** | **-0.1%** vs. **-11.2%** | **NZD 126.3M** *(90.2% of base; **NZD 133.4M / 95.3%** active)* | **NZD 4.62M/yr** |
+
+<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelB_LeftToCelebrate_Dunedin_22.png" alt="Retained Wealth Across 10 Survey-Anchored Tiers" width="48%" style="display: inline-block; width: 48%; vertical-align: top; break-inside: avoid; page-break-inside: avoid;" />
+
+We note that there is much to celebrate across virtually all wealth cohorts, and that those who do lose a little, lose much less than in a typical one-per-decade market haircut.  In a 60 year plan, there will typically be 6 such.
+
+<br clear="all" />
 
 ---
 
