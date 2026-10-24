@@ -55,6 +55,14 @@ When Aotearoa pairs **Phase 1 (`SS1`: Revenue-Neutral Incubation & Capital Reall
 | **Year 5 Audited Actuarial Return (at 2% Real)** | NZD 0B | **NZD 35.25B Fiscal / NZD 85.40B GDP** | **NZD 1,510.7B 60-Yr Cash GDP** | Achieves **3.84x fiscal breakeven by Year 5** (1.16x from direct cost avoidance alone) |
 | **Long-Run Household Welfare Gain (CE %)** | 0.00% | **+8.1% (*Rural*) to +15.4% (*Auckland*)** | **+14.3% (*Rural*) to +26.0% (*Auckland*)** | **+20.49% National welfare gain**; first **95% of households** and **active entrepreneurs up to NZD 100M** gain |
 
+```text
++-----------------------------------------------------------------------------------+
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
++-----------------------------------------------------------------------------------+
+```
+
+---
+
 ## 4. Historical Validation & Cautionary Tales: Building Prosperity We Can Keep
 
 To test the realism, rigor, and achievability of our framework, **Part VI of Document 1A** benchmarks every elasticity and transition milestone against **eleven real-world historical precedents and cautionary tales**:
