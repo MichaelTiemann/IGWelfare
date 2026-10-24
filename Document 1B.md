@@ -489,13 +489,7 @@ We note that there is much to celebrate across virtually all wealth cohorts, and
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
