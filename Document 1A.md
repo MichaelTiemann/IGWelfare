@@ -368,9 +368,8 @@ Retaining 3,550 young adults every year is not merely a labor-supply statistic. 
 <br clear="all" />
 </div>
 
-<div style="page-break-inside: avoid; break-inside: avoid;">
-
 ### 5. Cooperative Childcare Bargaining, Fertility Recovery, & Why Keeping NZ Super at Age 65 Beats Raising the Pension Age to 67 or 70
+
 <img src="./Output_NZ_4Region_Intergen/FigFert_TFR_National_Dunedin_22.png" alt="Fertility Recovery" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 Relieving metropolitan housing stress and providing universal First-2000-Days wraparound ECE transforms intra-household fertility bargaining and resolves New Zealand's retirement fiscal squeeze without cutting pension entitlements:
@@ -384,7 +383,6 @@ Relieving metropolitan housing stress and providing universal First-2000-Days wr
   3. *A Shrinking Tax Base Still Climbs:* Because raising the pension age does nothing to fix child stunting (22.0%), low fertility (1.66), or the 20–35 youth brain drain (10.9%), the required PAYE tax rate under **Age 67 still climbs to 26.85%**, and even under **Age 70 still climbs to 25.55%**. By expanding the skilled working tax base instead of cutting retirement dignity, **our Generational Plan keeps universal NZ Super at Age 65 and achieves a lower long-run tax rate (24.45%–24.90%) than raising the retirement age to 70!**
 
 <br clear="all" />
-</div>
 
 <div style="page-break-after: always; break-after: page;"></div>
 
