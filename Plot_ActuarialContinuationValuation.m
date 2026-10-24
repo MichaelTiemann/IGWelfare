@@ -121,7 +121,6 @@ end
 %  HELPER 1: CORE ACTUARIAL CONTINUATION ENGINE FOR ONE LEDGER
 %  ========================================================================
 function L = compute_single_ledger(CashStruct, years, H_window, alpha_att, g_cost, r_2pct, r_8pct, psi_ann)
-
 L = CashStruct;
 L.years = years;
 
@@ -129,7 +128,6 @@ L.years = years;
 dt_step  = years(2) - years(1);
 n_ext    = ceil(40 / dt_step);
 yr_ext   = [years, years(end) + (1:n_ext)*dt_step];
-
 ann_sav  = [CashStruct.Annual_Savings, repmat(CashStruct.Annual_Savings(end), 1, n_ext)];
 ann_fisc = [CashStruct.Annual_TotFisc, repmat(CashStruct.Annual_TotFisc(end), 1, n_ext)];
 ann_gdp  = [CashStruct.Annual_dGDP,    repmat(CashStruct.Annual_dGDP(end),    1, n_ext)];
@@ -156,7 +154,6 @@ for i = 2:N_pts
     y = years(i);
     idx_fwd = (y + 2) : (y + 1 + H_window);
     pipeline_maturity = min(1.0, y / 15.0); % Full childhood age pipeline active by Year 15
-
     L.Booked_Sav_2pct(i)  = CashStruct.Cum_Savings(i) + (1 - alpha_att) * sum(D_2pct .* psi_persist .* sav_fine(idx_fwd)  * pipeline_maturity);
     L.Booked_Sav_8pct(i)  = CashStruct.Cum_Savings(i) + (1 - alpha_att) * sum(D_8pct .* psi_persist .* sav_fine(idx_fwd)  * pipeline_maturity);
     L.Booked_Fisc_2pct(i) = CashStruct.Cum_TotFisc(i) + (1 - alpha_att) * sum(D_2pct .* psi_persist .* fisc_fine(idx_fwd) * pipeline_maturity);
@@ -164,11 +161,10 @@ for i = 2:N_pts
     L.Booked_GDP_2pct(i)  = CashStruct.Cum_dGDP(i)    + (1 - alpha_att) * sum(D_2pct .* psi_persist .* gdp_fine(idx_fwd)  * pipeline_maturity);
     L.Booked_GDP_8pct(i)  = CashStruct.Cum_dGDP(i)    + (1 - alpha_att) * sum(D_8pct .* psi_persist .* gdp_fine(idx_fwd)  * pipeline_maturity);
 end
-
 end
 
 %% ========================================================================
-%  HELPER 2: 2-PANEL PUBLICATION PLOTTER (NATIONAL OR SINGLE REGION)
+%  HELPER 2: 2-PANEL & STANDALONE SINGLE-PANEL PUBLICATION PLOTTER
 %  ========================================================================
 function plot_two_panel_ledger(L, TitleLabel, ShortTag, AnchorTag, OutputDir)
 if nargin < 4 || isempty(AnchorTag)
@@ -190,15 +186,15 @@ years = L.years;
 idx_y5 = find(years == 5, 1);
 if isempty(idx_y5), idx_y5 = 2; end
 
+% Wide 1860 x 720 canvas so each panel has a generous horizontal aspect ratio
 fig_2p = figure('Name', ['Actuarial Continuation Valuation: ', TitleLabel, ' (', AnchorTag, ')'], ...
-    'Color', 'w', 'Position', [80, 80, 1480, 620]);
+    'Color', 'w', 'Position', [40, 50, 1860, 720]);
 
 % --- PANEL A: CROWN FISCAL LEDGER ---
-ax1 = subplot(1, 2, 1); hold(ax1, 'on');
+ax1 = subplot('Position', [0.055, 0.130, 0.420, 0.785]); hold(ax1, 'on');
 fill(ax1, [years, fliplr(years)], [L.Booked_Fisc_8pct, fliplr(L.Booked_Fisc_2pct)], ...
     [0.63 0.85 0.61], 'FaceAlpha', 0.35, 'EdgeColor', 'none', ...
     'DisplayName', 'Treasury Dual-Rate Band (8% Sens. to 2% Central)');
-
 plot(ax1, years, L.Cum_Inv, 'r--o', 'LineWidth', 2.4, 'MarkerSize', 5.5, ...
     'DisplayName', 'Cumulative Public Investment Outlay (\Delta G_{ECE} + E)');
 plot(ax1, years, L.Cum_Savings, ':', 'Color', [0.12 0.47 0.71], 'Marker', 's', 'LineWidth', 2.0, 'MarkerSize', 4.5, ...
@@ -214,7 +210,6 @@ plot(ax1, years, L.Booked_Sav_2pct, '-', 'Color', [0.03 0.32 0.61], 'Marker', 's
 
 xline(ax1, years(idx_y5), '--', 'Color', [0.00 0.43 0.17], 'LineWidth', 1.4, 'HandleVisibility', 'off');
 
-% Dynamic Year 5 callout box
 y5_inv  = L.Cum_Inv(idx_y5);
 y5_cash = L.Cum_TotFisc(idx_y5);
 y5_bk2  = L.Booked_Fisc_2pct(idx_y5);
@@ -229,22 +224,27 @@ msg_A = sprintf(['Year %d Audit (%s):\n', ...
     years(idx_y5), ShortTag, y5_inv, y5_cash, y5_bk2, y5_bk2/max(1e-6,y5_inv), ...
     y5_bk8, y5_bk8/max(1e-6,y5_inv), y5_sav2);
 
-text(ax1, years(idx_y5) + 3, 0.50 * max(L.Booked_Fisc_2pct), msg_A, ...
-    'FontSize', 8.5, 'FontWeight', 'bold', 'Color', [0.00 0.27 0.11], ...
+y_max_A = max(L.Booked_Fisc_2pct);
+xlim(ax1, [-1.5, max(years) + 2.5]);
+ylim(ax1, [0, 1.16 * y_max_A]);
+
+text(ax1, years(idx_y5) + 2.0, 0.57 * y_max_A, msg_A, ...
+    'FontSize', 8.2, 'FontWeight', 'bold', 'Color', [0.00 0.27 0.11], ...
     'BackgroundColor', [0.94 0.98 0.95], 'EdgeColor', [0.00 0.43 0.17], 'Margin', 5);
 
 grid(ax1, 'on'); box(ax1, 'on');
-xlabel(ax1, 'Transition Horizon (Years from Policy Introduction)', 'FontSize', 10.5);
-ylabel(ax1, 'Cumulative / Recognised NZD (Billions, Real 2025$)', 'FontSize', 10.5);
-title(ax1, ['A. Fiscal Ledger: ', TitleLabel], 'FontSize', 11.5, 'FontWeight', 'bold');
-legend(ax1, 'Location', 'northwest', 'FontSize', 8.2);
+xlabel(ax1, 'Transition Horizon (Years from Policy Introduction)', 'FontSize', 10.5, 'FontWeight', 'bold');
+ylabel(ax1, 'Cumulative / Recognised NZD (Billions, Real 2025$)', 'FontSize', 10.5, 'FontWeight', 'bold');
+title(ax1, ['A. Fiscal Ledger: ', TitleLabel], 'FontSize', 10.5, 'FontWeight', 'bold');
+lgd1 = legend(ax1, 'Location', 'northwest', 'FontSize', 7.8);
+lgd1.BoxFace.ColorType = 'truecoloralpha';
+lgd1.BoxFace.ColorData = uint8(255 * [1; 1; 1; 0.92]);
 
-% --- PANEL B: ECONOMY-WIDE GDP LENS ---
-ax2 = subplot(1, 2, 2); hold(ax2, 'on');
+% --- PANEL B: ECONOMY-WIDE GDP LENS / PRIZE ---
+ax2 = subplot('Position', [0.535, 0.130, 0.425, 0.785]); hold(ax2, 'on');
 fill(ax2, [years, fliplr(years)], [L.Booked_GDP_8pct, fliplr(L.Booked_GDP_2pct)], ...
     [0.78 0.91 0.75], 'FaceAlpha', 0.45, 'EdgeColor', 'none', ...
     'DisplayName', 'Recognised GDP Dual-Rate Band (8% Sens. to 2% Central)');
-
 plot(ax2, years, L.Cum_Inv, 'r--o', 'LineWidth', 2.3, 'MarkerSize', 5.0, ...
     'DisplayName', 'Cumulative Public Investment Outlay (\Delta G_{ECE} + E)');
 plot(ax2, years, L.Cum_dGDP, '-.', 'Color', [0.17 0.63 0.17], 'Marker', '^', 'LineWidth', 2.2, 'MarkerSize', 5.0, ...
@@ -262,15 +262,25 @@ msg_B = sprintf(['Year %d Recognised GDP Prize (%s):\n', ...
     '• Booked 25-Yr GDP Prize (8%%): $%.2fB'], ...
     years(idx_y5), ShortTag, L.Cum_dGDP(idx_y5), L.Booked_GDP_2pct(idx_y5), L.Booked_GDP_8pct(idx_y5));
 
-text(ax2, years(idx_y5) + 3, 0.52 * max(L.Booked_GDP_2pct), msg_B, ...
-    'FontSize', 8.5, 'FontWeight', 'bold', 'Color', [0.00 0.27 0.11], ...
+y_max_B = max(L.Booked_GDP_2pct);
+% Pad left xlim to -1.5 so the Year-0 marker & Year-5 vertical line have breathing
+% room on the left of the legend, and pad right xlim to +2.5 so Year-60 markers aren't clipped
+xlim(ax2, [-1.5, max(years) + 2.5]);
+ylim(ax2, [0, 1.16 * y_max_B]);
+
+% Placed at x = Year 5 + 1.8 and y = 0.63 * y_max_B so the callout box sits
+% cleanly in the open white pocket above the rising 2% curve
+text(ax2, years(idx_y5) + 1.8, 0.63 * y_max_B, msg_B, ...
+    'FontSize', 8.2, 'FontWeight', 'bold', 'Color', [0.00 0.27 0.11], ...
     'BackgroundColor', [0.94 0.98 0.95], 'EdgeColor', [0.00 0.43 0.17], 'Margin', 5);
 
 grid(ax2, 'on'); box(ax2, 'on');
-xlabel(ax2, 'Transition Horizon (Years from Policy Introduction)', 'FontSize', 10.5);
-ylabel(ax2, 'Cumulative / Recognised NZD (Billions, Real 2025$)', 'FontSize', 10.5);
-title(ax2, ['B. Economy-Wide GDP Lens: ', TitleLabel], 'FontSize', 11.5, 'FontWeight', 'bold');
-legend(ax2, 'Location', 'northwest', 'FontSize', 8.5);
+xlabel(ax2, 'Transition Horizon (Years from Policy Introduction)', 'FontSize', 10.5, 'FontWeight', 'bold');
+ylabel(ax2, 'Cumulative / Recognised NZD (Billions, Real 2025$)', 'FontSize', 10.5, 'FontWeight', 'bold');
+title(ax2, ['B. Economy-Wide GDP Prize: ', TitleLabel], 'FontSize', 10.5, 'FontWeight', 'bold');
+lgd2 = legend(ax2, 'Location', 'northwest', 'FontSize', 7.9);
+lgd2.BoxFace.ColorType = 'truecoloralpha';
+lgd2.BoxFace.ColorData = uint8(255 * [1; 1; 1; 0.92]);
 
 % Auto-export the 2-Panel combined figure AND the two individual sibling panels
 f_2panel = fullfile(OutputDir, sprintf('Fig_Actuarial_2Panel_%s_%s.png',  ShortTag, AnchorTag));
@@ -278,10 +288,21 @@ f_fiscal = fullfile(OutputDir, sprintf('Fig_Actuarial_Fiscal_%s_%s.png',  ShortT
 f_wide   = fullfile(OutputDir, sprintf('Fig_Actuarial_WideGDP_%s_%s.png', ShortTag, AnchorTag));
 
 exportgraphics(fig_2p, f_2panel, 'Resolution', 300, 'BackgroundColor', 'white');
-exportgraphics(ax1,    f_fiscal, 'Resolution', 300, 'BackgroundColor', 'white');
-exportgraphics(ax2,    f_wide,   'Resolution', 300, 'BackgroundColor', 'white');
-fprintf('  -> Saved sibling plots:\n     1) %s\n     2) %s\n     3) %s\n', f_2panel, f_fiscal, f_wide);
 
+% Before exporting the standalone single-panel charts (f_fiscal and f_wide),
+% give each standalone panel a wider 4:3 aspect ratio so the title, legend,
+% and Year-5 callout box have generous horizontal room when viewed by itself!
+fig_single = figure('Visible', 'off', 'Color', 'w', 'Position', [60, 60, 1020, 680]);
+ax2_copy = copyobj([ax2, lgd2], fig_single);
+set(ax2_copy(1), 'Position', [0.10, 0.13, 0.85, 0.78]);
+exportgraphics(fig_single, f_wide, 'Resolution', 300, 'BackgroundColor', 'white');
+clf(fig_single);
+ax1_copy = copyobj([ax1, lgd1], fig_single);
+set(ax1_copy(1), 'Position', [0.10, 0.13, 0.85, 0.78]);
+exportgraphics(fig_single, f_fiscal, 'Resolution', 300, 'BackgroundColor', 'white');
+close(fig_single);
+
+fprintf('  -> Saved sibling plots:\n     1) %s\n     2) %s\n     3) %s\n', f_2panel, f_fiscal, f_wide);
 end
 
 %% ========================================================================
@@ -496,7 +517,7 @@ if is_guin_squeeze
 else
     % 'Dunedin_22' (~17.9%-22.0% baseline stunted share)
     w_sav = [0.143, 0.225, 0.260, 0.372];
-    w_gdp = [0.130, 0.207, 0.269, 0.394];
+    w_gdp = [0.130, 0.207, 0.2695, 0.3935];
 end
 
 for r = 1:length(regions)
