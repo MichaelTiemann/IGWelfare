@@ -6,10 +6,10 @@
 
 ---
 
-## 1. Purpose, Scope, & Executive Summary Cross-Reference
-This document is the quantitative companion ("Answer Key") to **Document 1A (*Intergenerational Welfare, Capital Allocation, and Human Potential in New Zealand — Executive Reader's Edition*)**. To make cross-referencing effortless, the sections of this Answer Key follow the exact structural sequence of Document 1A (**Executive Summary $\to$ Part I & Part II: Three Coupled Lenses $\to$ Part III: Population & Fiscal Sankey Ledgers $\to$ Part IV: Quantitative Findings & 12-Tier Wealth Incidence $\to$ Part V: 2050 Protocol & Actuarial Valuation $\to$ Part VI: International Precedents & Coda**). Every strategic claim, welfare percentage, fertility shift, migration flow, wealth-tier incidence figure, and fiscal ledger flow in Document 1A is mapped below to its exact **MATLAB script**, **VFI Toolkit parameter/grid index**, **structural equation**, and **output CSV/PNG/HTML file** in [`Output_NZ_4Region_Intergen`](https://github.com/MichaelTiemann/IGWelfare/tree/main/Output_NZ_4Region_Intergen).
+## 1. Purpose, Scope, & Executive Brief Cross-Reference
+This document is the quantitative companion ("Answer Key") to **Document 1C (*Flying, Not Floundering — Broad-Circulation Executive Brief*)** and **Document 1A (*Intergenerational Welfare, Capital Allocation, and Human Potential in New Zealand — Multi-Audience Strategic Monograph*)**. To make cross-referencing effortless, the sections of this Answer Key follow the exact structural sequence of Document 1C and Document 1A (**Executive Brief & Introduction $\to$ Part I (Five Audience Briefings) & Part II (Three Coupled Lenses) $\to$ Part III: Population & Fiscal Sankey Ledgers $\to$ Part IV: Quantitative Findings & 12-Tier Wealth Incidence $\to$ Part V: 2050 Protocol, Actuarial Valuation, & 7-Factor Attribution $\to$ Part VI: International Precedents & Coda**). Every strategic claim, welfare percentage, fertility shift, migration flow, wealth-tier incidence figure, and fiscal ledger flow in Documents 1C and 1A is mapped below to its exact **MATLAB script**, **VFI Toolkit parameter/grid index**, **structural equation**, and **output CSV/PNG/HTML file** in [`Output_NZ_4Region_Intergen`](https://github.com/MichaelTiemann/IGWelfare/tree/main/Output_NZ_4Region_Intergen).
 
-### 1.1 Cross-Reference for Document 1A's Broad-Circulation Executive Summary (`SS0 -> SS1 -> SS2`)
+### 1.1 Cross-Reference for Document 1C (Executive Brief) & Document 1A (Introduction & Part I) (`SS0 -> SS1 -> SS2`)
 * **The Treasury Status Quo Binary (200% Net Crown Debt vs. Punitive Tax/Entitlement Cliffs — Doc 1A Sec. 1):**
   * *Document 1A Claim:* Under unchanged policy settings, the New Zealand Treasury's *Long-term Fiscal Statement (He Tirohanga Mokopuna 2025)* and 2026 background papers project net core Crown debt reaching ~200% of GDP by 2065, or require punitive tax hikes (average labour tax or GST rising toward 32%) and/or entitlement cuts (raising the NZ Superannuation eligibility age toward 70–72).
   * *Empirical & Literature Anchor:* New Zealand Treasury (*He Tirohanga Mokopuna: The Treasury's Combined Statement on the Long-term Fiscal Position*, Sept 2025); New Zealand Treasury *Analytical Note 26/01* (*Long-term Fiscal Model: 2025 Update*, March 2026, Table 2, downgrading long-run annual labour productivity growth from 1.0% to 0.9%/yr); and New Zealand Treasury *Working Paper 26/01* (March 2026, OLG general-equilibrium simulations of demographic ageing and the +10.4 percentage-point labour tax / 200% net debt spiral).
@@ -28,7 +28,7 @@ This document is the quantitative companion ("Answer Key") to **Document 1A (*In
 
 ---
 
-## 2. Part I & Part II Cross-Reference: The Four Audiences & Three Coupled Lenses
+## 2. Part I & Part II Cross-Reference: The Five Audiences & Three Coupled Lenses
 
 ### 2.1 Lens 1 & Philanthropist / Community Briefings (`HumanCapital_Lifecycle_aprimeFn.m` & Gate 3 Mentoring)
 * **4-Region Household Population Shares (Stats NZ June 2025 Base):**
