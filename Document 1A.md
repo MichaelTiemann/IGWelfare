@@ -222,10 +222,9 @@ Yet New Zealand has been quietly spending down its integrity inheritance:
 ## Part III: Tracing Cohort Fates & Fiscal Flows From Birth to Retirement
 
 ### 1. The Population Cohort Sankey: Closing the Four Priced Adverse Exits
-
-<img src="./Output_NZ_4Region_Intergen/Fig_ChildFates_5Stage_2Panel_National_Dunedin_22.png" alt="National 5-Stage Population Cohort Fates Sankey" align="right" width="56%" style="float: right; width: 56%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
-
 Tracing a representative birth cohort from Birth (Age 0) through the First 2000 Days (Ages 0–5), the Early-Adolescent Gate (Ages 12–14), Adult Skill Launch (Age 20), and Adulthood Fates (Age 30+) reveals how early hardship cascades into adult fiscal and social costs across **four priced exits**:
+
+<img src="./Output_NZ_4Region_Intergen/Fig_ChildFates_5Stage_2Panel_National_Dunedin_22.png" alt="National 5-Stage Population Cohort Fates Sankey" width="100%" style="display: block; width: 100%; margin: 1.2rem auto; break-inside: avoid; page-break-inside: avoid;" />
 
 * **Exit 1 — Entry into Oranga Tamariki State Care:** Driven by severe family hardship, housing crowding, and unmitigated parental stress (costing roughly **NZD 180,000 per care-year**).
 * **Exit 2 — Avoidable Paediatric & Adult Hospitalisations:** Driven by cold, damp, crowded housing and chronic early-life stress.
@@ -241,10 +240,9 @@ Every ribbon in a Sankey diagram is, in truth, a biography in motion—sixty tho
 <br clear="all" />
 
 ### 2. The 6-Gate Lifecycle Fiscal Sankey & Reconciling Private Parental Commitment
-
-<img src="./Output_NZ_4Region_Intergen/Fig_ChildFiscal_5Stage_2Panel_National_Dunedin_22.png" alt="National 6-Gate Lifecycle Fiscal Ledger Sankey" align="right" width="56%" style="float: right; width: 56%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
-
 Our 6-Gate Dollar-Weighted Fiscal Sankey traces annual per-child resource flows (in real 2025 NZD thousands per year per cohort birth) across two true-scale regimes separated by a vertical scale-break wave at the **Age-20 Adult Skill Launch Gate**:
+
+<img src="./Output_NZ_4Region_Intergen/Fig_ChildFiscal_5Stage_2Panel_National_Dunedin_22.png" alt="National 6-Gate Lifecycle Fiscal Ledger Sankey" width="100%" style="display: block; width: 100%; margin: 1.2rem auto; break-inside: avoid; page-break-inside: avoid;" />
 
 **1. Left Regime — Childhood Resource Flows (Gates 1–3, Ages 0–17):** Physically separates *Reactive Hardship & Remediation Outlays* (bottom red blocks), *Public Developmental Investments* in universal ECE, schooling, and Montessori / *Tuakana–Teina* mentoring (middle blue and teal blocks), and *Private Parental Commitment* in out-of-pocket cash and parental time (top warm-gold lane).
 
@@ -285,7 +283,7 @@ In human terms, Jump 2 (`c = +25`) is the moment the story comes full circle: th
 <br clear="all" />
 
 ### 2. Breaking the Intergenerational Trap: First 2000 Days vs. Late Remediation
-<img src="./Output_NZ_4Region_Intergen/FigE8_LeeSeshadri_4Region_Counterfactuals.png" alt="Lee-Seshadri 4-Region Counterfactuals" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
+<img src="./Output_NZ_4Region_Intergen/FigE8_LeeSeshadri_4Region_Counterfactuals.png" alt="Lee-Seshadri 4-Region Counterfactuals" align="right" width="68%" style="float: right; width: 68%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 Our multi-stage lifecycle counterfactuals across Rural, Small, Large, and Auckland regions demonstrate why timing is decisive in human capital policy:
 * **Front-Loading Beats Late Remediation:** Increasing early investment in the First 2000 Days cuts the national Intergenerational Elasticity of Earnings (IGE—where lower numbers mean higher social mobility) by **33.4%** (from **0.350 down to 0.233**), whereas spending the exact same public dollars only during late schooling barely moves mobility.
@@ -295,7 +293,7 @@ Our multi-stage lifecycle counterfactuals across Rural, Small, Large, and Auckla
 <br clear="all" />
 
 ### 3. Housing Tenure & Generational Cleavage: Navigating the Political Economy
-<img src="./Output_NZ_4Region_Intergen/Fig2_Kiyotaki_Housing_Estates_4Region.png" alt="Housing Prices, Homeownership, and Estate Flows" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
+<img src="./Output_NZ_4Region_Intergen/Fig2_Kiyotaki_Housing_Estates_4Region.png" alt="Housing Prices, Homeownership, and Estate Flows" align="right" width="68%" style="float: right; width: 68%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 Decomposing welfare impacts across housing tenure groups clarifies the transition path for different generations:
 * **Young Renters (Ages 20–44):** Achieve the largest immediate and long-run welfare gains (**+9.8% in Rural up to +16.4% in Auckland**), as cooling land overvaluation lowers rents and user costs while the Youth Capital Grant accelerates entry into homeownership (lifting young adult homeownership in Auckland from **28.0% to 41.2%**).
@@ -308,9 +306,11 @@ Decomposing welfare impacts across housing tenure groups clarifies the transitio
 
 To address the political economy of wealth and estate taxation without arbitrary assumptions, we evaluate the reform's lifetime Consumption-Equivalent (CE %) welfare impact and post-reform net worth retention across **10 official survey-anchored Earn + Own (*Annual Household Income + Net Worth*) benchmarks**—drawn directly from the Statistics New Zealand Household Economic Survey (*HES* June 2024/2025 median household income = NZD 119k; median net worth = NZD 529k), Max Rashbrooke's New Zealand wealth percentile tables (`P90`, `P95`, `P98`, `P99`), the Inland Revenue High-Wealth Individuals Research Project (*HWIRP* median net worth = NZD 50M; median economic income = NZD 2.1M), and the *NBR Rich List* median (NZD 140M):
 
-<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_2Panel_PainAndCelebration_Dunedin_22.png" alt="Redistribution Pain vs Gain and Retained Wealth Across Survey-Anchored Earn + Own Tiers" align="right" width="50%" style="float: right; width: 50%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
+<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelA_PainVsGain_Dunedin_22.png" alt="Redistribution Pain vs Gain" align="right" width="50%" style="float: right; width: 50%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 **1. 90% of Kiwis Are Unconditionally Money Ahead—And 98% Are Ahead or Within Statistical Breakeven (`Q1 Renter` through `P98`):** Across the first **90% of New Zealand households**—from the **Q1 Hardship Renter (`45k + 12k`, +25.4% CE)**, **Q2 Young Saver (`85k + 115k`, +19.1% CE)**, **Median Income (`120k + 340k`, +15.2% CE)**, and **Median Net Worth (`135k + 530k`, +11.4% CE)** right up to the **Top 10% (`P90: 240k + 2.15M`, +3.6% CE)**—*100% of households come out money ahead regardless of how they hold their wealth*, with even pure passive property holders at `P90` remaining net positive (**+0.4%**). Extending the lens to the **98th percentile (`P98: 450k + 5.20M`)**, **98% of all Kiwis still have a ~50/50 or better shot of doing better under the plan than the status quo**, with active career and business households at `P98` gaining **+4.3%** against **-4.4%** for pure passive land-holders (**+0.1% tier average**).
+
+<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelB_LeftToCelebrate_Dunedin_22.png" alt="Retained Wealth Across Survey-Anchored Earn + Own Tiers" align="right" width="50%" style="float: right; width: 50%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 **2. The Guvenen "Use-It-Or-Lose-It" Split Inside the Top 2%—Winning to the IRD High-Wealth Median (`50M`) and Breaking Even at the NBR Rich List Median (`140M`):** Within the top 2% to 0.01% of the wealth distribution, welfare impacts bifurcate sharply according to *how wealth is held*:
 
@@ -336,7 +336,7 @@ To address the political economy of wealth and estate taxation without arbitrary
 | **10. NBR Rich List Median** *(P99.99)* | **`6.5M + 140M`** | -14.7% | +8.8% | **-5.9%** | **-0.1%** vs. **-11.2%** | **NZD 126.3M** *(90.2% of base)* |
 
 ### 4. Dynamic Regional Population Shares & Three-Wave Brain-Drain Closure (60-Year Path)
-<img src="./Output_NZ_4Region_Intergen/Fig3_BrainDrain_Cohesion_4Region.png" alt="Brain Drain Closure and Social Cohesion Recovery" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
+<img src="./Output_NZ_4Region_Intergen/Fig3_BrainDrain_Cohesion_4Region.png" alt="Brain Drain Closure and Social Cohesion Recovery" align="right" width="68%" style="float: right; width: 68%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 Tracking domestic youth sorting and outward emigration across **Rural**, **Small**, **Large**, **Auckland**, and **Abroad** over a 60-year horizon reveals a self-sustaining recovery:
 * **Closing the Trans-Tasman Brain Drain:** Outward emigration of 20–35 year-olds from Large regional cities falls from **23.41% to 18.26%**, Auckland emigration falls from **19.29% to 14.92%**, and the national abroad brain drain drops from **10.93% to 8.56%**—retaining roughly **3,550 additional skilled young Kiwis per year**.
@@ -347,10 +347,12 @@ Retaining 3,550 young adults every year is not merely a labor-supply statistic. 
 <br clear="all" />
 
 ### 5. Cooperative Childcare Bargaining, Fertility Recovery, & Why Keeping NZ Super at Age 65 Beats Raising the Pension Age to 67 or 70
-<img src="./Output_NZ_4Region_Intergen/FigFert_2Panel_National_Dunedin_22.png" alt="Fertility Recovery and NZ Superannuation Solvency" align="right" width="50%" style="float: right; width: 50%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
+<img src="./Output_NZ_4Region_Intergen/FigFert_TFR_National_Dunedin_22.png" alt="Fertility Recovery" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 Relieving metropolitan housing stress and providing universal First-2000-Days wraparound ECE transforms intra-household fertility bargaining and resolves New Zealand's retirement fiscal squeeze without cutting pension entitlements:
 * **Reversing the Primate-City Fertility Squeeze:** Auckland's Total Fertility Rate recovers from **1.49 to 1.80 in `SS1` (and 1.91 in `SS2`)** and Large regional cities recover from **1.57 to 1.86 (`1.95` in `SS2`)**, lifting the national TFR from **1.66 to 1.93 (`1.98` in `SS2`)** while narrowing the differential fertility gap between low-income and high-income *whānau* by **61%** (from +0.38 down to +0.15 births per woman).
+<img src="./Output_NZ_4Region_Intergen/FigFert_SuperSolvency_National_Dunedin_22.png" alt="NZ Superannuation Solvency" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
+
 * **The -3.32 to -3.77 Percentage-Point Superannuation Solvency Dividend (While Keeping Eligibility at Age 65):** Higher domestic youth retention, cohort skill expansion (61%+ thriving), and fertility recovery lower the long-run 65+ old-age dependency ratio from **51.4% down to 42.5%**, bending the required working-age PAYE tax rate needed to fund universal New Zealand Superannuation down from **28.22% to 24.45%–24.90%**—directly funding the Phase 2 (`SS2`) working-age PAYE tax cut!
 * **Why Our Generational Plan Outperforms Raising the NZ Super Age to 67 or 70:** Conventional austerity proposals argue that New Zealand must raise the superannuation eligibility age from 65 to 67 or 70. Our lifecycle model demonstrates why raising the pension age is both **fiscally inferior and deeply inequitable**:
   1. *The Fiscal Substitution Leak (38% to 45% Offset):* Manual, rural, and lower-skilled workers experience steep physical health depreciation in their sixties. Withholding NZ Super at ages 65–66 (Age 67 policy) or ages 65–69 (Age 70 policy) forces **38% to 45%** of affected older workers onto Supported Living Payments, Jobseeker hardship transfers, and acute hospital care—wiping out nearly half the projected budget savings.
@@ -390,9 +392,11 @@ Applying this exact ACC and New Zealand Treasury Cost-Benefit Analysis (CBAx) me
 
 Once forward liability reductions and trajectory shifts are recognised at Year 5, the apparent cash deficit vanishes across every region of New Zealand:
 
-<img src="./Output_NZ_4Region_Intergen/Fig_Actuarial_2Panel_National_Dunedin_22.png" alt="National Crown Fiscal Ledger and Economy-Wide GDP Prize" align="right" width="52%" style="float: right; width: 52%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
+<img src="./Output_NZ_4Region_Intergen/Fig_Actuarial_Fiscal_National_Dunedin_22.png" alt="National Crown Fiscal Ledger" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 **Immediate National Fiscal Breakeven at Year 5:** Against the **NZD 9.19B** five-year investment outlay, recognised direct cost avoidance alone (reduced hospital nights, Oranga Tamariki care placements, youth justice, and long-term benefit dependency) reaches **NZD 10.68B** at the 2.0% Treasury discount rate—exceeding the entire public outlay by **1.16x** at the end of the very first parliamentary cycle. Including the Crown's tax revenue share from higher future earnings lifts the Year 5 recognised total fiscal return to **NZD 35.25B** at the 2.0% rate (**3.84x** the outlay) and **NZD 18.25B** (**1.99x** the outlay) even under the punitive 8.0% commercial sensitivity rate.
+
+<img src="./Output_NZ_4Region_Intergen/Fig_Actuarial_WideGDP_National_Dunedin_22.png" alt="National Economy-Wide GDP Prize" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 **The National Economy-Wide GDP Prize:** While realized cash-basis GDP growth at Year 5 is **NZD 15.30B** (driven by immediate business capital reallocation from the property-to-enterprise tax shift), the recognised 25-year forward GDP prize at Year 5 is **NZD 85.40B** at the 2.0% discount rate and **NZD 48.05B** at the 8.0% sensitivity rate. Over the full 60-year transition, cumulative realized GDP growth reaches **NZD 1,510.7B** (a **6.86x** macroeconomic multiplier on the NZD 220.1B cumulative investment), while the recognised forward GDP prize reaches **NZD 2,095.8B**.
 
