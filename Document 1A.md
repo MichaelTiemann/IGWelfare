@@ -237,7 +237,7 @@ Under the **High-Opportunity Reform ($`SS1`$ and $`SS2`$)**, birth and early-yea
 
 Every ribbon in a Sankey diagram is, in truth, a biography in motion—sixty thousand newborn lives each year branching toward either frustration or fulfillment. When we shift from the Population Sankey above to the Fiscal Sankey below, we are not changing the subject from people to money; we are simply watching what happens to the nation's books when sixty-one percent of our children are equipped to author thriving lives instead of twenty-three.
 
-<br clear="all" />
+---
 
 ### 2. The 6-Gate Lifecycle Fiscal Sankey & Reconciling Private Parental Commitment
 Our 6-Gate Dollar-Weighted Fiscal Sankey traces annual per-child resource flows (in real 2025 NZD thousands per year per cohort birth) across two true-scale regimes separated by a vertical scale-break wave at the **Age-20 Adult Skill Launch Gate**:
@@ -254,8 +254,6 @@ Our 6-Gate Dollar-Weighted Fiscal Sankey traces annual per-child resource flows 
 * Under the **High-Opportunity Reform ($`SS1`$)**, the Net-Zero Breakeven Line shifts decisively: the cohort generates a net fiscal surplus of **+NZD 10.5k to +NZD 11.1k/yr at Age 30** and **+NZD 13.7k to +NZD 18.2k/yr across Career to Retirement**!
 
 *Interactive Sankey Explorer:* The online versions of these Sankey diagrams feature clickable dialogs for every visible ribbon and node, detailing the structural mechanism driving each flow alongside the empirical data and theoretical literature justifying the calculation.
-
-<br clear="all" />
 
 ---
 
