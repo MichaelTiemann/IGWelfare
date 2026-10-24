@@ -104,12 +104,8 @@ Every strategic claim, welfare percentage, fertility shift, migration flow, weal
      * **2. Creative Agency at Gate 2 ($`\Delta_{\mathrm{Tuakana}} = +0.11 \to +0.14`$ in `Build_IntergenTransitionMatrix.m`):** Music, storytelling, *kapa haka*, design, and maker micro-economies are the active non-cognitive inputs inside *Montessori / Tuakana–Teina* and *Stars / Project K* adolescent communities at ages 12–14.
      * **3. The Creative Endowment & Urban Rent Relief ($`E = 0.065 \to 0.080`$, $`Q_{\mathrm{Akl}} -7.5\% \to -10.5\%`$, $`\tau_l: 22.0\% \to 18.5\%`$):** Cooling metropolitan rental user costs ($`rr_k`$) in Auckland and Large regional cities (Wellington, Christchurch, Hamilton, Tauranga, Dunedin) while providing every 20-year-old with the universal **Youth Capital Grant** ($`E`$) gives young artists, game developers, filmmakers, and cultural founders the economic runway to stay and build IP in Aotearoa rather than emigrating to Melbourne, Sydney, London, or Los Angeles.
 
----
-
 ```text
 +-----------------------------------------------------------------------------------+
-|                                                                                   |
-|                                                                                   |
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
@@ -117,10 +113,10 @@ Every strategic claim, welfare percentage, fertility shift, migration flow, weal
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
-|                                                                                   |
-|                                                                                   |
 +-----------------------------------------------------------------------------------+
 ```
+
+---
 
 ### 2.2 Aspect 1: Early Childhood & The Adolescent Mentoring Gate (`Ages 0–19`)
 
@@ -177,6 +173,14 @@ Every strategic claim, welfare percentage, fertility shift, migration flow, weal
     2. **1997–1998 Asian Financial Crisis & 2000–2001 Tech Bust:** NZD trade-weighted index and global equity portfolios experienced **20% to 45%** drawdowns.
     3. **2008–2009 Global Financial Crisis (GFC):** Global equities fell **~40%**, over 60 New Zealand finance companies failed, and real REINZ/RBNZ house prices fell **~12%**.
     4. **2022–2024 RBNZ Interest-Rate Tightening Cycle:** Following the November 2021 peak, real inflation-adjusted REINZ/CoreLogic House Price Indices fell **~18% to 22% nationally** and **~22% to 27% in Auckland and Wellington**—more than double our model's entire 60-year land-value cooling (`Q_mult_GE(4) = 0.925` in `SS1` and `0.895` in `SS2`).
+
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ---
 
