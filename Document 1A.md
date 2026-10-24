@@ -269,7 +269,9 @@ Yet New Zealand has been quietly spending down its integrity inheritance:
 ```text
 +-----------------------------------------------------------------------------------+
 |                                                                                   |
+|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
 |                                                                                   |
 +-----------------------------------------------------------------------------------+
 ```
@@ -307,6 +309,14 @@ Our 6-Gate Dollar-Weighted Fiscal Sankey traces annual per-child resource flows 
 * Under the **High-Opportunity Reform ($`SS1`$)**, the Net-Zero Breakeven Line shifts decisively: the cohort generates a net fiscal surplus of **+NZD 10.5k to +NZD 11.1k/yr at Age 30** and **+NZD 13.7k to +NZD 18.2k/yr across Career to Retirement**!
 
 *Interactive Sankey Explorer:* The online versions of these Sankey diagrams feature clickable dialogs for every visible ribbon and node, detailing the structural mechanism driving each flow alongside the empirical data and theoretical literature justifying the calculation.
+
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## Part IV: Integrated Policy Results & Visual Evidence
 
@@ -416,7 +426,15 @@ Retaining 3,550 young adults every year is not merely a labor-supply statistic. 
 ```text
 +-----------------------------------------------------------------------------------+
 |                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
 |                                                                                   |
 +-----------------------------------------------------------------------------------+
 ```
