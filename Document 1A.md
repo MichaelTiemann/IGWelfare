@@ -39,7 +39,7 @@ Once you have engaged with Part I, the remainder of the monograph widens the len
 
 * **Part III (*The Accounting Pillar: Lifecycle Population & Fiscal Sankey Ledgers*)** traces 100% of a birth cohort and every private and public dollar from birth to retirement across 5 developmental stages and 6 fiscal gates.
 
-* **Part IV (*Headline Quantitative Findings & 10-Tier Survey-Anchored Distributional Incidence*)** presents the 60-year regional, fertility, superannuation, and wealth-bracket impacts—proving that **90% of households are unconditionally money ahead, 98% have better than a 50/50 shot at coming out ahead, and active entrepreneurs win or break even all the way right up to the IRD High-Wealth Median (NZD 50M, +1.2%) and NBR Rich List Median (NZD 140M, -0.1%)**, while the top-0.01% balance-sheet adjustment is no worse than a sluggish year in the market on average (and milder than a routine once-a-decade correction in the worst case).
+* **Part IV (*Headline Quantitative Findings & 10-Tier Survey-Anchored Distributional Incidence*)** presents the 60-year regional, fertility, superannuation, and wealth-bracket impacts—proving that **90% of households are unconditionally money ahead, 98% have better than a 50/50 shot at coming out ahead, and active entrepreneurs win or break even right up to the IRD High-Wealth Median (NZD 50M, +1.2%) and NBR Rich List Median (NZD 140M, -0.1%)**, while the top-0.01% balance-sheet adjustment is no worse than a sluggish year in the market on average (and milder than a routine once-a-decade correction in the worst case).
 
 * **Part V (*The Actuarial & Attribution Pillars: The 2050 50/50 Debt-Sinking Protocol & Year 5 Audit*)** demonstrates how ACC-style **Actuarial Continuation Valuation** locks in a **3.84x audited fiscal return by Year 5** (1.16x from direct cost avoidance alone) and synthesizes all **seven structural engines** of the **+20.49% national welfare gain**.
 
@@ -280,6 +280,8 @@ Evaluating lifetime Consumption-Equivalent Variation (CE %) under the veil of ig
 * **Jump 1 (`c = 0`, Phase 1 `SS1` Launch):** The first birth cohort born under the reform experiences an immediate welfare surge as universal First-2000-Days wraparound (`G_ECE = 0.110`), **Montessori / *Tuakana–Teina* and Graeme Dingle Foundation** adolescent mentoring, the age-20 Youth Capital Grant (`E = 0.065`), and Guvenen et al. firm capital reallocation take effect.
 * **Jump 2 (`c = +25`, Phase 2 `SS2` Harvest):** A second structural leap occurs 20 to 25 years into the transition when two forces converge: (i) the children of the first reformed cohort become parents themselves—entering parenthood with thriving human capital and higher earnings (the endogenous intergenerational multiplier)—and (ii) the Crown activates the **2050 50/50 Debt-Sinking and Infrastructure Protocol**, retiring sovereign debt, expanding public infrastructure, and cutting the working-age PAYE tax rate by **3.5 percentage points** (`22.0% -> 18.5%`). *(In **Part V, Section 4**, after detailing the 2050 Debt-Sinking and Actuarial mechanisms, we decompose this entire `+14.3%` to `+26.0%` multiphase welfare trajectory into its seven exact structural engines.)*
 
+In human terms, Jump 2 (`c = +25`) is the moment the story comes full circle: the infant who was lifted out of hardship during the First 2000 Days in Year 1, and who found their voice as a tuakana mentor at age thirteen, is now twenty-six years old and welcoming their own first child—not in a damp, rent-stressed flat on the edge of despair, but with a skill craft, a capital stake, and the quiet confidence to pass that wholeness on.
+
 <br clear="all" />
 
 ### 2. Breaking the Intergenerational Trap: First 2000 Days vs. Late Remediation
@@ -339,6 +341,8 @@ To address the political economy of wealth and estate taxation without arbitrary
 Tracking domestic youth sorting and outward emigration across **Rural**, **Small**, **Large**, **Auckland**, and **Abroad** over a 60-year horizon reveals a self-sustaining recovery:
 * **Closing the Trans-Tasman Brain Drain:** Outward emigration of 20–35 year-olds from Large regional cities falls from **23.41% to 18.26%**, Auckland emigration falls from **19.29% to 14.92%**, and the national abroad brain drain drops from **10.93% to 8.56%**—retaining roughly **3,550 additional skilled young Kiwis per year**.
 * **Restoring Social Cohesion:** Lower emigration and reduced replacement-migration churn lift the national **Social Cohesion Index** from **100.0 to 112.0 in `SS1` and 126.0 in `SS2`**.
+
+Retaining 3,550 young adults every year is not merely a labor-supply statistic. It is 3,550 founders, nurses, teachers, engineers, musicians, and storytellers who are no longer saying goodbye to their parents at Auckland or Christchurch Airport—staying instead to start bands in Dunedin, launch studios in Wellington, coach junior rugby in provincial towns, and keep the cultural heartbeat of Aotearoa alive.
 
 <br clear="all" />
 
