@@ -35,9 +35,7 @@ Every strategic claim, welfare percentage, fertility shift, migration flow, weal
   * .
   * .
   * .
-  * .
   * [ THIS SPACE INTENTIONALLY LEFT BLANK ]
-  * .
   * .
   * .
   * .
@@ -55,6 +53,28 @@ Every strategic claim, welfare percentage, fertility shift, migration flow, weal
 | **5. The `SS2` Rocket Ship** *(2050 50/50 Debt & Infra + Super at 65)* | `FertilityBargaining_Module.m`, `Plot_SS2_7Factor_StackedAttribution.m` ($`\Omega_{\mathrm{debt}}`$, $`\Omega_{\mathrm{infra}}`$) | 1.66 TFR; **28.22% PAYE req.**; 22.0% actual PAYE | 1.93 TFR; **24.90% PAYE req.**; NZD 17.5B–17.8B Debt + 11.5B–12.2B Infra/Wave | **1.98 TFR; 18.5% Actual PAYE (-3.5 pp Cut!)**; NZD 21.85B Debt + 14.90B Infra/Wave | `Table7`–`Table8`, `Table1_SS2_7Factor_*`, `FigFert_*` |
 
 ---
+
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## 2. Part I & Part II Cross-Reference: The Five Audiences & Three Coupled Lifecycle Aspects
 
