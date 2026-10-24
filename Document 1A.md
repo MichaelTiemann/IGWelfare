@@ -126,6 +126,14 @@ Economics and public policy stand at that exact threshold in 2026. Over the past
 
 **The Master Metaphor of the Aotearoa Renaissance—Lifting the Gold from the River:** Why has the narrative of austerity persisted for so long? Because scarcity is easy to dramatize when a nation believes its wealth is a fixed pie of residential land and finite tax revenue. Yet the core mathematical proof of this monograph is that **human capability is not a zero-sum pie; it is a compounding creative fountain.** Every child lifted out of the stunted trajectory in the First 2000 Days (`Gate 1`), every 13-year-old who discovers their voice and leadership as a *tuakana* mentor (`Gate 2`), and every 20-year-old artist, founder, or builder who stays in New Zealand because the Youth Capital Grant and cooler housing gave them a runway (`Gate 3`) multiplies the prosperity, tax base, and cultural vitality of the entire nation.
 
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ### A. Calls to Action: Five Lenses, One Shared Table
 
 No single sector can enact this transformation alone, and no sector needs to wait for the others before taking its first step. We invite each community to bring its distinct lens and mandate to a shared national table:
@@ -146,6 +154,7 @@ No single sector can enact this transformation alone, and no sector needs to wai
 +-----------------------------------------------------------------------------------+
 |                                                                                   |
 |                                                                                   |
+|                           [ NOTE INTENDED ACTIONS HERE ]                          |
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
@@ -165,7 +174,6 @@ No single sector can enact this transformation alone, and no sector needs to wai
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
-|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
