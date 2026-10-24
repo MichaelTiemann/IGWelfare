@@ -412,11 +412,11 @@ Relieving metropolitan housing stress and providing universal First-2000-Days wr
 * **The -3.32 to -3.77 Percentage-Point Superannuation Solvency Dividend (While Keeping Eligibility at Age 65):** Higher domestic youth retention, cohort skill expansion (61%+ thriving), and fertility recovery lower the long-run 65+ old-age dependency ratio from **51.4% down to 42.5%**, bending the required working-age PAYE tax rate needed to fund universal New Zealand Superannuation down from **28.22% to 24.45%–24.90%**—directly funding the Phase 2 (`SS2`) working-age PAYE tax cut!
 
 ```text
-+-------------------------------------------------------------------+
-|                                                                   |
-|               [ THIS SPACE INTENTIONALLY LEFT BLANK ]             |
-|                                                                   |
-+-------------------------------------------------------------------+
++-----------------------------------------------------------------+
+|                                                                 |
+|              [ THIS SPACE INTENTIONALLY LEFT BLANK ]            |
+|                                                                 |
++-----------------------------------------------------------------+
 ```
 
 <br clear="all" />
