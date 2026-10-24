@@ -610,9 +610,7 @@ where the time-$`t`$ credibility weight $`\lambda_{\mathrm{cred}}(t)`$ evolves b
 +-----------------------------------------------------------------------------------+
 |                                                                                   |
 |                                                                                   |
-|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
-|                                                                                   |
 |                                                                                   |
 |                                                                                   |
 +-----------------------------------------------------------------------------------+
@@ -681,6 +679,18 @@ To provide an exhaustive accounting of the **+14.28% (`Rural`), +13.66% (`Small`
 
 * **Document 1A Claim (Part VI Coda):** Post-war Japan's rapid ascent under General Douglas MacArthur's reconstruction (land/estate de-concentration + universal *Boshi Kenko Techo* maternal/child health) and W. Edwards Deming's 1947 Census mission and August 1950 Mt. Hakone JUSE lecture (*The System of Profound Knowledge* and *Kaizen*) proves that whole-system alignment of **Aspect 1** and **Aspect 2** delivers measurable transformation within 3 to 5 years—while Japan's 1985–1989 real estate bubble proves that if **Aspect 3** is left unguarded, excess industrial and household surpluses inevitably inflate finite urban land (Hirano & Toda, 2025) before collapsing into multi-decade stagnation.
 * **Theoretical & Historical Citations:** Deming, W. E. (1982/1986, *Out of the Crisis*, MIT Press; 1993, *The New Economics for Industry, Government, Education*, introducing *The System of Profound Knowledge*); Tiemann, M. (2023, *Achieving Net-Zero with Sustainable Quality*, OS-Climate / Linux Foundation); Moriguchi, C., & Saez, E. (2008, *Review of Economics and Statistics*, on post-1945 Japanese estate and wealth de-concentration); Hirano, T., & Toda, A. A. (2025, *"Unbalanced Growth and Land Overvaluation,"* *Journal of Political Economy Macroeconomics* / PNAS, proving the *Bubble Necessity Theorem* when productive sectoral growth outpaces elastic land supply without land/wealth taxation $`\tau_a`$); and *Te Tiriti o Waitangi* intergenerational *kaitiakitanga* / *mokopuna* frameworks (Waitangi Tribunal *Hauora* and *Oranga Tamariki* reports; Orange, 2021).
+
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ---
 
