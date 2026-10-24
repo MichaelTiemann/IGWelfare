@@ -30,6 +30,19 @@ Every strategic claim, welfare percentage, fertility shift, migration flow, weal
 * **Preventative vs. Reactive Infrastructure Stewardship (The 2026 Moa Point Lesson & The 2050 50/50 Protocol — Doc 1A Part I.3 & Part V.1):**
   * *Document 1A Claim:* Underfunding preventative social and physical infrastructure forces ballooning reactive remediation costs—mirrored physically in the February 2026 Moa Point wastewater failure—whereas locking 50% of post-breakeven fiscal surpluses (`SS1` Rocket Fuel $\rightarrow$ `SS2` Rocket Ship) into the **Sovereign Debt Reduction Sinking Fund** ($`\Omega_{\mathrm{debt}}`$) and 50% into the **Public Infrastructure Reinvestment Pool** ($`\Omega_{\mathrm{infra}}`$, at multiplier $`\mu_{\mathrm{infra}} = 1.65`$) retires **NZD 17.50B–17.82B (`SS1`) to NZD 21.85B (`SS2`)** of sovereign debt per cohort wave and mobilizes **NZD 11.52B–12.16B (`SS1`) to NZD 14.90B (`SS2`)** per wave for core public infrastructure.
   * *Code & Empirical Anchor:* Computed in `Plot_ChildFiscal_2Panel_SSankey.m` (`FiscalLedger.Protocol_2050_Summary`) and `Plot_ActuarialContinuationValuation.m` (`Table16_Actuarial_Continuation_Audit_Dunedin_22.csv`). Physical infrastructure benchmarked to the *Independent Crown Review into the Moa Point Wastewater Treatment Plant Failure* (Jaduram et al., Sept 2026) and New Zealand Infrastructure Commission / *Te Waihanga* (*Rautaki Hanganga o Aotearoa — New Zealand Infrastructure Strategy 2022–2052* and *National Infrastructure Plan*, 2025/2026).
+  * .
+  * .
+  * .
+  * .
+  * .
+  * .
+  * [ THIS SPACE INTENTIONALLY LEFT BLANK ]
+  * .
+  * .
+  * .
+  * .
+  * .
+  * .
 
 * **1-to-1 Master Mapping Across the Five Methodological Pillars (`SS0 -> SS1 -> SS2`):**
 
