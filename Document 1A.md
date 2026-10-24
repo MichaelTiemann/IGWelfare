@@ -325,9 +325,9 @@ To address the political economy of wealth and estate taxation without arbitrary
 
 <div style="clear: both;"</div>
 
-<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelB_LeftToCelebrate_Dunedin_22.png" alt="Retained Wealth Across Survey-Anchored Earn + Own Tiers" align="right" width="50%" style="float: right; width: 50%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
-
 **2. The Guvenen "Use-It-Or-Lose-It" Split Inside the Top 2%—Winning to the IRD High-Wealth Median (`50M`) and Breaking Even at the NBR Rich List Median (`140M`):** Within the top 2% to 0.01% of the wealth distribution, welfare impacts bifurcate sharply according to *how wealth is held*:
+
+<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelB_LeftToCelebrate_Dunedin_22.png" alt="Retained Wealth Across Survey-Anchored Earn + Own Tiers" align="right" width="50%" style="float: right; width: 50%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 * **Active Growth Entrepreneurs & Venture Investors ($`z_h`$, Green Solid Trajectory):** High-net-worth founders and growth investors who deploy capital into productive operating enterprises benefit from lower corporate and PAYE tax drag, 60 bps cheaper expansion credit, and a vastly deeper pool of thriving domestic talent ($`h_6`$–$`h_7`$ rising from 23.2% to 61.0%+ of the cohort)—remaining **net welfare positive at `P99` (`600k + 8.5M`, +3.6% CE) and the `IRD High-Wealth Median` (`2.1M + 50M`, +1.2% CE), and breaking even right at the `NBR Rich List Median` (`6.5M + 140M`, -0.1% CE)**!
 
@@ -369,6 +369,7 @@ Retaining 3,550 young adults every year is not merely a labor-supply statistic. 
 </div>
 
 <div style="page-break-inside: avoid; break-inside: avoid;">
+
 ### 5. Cooperative Childcare Bargaining, Fertility Recovery, & Why Keeping NZ Super at Age 65 Beats Raising the Pension Age to 67 or 70
 <img src="./Output_NZ_4Region_Intergen/FigFert_TFR_National_Dunedin_22.png" alt="Fertility Recovery" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
@@ -440,6 +441,7 @@ At its best, actuarial accounting is simply institutional memory paired with mor
 </div>
 
 <div style="page-break-inside: avoid; break-inside: avoid;">
+
 | Region / Transition Milestone | Cumulative Public Investment Outlay | Wait-As-You-Go Cash Fiscal Return | Booked Direct Cost Avoidance Alone (2.0% Real) | Booked Total Fiscal Return (2.0% Central / 8.0% Sens.) | Realized Cash Cumulative GDP Gain | Booked Economy-Wide GDP Prize (2.0% Central / 8.0% Sens.) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Year 5 Audit: `Rural` (16.0% Pop)** | NZD 1.42B | NZD 0.65B | **NZD 1.48B** | **NZD 4.61B / NZD 2.39B** | NZD 1.99B | **NZD 10.87B / NZD 6.13B** |
@@ -451,9 +453,11 @@ At its best, actuarial accounting is simply institutional memory paired with mor
 | **Year 20 Launch (`National`)** | NZD 65.5B | NZD 70.1B | **NZD 91.9B** | **NZD 257.8B / NZD 163.7B** | NZD 192.7B | **NZD 576.1B / NZD 382.5B** |
 | **Year 40 Estate Peak (`National`)** | NZD 142.4B | NZD 328.8B | **NZD 222.8B** | **NZD 587.8B / NZD 467.6B** | NZD 716.1B | **NZD 1,268.4B / NZD 1,010.8B** |
 | **Year 60 Convergence (`National`)** | **NZD 220.1B** | **NZD 702.3B** | **NZD 372.2B** | **NZD 975.1B / NZD 850.5B** | **NZD 1,510.7B** | **NZD 2,095.8B / NZD 1,827.3B** |
+
 </div>
 
 <div style="page-break-inside: avoid; break-inside: avoid;">
+
 ### 3. Earning the Phase 2 (`SS2`) Fiscal Dividend: Why Discipline in `SS1` Unlocks Tax Relief After Year 20
 A natural question arises from the Year 5 audit: if the reform already generates **NZD 35.25B** in recognised fiscal value against an **NZD 9.19B** outlay by Year 5, why not cut taxes immediately or borrow to fund Phase 1 (`SS1`)?
 * **Why Phase 1 (`SS1`) Must Stay Strictly Cash-Neutral:** First, under New Zealand's Public Finance Act, forward actuarial savings cannot be spent as cash to pay teachers or nurses in Year 5 without issuing sovereign debt. Second, the Phase 1 shift from taxing productive enterprise to taxing unproductive property hoarding and the peak NZD 1.6T estate wave is not merely a revenue raiser—it is the structural engine that cools Auckland's 3.10x housing price-to-income bubble and drives capital into frontier businesses.
@@ -462,9 +466,11 @@ A natural question arises from the Year 5 audit: if the reform already generates
   2. **Stepping Down the Emergency Estate Tax (25.0% down to 18.0%):** Once the peak 20-year baby-boomer estate transfer wave has endowed the Youth Capital Fund.
   3. **Deepening *Whānau* Wraparound, Montessori / *Tuakana–Teina* Mentoring, and Infrastructure:** Using the 50% Public Reinvestment Pool to expand Iwi, *Whānau Ora*, Pasifika, Barnardos, and **Graeme Dingle Foundation (*Stars* / *Project K*)** partnerships alongside universal **Montessori / *Tuakana–Teina* adolescent mentoring** and a higher age-20 Youth Capital Grant, compressing developmental stunting down to **1.5%** in the second generation.
   4. **Early Credibility Acceleration:** Because young workers (ages 20–35) see the audited Year 5 actuarial surplus and know the Phase 2 PAYE tax cut is actuarially locked in, skilled youth emigration to Australia drops early—well before Year 25 arrives.
+
 </div>
 
 <div style="page-break-inside: avoid; break-inside: avoid;">
+
 ### 4. Synthesis of Parts IV and V: Seven-Factor Attribution of Phase 2 (`SS2`) Long-Run Welfare Gains
 
 With both the human-capital transition channels (**Part IV**) and the 2050 Debt-Sinking, Infrastructure, and Actuarial Harvest mechanisms (**Part V**) in place, we can now answer a central question for voters, business leaders, and Cabinet Ministers: **Which specific economic engines generate the Phase 2 (`SS2`) long-run welfare gain of +20.49% Nationally (+14.28% in `Rural`, +13.66% in `Small` towns, +22.17% in `Large` regional cities, and +26.03% in `Auckland`)?**
@@ -483,9 +489,11 @@ Decomposing the 60-year welfare trajectory into **seven additive structural engi
 | **Total Phase 2 (`SS2`) Long-Run Welfare Gain (CE %)** | **All Seven Coupled Engines Combined** | **+14.28%** | **+13.66%** | **+22.17%** | **+26.03%** | **+20.49%** | **100.0%** |
 
 ![7-Factor Stacked Attribution of SS2 Welfare Gains](./Output_NZ_4Region_Intergen/Fig1_SS2_7Factor_StackedAttribution_National_Dunedin_22.png)
+
 </div>
 
 <div style="page-break-inside: avoid; break-inside: avoid;">
+
 #### Detailed Walkthrough of the Seven Structural Engines (From Bottom to Top of the Stack)
 1. **Engine 1 — Reduced Deadweight Losses & Acute Exits 1, 2, 4 (11.5% of National Gain | +2.35% CE Nationally, +2.55% in Auckland):** Slashing avoidable entries into Oranga Tamariki state care, acute hospitalisations, youth and adult justice, and long-term benefit dependency by over 75% eliminates fiscal deadweight loss and directly relieves early-childhood hardship corners across all four regions.
 2. **Engine 2 — Housing Affordability & Youth Capital Seeding (10.2% of National Gain | +2.10% CE Nationally, +3.05% in Auckland):** Cooling metropolitan house price-to-income ratios (-7.5% in `SS1` to -10.5% in `SS2` in Auckland) lowers rental user costs and pairs with the universal age-20 Youth Capital Grant to accelerate young-family homeownership and business formation.
@@ -501,9 +509,11 @@ Decomposing the 60-year welfare trajectory into **seven additive structural engi
 </div>
 
 <div style="page-break-after: always; break-after: page;"></div>
+
 ## Part VI: Historical Precedent (and Cautionary Tales)
 
 <div style="page-break-inside: avoid; break-inside: avoid;">
+
 ### Why International History Validates New Zealand's Generational Plan
 
 Skeptics of long-horizon reform often ask whether any democratic market economy has ever achieved a nearly seven-fold cumulative GDP multiplier, double-digit permanent welfare gains, and a one-third reduction in intergenerational immobility over a forty-to-sixty-year horizon. Modern economic history provides an unambiguous answer. Every small or mid-sized nation that has paired **productive capital and land reallocation (Aspects 2 & 3)** with **universal early human-capital investment (Aspect 1)** has achieved this exact trajectory:
@@ -530,9 +540,11 @@ By contrast, jurisdictions that deployed only the childhood half of the architec
 | **The Devolved Half-Bridge:**<br>**Scotland** (*Early-Years & Mentoring Success Hit by Wage-Tax Ceiling*) | 10 Years (2017–2026) | **Deployed:** *Child Poverty Act*, *Scottish Child Payment* (to GBP 40/wk), 1,140 hrs universal ECE, *The Promise* & *MCR Pathways* mentoring.<br>**Missing:** Sovereign land, estate, or corporate tax powers (relied on 42%–48% PAYE hikes & 1991 Council Tax). | **Validates Aspect 1** (First-2000-Days + Adolescent Mentoring & Exit 1 Care closure) **AND proves why Aspects 2 & 3** (land/estate tax shift vs. PAYE hikes) **are essential** | Cut child poverty **6 percentage points below the rest of the UK** (21% vs. 27%+) and lifted mentored care-experienced youth progression from **54.0% to 81.6%**, but stalled above the 18% interim target due to urban housing costs and lack of sovereign wealth/land tax levers |
 | **The Primate-City Trap:**<br>**21st-Century South Korea** (*Cautionary "Seoul Squeeze"*) | 25 Years (2000–2025) | **Deployed:** High formal schooling investment.<br>**Missing:** Primate-city housing anti-speculation rules & public First-2000-Days wraparound (replaced by private *Hagwon* child-cost pressure). | Validates why **Aspect 1** schooling fails without **Aspects 2 & 3** (Auckland housing cooling & universal in-kind ECE) | Unchecked Seoul housing squeeze and private tutoring costs crushed family bargaining, driving Total Fertility Rate down to **0.72–0.75** |
 | **The Land-Bubble Collapse:**<br>**Post-1990 Bubble Japan** (*Cautionary Land Overvaluation*) | 30 Years (1990–2020) | **Deployed:** Strong base schooling & industrial quality.<br>**Missing:** Fiscal valves to prevent excess corporate/household savings from pouring into urban land speculation; weak support for working mothers. | Validates Hirano–Toda land-bubble drag in **Aspects 2 & 3** when speculative property is left untaxed | 1991 land-bubble collapse triggered **30 years of balance-sheet stagnation**, depressed fertility, and rapid aging |
+
 </div>
 
 <div style="page-break-inside: avoid; break-inside: avoid;">
+
 ### 1. The Positive Precedents: Pairing Productive Capital Reallocation with Universal Human Potential
 
 #### Sweden and Finland: The Nordic Dual-Dividend Model (1970–2020)
@@ -572,9 +584,11 @@ With a population of 5.5 million—nearly identical to New Zealand's 5.3 million
   3. *Closing Exit 1 (State Care) & The Adolescent Mentoring Gate:* Enacted ***The Promise*** (a statutory 10-year commitment to keep children out of state care through whole-family wraparound support), paired with **MCR Pathways** (structured school-based mentoring for care-experienced and vulnerable 12-to-17-year-olds—the direct Scottish counterpart to our **Montessori / *Tuakana–Teina* and Graeme Dingle Foundation** adolescent gate) and free bus travel for all under-22s.
 * **Measured Empirical Progress (2025–2026 Audits):** Official 2025–2026 evaluations by the Scottish Government, Audit Scotland, and the Joseph Rowntree Foundation confirm that Scotland's package kept **40,000 to 50,000 children out of poverty**—driving Scotland's child poverty rate **6 percentage points below the rest of the United Kingdom** (21% in Scotland versus ~27%–29% in England and Wales) with zero negative maternal labor-supply distortion, while *MCR Pathways* lifted tertiary education and employment progression among mentored care-experienced youth from **54.0% to 81.6%**.
 * **Why Scotland Stalled at 21%—And Why New Zealand Can Succeed Where Devolved Scotland Was Constrained (Missing Aspects 2 & 3):** Despite outperforming the rest of the UK by 6 percentage points, Scotland missed its 18% interim target because under the UK devolution settlement, the Scottish Parliament lacks sovereign power over corporate taxes, capital gains, and wealth/inheritance taxes, and still relies on an outdated 1991 municipal Council Tax. Forced to finance social investment almost entirely by raising working-age **PAYE income tax rates** (42% to 48% on middle and upper-middle earners) while urban housing costs in Edinburgh and Glasgow went unaddressed (leaving over 10,400 children in temporary accommodation), Scotland hit a fiscal and housing-affordability ceiling. **Aotearoa New Zealand possesses the exact unitary sovereign fiscal powers Scotland lacks:** by funding Phase 1 (`SS1`) through a **property-to-enterprise wealth and estate rebalance** that cools metropolitan rents and lifts business wages—and then **cutting working-age PAYE taxes by 3.5 percentage points in Phase 2 (`SS2`)**—New Zealand can capture Scotland's early-years and adolescent mentoring gains without squeezing working families!
+
 </div>
 
 <div style="page-break-inside: avoid; break-inside: avoid;">
+
 ### 2. The Cautionary Tales: Why Schooling Fails If Metropolitan Housing Speculation Goes Unchecked
 
 History also offers two sobering warnings from East Asia that prove why our reform couples **Aspect 1 (Early Human Potential)** with **Aspect 2 (Metropolitan Housing Affordability and Family Bargaining)** and **Aspect 3 (Productive vs. Speculative Asset Taxation)**:
@@ -585,9 +599,11 @@ In the late twentieth century, South Korea achieved one of the fastest schooling
 
 #### Post-1990 Bubble Japan: The Cost of Unchecked Land Overvaluation
 When late-1980s Japan allowed an unbridled urban land and real-estate bubble to crowd out productive enterprise lending while failing to support working mothers, the subsequent 1991 land-bubble collapse ushered in three decades of balance-sheet stagnation and rapid demographic aging. This historical contrast—between Japan's high-growth post-war productive era (1946–1985) and its post-1990 land-bubble stagnation—directly validates shifting New Zealand's tax base off productive enterprise and onto overvalued land and passive estate transfers.
+
 </div>
 
 <div style="page-break-inside: avoid; break-inside: avoid;">
+
 ### Coda: From Deming's Miracle to the Tokyo Bubble—Why Aotearoa Must Build Prosperity We Can Keep
 
 When macroeconomists invoke post-1990 Japan as a cautionary tale of land bubbles and demographic stagnation, they often omit the far more instructive half of the story: **how a shattered, resource-poor island nation generated the most spectacular industrial and human-capital miracle of the twentieth century in the first place**. Between 1945 and 1951, as Supreme Commander of the Allied Powers, General Douglas MacArthur oversaw the reconstruction of Japan's devastated economy—an effort that combined post-war land and estate de-concentration with universal *Boshi Kenko Techo* (Maternal and Child Health Handbook) First-2000-Days care and rigorous statistical planning. Frustrated that he could hardly complete a telephone call without the line going dead, MacArthur recruited the American statistician and systems thinker **W. Edwards Deming** in 1947 to help plan the 1951 Japanese Census.
@@ -601,4 +617,5 @@ Viewed across the three lifecycle aspects of our monograph, post-war Japan's asc
 Yet Japan's very triumph exposed the fatal flaw of ignoring **Aspect 3 (Land, Estate, and Capital Allocation)**. By the mid-1980s, the design of Deming's industrial engine had succeeded so spectacularly that Japan was generating more corporate and household surplus than its domestic factories needed to reinvest. Eventually there was literally not enough property in the world to absorb their newfound wealth! Exactly as Tomohiro Hirano and Alexis Akira Toda's (2025) *Land Overvaluation Theorem* proves, when rapid productivity growth in knowledge and manufacturing sectors is not paired with fiscal valves to cool land speculation or recycle surpluses into public and generational endowments, excess savings inevitably pour into finite urban land. By 1989, Japanese real estate values had detached from economic reality: the 1.15 square kilometers of the Imperial Palace grounds in Tokyo were valued on paper at more than all the real estate in the State of California, Japanese syndicates were bidding up trophy properties from Rockefeller Center to Hawaii, and young Tokyo families faced multi-generational hundred-year mortgages just to secure a place to live. When that credit-and-land bubble finally burst in 1990–1991, the resulting balance-sheet wreckage trapped Japan's brilliant industrial economy in three decades of deflationary stagnation and demographic contraction.
 
 For Aotearoa New Zealand, the full arc of Japan's twentieth century—from Deming's 1950 Mt. Hakone lecture to the 1990 Tokyo property implosion—delivers the defining lesson of this monograph. First, like post-war Japan (and like Ford Motor Company in 1981 or Porsche in 1992, when they finally adopted Deming's systems discipline to rescue themselves from the brink of ruin), **New Zealand does not need decades to turn the corner**: when a nation commits to whole-system quality across its people and enterprises, measurable transformation begins within three to five years. Second, we must never confuse inflating urban land values with true national wealth—in fact, New Zealand has suffered the Tokyo property disease without first building the Tokyo industrial engine! That is why our Generational Plan unites **both halves of the systems equation**: we ignite **Phase 1 (`SS1`)** with universal First-2000-Days wraparound, **Montessori / *Tuakana–Teina* and Graeme Dingle Foundation** adolescent mentoring, and a pro-enterprise tax shift, and we safeguard the harvest in **Phase 2 (`SS2`)** through the **2050 50/50 Debt-Sinking and Infrastructure Protocol**. By channeling our surpluses into retiring sovereign debt, building resilient infrastructure, seeding every young adult with capital, and cutting working-age PAYE taxes rather than bidding up metropolitan land, Aotearoa can build a prosperity that is not merely achieved, but **designed to be kept across generations**. In this way we honor *Te Tiriti o Waitangi* by taking the actions to be good ancestors and to benefit our *mokopuna* (future generations).
+
 </div>
