@@ -228,7 +228,11 @@ Each node's ribbon width in the Population Fates Sankey represents the exact per
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
+|                                                                                   |
+|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
