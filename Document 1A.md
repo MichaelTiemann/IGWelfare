@@ -82,13 +82,13 @@ Once you have engaged with Part I, the remainder of the monograph widens the len
 
 3. **Treasury Macro Fiscal (*LTFM*/*OLG*) Teams, Infrastructure Commission (*Te Waihanga*), & Cabinet Ministers:** Integrate those verified cohort capability and fiscal-saving streams directly into the Sovereign Debt-Sinking and Infrastructure Reinvestment ledger—replacing reactive budget cuts with a self-financing generational reform.
 
-**Why a 4-Region Policy Design Matters:** Splitting New Zealand into **Rural** districts ($`16.0\%`$ of population), **Small** provincial towns under 100,000 residents ($`24.0\%`$), **Large** regional metros over 100,000 residents ($`25.9\%`$: Wellington, Christchurch, Hamilton, Tauranga, Dunedin), and **Auckland** ($`34.1\%`$) exposes why one-size-fits-all transfers fail:
+**Why a 4-Region Policy Design Matters:** Splitting New Zealand into **Rural** districts (16.0% of population), **Small** provincial towns under 100,000 residents (24.0%), **Large** regional metros over 100,000 residents (25.9%: Wellington, Christchurch, Hamilton, Tauranga, Dunedin), and **Auckland** (34.1%) exposes why one-size-fits-all transfers fail:
 
-* **Rural & Small Provincial Towns:** Face compressed wage ceilings and heavy mandatory fuel and transport burdens ($`2.7\times`$ to $`2.8\times`$ metropolitan shares), requiring broad cost-of-living relief and universal in-kind early childhood delivery.
+* **Rural & Small Provincial Towns:** Face compressed wage ceilings and heavy mandatory fuel and transport burdens (2.7&times; to 2.8&times; metropolitan shares), requiring broad cost-of-living relief and universal in-kind early childhood delivery.
 
-* **Large Regional Cities & Auckland:** Face extreme rental crowd-out and wide income polarization, requiring targeted housing-adjusted family transfers, property tax rebalancing to cool house prices by $`-7.5\%`$ to $`-10.5\%`$, and youth retention incentives.
+* **Large Regional Cities & Auckland:** Face extreme rental crowd-out and wide income polarization, requiring targeted housing-adjusted family transfers, property tax rebalancing to cool house prices by -7.5% to -10.5%, and youth retention incentives.
 
-**Solving the Parliamentary Calendar Mismatch via ACC-Style Actuarial Valuation:** On a conventional "wait-as-you-go" cash basis, early childhood outlays occur in Years 1–5 while adult tax revenues and avoided prison and hospital bills arrive after Year 18.8. By applying the Accident Compensation Corporation (`ACC`) forward liability valuation standard (*Financial Condition Report 2025*, p. 17) and New Zealand Treasury Circular 2024/15 dual discount rates ($`2.0\%`$ real central rate and $`8.0\%`$ real commercial sensitivity rate, net of a 30% attribution haircut), the Year 5 Parliamentary Audit proves that against a cumulative **NZD 9.19B** public outlay, the Crown books **NZD 10.68B** in direct cost avoidance alone (**1.16x outlay**) and **NZD 35.25B** in total recognised fiscal returns (**3.84x outlay** at 2.0% real; **NZD 18.25B** or **1.99x outlay** at 8.0% real).
+**Solving the Parliamentary Calendar Mismatch via ACC-Style Actuarial Valuation:** On a conventional "wait-as-you-go" cash basis, early childhood outlays occur in Years 1–5 while adult tax revenues and avoided prison and hospital bills arrive after Year 18.8. By applying the Accident Compensation Corporation (`ACC`) forward liability valuation standard (*Financial Condition Report 2025*, p. 17) and New Zealand Treasury Circular 2024/15 dual discount rates (2.0% real central rate and 8.0% real commercial sensitivity rate, net of a 30% attribution haircut), the Year 5 Parliamentary Audit proves that against a cumulative **NZD 9.19B** public outlay, the Crown books **NZD 10.68B** in direct cost avoidance alone (**1.16x outlay**) and **NZD 35.25B** in total recognised fiscal returns (**3.84x outlay** at 2.0% real; **NZD 18.25B** or **1.99x outlay** at 8.0% real).
 
 **The 2050 Sovereign Debt-Sinking & Tax-Relief Harvest ($`SS2`$):** After crossing hard cash breakeven at Year 18.8, the 2050 Protocol partitions net fiscal surpluses 50/50 between a **Sovereign Debt Reduction Sinking Fund** and a **Public Infrastructure Reinvestment Pool**, while demographic fertility recovery lowers the 65+ dependency ratio and reduces the required labor tax rate for universal New Zealand Superannuation by **3.32 percentage points**.
 
@@ -106,7 +106,7 @@ Economics and public policy stand at that exact threshold in 2026. Over the past
 
 2. **Pillar II — Multi-Stage Laws of Motion for Skill Formation, Cross-Age Mentoring, & Career Maintenance:** Unifies Cunha, Heckman, and Schennach's (2010) and Lee and Seshadri's (2019) two-stage CES childhood skill technology with an equilibrium cross-cohort Montessori / *Tuakana–Teina* mentoring operator linking Stage 2 adolescents (ages 12–14) and Stage 1 young children (ages 0–5), adult Ben-Porath on-the-job training (Fan, Seshadri, & Taber, 2022), and Ferriere et al.'s (2025) non-homothetic Stone-Geary in-kind public provision theory.
 
-3. **Pillar III — Dimension-Free Spatial Housing Bubbles & $`4 \times 5`$ Migration Sorting:** Combines Labrousse and Perdereau's (2025) spatial inequality framework, Hirano and Toda's (2025) unbalanced sectoral growth land-bubble necessity theorem, and Kiyotaki, Michaelides, and Nikolov's (2024) renter-versus-owner tenure cutoff ($`\xi_k`$) with an endogenous $`4 \times 5`$ Gumbel youth sorting matrix across four domestic regions plus an international emigration margin (*Abroad* to Australia/OECD) with *zero additional endogenous grid states* (and credibly-weighted multiphase announcements `SS0 -> SS1 -> SS2`).
+3. **Pillar III — Dimension-Free Spatial Housing Bubbles & 4 &times; 5 Migration Sorting:** Combines Labrousse and Perdereau's (2025) spatial inequality framework, Hirano and Toda's (2025) unbalanced sectoral growth land-bubble necessity theorem, and Kiyotaki, Michaelides, and Nikolov's (2024) renter-versus-owner tenure cutoff ($`\xi_k`$) with an endogenous 4 &times; 5 Gumbel youth sorting matrix across four domestic regions plus an international emigration margin (*Abroad* to Australia/OECD) with *zero additional endogenous grid states* (and credibly-weighted multiphase announcements `SS0 -> SS1 -> SS2`).
 
 4. **Pillar IV — Tractable Dynastic & Actuarial Macroeconomic Closure:** Captures 100% of the distributional Barro–Becker intergenerational multiplier (which drives 55%–75% of long-run welfare gains in Daruich, 2018) via the 3-stage transition operator $`\mathcal{T}_{\mathrm{IG}}: \mathbf{Q}_h \times \mathbf{Q}_a \times \Pi_{\mathrm{mig}}`$, while embedding an ACC-style forward actuarial valuation operator ($`\mathcal{V}_{k,t_0}^{(L)}`$) that proves 3.84x fiscal breakeven by Year 5.
 
@@ -122,7 +122,7 @@ Economics and public policy stand at that exact threshold in 2026. Over the past
 
 2. **Creative Expression as the Heart of Adolescent Mentoring (Ages 12–14):** Quantitative skill-formation models prove that non-cognitive capability, identity, and executive function are highly malleable at ages 12 to 14. In practice, what insulates a 13-year-old against family job loss or housing stress inside Montessori adolescent communities, *Tuakana–Teina* leadership, and *Stars / Project K* is **creative agency**—making music, telling stories, designing projects, performing *kapa haka*, and discovering that they have a voice and a craft that their community values. Artists and cultural practitioners are the frontline architects of Gate 2.
 
-3. **Ending the Creative Brain Drain & Funding a Domestic Cultural Renaissance:** Overvalued metropolitan housing in *Auckland* and *Large* regional cities (Wellington, Christchurch, Hamilton, Tauranga, Dunedin) is the single greatest tax on New Zealand's creative class. When young artists, designers, game developers, and storytellers must spend 50% of their income on rent, they are forced into survival jobs or pushed onto planes to Melbourne, Sydney, London, and Los Angeles. By cooling urban land overvaluation ($`-7.5\%`$ to $`-10.5\%`$), shifting taxes off active enterprise, and providing every 20-year-old with a universal **Youth Capital Grant** (alongside a $`-3.5`$ percentage-point working-age PAYE tax cut in $`SS2`$), this reform acts as the largest creative-arts and cultural-entrepreneurship endowment in Aotearoa's history—giving young creators the economic runway to stay, take creative risks, and build world-leading cultural IP from home.
+3. **Ending the Creative Brain Drain & Funding a Domestic Cultural Renaissance:** Overvalued metropolitan housing in *Auckland* and *Large* regional cities (Wellington, Christchurch, Hamilton, Tauranga, Dunedin) is the single greatest tax on New Zealand's creative class. When young artists, designers, game developers, and storytellers must spend 50% of their income on rent, they are forced into survival jobs or pushed onto planes to Melbourne, Sydney, London, and Los Angeles. By cooling urban land overvaluation (-7.5% to -10.5%), shifting taxes off active enterprise, and providing every 20-year-old with a universal **Youth Capital Grant** (alongside a -3.5 percentage-point working-age PAYE tax cut in $`SS2`$), this reform acts as the largest creative-arts and cultural-entrepreneurship endowment in Aotearoa's history—giving young creators the economic runway to stay, take creative risks, and build world-leading cultural IP from home.
 
 **The Master Metaphor of the Aotearoa Renaissance—Lifting the Gold from the River:** Why has the narrative of austerity persisted for so long? Because scarcity is easy to dramatize when a nation believes its wealth is a fixed pie of residential land and finite tax revenue. Yet the core mathematical proof of this monograph is that **human capability is not a zero-sum pie; it is a compounding creative fountain.** Every child lifted out of the stunted trajectory in the First 2000 Days (`Gate 1`), every 13-year-old who discovers their voice and leadership as a *tuakana* mentor (`Gate 2`), and every 20-year-old artist, founder, or builder who stays in New Zealand because the Youth Capital Grant and cooler housing gave them a runway (`Gate 3`) multiplies the prosperity, tax base, and cultural vitality of the entire nation.
 
@@ -142,7 +142,7 @@ No single sector can enact this transformation alone, and no sector needs to wai
 
 *The River at Our Feet—Why All Five Lenses Converge in Part II:* In the nineteenth century, Aotearoa looked for gold in the riverbeds of Otago and the West Coast; in the late twentieth century, we mistook passive urban land inflation for wealth while watching our brightest young people wash out to sea. Today, the fifty-year empirical record of the Dunedin Study, the mathematical proof of our lifecycle ledgers, and the lived wisdom of *Te Ao Māori* (*He tāngata, he tāngata, he tāngata*) point to the same truth: **human capability is the only inexhaustible resource on earth.** *We have found our new gold. We are standing in the river. We need only lift it up to become rich beyond imagination.*
 
----
+<div style="page-break-after: always; break-after: page;"></div>
 
 ## Part II: The Three Coupled Aspects of the Intergenerational Lifecycle
 
@@ -200,7 +200,7 @@ Behind those percentages is a simple human transformation: a thirteen-year-old w
 
 Crucially, unlike those recurring crises—which destroy wealth for nothing, leave behind higher public debt, and accelerate the youth brain drain—this measured reallocation permanently strengthens New Zealand's productive economy, secures universal New Zealand Superannuation at Age 65, slashes crime and social distress, and builds a high-trust nation where the children and grandchildren of wealthy and modest families alike choose to build their futures.
 
-#### Synthesis: Restoring New Zealand's "Social Credit Rating" — Institutional Trust & Social Cohesion
+### Synthesis: Restoring New Zealand's "Social Credit Rating" — Institutional Trust & Social Cohesion
 
 Taken together, these three lifecycle aspects bring into focus more than just economics and welfare. They show the way to restore to New Zealand the trust and social cohesion for which we were once famous, and for which we can be yet again.
 
@@ -217,9 +217,11 @@ Yet New Zealand has been quietly spending down its integrity inheritance:
   2. **Replacing High-Churn Brain Drain with Rooted Communities (Aspect 2):** Retaining educated 20-to-35-year-olds in New Zealand and reducing replacement-migration turnover rebuilds local community continuity and lifts our modeled **Social Cohesion Index from 100.0 to 126.0**.
   3. **Restoring Fairness Between Work and Wealth (Aspect 3):** Reallocating tax burdens off working wages and productive enterprise and onto passive land hoarding—while locking 50% of fiscal surpluses into transparent sovereign debt reduction and 50% into resilient public infrastructure—restores young New Zealanders' belief that hard work and talent are rewarded at home.
 
----
+<div style="page-break-after: always; break-after: page;"></div>
 
 ## Part III: Tracing Cohort Fates & Fiscal Flows From Birth to Retirement
+
+<div style="page-break-inside: avoid; break-inside: avoid;">
 
 ### 1. The Population Cohort Sankey: Closing the Four Priced Adverse Exits
 Tracing a representative birth cohort from Birth (Age 0) through the First 2000 Days (Ages 0–5), the Early-Adolescent Gate (Ages 12–14), Adult Skill Launch (Age 20), and Adulthood Fates (Age 30+) reveals how early hardship cascades into adult fiscal and social costs across **four priced exits**:
@@ -237,7 +239,8 @@ Under the **High-Opportunity Reform ($`SS1`$ and $`SS2`$)**, birth and early-yea
 
 Every ribbon in a Sankey diagram is, in truth, a biography in motion—sixty thousand newborn lives each year branching toward either frustration or fulfillment. When we shift from the Population Sankey above to the Fiscal Sankey below, we are not changing the subject from people to money; we are simply watching what happens to the nation's books when sixty-one percent of our children are equipped to author thriving lives instead of twenty-three.
 
----
+</div>
+<div style="page-break-after: always; break-after: page;"></div>
 
 ### 2. The 6-Gate Lifecycle Fiscal Sankey & Reconciling Private Parental Commitment
 Our 6-Gate Dollar-Weighted Fiscal Sankey traces annual per-child resource flows (in real 2025 NZD thousands per year per cohort birth) across two true-scale regimes separated by a vertical scale-break wave at the **Age-20 Adult Skill Launch Gate**:
@@ -255,9 +258,12 @@ Our 6-Gate Dollar-Weighted Fiscal Sankey traces annual per-child resource flows 
 
 *Interactive Sankey Explorer:* The online versions of these Sankey diagrams feature clickable dialogs for every visible ribbon and node, detailing the structural mechanism driving each flow alongside the empirical data and theoretical literature justifying the calculation.
 
----
+</div>
+<div style="page-break-after: always; break-after: page;"></div>
 
 ## Part IV: Integrated Policy Results & Visual Evidence
+
+<div style="page-break-inside: avoid; break-inside: avoid;">
 
 ### 1. Multiphase 4-Region Decomposition of Long-Run Welfare Gains (`SS1` Incubation vs. `SS2` 2050 Actuarial Dividend)
 Evaluating lifetime Consumption-Equivalent Variation (CE %) under the veil of ignorance for incoming cohorts across all four regions reveals both the power of Phase 1 (`SS1`, the revenue-neutral First-2000-Days and property-to-enterprise tax rebalance) and the compounding payoff of Phase 2 (`SS2`, the post-Year-20 Actuarial Dividend and 3.5 percentage-point PAYE tax-relief harvest):
@@ -279,6 +285,9 @@ Evaluating lifetime Consumption-Equivalent Variation (CE %) under the veil of ig
 In human terms, Jump 2 (`c = +25`) is the moment the story comes full circle: the infant who was lifted out of hardship during the First 2000 Days in Year 1, and who found their voice as a tuakana mentor at age thirteen, is now twenty-six years old and welcoming their own first child—not in a damp, rent-stressed flat on the edge of despair, but with a skill craft, a capital stake, and the quiet confidence to pass that wholeness on.
 
 <br clear="all" />
+</div>
+
+<div style="page-break-inside: avoid; break-inside: avoid;">
 
 ### 2. Breaking the Intergenerational Trap: First 2000 Days vs. Late Remediation
 <img src="./Output_NZ_4Region_Intergen/FigE8_LeeSeshadri_4Region_Counterfactuals.png" alt="Lee-Seshadri 4-Region Counterfactuals" align="right" width="68%" style="float: right; width: 68%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
@@ -289,6 +298,9 @@ Our multi-stage lifecycle counterfactuals across Rural, Small, Large, and Auckla
 * **The Full Package Multiplier:** Combining First-2000-Days wraparound provision with Adolescent Montessori / Tuakana–Teina Mentoring and the age-20 Youth Capital Grant cuts the share of lifetime inequality locked in at age 20 from **64.3% down to 44.8%** and raises permanent cohort welfare by **+12.7% to +15.8%**.
 
 <br clear="all" />
+</div>
+
+<div style="page-break-inside: avoid; break-inside: avoid;">
 
 ### 3. Housing Tenure & Generational Cleavage: Navigating the Political Economy
 <img src="./Output_NZ_4Region_Intergen/Fig2_Kiyotaki_Housing_Estates_4Region.png" alt="Housing Prices, Homeownership, and Estate Flows" align="right" width="68%" style="float: right; width: 68%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
@@ -299,6 +311,9 @@ Decomposing welfare impacts across housing tenure groups clarifies the transitio
 * **Older Property-Rich Retirees/Landlords (Ages 65+):** Experience a direct capital valuation adjustment on overvalued metropolitan property at Reform Year 0 (**-1.1% to -3.4%**), which is substantially cushioned over the transition by: (i) securing the fiscal solvency of universal NZ Superannuation without labor tax hikes, and (ii) a surge in **Parental Relational Well-Being** as their educated children and grandchildren thrive and remain in New Zealand rather than emigrating.
 
 <br clear="all" />
+</div>
+
+<div style="page-break-inside: avoid; break-inside: avoid;">
 
 #### Distributional Impact Across 10 Survey-Anchored Earn + Own Tiers: What the Wealthy Contribute vs. What They Have Left to Celebrate
 
@@ -307,6 +322,8 @@ To address the political economy of wealth and estate taxation without arbitrary
 <img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelA_PainVsGain_Dunedin_22.png" alt="Redistribution Pain vs Gain" align="right" width="50%" style="float: right; width: 50%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 **1. 90% of Kiwis Are Unconditionally Money Ahead—And 98% Are Ahead or Within Statistical Breakeven (`Q1 Renter` through `P98`):** Across the first **90% of New Zealand households**—from the **Q1 Hardship Renter (`45k + 12k`, +25.4% CE)**, **Q2 Young Saver (`85k + 115k`, +19.1% CE)**, **Median Income (`120k + 340k`, +15.2% CE)**, and **Median Net Worth (`135k + 530k`, +11.4% CE)** right up to the **Top 10% (`P90: 240k + 2.15M`, +3.6% CE)**—*100% of households come out money ahead regardless of how they hold their wealth*, with even pure passive property holders at `P90` remaining net positive (**+0.4%**). Extending the lens to the **98th percentile (`P98: 450k + 5.20M`)**, **98% of all Kiwis still have a ~50/50 or better shot of doing better under the plan than the status quo**, with active career and business households at `P98` gaining **+4.3%** against **-4.4%** for pure passive land-holders (**+0.1% tier average**).
+
+<div style="clear: both;"</div>
 
 <img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelB_LeftToCelebrate_Dunedin_22.png" alt="Retained Wealth Across Survey-Anchored Earn + Own Tiers" align="right" width="50%" style="float: right; width: 50%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
@@ -319,6 +336,9 @@ To address the political economy of wealth and estate taxation without arbitrary
 **3. Pity the Rich-Listers—A "Not-Great Year in the Market" on Average, and Still Celebrating NZD 126.3M+:** Even on a portfolio-average basis, a **Top 1% (`P99: 600k + 8.5M`)** household experiences only a **-1.1% CE** adjustment—retaining **94.6% of its compounded net worth (NZD 8.04M; or 98.5% for active entrepreneurs)** and **NZD 455k/yr in after-tax cash flow**. At the **NBR Rich List Median (`6.5M + 140M`)**, an ultra-high-net-worth family contributes roughly NZD 13.7M over the transition to help eradicate child stunting and reverse the youth brain drain: their average adjustment (**-5.9% CE**, retaining **NZD 126.3M / 90.2%** of baseline net worth, or **NZD 133.4M / 95.3%** for active business families, plus **NZD 4.62M/yr in after-tax income**) is no worse than a sluggish year in the equity market, and even the worst-case passive land-bank haircut (**-11.2%**) is gentler than a routine once-a-decade market correction—while enjoying a safer, high-cohesion New Zealand where their own children and grandchildren choose to stay and build their lives.
 
 <br clear="all" />
+</div>
+
+<div style="page-break-inside: avoid; break-inside: avoid;">
 
 | Survey Benchmark & Description | Empirical `Income + Net Worth` *(HES / Rashbrooke / IRD / NBR)* | Total Tax & Cooling Pain (`House` + `Wealth` + `Estate`) | Total Economic & Cohesion Gain (`ECE/Rent` + `PAYE` + `Firm` + `Cohesion`) | Net Welfare Impact: **Tier Average** (CE %) | **Active Entrepreneur** ($`z_h`$) vs. **Passive Land Hoarder** ($`z_{\ell}`$) | Post-Reform Fortune Left to Celebrate (`Net Worth` & `% Retained`) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
@@ -332,6 +352,9 @@ To address the political economy of wealth and estate taxation without arbitrary
 | **8. Top 1% (`P99`)** | **`600k + 8.50M`** | -10.3% | +9.2% | **-1.1%** | **+3.6%** vs. **-6.2%** | **NZD 8.04M** *(94.6% of base)* |
 | **9. IRD High-Wealth Median** *(P99.9)* | **`2.1M + 50M`** | -13.2% | +9.1% | **-4.1%** | **+1.2%** vs. **-9.7%** | **NZD 45.85M** *(91.7% of base)* |
 | **10. NBR Rich List Median** *(P99.99)* | **`6.5M + 140M`** | -14.7% | +8.8% | **-5.9%** | **-0.1%** vs. **-11.2%** | **NZD 126.3M** *(90.2% of base)* |
+</div>
+
+<div style="page-break-inside: avoid; break-inside: avoid;">
 
 ### 4. Dynamic Regional Population Shares & Three-Wave Brain-Drain Closure (60-Year Path)
 <img src="./Output_NZ_4Region_Intergen/Fig3_BrainDrain_Cohesion_4Region.png" alt="Brain Drain Closure and Social Cohesion Recovery" align="right" width="68%" style="float: right; width: 68%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
@@ -343,23 +366,26 @@ Tracking domestic youth sorting and outward emigration across **Rural**, **Small
 Retaining 3,550 young adults every year is not merely a labor-supply statistic. It is 3,550 founders, nurses, teachers, engineers, musicians, and storytellers who are no longer saying goodbye to their parents at Auckland or Christchurch Airport—staying instead to start bands in Dunedin, launch studios in Wellington, coach junior rugby in provincial towns, and keep the cultural heartbeat of Aotearoa alive.
 
 <br clear="all" />
+</div>
 
+<div style="page-break-inside: avoid; break-inside: avoid;">
 ### 5. Cooperative Childcare Bargaining, Fertility Recovery, & Why Keeping NZ Super at Age 65 Beats Raising the Pension Age to 67 or 70
 <img src="./Output_NZ_4Region_Intergen/FigFert_TFR_National_Dunedin_22.png" alt="Fertility Recovery" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 Relieving metropolitan housing stress and providing universal First-2000-Days wraparound ECE transforms intra-household fertility bargaining and resolves New Zealand's retirement fiscal squeeze without cutting pension entitlements:
 * **Reversing the Primate-City Fertility Squeeze:** Auckland's Total Fertility Rate recovers from **1.49 to 1.80 in `SS1` (and 1.91 in `SS2`)** and Large regional cities recover from **1.57 to 1.86 (`1.95` in `SS2`)**, lifting the national TFR from **1.66 to 1.93 (`1.98` in `SS2`)** while narrowing the differential fertility gap between low-income and high-income *whānau* by **61%** (from +0.38 down to +0.15 births per woman).
-<img src="./Output_NZ_4Region_Intergen/FigFert_SuperSolvency_National_Dunedin_22.png" alt="NZ Superannuation Solvency" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
-
 * **The -3.32 to -3.77 Percentage-Point Superannuation Solvency Dividend (While Keeping Eligibility at Age 65):** Higher domestic youth retention, cohort skill expansion (61%+ thriving), and fertility recovery lower the long-run 65+ old-age dependency ratio from **51.4% down to 42.5%**, bending the required working-age PAYE tax rate needed to fund universal New Zealand Superannuation down from **28.22% to 24.45%–24.90%**—directly funding the Phase 2 (`SS2`) working-age PAYE tax cut!
 * **Why Our Generational Plan Outperforms Raising the NZ Super Age to 67 or 70:** Conventional austerity proposals argue that New Zealand must raise the superannuation eligibility age from 65 to 67 or 70. Our lifecycle model demonstrates why raising the pension age is both **fiscally inferior and deeply inequitable**:
+<img src="./Output_NZ_4Region_Intergen/FigFert_SuperSolvency_National_Dunedin_22.png" alt="NZ Superannuation Solvency" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
+
   1. *The Fiscal Substitution Leak (38% to 45% Offset):* Manual, rural, and lower-skilled workers experience steep physical health depreciation in their sixties. Withholding NZ Super at ages 65–66 (Age 67 policy) or ages 65–69 (Age 70 policy) forces **38% to 45%** of affected older workers onto Supported Living Payments, Jobseeker hardship transfers, and acute hospital care—wiping out nearly half the projected budget savings.
   2. *The Regressive Life-Expectancy Penalty on Māori, Pasifika, and Manual Workers:* Because Māori, Pasifika, and manual tradespeople have significantly shorter life expectancy and healthy-work-life expectancy than metropolitan executives, raising the eligibility age to 67 or 70 confiscates a disproportionate share of their retirement years to subsidize the longevity of wealthy professionals.
   3. *A Shrinking Tax Base Still Climbs:* Because raising the pension age does nothing to fix child stunting (22.0%), low fertility (1.66), or the 20–35 youth brain drain (10.9%), the required PAYE tax rate under **Age 67 still climbs to 26.85%**, and even under **Age 70 still climbs to 25.55%**. By expanding the skilled working tax base instead of cutting retirement dignity, **our Generational Plan keeps universal NZ Super at Age 65 and achieves a lower long-run tax rate (24.45%–24.90%) than raising the retirement age to 70!**
 
 <br clear="all" />
+</div>
 
----
+<div style="page-break-after: always; break-after: page;"></div>
 
 ## Part V: The 2050 Sovereign Debt-Sinking Protocol & ACC-Style Actuarial Continuation Valuation
 
@@ -386,6 +412,8 @@ Applying this exact ACC and New Zealand Treasury Cost-Benefit Analysis (CBAx) me
 1. **Strict Separation of the Crown Fiscal Ledger and the Economy-Wide Prize:** To comply with New Zealand Treasury accounting standards, avoided public service costs and benefit transfers (the **Fiscal Ledger**) are tracked strictly separately from additional gross domestic product (the **Economy-Wide GDP Prize**), and the two are never blended together.
 2. **Treasury Dual-Rate Discounting and Conservative Attribution:** When a cohort completes the First 2000 Days at age five and verifiably exits the high-risk developmental tier, we evaluate the next twenty-five years of their conditional trajectory using the New Zealand Treasury's official **2.0% real social discount rate** (from Treasury Circular 2024/15) alongside the mandatory **8.0% real commercial sensitivity rate**, after stripping out a conservative **30% attribution haircut** and accounting for ongoing school-age skill retention.
 
+<div style="page-break-inside: avoid; break-inside: avoid;">
+
 #### What the Year 5 Parliamentary Audit Reveals Nationally and Across All Four Regions
 
 Once forward liability reductions and trajectory shifts are recognised at Year 5, the apparent cash deficit vanishes across every region of New Zealand:
@@ -393,6 +421,8 @@ Once forward liability reductions and trajectory shifts are recognised at Year 5
 <img src="./Output_NZ_4Region_Intergen/Fig_Actuarial_Fiscal_National_Dunedin_22.png" alt="National Crown Fiscal Ledger" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 **Immediate National Fiscal Breakeven at Year 5:** Against the **NZD 9.19B** five-year investment outlay, recognised direct cost avoidance alone (reduced hospital nights, Oranga Tamariki care placements, youth justice, and long-term benefit dependency) reaches **NZD 10.68B** at the 2.0% Treasury discount rate—exceeding the entire public outlay by **1.16x** at the end of the very first parliamentary cycle. Including the Crown's tax revenue share from higher future earnings lifts the Year 5 recognised total fiscal return to **NZD 35.25B** at the 2.0% rate (**3.84x** the outlay) and **NZD 18.25B** (**1.99x** the outlay) even under the punitive 8.0% commercial sensitivity rate.
+
+<div style="clear: both;"></div>
 
 <img src="./Output_NZ_4Region_Intergen/Fig_Actuarial_WideGDP_National_Dunedin_22.png" alt="National Economy-Wide GDP Prize" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
@@ -407,7 +437,9 @@ Once forward liability reductions and trajectory shifts are recognised at Year 5
 At its best, actuarial accounting is simply institutional memory paired with moral imagination—a way of allowing today's Parliament to see, value, and take credit for the thirty-year flourishing of a five-year-old child who cannot yet vote. The table below summarizes the Year 5 Parliamentary Audit across all four regions alongside the 15-, 20-, 40-, and 60-year national milestones:
 
 <br clear="all" />
+</div>
 
+<div style="page-break-inside: avoid; break-inside: avoid;">
 | Region / Transition Milestone | Cumulative Public Investment Outlay | Wait-As-You-Go Cash Fiscal Return | Booked Direct Cost Avoidance Alone (2.0% Real) | Booked Total Fiscal Return (2.0% Central / 8.0% Sens.) | Realized Cash Cumulative GDP Gain | Booked Economy-Wide GDP Prize (2.0% Central / 8.0% Sens.) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Year 5 Audit: `Rural` (16.0% Pop)** | NZD 1.42B | NZD 0.65B | **NZD 1.48B** | **NZD 4.61B / NZD 2.39B** | NZD 1.99B | **NZD 10.87B / NZD 6.13B** |
@@ -419,7 +451,9 @@ At its best, actuarial accounting is simply institutional memory paired with mor
 | **Year 20 Launch (`National`)** | NZD 65.5B | NZD 70.1B | **NZD 91.9B** | **NZD 257.8B / NZD 163.7B** | NZD 192.7B | **NZD 576.1B / NZD 382.5B** |
 | **Year 40 Estate Peak (`National`)** | NZD 142.4B | NZD 328.8B | **NZD 222.8B** | **NZD 587.8B / NZD 467.6B** | NZD 716.1B | **NZD 1,268.4B / NZD 1,010.8B** |
 | **Year 60 Convergence (`National`)** | **NZD 220.1B** | **NZD 702.3B** | **NZD 372.2B** | **NZD 975.1B / NZD 850.5B** | **NZD 1,510.7B** | **NZD 2,095.8B / NZD 1,827.3B** |
+</div>
 
+<div style="page-break-inside: avoid; break-inside: avoid;">
 ### 3. Earning the Phase 2 (`SS2`) Fiscal Dividend: Why Discipline in `SS1` Unlocks Tax Relief After Year 20
 A natural question arises from the Year 5 audit: if the reform already generates **NZD 35.25B** in recognised fiscal value against an **NZD 9.19B** outlay by Year 5, why not cut taxes immediately or borrow to fund Phase 1 (`SS1`)?
 * **Why Phase 1 (`SS1`) Must Stay Strictly Cash-Neutral:** First, under New Zealand's Public Finance Act, forward actuarial savings cannot be spent as cash to pay teachers or nurses in Year 5 without issuing sovereign debt. Second, the Phase 1 shift from taxing productive enterprise to taxing unproductive property hoarding and the peak NZD 1.6T estate wave is not merely a revenue raiser—it is the structural engine that cools Auckland's 3.10x housing price-to-income bubble and drives capital into frontier businesses.
@@ -428,7 +462,9 @@ A natural question arises from the Year 5 audit: if the reform already generates
   2. **Stepping Down the Emergency Estate Tax (25.0% down to 18.0%):** Once the peak 20-year baby-boomer estate transfer wave has endowed the Youth Capital Fund.
   3. **Deepening *Whānau* Wraparound, Montessori / *Tuakana–Teina* Mentoring, and Infrastructure:** Using the 50% Public Reinvestment Pool to expand Iwi, *Whānau Ora*, Pasifika, Barnardos, and **Graeme Dingle Foundation (*Stars* / *Project K*)** partnerships alongside universal **Montessori / *Tuakana–Teina* adolescent mentoring** and a higher age-20 Youth Capital Grant, compressing developmental stunting down to **1.5%** in the second generation.
   4. **Early Credibility Acceleration:** Because young workers (ages 20–35) see the audited Year 5 actuarial surplus and know the Phase 2 PAYE tax cut is actuarially locked in, skilled youth emigration to Australia drops early—well before Year 25 arrives.
+</div>
 
+<div style="page-break-inside: avoid; break-inside: avoid;">
 ### 4. Synthesis of Parts IV and V: Seven-Factor Attribution of Phase 2 (`SS2`) Long-Run Welfare Gains
 
 With both the human-capital transition channels (**Part IV**) and the 2050 Debt-Sinking, Infrastructure, and Actuarial Harvest mechanisms (**Part V**) in place, we can now answer a central question for voters, business leaders, and Cabinet Ministers: **Which specific economic engines generate the Phase 2 (`SS2`) long-run welfare gain of +20.49% Nationally (+14.28% in `Rural`, +13.66% in `Small` towns, +22.17% in `Large` regional cities, and +26.03% in `Auckland`)?**
@@ -447,7 +483,9 @@ Decomposing the 60-year welfare trajectory into **seven additive structural engi
 | **Total Phase 2 (`SS2`) Long-Run Welfare Gain (CE %)** | **All Seven Coupled Engines Combined** | **+14.28%** | **+13.66%** | **+22.17%** | **+26.03%** | **+20.49%** | **100.0%** |
 
 ![7-Factor Stacked Attribution of SS2 Welfare Gains](./Output_NZ_4Region_Intergen/Fig1_SS2_7Factor_StackedAttribution_National_Dunedin_22.png)
+</div>
 
+<div style="page-break-inside: avoid; break-inside: avoid;">
 #### Detailed Walkthrough of the Seven Structural Engines (From Bottom to Top of the Stack)
 1. **Engine 1 — Reduced Deadweight Losses & Acute Exits 1, 2, 4 (11.5% of National Gain | +2.35% CE Nationally, +2.55% in Auckland):** Slashing avoidable entries into Oranga Tamariki state care, acute hospitalisations, youth and adult justice, and long-term benefit dependency by over 75% eliminates fiscal deadweight loss and directly relieves early-childhood hardship corners across all four regions.
 2. **Engine 2 — Housing Affordability & Youth Capital Seeding (10.2% of National Gain | +2.10% CE Nationally, +3.05% in Auckland):** Cooling metropolitan house price-to-income ratios (-7.5% in `SS1` to -10.5% in `SS2` in Auckland) lowers rental user costs and pairs with the universal age-20 Youth Capital Grant to accelerate young-family homeownership and business formation.
@@ -460,10 +498,12 @@ Decomposing the 60-year welfare trajectory into **seven additive structural engi
 6. **Engine 6 — Demographic Strength, Fertility Recovery, & The NZ Super Tax Dividend (14.4% of National Gain | +2.95% CE Nationally, +3.45% in Auckland):** Relieving metropolitan childcare and housing costs lifts the national Total Fertility Rate from 1.66 to 1.98 and lowers the 65+ old-age dependency ratio from 51.4% to 42.5%—keeping universal New Zealand Superannuation at Age 65 while funding the **-3.5 percentage-point working-age PAYE tax cut (from 22.0% down to 18.5%)**.
 7. **Engine 7 — Human Capital & Dynastic Skill Productivity (32.9% of National Gain | +6.74% CE Nationally, +8.58% in Auckland):** The single largest engine. Universal First-2000-Days wraparound provision and **Montessori / *Tuakana–Teina* and Graeme Dingle Foundation** adolescent mentoring compress adult skill stunting from 22.0% down to 1.5%, while second-generation dynastic compounding ensures future children are raised by higher-skilled, higher-earning *whānau*.
 
----
+</div>
 
+<div style="page-break-after: always; break-after: page;"></div>
 ## Part VI: Historical Precedent (and Cautionary Tales)
 
+<div style="page-break-inside: avoid; break-inside: avoid;">
 ### Why International History Validates New Zealand's Generational Plan
 
 Skeptics of long-horizon reform often ask whether any democratic market economy has ever achieved a nearly seven-fold cumulative GDP multiplier, double-digit permanent welfare gains, and a one-third reduction in intergenerational immobility over a forty-to-sixty-year horizon. Modern economic history provides an unambiguous answer. Every small or mid-sized nation that has paired **productive capital and land reallocation (Aspects 2 & 3)** with **universal early human-capital investment (Aspect 1)** has achieved this exact trajectory:
@@ -490,7 +530,9 @@ By contrast, jurisdictions that deployed only the childhood half of the architec
 | **The Devolved Half-Bridge:**<br>**Scotland** (*Early-Years & Mentoring Success Hit by Wage-Tax Ceiling*) | 10 Years (2017–2026) | **Deployed:** *Child Poverty Act*, *Scottish Child Payment* (to GBP 40/wk), 1,140 hrs universal ECE, *The Promise* & *MCR Pathways* mentoring.<br>**Missing:** Sovereign land, estate, or corporate tax powers (relied on 42%–48% PAYE hikes & 1991 Council Tax). | **Validates Aspect 1** (First-2000-Days + Adolescent Mentoring & Exit 1 Care closure) **AND proves why Aspects 2 & 3** (land/estate tax shift vs. PAYE hikes) **are essential** | Cut child poverty **6 percentage points below the rest of the UK** (21% vs. 27%+) and lifted mentored care-experienced youth progression from **54.0% to 81.6%**, but stalled above the 18% interim target due to urban housing costs and lack of sovereign wealth/land tax levers |
 | **The Primate-City Trap:**<br>**21st-Century South Korea** (*Cautionary "Seoul Squeeze"*) | 25 Years (2000–2025) | **Deployed:** High formal schooling investment.<br>**Missing:** Primate-city housing anti-speculation rules & public First-2000-Days wraparound (replaced by private *Hagwon* child-cost pressure). | Validates why **Aspect 1** schooling fails without **Aspects 2 & 3** (Auckland housing cooling & universal in-kind ECE) | Unchecked Seoul housing squeeze and private tutoring costs crushed family bargaining, driving Total Fertility Rate down to **0.72–0.75** |
 | **The Land-Bubble Collapse:**<br>**Post-1990 Bubble Japan** (*Cautionary Land Overvaluation*) | 30 Years (1990–2020) | **Deployed:** Strong base schooling & industrial quality.<br>**Missing:** Fiscal valves to prevent excess corporate/household savings from pouring into urban land speculation; weak support for working mothers. | Validates Hirano–Toda land-bubble drag in **Aspects 2 & 3** when speculative property is left untaxed | 1991 land-bubble collapse triggered **30 years of balance-sheet stagnation**, depressed fertility, and rapid aging |
+</div>
 
+<div style="page-break-inside: avoid; break-inside: avoid;">
 ### 1. The Positive Precedents: Pairing Productive Capital Reallocation with Universal Human Potential
 
 #### Sweden and Finland: The Nordic Dual-Dividend Model (1970–2020)
@@ -530,7 +572,9 @@ With a population of 5.5 million—nearly identical to New Zealand's 5.3 million
   3. *Closing Exit 1 (State Care) & The Adolescent Mentoring Gate:* Enacted ***The Promise*** (a statutory 10-year commitment to keep children out of state care through whole-family wraparound support), paired with **MCR Pathways** (structured school-based mentoring for care-experienced and vulnerable 12-to-17-year-olds—the direct Scottish counterpart to our **Montessori / *Tuakana–Teina* and Graeme Dingle Foundation** adolescent gate) and free bus travel for all under-22s.
 * **Measured Empirical Progress (2025–2026 Audits):** Official 2025–2026 evaluations by the Scottish Government, Audit Scotland, and the Joseph Rowntree Foundation confirm that Scotland's package kept **40,000 to 50,000 children out of poverty**—driving Scotland's child poverty rate **6 percentage points below the rest of the United Kingdom** (21% in Scotland versus ~27%–29% in England and Wales) with zero negative maternal labor-supply distortion, while *MCR Pathways* lifted tertiary education and employment progression among mentored care-experienced youth from **54.0% to 81.6%**.
 * **Why Scotland Stalled at 21%—And Why New Zealand Can Succeed Where Devolved Scotland Was Constrained (Missing Aspects 2 & 3):** Despite outperforming the rest of the UK by 6 percentage points, Scotland missed its 18% interim target because under the UK devolution settlement, the Scottish Parliament lacks sovereign power over corporate taxes, capital gains, and wealth/inheritance taxes, and still relies on an outdated 1991 municipal Council Tax. Forced to finance social investment almost entirely by raising working-age **PAYE income tax rates** (42% to 48% on middle and upper-middle earners) while urban housing costs in Edinburgh and Glasgow went unaddressed (leaving over 10,400 children in temporary accommodation), Scotland hit a fiscal and housing-affordability ceiling. **Aotearoa New Zealand possesses the exact unitary sovereign fiscal powers Scotland lacks:** by funding Phase 1 (`SS1`) through a **property-to-enterprise wealth and estate rebalance** that cools metropolitan rents and lifts business wages—and then **cutting working-age PAYE taxes by 3.5 percentage points in Phase 2 (`SS2`)**—New Zealand can capture Scotland's early-years and adolescent mentoring gains without squeezing working families!
+</div>
 
+<div style="page-break-inside: avoid; break-inside: avoid;">
 ### 2. The Cautionary Tales: Why Schooling Fails If Metropolitan Housing Speculation Goes Unchecked
 
 History also offers two sobering warnings from East Asia that prove why our reform couples **Aspect 1 (Early Human Potential)** with **Aspect 2 (Metropolitan Housing Affordability and Family Bargaining)** and **Aspect 3 (Productive vs. Speculative Asset Taxation)**:
@@ -541,7 +585,9 @@ In the late twentieth century, South Korea achieved one of the fastest schooling
 
 #### Post-1990 Bubble Japan: The Cost of Unchecked Land Overvaluation
 When late-1980s Japan allowed an unbridled urban land and real-estate bubble to crowd out productive enterprise lending while failing to support working mothers, the subsequent 1991 land-bubble collapse ushered in three decades of balance-sheet stagnation and rapid demographic aging. This historical contrast—between Japan's high-growth post-war productive era (1946–1985) and its post-1990 land-bubble stagnation—directly validates shifting New Zealand's tax base off productive enterprise and onto overvalued land and passive estate transfers.
+</div>
 
+<div style="page-break-inside: avoid; break-inside: avoid;">
 ### Coda: From Deming's Miracle to the Tokyo Bubble—Why Aotearoa Must Build Prosperity We Can Keep
 
 When macroeconomists invoke post-1990 Japan as a cautionary tale of land bubbles and demographic stagnation, they often omit the far more instructive half of the story: **how a shattered, resource-poor island nation generated the most spectacular industrial and human-capital miracle of the twentieth century in the first place**. Between 1945 and 1951, as Supreme Commander of the Allied Powers, General Douglas MacArthur oversaw the reconstruction of Japan's devastated economy—an effort that combined post-war land and estate de-concentration with universal *Boshi Kenko Techo* (Maternal and Child Health Handbook) First-2000-Days care and rigorous statistical planning. Frustrated that he could hardly complete a telephone call without the line going dead, MacArthur recruited the American statistician and systems thinker **W. Edwards Deming** in 1947 to help plan the 1951 Japanese Census.
@@ -555,3 +601,4 @@ Viewed across the three lifecycle aspects of our monograph, post-war Japan's asc
 Yet Japan's very triumph exposed the fatal flaw of ignoring **Aspect 3 (Land, Estate, and Capital Allocation)**. By the mid-1980s, the design of Deming's industrial engine had succeeded so spectacularly that Japan was generating more corporate and household surplus than its domestic factories needed to reinvest. Eventually there was literally not enough property in the world to absorb their newfound wealth! Exactly as Tomohiro Hirano and Alexis Akira Toda's (2025) *Land Overvaluation Theorem* proves, when rapid productivity growth in knowledge and manufacturing sectors is not paired with fiscal valves to cool land speculation or recycle surpluses into public and generational endowments, excess savings inevitably pour into finite urban land. By 1989, Japanese real estate values had detached from economic reality: the 1.15 square kilometers of the Imperial Palace grounds in Tokyo were valued on paper at more than all the real estate in the State of California, Japanese syndicates were bidding up trophy properties from Rockefeller Center to Hawaii, and young Tokyo families faced multi-generational hundred-year mortgages just to secure a place to live. When that credit-and-land bubble finally burst in 1990–1991, the resulting balance-sheet wreckage trapped Japan's brilliant industrial economy in three decades of deflationary stagnation and demographic contraction.
 
 For Aotearoa New Zealand, the full arc of Japan's twentieth century—from Deming's 1950 Mt. Hakone lecture to the 1990 Tokyo property implosion—delivers the defining lesson of this monograph. First, like post-war Japan (and like Ford Motor Company in 1981 or Porsche in 1992, when they finally adopted Deming's systems discipline to rescue themselves from the brink of ruin), **New Zealand does not need decades to turn the corner**: when a nation commits to whole-system quality across its people and enterprises, measurable transformation begins within three to five years. Second, we must never confuse inflating urban land values with true national wealth—in fact, New Zealand has suffered the Tokyo property disease without first building the Tokyo industrial engine! That is why our Generational Plan unites **both halves of the systems equation**: we ignite **Phase 1 (`SS1`)** with universal First-2000-Days wraparound, **Montessori / *Tuakana–Teina* and Graeme Dingle Foundation** adolescent mentoring, and a pro-enterprise tax shift, and we safeguard the harvest in **Phase 2 (`SS2`)** through the **2050 50/50 Debt-Sinking and Infrastructure Protocol**. By channeling our surpluses into retiring sovereign debt, building resilient infrastructure, seeding every young adult with capital, and cutting working-age PAYE taxes rather than bidding up metropolitan land, Aotearoa can build a prosperity that is not merely achieved, but **designed to be kept across generations**. In this way we honor *Te Tiriti o Waitangi* by taking the actions to be good ancestors and to benefit our *mokopuna* (future generations).
+</div>
