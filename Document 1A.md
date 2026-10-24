@@ -312,9 +312,7 @@ Our 6-Gate Dollar-Weighted Fiscal Sankey traces annual per-child resource flows 
 
 ```text
 +-----------------------------------------------------------------------------------+
-|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
-|                                                                                   |
 +-----------------------------------------------------------------------------------+
 ```
 
@@ -340,9 +338,6 @@ Evaluating lifetime Consumption-Equivalent Variation (CE %) under the veil of ig
 In human terms, Jump 2 (`c = +25`) is the moment the story comes full circle: the infant who was lifted out of hardship during the First 2000 Days in Year 1, and who found their voice as a tuakana mentor at age thirteen, is now twenty-six years old and welcoming their own first child—not in a damp, rent-stressed flat on the edge of despair, but with a skill craft, a capital stake, and the quiet confidence to pass that wholeness on.
 
 <br clear="all" />
-</div>
-
-<div style="page-break-inside: avoid; break-inside: avoid;">
 
 ### 2. Breaking the Intergenerational Trap: First 2000 Days vs. Late Remediation
 <img src="./Output_NZ_4Region_Intergen/FigE8_LeeSeshadri_4Region_Counterfactuals.png" alt="Lee-Seshadri 4-Region Counterfactuals" align="right" width="68%" style="float: right; width: 68%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
@@ -353,9 +348,6 @@ Our multi-stage lifecycle counterfactuals across Rural, Small, Large, and Auckla
 * **The Full Package Multiplier:** Combining First-2000-Days wraparound provision with Adolescent Montessori / Tuakana–Teina Mentoring and the age-20 Youth Capital Grant cuts the share of lifetime inequality locked in at age 20 from **64.3% down to 44.8%** and raises permanent cohort welfare by **+12.7% to +15.8%**.
 
 <br clear="all" />
-</div>
-
-<div style="page-break-inside: avoid; break-inside: avoid;">
 
 ### 3. Housing Tenure & Generational Cleavage: Navigating the Political Economy
 <img src="./Output_NZ_4Region_Intergen/Fig2_Kiyotaki_Housing_Estates_4Region.png" alt="Housing Prices, Homeownership, and Estate Flows" align="right" width="68%" style="float: right; width: 68%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
@@ -366,9 +358,6 @@ Decomposing welfare impacts across housing tenure groups clarifies the transitio
 * **Older Property-Rich Retirees/Landlords (Ages 65+):** Experience a direct capital valuation adjustment on overvalued metropolitan property at Reform Year 0 (**-1.1% to -3.4%**), which is substantially cushioned over the transition by: (i) securing the fiscal solvency of universal NZ Superannuation without labor tax hikes, and (ii) a surge in **Parental Relational Well-Being** as their educated children and grandchildren thrive and remain in New Zealand rather than emigrating.
 
 <br clear="all" />
-</div>
-
-<div style="page-break-inside: avoid; break-inside: avoid;">
 
 #### Distributional Impact Across 10 Survey-Anchored Earn + Own Tiers: What the Wealthy Contribute vs. What They Have Left to Celebrate
 
@@ -391,9 +380,6 @@ To address the political economy of wealth and estate taxation without arbitrary
 **3. Pity the Rich-Listers—A "Not-Great Year in the Market" on Average, and Still Celebrating NZD 126.3M+:** Even on a portfolio-average basis, a **Top 1% (`P99: 600k + 8.5M`)** household experiences only a **-1.1% CE** adjustment—retaining **94.6% of its compounded net worth (NZD 8.04M; or 98.5% for active entrepreneurs)** and **NZD 455k/yr in after-tax cash flow**. At the **NBR Rich List Median (`6.5M + 140M`)**, an ultra-high-net-worth family contributes roughly NZD 13.7M over the transition to help eradicate child stunting and reverse the youth brain drain: their average adjustment (**-5.9% CE**, retaining **NZD 126.3M / 90.2%** of baseline net worth, or **NZD 133.4M / 95.3%** for active business families, plus **NZD 4.62M/yr in after-tax income**) is no worse than a sluggish year in the equity market, and even the worst-case passive land-bank haircut (**-11.2%**) is gentler than a routine once-a-decade market correction—while enjoying a safer, high-cohesion New Zealand where their own children and grandchildren choose to stay and build their lives.
 
 <br clear="all" />
-</div>
-
-<div style="page-break-inside: avoid; break-inside: avoid;">
 
 | Survey Benchmark & Description | Empirical `Income + Net Worth` *(HES / Rashbrooke / IRD / NBR)* | Total Tax & Cooling Pain (`House` + `Wealth` + `Estate`) | Total Economic & Cohesion Gain (`ECE/Rent` + `PAYE` + `Firm` + `Cohesion`) | Net Welfare Impact: **Tier Average** (CE %) | **Active Entrepreneur** ($`z_h`$) vs. **Passive Land Hoarder** ($`z_{\ell}`$) | Post-Reform Fortune Left to Celebrate (`Net Worth` & `% Retained`) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
@@ -407,9 +393,6 @@ To address the political economy of wealth and estate taxation without arbitrary
 | **8. Top 1% (`P99`)** | **`600k + 8.50M`** | -10.3% | +9.2% | **-1.1%** | **+3.6%** vs. **-6.2%** | **NZD 8.04M** *(94.6% of base)* |
 | **9. IRD High-Wealth Median** *(P99.9)* | **`2.1M + 50M`** | -13.2% | +9.1% | **-4.1%** | **+1.2%** vs. **-9.7%** | **NZD 45.85M** *(91.7% of base)* |
 | **10. NBR Rich List Median** *(P99.99)* | **`6.5M + 140M`** | -14.7% | +8.8% | **-5.9%** | **-0.1%** vs. **-11.2%** | **NZD 126.3M** *(90.2% of base)* |
-</div>
-
-<div style="page-break-inside: avoid; break-inside: avoid;">
 
 ### 4. Dynamic Regional Population Shares & Three-Wave Brain-Drain Closure (60-Year Path)
 <img src="./Output_NZ_4Region_Intergen/Fig3_BrainDrain_Cohesion_4Region.png" alt="Brain Drain Closure and Social Cohesion Recovery" align="right" width="68%" style="float: right; width: 68%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
@@ -421,7 +404,6 @@ Tracking domestic youth sorting and outward emigration across **Rural**, **Small
 Retaining 3,550 young adults every year is not merely a labor-supply statistic. It is 3,550 founders, nurses, teachers, engineers, musicians, and storytellers who are no longer saying goodbye to their parents at Auckland or Christchurch Airport—staying instead to start bands in Dunedin, launch studios in Wellington, coach junior rugby in provincial towns, and keep the cultural heartbeat of Aotearoa alive.
 
 <br clear="all" />
-</div>
 
 ```text
 +-----------------------------------------------------------------------------------+
