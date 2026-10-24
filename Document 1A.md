@@ -415,11 +415,11 @@ Relieving metropolitan housing stress and providing universal First-2000-Days wr
 <img src="./Output_NZ_4Region_Intergen/FigFert_SuperSolvency_National_Dunedin_22.png" alt="NZ Superannuation Solvency" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 ```text
-+-----------------------------------------------------------------------------------+
-|                                                                                   |
-|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
-|                                                                                   |
-+-----------------------------------------------------------------------------------+
++-----------------------------------------------------------------------+
+|                                                                       |
+|                 [ THIS SPACE INTENTIONALLY LEFT BLANK ]               |
+|                                                                       |
++-----------------------------------------------------------------------+
 ```
 
 * **Why Our Generational Plan Outperforms Raising the NZ Super Age to 67 or 70:** Conventional austerity proposals argue that New Zealand must raise the superannuation eligibility age from 65 to 67 or 70. Our lifecycle model demonstrates why raising the pension age is both **fiscally inferior and deeply inequitable**:
