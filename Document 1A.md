@@ -192,9 +192,6 @@ No single sector can enact this transformation alone, and no sector needs to wai
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
 +-----------------------------------------------------------------------------------+
 ```
 
@@ -270,6 +267,14 @@ Yet New Zealand has been quietly spending down its integrity inheritance:
   1. **Closing the Deprivation & Justice Pipeline (Aspect 1):** Compressing cohort stunting from 22.0% to 1.5% through First-2000-Days wraparound and *Montessori / Tuakana–Teina and Graeme Dingle Foundation* adolescent mentoring dries up the pipeline of social exclusion, youth disengagement, and organised-crime vulnerability.
   2. **Replacing High-Churn Brain Drain with Rooted Communities (Aspect 2):** Retaining educated 20-to-35-year-olds in New Zealand and reducing replacement-migration turnover rebuilds local community continuity and lifts our modeled **Social Cohesion Index from 100.0 to 126.0**.
   3. **Restoring Fairness Between Work and Wealth (Aspect 3):** Reallocating tax burdens off working wages and productive enterprise and onto passive land hoarding—while locking 50% of fiscal surpluses into transparent sovereign debt reduction and 50% into resilient public infrastructure—restores young New Zealanders' belief that hard work and talent are rewarded at home.
+
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ## Part III: Tracing Cohort Fates & Fiscal Flows From Birth to Retirement
 
