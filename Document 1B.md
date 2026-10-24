@@ -414,7 +414,11 @@ We note that there is much to celebrate across virtually all wealth cohorts, and
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
+|                                                                                   |
+|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
@@ -447,7 +451,7 @@ We note that there is much to celebrate across virtually all wealth cohorts, and
 ### 4.7 Tables 7 & 8: Cooperative Childcare Bargaining, Fertility Recovery, & Why Keeping NZ Super at Age 65 Outperforms Raising the Pension Age to 67 or 70
 *Source Files:* [`Table7_4Region_Endogenous_TFR_DiffFertility.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table7_4Region_Endogenous_TFR_DiffFertility.csv) and [`Table8_4Region_Fertility_Stunting_NZSuperTax.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table8_4Region_Fertility_Stunting_NZSuperTax.csv) *(Script: `Plot_Fertility_SuperSolvency_2Panel.m`; Sibling Figures: `FigFert_TFR_National_Dunedin_22.png` and `FigFert_SuperSolvency_National_Dunedin_22.png`)*
 
-<img src="./Output_NZ_4Region_Intergen/FigFert_2Panel_National_Dunedin_22" alt="Fertility Recovery and NZ Superannuation Solvency vs Age 67 and Age 70 Across 4 Regions" width="98%" style="display: inline-block; width: 98%; vertical-align: middle; break-inside: avoid; page-break-inside: avoid;" />
+<img src="./Output_NZ_4Region_Intergen/FigFert_2Panel_National_Dunedin_22.png" alt="Fertility Recovery and NZ Superannuation Solvency vs Age 67 and Age 70 Across 4 Regions" width="98%" style="display: inline-block; width: 98%; vertical-align: middle; break-inside: avoid; page-break-inside: avoid;" />
 
 #### Table 4.7A: Regional Cooperative Fertility Bargaining & Old-Age Dependency (`Tables 7 & 8`)
 
