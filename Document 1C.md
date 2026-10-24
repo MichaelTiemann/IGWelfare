@@ -56,9 +56,7 @@ When Aotearoa pairs **Phase 1 (`SS1`: Revenue-Neutral Incubation & Capital Reall
 | **Long-Run Household Welfare Gain (CE %)** | 0.00% | **+8.1% (*Rural*) to +15.4% (*Auckland*)** | **+14.3% (*Rural*) to +26.0% (*Auckland*)** | **+20.49% National welfare gain**; first **95% of households** and **active entrepreneurs up to NZD 100M** gain |
 
 ```text
-+-----------------------------------------------------------------------------------+
-|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
-+-----------------------------------------------------------------------------------+
+[                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     ]
 ```
 
 ---
