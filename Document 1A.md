@@ -412,11 +412,11 @@ Relieving metropolitan housing stress and providing universal First-2000-Days wr
 * **The -3.32 to -3.77 Percentage-Point Superannuation Solvency Dividend (While Keeping Eligibility at Age 65):** Higher domestic youth retention, cohort skill expansion (61%+ thriving), and fertility recovery lower the long-run 65+ old-age dependency ratio from **51.4% down to 42.5%**, bending the required working-age PAYE tax rate needed to fund universal New Zealand Superannuation down from **28.22% to 24.45%–24.90%**—directly funding the Phase 2 (`SS2`) working-age PAYE tax cut!
 
 ```text
-+-----------------------------------------------------------------------+
-|                                                                       |
-|                 [ THIS SPACE INTENTIONALLY LEFT BLANK ]               |
-|                                                                       |
-+-----------------------------------------------------------------------+
++-------------------------------------------------------------------+
+|                                                                   |
+|               [ THIS SPACE INTENTIONALLY LEFT BLANK ]             |
+|                                                                   |
++-------------------------------------------------------------------+
 ```
 
 <br clear="all" />
@@ -463,14 +463,12 @@ Once forward liability reductions and trajectory shifts are recognised at Year 5
 
 **Immediate National Fiscal Breakeven at Year 5:** Against the **NZD 9.19B** five-year investment outlay, recognised direct cost avoidance alone (reduced hospital nights, Oranga Tamariki care placements, youth justice, and long-term benefit dependency) reaches **NZD 10.68B** at the 2.0% Treasury discount rate—exceeding the entire public outlay by **1.16x** at the end of the very first parliamentary cycle. Including the Crown's tax revenue share from higher future earnings lifts the Year 5 recognised total fiscal return to **NZD 35.25B** at the 2.0% rate (**3.84x** the outlay) and **NZD 18.25B** (**1.99x** the outlay) even under the punitive 8.0% commercial sensitivity rate.
 
-<div style="clear: both;"></div>
-
+<br clear="all" />
 <img src="./Output_NZ_4Region_Intergen/Fig_Actuarial_WideGDP_National_Dunedin_22.png" alt="National Economy-Wide GDP Prize" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 **The National Economy-Wide GDP Prize:** While realized cash-basis GDP growth at Year 5 is **NZD 15.30B** (driven by immediate business capital reallocation from the property-to-enterprise tax shift), the recognised 25-year forward GDP prize at Year 5 is **NZD 85.40B** at the 2.0% discount rate and **NZD 48.05B** at the 8.0% sensitivity rate. Over the full 60-year transition, cumulative realized GDP growth reaches **NZD 1,510.7B** (a **6.86x** macroeconomic multiplier on the NZD 220.1B cumulative investment), while the recognised forward GDP prize reaches **NZD 2,095.8B**.
 
 <br clear="all" />
-
 <img src="./Output_NZ_4Region_Intergen/Fig_Actuarial_WideGDP_Auckland_Dunedin_22.png" alt="Auckland Economy-Wide GDP Lens: Realized vs. Recognised Forward GDP Prize" align="right" width="46%" style="float: right; width: 46%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 **The Auckland Primate Agglomeration Engine (34.1% of Population, 35.1% of Businesses):** Because Auckland combines the nation's highest business productivity ceiling with its most severe metropolitan rental squeeze, it generates 40.0% of the national economic payoff. Against a Year 5 cumulative investment of **NZD 3.24B** in Auckland, realized cash fiscal returns are **NZD 1.95B** and realized cash GDP gains reach **NZD 6.03B** (NZD 6.0B), while the booked 25-year fiscal return reaches **NZD 13.90B** (with **NZD 4.06B** in direct cost avoidance alone) and the booked 25-year GDP prize stands at **NZD 34.17B** (NZD 34.2B) under the 2.0% Treasury central rate and **NZD 19.20B** (NZD 19.2B) under the 8.0% sensitivity rate—compounding to **NZD 595.2B** in realized cumulative GDP and **NZD 826.5B** in recognised economic value by Year 60.
