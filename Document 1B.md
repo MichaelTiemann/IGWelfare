@@ -472,6 +472,48 @@ We note that there is much to celebrate across virtually all wealth cohorts, and
 | **3. Alternative B: Raise Super Age to 70 (Regressive Cut)** | **Age 70** | 40.2% *(adj.)* | **45.0% leak** into Supported Living, accommodation & hospital care | **25.55%** (+3.55 pp hike) | Confiscates 30%–40% of retirement years for Māori, Pasifika & manual workers |
 | **4. Our Generational Plan (`SS1 -> SS2`, Keep Age 65!)** | **Age 65** | **42.5%** (`0.425`) | **0.0% leak** (Healthier, higher-skill workforce) | **24.45%–24.90%** (-3.32 to -3.77 pp dividend) | **Protects Age 65 retirement dignity while achieving a LOWER tax rate than Age 70!** |
 
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ---
 
 ## 5. Part V Cross-Reference: The 2050 Debt-Sinking Protocol, Actuarial Continuation Valuation, & 7-Factor Attribution
