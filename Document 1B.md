@@ -106,6 +106,22 @@ Every strategic claim, welfare percentage, fertility shift, migration flow, weal
 
 ---
 
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ### 2.2 Aspect 1: Early Childhood & The Adolescent Mentoring Gate (`Ages 0–19`)
 
 * **Intergenerational Borrowing Constraint & Private Corner Solution ($`i_c = 0`$):**
