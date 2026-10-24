@@ -409,6 +409,18 @@ We note that there is much to celebrate across virtually all wealth cohorts, and
 
 <br clear="all" />
 
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ---
 
 ### 4.6 Tables 9 & 10: Dynamic Regional Population Shares & Three-Wave Brain-Drain Closure (60-Year Path)
@@ -435,8 +447,7 @@ We note that there is much to celebrate across virtually all wealth cohorts, and
 ### 4.7 Tables 7 & 8: Cooperative Childcare Bargaining, Fertility Recovery, & Why Keeping NZ Super at Age 65 Outperforms Raising the Pension Age to 67 or 70
 *Source Files:* [`Table7_4Region_Endogenous_TFR_DiffFertility.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table7_4Region_Endogenous_TFR_DiffFertility.csv) and [`Table8_4Region_Fertility_Stunting_NZSuperTax.csv`](https://github.com/MichaelTiemann/IGWelfare/blob/main/Output_NZ_4Region_Intergen/Table8_4Region_Fertility_Stunting_NZSuperTax.csv) *(Script: `Plot_Fertility_SuperSolvency_2Panel.m`; Sibling Figures: `FigFert_TFR_National_Dunedin_22.png` and `FigFert_SuperSolvency_National_Dunedin_22.png`)*
 
-<img src="./Output_NZ_4Region_Intergen/FigFert_TFR_National_Dunedin_22.png" alt="Fertility Recovery Across 4 Regions" width="49%" style="display: inline-block; width: 49%; vertical-align: top; break-inside: avoid; page-break-inside: avoid;" />
-<img src="./Output_NZ_4Region_Intergen/FigFert_SuperSolvency_National_Dunedin_22.png" alt="NZ Superannuation Solvency vs Age 67 and Age 70" width="49%" style="display: inline-block; width: 49%; vertical-align: top; break-inside: avoid; page-break-inside: avoid;" />
+<img src="./Output_NZ_4Region_Intergen/FigFert_2Panel_National_Dunedin_22" alt="Fertility Recovery and NZ Superannuation Solvency vs Age 67 and Age 70 Across 4 Regions" width="98%" style="display: inline-block; width: 98%; vertical-align: middle; break-inside: avoid; page-break-inside: avoid;" />
 
 #### Table 4.7A: Regional Cooperative Fertility Bargaining & Old-Age Dependency (`Tables 7 & 8`)
 
@@ -490,8 +501,7 @@ We note that there is much to celebrate across virtually all wealth cohorts, and
   * **Panel B Sibling (Economy-Wide GDP Lens):** `Fig_Actuarial_WideGDP_<Region>_<Anchor>.png`
   * **All-4-Region Spatial Dashboard & Year 5 Audit Bar Charts:** `Fig_Actuarial_Dashboard_All4_<Anchor>.png`, `Fig_Actuarial_Year5Audit_All4_<Anchor>.png`, `Fig_Actuarial_Year5Audit_Fiscal_All4_<Anchor>.png`, and `Fig_Actuarial_Year5Audit_WideGDP_All4_<Anchor>.png`
 
-<img src="./Output_NZ_4Region_Intergen/Fig_Actuarial_Fiscal_National_Dunedin_22.png" alt="National Crown Fiscal Ledger" width="49%" style="display: inline-block; width: 49%; vertical-align: top; break-inside: avoid; page-break-inside: avoid;" />
-<img src="./Output_NZ_4Region_Intergen/Fig_Actuarial_WideGDP_National_Dunedin_22.png" alt="National Economy-Wide GDP Prize" width="49%" style="display: inline-block; width: 49%; vertical-align: top; break-inside: avoid; page-break-inside: avoid;" />
+<img src="./Output_NZ_4Region_Intergen/Fig_Actuarial_2Panel_National_Dunedin_22.png" alt="National Crown Fiscal Ledger and Economy-Wide GDP Prize" width="98%" style="display: inline-block; width: 98%; vertical-align: middle; break-inside: avoid; page-break-inside: avoid;" />
 
 ---
 
