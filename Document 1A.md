@@ -327,9 +327,9 @@ To address the political economy of wealth and estate taxation without arbitrary
 
 **2. The Guvenen "Use-It-Or-Lose-It" Split Inside the Top 2%—Winning to the IRD High-Wealth Median (`50M`) and Breaking Even at the NBR Rich List Median (`140M`):** Within the top 2% to 0.01% of the wealth distribution, welfare impacts bifurcate sharply according to *how wealth is held*:
 
-<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelB_LeftToCelebrate_Dunedin_22.png" alt="Retained Wealth Across Survey-Anchored Earn + Own Tiers" align="right" width="50%" style="float: right; width: 50%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
-
 * **Active Growth Entrepreneurs & Venture Investors ($`z_h`$, Green Solid Trajectory):** High-net-worth founders and growth investors who deploy capital into productive operating enterprises benefit from lower corporate and PAYE tax drag, 60 bps cheaper expansion credit, and a vastly deeper pool of thriving domestic talent ($`h_6`$–$`h_7`$ rising from 23.2% to 61.0%+ of the cohort)—remaining **net welfare positive at `P99` (`600k + 8.5M`, +3.6% CE) and the `IRD High-Wealth Median` (`2.1M + 50M`, +1.2% CE), and breaking even right at the `NBR Rich List Median` (`6.5M + 140M`, -0.1% CE)**!
+
+<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelB_LeftToCelebrate_Dunedin_22.png" alt="Retained Wealth Across Survey-Anchored Earn + Own Tiers" align="right" width="50%" style="float: right; width: 50%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
 * **Passive Residential Land Hoarders ($`z_\ell`$, Red Dashed Trajectory):** High-net-worth households whose portfolios are concentrated in leveraged, low-yield residential rental land bear the full weight of metropolitan house price cooling (-7.5% in $`SS1`$ to -10.5% in $`SS2`$), the 1.5% annual land/wealth levy, and the estate tax—experiencing a net welfare adjustment ranging from **-2.7% at `P95` and -4.4% at `P98` to -11.2% at the `NBR Rich List Median`**.
 
