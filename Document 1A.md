@@ -414,6 +414,14 @@ Relieving metropolitan housing stress and providing universal First-2000-Days wr
 <br clear="all" />
 <img src="./Output_NZ_4Region_Intergen/FigFert_SuperSolvency_National_Dunedin_22.png" alt="NZ Superannuation Solvency" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 * **Why Our Generational Plan Outperforms Raising the NZ Super Age to 67 or 70:** Conventional austerity proposals argue that New Zealand must raise the superannuation eligibility age from 65 to 67 or 70. Our lifecycle model demonstrates why raising the pension age is both **fiscally inferior and deeply inequitable**:
 
   1. *The Fiscal Substitution Leak (38% to 45% Offset):* Manual, rural, and lower-skilled workers experience steep physical health depreciation in their sixties. Withholding NZ Super at ages 65–66 (Age 67 policy) or ages 65–69 (Age 70 policy) forces **38% to 45%** of affected older workers onto Supported Living Payments, Jobseeker hardship transfers, and acute hospital care—wiping out nearly half the projected budget savings.
@@ -421,22 +429,6 @@ Relieving metropolitan housing stress and providing universal First-2000-Days wr
   3. *A Shrinking Tax Base Still Climbs:* Because raising the pension age does nothing to fix child stunting (22.0%), low fertility (1.66), or the 20–35 youth brain drain (10.9%), the required PAYE tax rate under **Age 67 still climbs to 26.85%**, and even under **Age 70 still climbs to 25.55%**. By expanding the skilled working tax base instead of cutting retirement dignity, **our Generational Plan keeps universal NZ Super at Age 65 and achieves a lower long-run tax rate (24.45%–24.90%) than raising the retirement age to 70!**
 
 <br clear="all" />
-
-```text
-+-----------------------------------------------------------------------------------+
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-+-----------------------------------------------------------------------------------+
-```
 
 ## Part V: The 2050 Sovereign Debt-Sinking Protocol & ACC-Style Actuarial Continuation Valuation
 
