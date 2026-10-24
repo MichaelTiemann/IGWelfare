@@ -267,7 +267,13 @@ To resolve the unit disambiguation problem and reconcile model flows with the **
 
 *(For A3 print readability, the 26-Node Fiscal Ledger is split below into **Table 3.2A: Left Regime — Childhood Gates 1–4** and **Table 3.2B: Right Regime — Adult Fiscal Gates 5–6**.)*
 
----
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 #### Table 3.2A: Left Regime — Childhood Resource Flows (Gates 1–4, Ages 0–20)
 
