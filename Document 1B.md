@@ -388,22 +388,24 @@ For each tier $`m \in \{1, \dots, 10\}`$, total Consumption-Equivalent welfare c
 
 <br clear="all" />
 
-| Survey Benchmark & Description (`Table17_Survey10Tier_*`) | Empirical `Income + Net Worth` *(HES / Rashbrooke / IRD / NBR)* | Total Tax & Cooling Pain (`House` + `Wealth` + `Estate`) | Total Economic & Cohesion Gain (`ECE/Rent` + `PAYE` + `Firm` + `Cohesion`) | Net Welfare Impact: **Tier Average** (CE %) | **Active Entrepreneur** ($`z_{h,k}`$) vs. **Passive Land Hoarder** ($`z_{\ell,k}`$) | Post-Reform Fortune Left to Celebrate (`Net Worth` & `% Retained`) | Post-Reform After-Tax Cash Flow (`NZD / yr`) |
+<p align="center" style="margin: 0.4rem 0; break-inside: avoid; page-break-inside: avoid;">
+  <img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_2Panel_PainAndCelebration_Dunedin_22.png" alt="Redistribution Pain vs Gain and Retained Wealth Across 10 Survey-Anchored Tiers" width="98%" style="display: inline-block; width: 98%; vertical-align: middle;" />
+</p>
+
+| Survey Tier (`Table17_Survey10Tier_*`) | `Income + Net Worth` | Pain (`H+W+E`) | Gain (`ECE+Tax+Firm+S`) | **Tier Avg (CE %)** | **Active** ($`z_{h,k}`$) vs. **Passive** ($`z_{\ell,k}`$) | Net Worth Left (`% Base`) | After-Tax Cash (`/yr`) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **1. `Q1` Hardship Renter** *(P12)* | **`45k + 12k`** | 0.0% | +25.4% | **+25.4%** | **+25.4%** vs. **+25.4%** | **NZD 74k** *(Seeds deposit)* | NZD 46.8k/yr |
-| **2. `Q2` Young Saver** *(P35)* | **`85k + 115k`** | -0.3% | +19.4% | **+19.1%** | **+19.1%** vs. **+19.1%** | **NZD 166k** *(144.3% of base)* | NZD 78.5k/yr |
-| **3. Median Income** *(P50 Inc / P42 NW)* | **`120k + 340k`** | -0.9% | +16.1% | **+15.2%** | **+15.6%** vs. **+14.3%** | **NZD 382k** *(112.4% of base)* | NZD 106.2k/yr |
-| **4. Median Net Worth** *(P50 NW)* | **`135k + 530k`** | -1.6% | +13.0% | **+11.4%** | **+12.4%** vs. **+9.6%** | **NZD 573k** *(108.1% of base)* | NZD 118.4k/yr |
-| **5. Top 10% (`P90`)** | **`240k + 2.15M`** | -5.1% | +8.7% | **+3.6%** | **+6.4%** vs. **+0.4%** | **NZD 2.12M** *(98.6% of base)* | NZD 198.0k/yr |
-| **6. Top 5% (`P95`)** | **`310k + 3.10M`** | -6.9% | +8.3% | **+1.4%** | **+5.2%** vs. **-2.7%** | **NZD 2.99M** *(96.5% of base)* | NZD 248.5k/yr |
-| **7. Top 2% (`P98`)** | **`450k + 5.20M`** | -8.6% | +8.7% | **+0.1%** | **+4.3%** vs. **-4.4%** | **NZD 4.96M** *(95.4% of base)* | NZD 349.0k/yr |
-| **8. Top 1% (`P99`)** | **`600k + 8.50M`** | -10.3% | +9.2% | **-1.1%** | **+3.6%** vs. **-6.2%** | **NZD 8.04M** *(94.6% of base; **98.5%** active)* | **NZD 455.0k/yr** |
-| **9. IRD High-Wealth Median** *(P99.9)* | **`2.1M + 50M`** | -13.2% | +9.1% | **-4.1%** | **+1.2%** vs. **-9.7%** | **NZD 45.85M** *(91.7% of base; **96.4%** active)* | **NZD 1.52M/yr** |
-| **10. NBR Rich List Median** *(P99.99)* | **`6.5M + 140M`** | -14.7% | +8.8% | **-5.9%** | **-0.1%** vs. **-11.2%** | **NZD 126.3M** *(90.2% of base; **NZD 133.4M / 95.3%** active)* | **NZD 4.62M/yr** |
+| **1. `Q1` Renter** *(P12)* | **`45k + 12k`** | 0.0% | +25.4% | **+25.4%** | **+25.4%** / **+25.4%** | **NZD 74k** *(Deposit)* | NZD 46.8k |
+| **2. `Q2` Young Saver** *(P35)* | **`85k + 115k`** | -0.3% | +19.4% | **+19.1%** | **+19.1%** / **+19.1%** | **NZD 166k** *(144.3%)* | NZD 78.5k |
+| **3. Median Income** *(P50 Inc)* | **`120k + 340k`** | -0.9% | +16.1% | **+15.2%** | **+15.6%** / **+14.3%** | **NZD 382k** *(112.4%)* | NZD 106.2k |
+| **4. Median Net Worth** *(P50 NW)* | **`135k + 530k`** | -1.6% | +13.0% | **+11.4%** | **+12.4%** / **+9.6%** | **NZD 573k** *(108.1%)* | NZD 118.4k |
+| **5. Top 10% (`P90`)** | **`240k + 2.15M`** | -5.1% | +8.7% | **+3.6%** | **+6.4%** / **+0.4%** | **NZD 2.12M** *(98.6%)* | NZD 198.0k |
+| **6. Top 5% (`P95`)** | **`310k + 3.10M`** | -6.9% | +8.3% | **+1.4%** | **+5.2%** / **-2.7%** | **NZD 2.99M** *(96.5%)* | NZD 248.5k |
+| **7. Top 2% (`P98`)** | **`450k + 5.20M`** | -8.6% | +8.7% | **+0.1%** | **+4.3%** / **-4.4%** | **NZD 4.96M** *(95.4%)* | NZD 349.0k |
+| **8. Top 1% (`P99`)** | **`600k + 8.50M`** | -10.3% | +9.2% | **-1.1%** | **+3.6%** / **-6.2%** | **NZD 8.04M** *(94.6% / **98.5%** act.)* | **NZD 455.0k** |
+| **9. IRD HW Median** *(P99.9)* | **`2.1M + 50M`** | -13.2% | +9.1% | **-4.1%** | **+1.2%** / **-9.7%** | **NZD 45.85M** *(91.7% / **96.4%** act.)* | **NZD 1.52M** |
+| **10. NBR Rich List** *(P99.99)* | **`6.5M + 140M`** | -14.7% | +8.8% | **-5.9%** | **-0.1%** / **-11.2%** | **NZD 126.3M** *(90.2% / **95.3%** act.)* | **NZD 4.62M** |
 
-<img src="./Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelB_LeftToCelebrate_Dunedin_22.png" alt="Retained Wealth Across 10 Survey-Anchored Tiers" width="48%" style="display: inline-block; width: 48%; vertical-align: top; break-inside: avoid; page-break-inside: avoid;" />
-
-We note that there is much to celebrate across virtually all wealth cohorts, and that those who do lose a little, lose much less than in a typical one-per-decade market haircut.  In a 60 year plan, there will typically be 6 such.
+We note that there is much to celebrate across virtually all wealth cohorts, and that those who do lose a little, lose much less than in a typical one-per-decade market haircut. In a 60-year plan, there will typically be 6 such.
 
 <br clear="all" />
 
@@ -497,11 +499,15 @@ We note that there is much to celebrate across virtually all wealth cohorts, and
 
 At transition period $`t_0`$ (in years, $`t_0 \in \{5, 10, \dots, 60\}`$), let $`\mathcal{C}_{k,\mathrm{realized}}^{(L)}(t_0)`$ denote the cumulative realized cash flow integrated via the trapezoidal rule (`cumtrapz`) from Year 0 to Year $`t_0`$ under lens $`L \in \{\mathrm{Sav}, \mathrm{Fiscal}, \mathrm{Econ}\}`$. Annual flows are interpolated onto a 1-year grid ($`y \in \{0, 1, \dots, 100\}`$) via piecewise cubic Hermite interpolation (`pchip`). The **Actuarial Continuation Valuation** $`\mathcal{V}_{k,t_0}^{(L)}(H)`$ over a rolling $`H = 25`$-year recognition window for region $`k \in \{\mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland}\}`$ is:
 
-$$\mathcal{V}_{k,t_0}^{(L)}(H; r_{\mathrm{disc}}) = \mathcal{C}_{k,\mathrm{realized}}^{(L)}(t_0) + (1 - \alpha_{\mathrm{attr}}) \Phi_{\mathrm{pipe}}(t_0) \sum_{s=1}^{H} \left(\frac{1 + g_{\mathrm{cost}}}{1 + r_{\mathrm{disc}}}\right)^s \psi_{k,\mathrm{persist}}^s \cdot \mathbb{E}_{t_0}\!\left[\Delta \mathrm{Flow}_{k, t_0+s}^{(L)} \;\middle|\; \mu_{k,t_0}\right]$$
+```math
+\mathcal{V}_{k,t_0}^{(L)}(H; r_{\mathrm{disc}}) = \mathcal{C}_{k,\mathrm{realized}}^{(L)}(t_0) + (1 - \alpha_{\mathrm{attr}}) \Phi_{\mathrm{pipe}}(t_0) \sum_{s=1}^{H} \left(\frac{1 + g_{\mathrm{cost}}}{1 + r_{\mathrm{disc}}}\right)^s \psi_{k,\mathrm{persist}}^s \cdot \mathbb{E}_{t_0}\left[\Delta \mathrm{Flow}_{k, t_0+s}^{(L)} \;\middle|\; \mu_{k,t_0}\right]
+```
 
 and the national aggregate is obtained by exact spatial summation across the four regional ledgers:
 
-$$\mathcal{V}_{\mathrm{National},t_0}^{(L)}(H; r_{\mathrm{disc}}) = \sum_{k \in \{\mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland}\}} \mathcal{V}_{k,t_0}^{(L)}(H; r_{\mathrm{disc}})$$
+```math
+\mathcal{V}_{\mathrm{National},t_0}^{(L)}(H; r_{\mathrm{disc}}) = \sum_{k \in \{\mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland}\}} \mathcal{V}_{k,t_0}^{(L)}(H; r_{\mathrm{disc}})
+```
 
 where:
 * $`\Phi_{\mathrm{pipe}}(t_0) = \min(1.0, t_0 / 15.0)`$ (`pipeline_maturity`) measures the fraction of the 0–15 childhood age pipeline that has completed or entered active treatment by year $`t_0`$ (reaching `1.0` at Year 15 when all childhood brackets are active).
@@ -537,11 +543,15 @@ where:
 
 * **The Credibility Weight $`\lambda_{\mathrm{cred}}(t) \in [0, 1]`$ and Perceived Continuation Value $`\tilde{V}_{k,t+1}`$:** Let $`V_{k,t+1}^{\mathrm{perm,SS1}}`$ denote the backward-induction continuation value if agents believe Phase 1 (`SS1`) parameters remain frozen forever, and let $`V_{k,t+1}^{\mathrm{full,SS2}}`$ denote the continuation value under perfect foresight of the Phase 2 (`SS2`) **-3.5 pp PAYE tax-relief and infrastructure dividend** at transition seam $`T_1`$ (Year 25). At every transition period $`t < T_1`$, households and firms evaluate the credibility-weighted continuation value:
 
-$$\tilde{V}_{k,t+1}(a', h', z', j+1) = \bigl(1 - \lambda_{\mathrm{cred}}(t)\bigr) V_{k,t+1}^{\mathrm{perm,SS1}}(a', h', z', j+1) + \lambda_{\mathrm{cred}}(t) V_{k,t+1}^{\mathrm{full,SS2}}(a', h', z', j+1)$$
+```math
+\tilde{V}_{k,t+1}(a', h', z', j+1) = \bigl(1 - \lambda_{\mathrm{cred}}(t)\bigr) V_{k,t+1}^{\mathrm{perm,SS1}}(a', h', z', j+1) + \lambda_{\mathrm{cred}}(t) V_{k,t+1}^{\mathrm{full,SS2}}(a', h', z', j+1)
+```
 
 where the time-$`t`$ credibility weight $`\lambda_{\mathrm{cred}}(t)`$ evolves between the announcement date $`t_{\mathrm{ann}}`$ and the Phase-2 enactment date $`T_1`$ according to:
 
-$$\lambda_{\mathrm{cred}}(t) = \begin{cases} 0 & \text{if } t < t_{\mathrm{ann}} \\ \bar{\lambda}_0 + (1 - \bar{\lambda}_0) \left(\dfrac{t - t_{\mathrm{ann}}}{T_1 - t_{\mathrm{ann}}}\right)^{\kappa_{\mathrm{cred}}} & \text{if } t_{\mathrm{ann}} \le t < T_1 \\ 1 & \text{if } t \ge T_1 \end{cases}$$
+```math
+\lambda_{\mathrm{cred}}(t) = \begin{cases} 0 & \text{if } t < t_{\mathrm{ann}} \\ \bar{\lambda}_0 + (1 - \bar{\lambda}_0) \left(\dfrac{t - t_{\mathrm{ann}}}{T_1 - t_{\mathrm{ann}}}\right)^{\kappa_{\mathrm{cred}}} & \text{if } t_{\mathrm{ann}} \le t < T_1 \\ 1 & \text{if } t \ge T_1 \end{cases}
+```
 
 * **Three Nested Policy Announcement Regimes in `TransPath_4Region_Master.m`:**
   1. **Regime A — Unanticipated Sequential Reform (MIT Shock at $`T_1`$, $`\lambda_{\mathrm{cred}}(t) = 0`$ for $`t < T_1`$):** Agents solve Phase 1 believing `SS1` is permanent. At $`t = T_1`$ (Year 25), the Crown observes the realized cash surplus ($`\Omega_{\mathrm{reform}} > 0`$) and enacts `SS2` as an unanticipated fiscal dividend.
@@ -628,28 +638,46 @@ To provide an exhaustive accounting of the **+14.28% (`Rural`), +13.66% (`Small`
 
 * **1. Working-Age & Retirement Household Budget Constraint (`ReturnFn_SpatialHH.m`):**
 
-$$e_{\mathrm{tot}} = \frac{\bigl(1 + (1 - \tau_k)r\bigr)a + (1 - \tau_l) w_k z h \max(0, \ell - I_h) + \mathbb{I}_{j=1} E + T_k - \bar{e}_k - (1 - s_{\mathrm{sub}}) i_c - a'}{1 + \tau_c}$$
+```math
+e_{\mathrm{tot}} = \frac{\bigl(1 + (1 - \tau_k)r\bigr)a + (1 - \tau_l) w_k z h \max(0, \ell - I_h) + \mathbb{I}_{j=1} E + T_k - \bar{e}_k - (1 - s_{\mathrm{sub}}) i_c - a'}{1 + \tau_c}
+```
 
 * **2. Analytical Housing Tenure Cutoff $`\xi_k`$ & Composite Housing Price Index $`p_{H,k}(j)`$ (`Kiyotaki et al., 2024`):**
 
-$$\xi_k = \min\!\left\{1, \; \frac{1}{\bar{\chi}} \left(\frac{rr_k}{rh_k}\right)\right\}, \qquad p_{H,k}(j) = \begin{cases} \xi_k rh_k + (1 - \xi_k) \dfrac{rr_k}{0.5 \bar{\chi}} & \text{if } j < J_r \\ rh_k & \text{if } j \ge J_r \end{cases}$$
+```math
+\xi_k = \min\left\{1, \; \frac{1}{\bar{\chi}} \left(\frac{rr_k}{rh_k}\right)\right\}, \qquad p_{H,k}(j) = \begin{cases} \xi_k rh_k + (1 - \xi_k) \dfrac{rr_k}{0.5 \bar{\chi}} & \text{if } j < J_r \\ rh_k & \text{if } j \ge J_r \end{cases}
+```
 
 * **3. Infinite-Horizon Firm Bellman Equation & After-Tax Return (`ReturnFn_Firm.m`, `Guvenen et al., 2023`):** In region $`k \in \{\mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland}\}`$, firms with productivity $`z_f \in \{z_{\ell,k}, z_{h,k}\}`$ and collateral limit $`k \le \lambda_{\mathrm{col}} a_f`$ ($`\lambda_{\mathrm{col}} = 1.80`$) solve:
 
-$$V_{F,k}(a_f, z_f) = \max_{a'_f \in [0, R_k(z_f; \Delta t) a_f]} \left\{ \ln\!\bigl(R_k(z_f; \Delta t) a_f - a'_f\bigr) + \beta_{\mathrm{firm}}(\Delta t) \sum_{z'_f} \Pi_{f,k}(z'_f \mid z_f) V_{F,k}(a'_f, z'_f) \right\}$$
+```math
+V_{F,k}(a_f, z_f) = \max_{a'_f \in [0, R_k(z_f; \Delta t) a_f]} \left\{ \ln\bigl(R_k(z_f; \Delta t) a_f - a'_f\bigr) + \beta_{\mathrm{firm}}(\Delta t) \sum_{z'_f} \Pi_{f,k}(z'_f \mid z_f) V_{F,k}(a'_f, z'_f) \right\}
+```
 
-$$R_k(z_f; \Delta t) = (1 - \tau_a)\Delta t + (1 - \tau_k) \left\{ r + \max\!\left(0, \; \alpha_k \left(\frac{1 - \alpha_k}{w_k}\right)^{\frac{1-\alpha_k}{\alpha_k}} z_f - \bigl(r + \delta_k(\Delta t)\bigr)\right) \lambda_{\mathrm{col}} \right\}$$
+```math
+R_k(z_f; \Delta t) = (1 - \tau_a)\Delta t + (1 - \tau_k) \left\{ r + \max\left(0, \; \alpha_k \left(\frac{1 - \alpha_k}{w_k}\right)^{\frac{1-\alpha_k}{\alpha_k}} z_f - \bigl(r + \delta_k(\Delta t)\bigr)\right) \lambda_{\mathrm{col}} \right\}
+```
 
 * **4. Two-Stage Childhood CES Skill Law of Motion & Adult Ben-Porath Dynamics (`ChildCES_aprimeFn.m` / `HumanCapital_Lifecycle_aprimeFn.m`):** With step weight $`\omega_s = 1 / n_s`$ across Stage 1 ($`\mathcal{J}_{c,1}, \varphi_1 = 0.35`$) and Stage 2 ($`\mathcal{J}_{c,2}, \varphi_2 = -0.95`$):
 
-$$\theta_{\mathrm{step}}(\theta_c, i_c, G_{\mathrm{ECE},s}, \varphi_s) = \left[ \gamma_{s,\mathrm{self}} \theta_c^{\varphi_s} + \gamma_{s,\mathrm{inv}} (i_c + G_{\mathrm{ECE},s} + \bar{g}_{\mathrm{ECE}})^{\varphi_s} + \gamma_{s,\mathrm{par}} \bar{h}_p^{\varphi_s} \right]^{1/\varphi_s}$$
+```math
+\theta_{\mathrm{step}}(\theta_c, i_c, G_{\mathrm{ECE},s}, \varphi_s) = \left[ \gamma_{s,\mathrm{self}} \theta_c^{\varphi_s} + \gamma_{s,\mathrm{inv}} (i_c + G_{\mathrm{ECE},s} + \bar{g}_{\mathrm{ECE}})^{\varphi_s} + \gamma_{s,\mathrm{par}} \bar{h}_p^{\varphi_s} \right]^{1/\varphi_s}
+```
 
-$$\theta'_c = \begin{cases} (1 - \omega_{s1}) \theta_c + \omega_{s1} \theta_{\mathrm{step}}(\theta_c, i_c, G_{\mathrm{ECE},1}, \varphi_1) & \text{if } j \in \mathcal{J}_{c,1} \\ (1 - \omega_{s2}) \theta_c + \omega_{s2} \theta_{\mathrm{step}}(\theta_c, i_c, G_{\mathrm{ECE},2}, \varphi_2) & \text{if } j \in \mathcal{J}_{c,2} \\ \theta_c & \text{otherwise} \end{cases}$$
+```math
+\theta'_c = \begin{cases} (1 - \omega_{s1}) \theta_c + \omega_{s1} \theta_{\mathrm{step}}(\theta_c, i_c, G_{\mathrm{ECE},1}, \varphi_1) & \text{if } j \in \mathcal{J}_{c,1} \\ (1 - \omega_{s2}) \theta_c + \omega_{s2} \theta_{\mathrm{step}}(\theta_c, i_c, G_{\mathrm{ECE},2}, \varphi_2) & \text{if } j \in \mathcal{J}_{c,2} \\ \theta_c & \text{otherwise} \end{cases}
+```
 
-$$h' = \bigl(1 - \delta_{hc}(\Delta t)\bigr) h + \left(\frac{\Delta t}{5}\right) \mathbb{I}(\ell > 0) \, I_h^{\alpha_I} h^{\alpha_H}$$
+```math
+h' = \bigl(1 - \delta_{hc}(\Delta t)\bigr) h + \left(\frac{\Delta t}{5}\right) \mathbb{I}(\ell > 0) \, I_h^{\alpha_I} h^{\alpha_H}
+```
 
 * **5. Macro Public Residual ($`\Omega_{\mathrm{fiscal}}`$) & The 2050 50/50 Dynamic Surplus Split (`Plot_ChildFiscal_2Panel_SSankey.m`):** At Gate 5 ($`J = 10`$, Age 30) and Gate 6 ($`J = 11\text{–}16`$, Career to Retirement), the net cohort fiscal balance $`\Omega_{\mathrm{fiscal}}`$ and positive fiscal surplus allocation are defined as:
 
-$$\Omega_{\mathrm{fiscal}} = \bigl(\mathrm{Tax}_{\mathrm{PAYE}} + \mathrm{Tax}_{\mathrm{GST}} + \mathrm{Tax}_{\mathrm{Cap}} + \mathrm{Tax}_{\mathrm{Estate}}\bigr) - \bigl(\mathrm{Cost}_{\mathrm{Exits},1,2,4} + \mathrm{Cost}_{\mathrm{Infra,Health,Super}}\bigr)$$
+```math
+\Omega_{\mathrm{fiscal}} = \bigl(\mathrm{Tax}_{\mathrm{PAYE}} + \mathrm{Tax}_{\mathrm{GST}} + \mathrm{Tax}_{\mathrm{Cap}} + \mathrm{Tax}_{\mathrm{Estate}}\bigr) - \bigl(\mathrm{Cost}_{\mathrm{Exits},1,2,4} + \mathrm{Cost}_{\mathrm{Infra,Health,Super}}\bigr)
+```
 
-$$\Omega_{\mathrm{surplus}}^{\mathrm{SS1}} = \max\!\bigl(0, \, \Omega_{\mathrm{fiscal}}^{\mathrm{SS1}}\bigr) = \underbrace{0.50 \, \Omega_{\mathrm{surplus}}^{\mathrm{SS1}}}_{\Omega_{\mathrm{debt}}\text{ (Debt Sinking)}} + \underbrace{0.50 \, \Omega_{\mathrm{surplus}}^{\mathrm{SS1}}}_{\Omega_{\mathrm{reinv}}\text{ (Reinvestment Pool)}}$$
+```math
+\Omega_{\mathrm{surplus}}^{\mathrm{SS1}} = \max\bigl(0, \, \Omega_{\mathrm{fiscal}}^{\mathrm{SS1}}\bigr) = \underbrace{0.50 \, \Omega_{\mathrm{surplus}}^{\mathrm{SS1}}}_{\Omega_{\mathrm{debt}}\text{ (Debt Sinking)}} + \underbrace{0.50 \, \Omega_{\mathrm{surplus}}^{\mathrm{SS1}}}_{\Omega_{\mathrm{reinv}}\text{ (Reinvestment Pool)}}
+```
