@@ -1,4 +1,3 @@
-%% 1. Replace lines 1-7 of getFiscalRibbonNarratives.m with:
 function narrativeMap = getFiscalRibbonNarratives(phaseCode)
 if nargin < 1 || isempty(phaseCode)
     phaseCode = 'SS1';
