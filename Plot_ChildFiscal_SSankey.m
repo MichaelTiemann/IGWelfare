@@ -776,11 +776,11 @@ Nodes_S5 = {sprintf('15. Exits 1,2,4: Care/Hosp/Just\n($%.1fk/yr | @$32k/stunted
     sprintf('20. Age 30 Emig Tax Loss\n($%.1fk/yr to Abroad)',              A30_Col_Dollars(6))};
 
 if Surplus_CR > 0.05
-    lbl_23 = sprintf('23. GST, Cap & Estate Tax\n($%.1fk/yr | 50%% Reinvest: +$%.1fk)', CR_Col_Dollars(3), Reinvest_50_CR);
-    lbl_24 = sprintf('24. Career PAYE Tax\n($%.1fk/yr | 50%% Debt Sink: +$%.1fk)',      CR_Col_Dollars(4), DebtSink_50_CR);
+    lbl_23 = sprintf('23. GST, z_h Cap & Estate Tax\n($%.1fk/yr | 50%% Reinvest: +$%.1fk)', CR_Col_Dollars(3), Reinvest_50_CR);
+    lbl_24 = sprintf('24. Career Builder PAYE Tax\n($%.1fk/yr | 50%% Debt Sink: +$%.1fk)',  CR_Col_Dollars(4), DebtSink_50_CR);
 else
-    lbl_23 = sprintf('23. GST, Cap & Estate Tax Pool\n($%.1fk/yr)', CR_Col_Dollars(3));
-    lbl_24 = sprintf('24. Career PAYE Income Tax\n($%.1fk/yr)',     CR_Col_Dollars(4));
+    lbl_23 = sprintf('23. GST, Cap & Estate Pool [z_l Skew]\n($%.1fk/yr)', CR_Col_Dollars(3));
+    lbl_24 = sprintf('24. Career PAYE Income Tax\n($%.1fk/yr)',            CR_Col_Dollars(4));
 end
 
 Nodes_S6 = {sprintf('21. Exits 1,2,4: Ongoing Burden\n($%.1fk/yr)', CR_Col_Dollars(1)), ...
