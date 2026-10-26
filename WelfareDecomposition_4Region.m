@@ -39,8 +39,8 @@ if ~exist('Reform_Phase_Specs', 'var') || isempty(Reform_Phase_Specs)
     Reform_Phase_Specs(1).tau_b         = 0.180;
     Reform_Phase_Specs(1).tau_l_delta   = 0.000; % Revenue-neutral PAYE in SS1 (matches field in SS2!)
     Reform_Phase_Specs(1).r_delta       = -0.004;
-    Reform_Phase_Specs(1).w_mult_vs_SS0 = [1.032, 1.038, 1.048, 1.055];
-    Reform_Phase_Specs(1).Q_mult_vs_SS0 = [0.990, 0.975, 0.950, 0.925];
+    Reform_Phase_Specs(1).w_mult_vs_SS0 = [1.032, 1.038, 1.048, 1.055]; % Guvenen (2023) capital + Murphy-Shleifer-Vishny (1991) talent reallocation lift
+    Reform_Phase_Specs(1).Q_mult_vs_SS0 = [0.990, 0.975, 0.950, 0.925]; % Guvenen (2023) capital + Murphy-Shleifer-Vishny (1991) talent reallocation lift
     Reform_Phase_Specs(1).Frac_stunted  = 0.045; % Stunting compression from 28.5% -> 4.5% (lifts relational utility u_rel)
     Reform_Phase_Specs(1).S_cohesion    = 112.0; % Social cohesion lift from brain-drain & stunting reduction
     Reform_Phase_Specs(1).Transfer_Geo  = struct( ...
