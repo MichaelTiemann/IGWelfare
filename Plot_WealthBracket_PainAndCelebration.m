@@ -12,7 +12,7 @@ function Out = Plot_WealthBracket_PainAndCelebration(Params)
 %   1) Fig_WealthBrackets_2Panel_PainAndCelebration_<Anchor>.png (2-Panel Combined)
 %   2) Fig_WealthBrackets_PanelA_PainVsGain_<Anchor>.png          (Panel A Sibling)
 %   3) Fig_WealthBrackets_PanelB_LeftToCelebrate_<Anchor>.png     (Panel B Sibling)
-%   4) Table17_Rashbrooke_12Tier_EarnOwn_Welfare_<Anchor>.csv     (Audit CSV)
+%   4) Table17_Rashbrooke_10Tier_EarnOwn_Welfare_<Anchor>.csv     (Audit CSV)
 
 if nargin < 1 || isempty(Params), Params = struct(); end
 if isfield(Params, 'Calibration_Anchor') && ~isempty(Params.Calibration_Anchor)
@@ -120,7 +120,7 @@ T17 = table(Tier_Clean_Names, Earn_kNZD, Own_MNZD, ...
     Gain_EarlyRent, Gain_PAYE_Wage, Gain_FirmUpside, Gain_Cohesion, ...
     Net_CE_Avg, Net_CE_Entrepreneur_zh, Net_CE_LandHoarder_zl, ...
     Retained_Wealth_Avg_Pct, Retained_Wealth_zh_Pct, PostReform_NetWorth_MNZD);
-csv_path = fullfile(OutputDir, sprintf('Table17_Rashbrooke_12Tier_EarnOwn_Welfare_%s.csv', AnchorTag));
+csv_path = fullfile(OutputDir, sprintf('Table17_Rashbrooke_10Tier_EarnOwn_Welfare_%s.csv', AnchorTag));
 csv_10p  = fullfile(OutputDir, sprintf('Table17_Survey10Tier_EarnOwn_Welfare_%s.csv', AnchorTag));
 writetable(T17, csv_path);
 writetable(T17, csv_10p);
@@ -326,7 +326,7 @@ if exist(f_7fac, 'file') && exist(f_panA, 'file')
     imgR_rs  = imresize(imgR, [h_target, round(size(imgR, 2) * h_target / size(imgR, 1))]);
     pad_mid  = uint8(255 * ones(h_target, 30, 3));
     img_adj  = [imgL_rs, pad_mid, imgR_rs];
-    f_adj    = fullfile(OutputDir, sprintf('Fig_Sec6_Adjacent_7FactorGain_And_12TierPain_%s.png', AnchorTag));
+    f_adj    = fullfile(OutputDir, sprintf('Fig_Sec6_Adjacent_7FactorGain_And_10TierPain_%s.png', AnchorTag));
     imwrite(img_adj, f_adj);
     Out.f_adjacent = f_adj;
     fprintf('  -> Saved Adjacent 7-Factor Gain + 10-Tier Pain/Gain composite: %s\n', f_adj);

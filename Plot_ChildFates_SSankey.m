@@ -15,6 +15,7 @@
 
 %% 1. CONFIGURATION SWITCHES (N-PHASE COMPATIBLE: 1, 2, 3, OR MORE PANELS)
 Target_Regions     = {'National', 'Auckland', 'Large', 'Small', 'Rural', 'Urban'};
+Target_Regions = 'National';
 if ischar(Target_Regions) || isstring(Target_Regions), Target_Regions = cellstr(Target_Regions); end
 
 % Specify any 1, 2, 3, or N phases: e.g. {'SS0'}, {'SS0','SS1'}, or {'SS0','SS1','SS2'}
@@ -383,13 +384,13 @@ Nodes_S3 = {sprintf('6. Family Unemp Stress z1 (%.1f%%)', S3_Pct(1)), ...
     sprintf('8. Montessori / Tuakana Mentoring (%.1f%%)', S3_Pct(3))};
 
 if reform_intensity <= 0
-        lbl_11 = sprintf('11. Thriving Tier h6-h7 [Rent-Seeking Skew] (%.1f%%)',  S4_Pct(3));
-        lbl_16 = sprintf('16. Retained NZ Adult [z_l Land-Rent Heavy] (%.1f%%)',  S5_Pct(5));
+        lbl_11 = sprintf('11. Thriving Tier h6-h7 (%.1f%%)\n       [Rent-Seeking Skew]',  S4_Pct(3));
+        lbl_16 = sprintf('16. Retained NZ Adult (%.1f%%)\n       [z_l Land-Rent Heavy]',  S5_Pct(5));
     elseif reform_intensity <= 1.0
-        lbl_11 = sprintf('11. Thriving Tier h6-h7 [Pivot to Builders] (%.1f%%)',  S4_Pct(3));
-        lbl_16 = sprintf('16. Retained NZ Adult [z_l -> z_h Rebalance] (%.1f%%)', S5_Pct(5));
+        lbl_11 = sprintf('11. Thriving Tier h6-h7 (%.1f%%)\n       [Pivot to Builders]',  S4_Pct(3));
+        lbl_16 = sprintf('16. Retained NZ Adult (%.1f%%)\n       [z_l -> z_h Rebalance]', S5_Pct(5));
     else
-        lbl_11 = sprintf('11. Thriving Tier h6-h7 [High-Wage Builders] (%.1f%%)', S4_Pct(3));
+        lbl_11 = sprintf('11. Thriving Tier h6-h7 (%.1f%%)\n       [High-Wage Builders]', S4_Pct(3));
         lbl_16 = sprintf('16. Retained NZ Thriving Builder [z_h] (%.1f%%)',       S5_Pct(5));
 end
 

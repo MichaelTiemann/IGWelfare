@@ -122,10 +122,6 @@ if Use_ExpAsset_Pipeline && Run_Fertility_Module && exist('FertilityBargaining_M
         save(Cache_Step3, 'T_Fert1', 'T_Fert2', 'TFR_mat', 'DiffFert_mat', 'Stunted_mat', 'DepRatio_vec', 'ReqTax_vec');
         fprintf('    [CACHE SAVED] Saved Step 3 checkpoint to %s\n', Cache_Step3);
     end
-    %% PLOT 2-PANEL FERTILITY RECOVERY & NZ SUPER SOLVENCY (AGE 65 PLAN VS. AGE 67 / 70)
-    if ~exist('Table7_TFR', 'var'),   Table7_TFR   = []; end
-    if ~exist('Table8_Super', 'var'), Table8_Super = []; end
-    Out_FertPlot = Plot_Fertility_SuperSolvency_2Panel(Params_SS0, Table7_TFR, Table8_Super);
     fprintf('    Step 3 completed in %.2f seconds.\n\n', toc(step3_timer));
 end
 
@@ -237,8 +233,12 @@ Params_SS0.Calibration_Anchor = 'Dunedin_22'; % Or 'MetroSqueeze_GUiNZ'
 
 if exist('Plot_Fertility_SuperSolvency_2Panel.m', 'file')
     fprintf('>>> [STEP 7B] Generating 2-Panel Fertility & NZ Super Solvency Plots (Age 65 vs 67/70)...\n');
-    if ~exist('T_Fert1', 'var'), T_Fert1 = []; end
-    if ~exist('T_Fert2', 'var'), T_Fert2 = []; end
+    if ~exist('T_Fert1', 'var')
+        if exist('Table7_TFR', 'var'), T_Fert1 = Table7_TFR; else, T_Fert1 = []; end
+    end
+    if ~exist('T_Fert2', 'var')
+        if exist('Table8_Super', 'var'), T_Fert2 = Table8_Super; else, T_Fert2 = []; end
+    end
     Out_FertPlot = Plot_Fertility_SuperSolvency_2Panel(Params_SS0, T_Fert1, T_Fert2);
 end
 
@@ -248,7 +248,7 @@ if exist('Plot_SS2_7Factor_StackedAttribution.m', 'file') && exist('T1', 'var')
     Out_AttrPlot = Plot_SS2_7Factor_StackedAttribution(T1, Params_SS0, Target_Plot_Regions);
 end
 
-%% GENERATE 12-TIER EARN + OWN WEALTH BRACKET PAIN & CELEBRATION FIGURE
+%% GENERATE 10-TIER EARN + OWN WEALTH BRACKET PAIN & CELEBRATION FIGURE
 if ~exist('Params_SS0', 'var') && exist('Params', 'var')
     Params_SS0 = Params;
 elseif ~exist('Params_SS0', 'var')
