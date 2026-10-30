@@ -76,6 +76,14 @@ Pain_WealthTax = -[0.00; 0.00; 0.15; 0.35; 1.65; 2.40; 3.25; 4.15; 5.95; 6.95];
 % Pain 3: Estate / Bequest Levy (tau_b = 25% -> 18% on De Nardi luxury bequest above b_2)
 Pain_EstateTax = -[0.00; 0.00; 0.00; 0.00; 0.70; 1.25; 1.80; 2.40; 4.10; 5.10];
 
+% Optional Wealth/Estate Exemption Cutoff (e.g. Params.Exempt_Bottom_Pct = 80 or 90):
+if isfield(Params, 'Exempt_Bottom_Pct') && Params.Exempt_Bottom_Pct > 0
+    W_ex_M = interp1([0, 50, 80, 90, 95, 99], [0.0, 0.53, 1.35, 2.15, 3.10, 8.50], Params.Exempt_Bottom_Pct, 'pchip');
+    tax_frac = max(0, (Own_MNZD - W_ex_M) ./ max(1e-6, Own_MNZD));
+    Pain_WealthTax = Pain_WealthTax .* tax_frac;
+    Pain_EstateTax = Pain_EstateTax .* tax_frac;
+end
+
 % --- FOUR "GAIN / CELEBRATION" CHANNELS (Positive CE % Components) ---
 %   Sums across Gains 1-4 to: [+25.4; +19.4; +16.1; +13.0; +8.7; +8.3; +8.7; +9.2; +9.1; +8.8]
 % Gain 1: Early-Years ECE (G_ECE), Montessori/Tuakana-Teina, Youth Grant E, & Lower Rents
