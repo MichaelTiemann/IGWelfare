@@ -200,6 +200,7 @@ Each node's ribbon width in the Population Fates Sankey represents the exact per
 | **Stage 4 ($`J=6\text{–}7`$)**<br>*Adult Launch, 20* | `9_Launch_Stunted_Tier_h1_h2`<br>`10_Launch_Core_Tier_h3_h5`<br>`11_Launch_Thriving_Tier_h6_h7` | 22.00%<br>54.50%<br>23.50% | 4.02%<br>38.68%<br>57.30% | 1.50%<br>33.50%<br>65.00% | 24.80%<br>52.10%<br>23.10% | 4.50%<br>37.50%<br>58.00% | Completed pre-labor skill mapped onto 7-point grid `h_vec = [0.45..1.80]` (`22.0%` stunted in `Dunedin_22`, `28.5%` in `MetroSqueeze_GUiNZ`; thriving rises from `23.2%–23.5%` to `57.3%–61.0%+`) |
 | **Stage 5 ($`J=10`$)**<br>*Adulthood, 30+* | `12_Exit1_State_Care_Placement`<br>`13_Exit2_Avoidable_Hospitalisation`<br>`14_Exit3_Lower_Lifetime_Income`<br>`15_Exit4_Benefit_Justice_Burden`<br>`16_Retained_NZ_Thriving_Adult`<br>`17_Emigrated_Abroad_Brain_Drain` | 2.10%<br>4.82%<br>9.63%<br>11.38%<br>61.14%<br>10.93% | 0.49%<br>1.62%<br>4.15%<br>3.89%<br>81.29%<br>8.56% | 0.24%<br>1.12%<br>2.95%<br>2.44%<br>85.65%<br>7.60% | 2.35%<br>5.28%<br>10.42%<br>12.55%<br>50.11%<br>19.29% | 0.54%<br>1.75%<br>4.38%<br>4.18%<br>74.23%<br>14.92% | Dunedin concentration: 22% stunted tier drives **74.1%** of acute Exits 1, 2, 4 in `SS0` (empirical Dunedin Study benchmark: **57%–81%**) |
 
+```text
 +---------------------------------------------------------------------------------------------------+
 | HIERARCHICAL DYNAMIC COMPLEMENTARITY ARCHITECTURE (TOTAL SS2 PRIZE = +20.49% CE)                  |
 |                                                                                                   |
