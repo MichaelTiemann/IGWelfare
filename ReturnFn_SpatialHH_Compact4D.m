@@ -48,8 +48,8 @@ else
     p_H = rh_reg;
 end
 
-K_kin            = min(1.0, max(0.0, K_whanau));
-s_sub            = min(0.80, (G_ece + 0.015 * K_kin) / max(1e-4, G_ece + gbar_ece + 0.015 * K_kin));
+K_whanau         = min(1.0, max(0.0, K_whanau));
+s_sub            = min(0.80, (G_ece + 0.015 * K_whanau) / max(1e-4, G_ece + gbar_ece + 0.015 * K_whanau));
 gross_earn       = w_reg * h * z * l;
 T_geo            = Transfer_Geo * exp(-1.8 * gross_earn);
 wealth_after_tax = ((1 - tau_a) ^ dt) * a + r * (1 - tau_k) * a;
@@ -72,10 +72,10 @@ u_flow = scale_dt * ((u_comp ^ (1 - eta_c)) / (1 - eta_c) - 0.85 * ((l + Ih) ^ 1
 u_child = 0;
 if is_parenting
     n_par_steps   = max(1, j_s2_end - j_s1_start + 1);
-    hp_eff        = h * (1.0 + 0.15 * K_kin);
-    inv_eff       = 1.0 + ic + G_ece + gbar_ece + 0.020 * K_kin;
-    stress_pen    = 0.045 * double(ic < 0.01) * (1.0 - 0.55 * K_kin);
-    h_child_exp   = (hp_eff ^ 0.40) * (inv_eff ^ 0.35) * exp(-stress_pen + 0.010 * K_kin);
+    hp_eff        = h * (1.0 + 0.15 * K_whanau);
+    inv_eff       = 1.0 + ic + G_ece + gbar_ece + 0.020 * K_whanau;
+    stress_pen    = 0.045 * double(ic < 0.01) * (1.0 - 0.55 * K_whanau);
+    h_child_exp   = (hp_eff ^ 0.40) * (inv_eff ^ 0.35) * exp(-stress_pen + 0.010 * K_whanau);
     u_child       = (omega_ic / n_par_steps) * log(max(1e-4, h_child_exp));
 end
 
