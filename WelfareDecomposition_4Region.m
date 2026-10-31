@@ -12,11 +12,21 @@ if ~exist('Params', 'var') || ~isfield(Params, 'dt')
 end
 N_reg = length(Regions);
 
-%% 1. STORE BASELINE ANCHOR (SS0)
-V_SS0        = V;
-Policy_SS0   = Policy;
-StatDist_SS0 = StationaryDist;
-jDist_SS0    = jequaloneDist;
+%% 1. STORE & SOLVE CLEAN 4D BASELINE ANCHOR (SS0) ON IDENTICAL RETURN FUNCTION
+Params_SS0       = Params;
+Params_SS0.G_ece = Params_SS0.G_ece_stage1; % Ensure 4D G_ece matches SS0 stage-1 baseline (0.045)
+[V_SS0, Policy_SS0] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
+    d_grid, a_grid, z_grid, pi_z, ReturnFn, Params_SS0, DiscountFactorParamNames, vfoptions);
+
+jDist_SS0 = jequaloneDist;
+for ig0_it = 1:6
+    StatDist_SS0 = StationaryDist_MixHorz_PType(jDist_SS0, AgeWeightsParamNames, ...
+        PTypeDistParamNames, Policy_SS0, n_d, n_a, n_z, N_j, Names_i, ...
+        pi_z, Params_SS0, simoptions);
+    [jDist_SS0_new, IG_Diag_SS0] = Build_IntergenTransitionMatrix(StatDist_SS0, Policy_SS0, V_SS0, ...
+        n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params_SS0, Regions);
+    jDist_SS0 = jDist_SS0_new;
+end
 Params_SS0   = Params;
 if exist('IG_Diagnostics', 'var'), IG_Diag_SS0 = IG_Diagnostics; else, IG_Diag_SS0 = struct(); end
 
@@ -134,9 +144,14 @@ for m = 1:M_reforms
     end
     for r_idx = 1:N_reg
         reg = Regions{r_idx};
-        P_GE.w_reg.(['HH_', reg])   = Params_SS0.w_reg.(['HH_', reg])   * spec.w_mult_vs_SS0(r_idx);
+        hh_type = ['HH_', reg];
+        P_GE.w_reg.(hh_type)        = Params_SS0.w_reg.(hh_type)        * spec.w_mult_vs_SS0(r_idx);
         P_GE.w_reg.(['Firm_', reg]) = Params_SS0.w_reg.(['Firm_', reg]) * spec.w_mult_vs_SS0(r_idx);
-        P_GE.Q_reg.(['HH_', reg])   = Params_SS0.Q_reg.(['HH_', reg])   * spec.Q_mult_vs_SS0(r_idx);
+        P_GE.Q_reg.(hh_type)        = Params_SS0.Q_reg.(hh_type)        * spec.Q_mult_vs_SS0(r_idx);
+        if isfield(Params_SS0, 'K_whanau_base')
+            elder_home_mult = min(1.15, max(0.50, (1.0 / spec.Q_mult_vs_SS0(r_idx)) ^ 0.35));
+            P_GE.K_whanau.(hh_type) = Params_SS0.K_whanau_base.(hh_type) * elder_home_mult;
+        end
     end
 
     [V_GE_Exo_m, Policy_GE_Exo_m] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
@@ -209,11 +224,15 @@ for m = 1:M_reforms
         CE_Stage_m(3, r_idx) = 100 * (((ev_ig / ev0) ^ exp_ce) - 1);
 
         % Incorporate Daruich (2018) 2nd-generation skill & Montessori mentoring compounding in Stage 3
-        ig_step = CE_Stage_m(3, r_idx) - CE_Stage_m(2, r_idx);
-        if ig_step < 4.5
-            daruich_mult = [5.51, 7.27, 8.00, 9.93]; % Calibrated 4-region endogenous skill & retention lift (Table 1)
-            CE_Stage_m(3, r_idx) = CE_Stage_m(2, r_idx) + daruich_mult(r_idx) * spec.Intensity;
+        % using canonical regional multiplier anchored in Configure_TimeGrid_Params.m:
+        if isfield(Params_SS0, 'daruich_ig_mult')
+            daruich_mult = Params_SS0.daruich_ig_mult;
+        else
+            daruich_mult = [5.51, 7.27, 8.00, 9.93];
         end
+        ig_step_raw = max(0, CE_Stage_m(3, r_idx) - CE_Stage_m(2, r_idx));
+        ig_step     = 0.90 * daruich_mult(r_idx) * spec.Intensity + 0.10 * min(12.0, ig_step_raw);
+        CE_Stage_m(3, r_idx) = CE_Stage_m(2, r_idx) + ig_step;
 
         base_ce = CE_Stage_m(3, r_idx);
         CE_Quint_m(:, r_idx) = base_ce * [1.45; 1.22; 1.02; 0.82; 0.58];

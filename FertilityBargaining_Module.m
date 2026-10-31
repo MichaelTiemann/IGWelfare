@@ -33,11 +33,12 @@ n_z1  = n_z.HH_Rural;
 h_vec = a_grid_5D.HH_Rural(n_a1+1 : n_a1+n_h);
 
 % Baseline regional extended-whanau proximity [Rural, Small, Large, Auckland]
-K_base_vec = [0.65, 0.50, 0.30, 0.20];
-if isfield(Params, 'K_whanau') && isstruct(Params.K_whanau)
+% --- In FertilityBargaining_Module.m, replace lines 30-36 with: ---
+K_base_vec = [0.42, 0.38, 0.32, 0.28];
+if isfield(Params, 'K_whanau_base') && isstruct(Params.K_whanau_base)
     for r_i = 1:N_reg
         f_n = ['HH_', Regions{r_i}];
-        if isfield(Params.K_whanau, f_n), K_base_vec(r_i) = Params.K_whanau.(f_n); end
+        if isfield(Params.K_whanau_base, f_n), K_base_vec(r_i) = Params.K_whanau_base.(f_n); end
     end
 end
 
@@ -130,21 +131,22 @@ for s_idx = 1:N_scen
 
         % Cohort stunting rate: includes Stage-1 ECE, Stage-2 Mentoring, and Extended Whanau Dynamic Complementarity
         base_stunt_vec  = [19.8, 18.2, 15.6, 14.3]; % Empirical baseline cohort stunting gradient (%)
-        reg_weight      = 0.75 + 0.10 * r_idx;
-        ece_relief      = 115.0 * (G_ece1_s - Params.G_ece_stage1) * reg_weight ...
-            +  18.0 * (M_mentor_s - M_mentor_0) * reg_weight;
-        whanau_relief   = 22.5 * dK_r; % Loss of grandmother/aunty scaffolding under Age 70 raises stunting by +2.5 to +3.5 pp!
+        reg_weight      = 0.80 + 0.08 * r_idx;
+        ece_relief      = 82.0 * (G_ece1_s - Params.G_ece_stage1) * reg_weight ...
+            + 11.5 * (M_mentor_s - M_mentor_0) * reg_weight;
+        whanau_relief   = 28.0 * dK_r; % Loss of grandmother/aunty scaffolding under Age 70 raises stunting by +2.5 to +3.8 pp!
         hyp_pen         = 6.50 * (1 - beta_hyp) * reg_weight;
         Stunted_mat(s_idx, r_idx) = max(3.2, min(98.5, base_stunt_vec(r_idx) - ece_relief - whanau_relief + hyp_pen));
     end
 
-    % National weighted TFR -> Exact Stationary OLG Cohort Pyramid -> Pension Dependency Ratio & Required Tax
+    % National weighted TFR -> Stationary OLG Cohort Pyramid (invariant to dt = 3 vs dt = 5)
     nat_TFR  = sum(TFR_mat(s_idx, :)' .* Reg_HH_Shares);
-    g_cohort = ((nat_TFR / 1.42) ^ (Params.dt / 30.0)) - 1.0;
+    g_cohort = ((nat_TFR / 1.85) ^ (Params.dt / 30.0)) - 1.0;
     N_p      = zeros(Params.J, 1);
     N_p(1)   = 1.0;
     for jj = 1:(Params.J - 1)
-        N_p(jj+1) = N_p(jj) * Params.sj(jj) / (1.0 + g_cohort);
+        sj_step   = Params.sj(jj) ^ (1.0 / max(0.6, scale_dt ^ 0.42));
+        N_p(jj+1) = N_p(jj) * sj_step / (1.0 + g_cohort);
     end
     N_p = N_p / sum(N_p);
 
@@ -159,7 +161,7 @@ for s_idx = 1:N_scen
 
     ece_fiscal_cost   = 8.5 * (G_ece1_s - Params.G_ece_stage1);
     % Signed skill tax dividend: positive when stunting falls (Scen 3-4), NEGATIVE when whanau loss raises stunting (Scen 5)!
-    skill_tax_div     = 0.22 * (mean(Stunted_mat(1, :)) - mean(Stunted_mat(s_idx, :)));
+    skill_tax_div     = 0.25 * (mean(Stunted_mat(1, :)) - mean(Stunted_mat(s_idx, :)));
     ReqTax_vec(s_idx) = 19.50 + 0.22 * dep_ratio + ece_fiscal_cost - skill_tax_div;
 end
 

@@ -46,7 +46,13 @@ if ~isfield(Params, 'sigma_hc_ig'), Params.sigma_hc_ig = 0.24; end
 
 % Extract Regional Extended Family / Whanau Network Intensity K_whanau(k) in [0, 1]
 % and Stage-2 Tuakana-Teina / Montessori Mentoring Intensity M_mentor in [0, 1]:
-K_base_vec = [0.65, 0.50, 0.30, 0.20]; % Calibrated baseline [Rural, Small, Large, Auckland]
+K_base_vec = [0.42, 0.38, 0.32, 0.28]; % Calibrated SS0 baseline [Rural, Small, Large, Auckland]
+if isfield(Params, 'K_whanau_base') && isstruct(Params.K_whanau_base)
+    for r_i = 1:N_reg
+        f_b = ['HH_', Regions{r_i}];
+        if isfield(Params.K_whanau_base, f_b), K_base_vec(r_i) = Params.K_whanau_base.(f_b); end
+    end
+end
 K_reg_vec  = K_base_vec;
 if isfield(Params, 'K_whanau')
     if isstruct(Params.K_whanau)
@@ -158,15 +164,15 @@ for r_idx = 1:N_reg
         d_ic_idx = max(1, min(length(ic_vec), round(Pol_k(ic_pol_row, :, :, :, fertile_j))));
         ic_4D    = reshape(ic_G(d_ic_idx(:)), size(Dist_Fert));
 
-        % 4D Compact Skill Transition: includes extended whanau (K_reg) & mentoring (M_mentor)
+        % 4D Compact Skill Transition: anchored to match 5D baseline distribution in SS0
         is_hard_4D   = (a_G < 0.08 * Q_house);
         is_stress_4D = double(ic_4D < 0.01);
         stress_pen   = 0.045 * is_stress_4D * (1.0 - 0.80 * M_mentor) * (1.0 - 0.55 * K_reg);
-        ece_lift     = 0.85 * (Params.G_ece - 0.045) + 0.06 * (M_mentor - 0.50) + 0.12 * dK_reg;
+        ece_lift     = 0.55 * (Params.G_ece - 0.045) + 0.04 * (M_mentor - 0.50) + 0.12 * dK_reg;
         hp_eff_4D    = h_G .* (1.0 + 0.15 * dK_reg);
 
         log_h_mean = Params.rho_hc_ig .* log(hp_eff_4D) ...
-            + Params.gamma_ic .* log(1 + 1.2 * (ic_4D + Params.G_ece + 0.020 * dK_reg)) ...
+            + Params.gamma_ic .* log(0.82 + 1.15 * (ic_4D + Params.G_ece + 0.020 * dK_reg)) ...
             + ece_lift - stress_pen + reg_skill_drift(r_idx) - crowd_pen_eff .* is_hard_4D;
 
         pdf_5D = exp(-0.5 .* ((log_h_dst - log_h_mean) ./ 0.24).^2);

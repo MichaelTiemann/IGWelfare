@@ -1,15 +1,17 @@
 function F = ReturnFn_SpatialHH_Compact4D(l, Ih, ic, aprime, hprime, a, h, z, ...
     w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
-    Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, omega_ic, ...
+    Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, K_whanau, omega_ic, ...
     delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
     tau_l, tau_c, tau_k, tau_a, tau_b, agej, Jr, sj, dt, ...
-    j_s1_start, j_s2_end, K_whanau)
+    j_s1_start, j_s2_end)
 %% COMPACT 4D HOUSEHOLD RETURN FUNCTION (STATE-CONTINGENT SUB-MANIFOLD PARAMETERIZATION)
-% 41 inputs matching Run_All_NZ_Intergen_Suite.m, WelfareDecomposition_4Region.m, and TransPath_4Region_Master.m
+% Exact 41-argument signature matching ReturnFn.(hh_type) in Run_All_NZ_Intergen_Suite.m:
+% (l,Ih,ic,aprime,hprime,a,h,z,w_reg,r,Q_reg,G_reg,phi_nd,mu_maint,upsilon_h,chi_bar,ebar_energy,
+%  Transfer_Geo,p_super,c_floor,G_ece,gbar_ece,K_whanau,omega_ic,delta_hc,alpha_I,alpha_H,
+%  b1_beq,b2_beq,YouthGrant,tau_l,tau_c,tau_k,tau_a,tau_b,agej,Jr,sj,dt,j_s1_start,j_s2_end)
 
 F = -Inf;
 scale_dt = dt / 5;
-% Scale tol_hc with h so the 0.35 grid step between h=1.45 and h=1.80 never leaves an infeasible gap:
 tol_hc   = max(0.18, 0.16 * h);
 
 %% 1. FULL-LIFECYCLE ADULT BEN-PORATH HUMAN CAPITAL LAW OF MOTION (h -> hprime)
@@ -47,9 +49,9 @@ rh_reg = max(0.008 * Q_reg, (1 + mu_maint - upsilon_h - (G_reg / R_ann)) * Q_reg
 xi_reg = min(1.0, (1 / chi_bar) * (rr_reg / rh_reg));
 
 lvr_access       = min(1.0, max(0.0, a / max(1e-4, 0.20 * Q_reg)));
-xi_hh            = min(1.0, xi_reg * (0.94 + 0.10 * lvr_access));
+xi_hh            = min(1.0, xi_reg * (0.98 + 0.04 * lvr_access));
 is_evict_tail    = double(a < 0.08 * Q_reg) * double(z < 0.85);
-transience_wedge = 1.0 + 0.04 * is_evict_tail;
+transience_wedge = 1.0 + 0.04 * is_evict_tail * max(0.0, (0.110 - G_ece) / 0.065);
 
 if agej < Jr
     p_H = (xi_hh * rh_reg + (1 - xi_hh) * (rr_reg / (0.5 * chi_bar))) * transience_wedge;
@@ -57,7 +59,7 @@ else
     p_H = rh_reg;
 end
 
-%% 3. TAUCHEN- & ASSET-CONDITIONED WHANAU CARE K_whanau_net & KAIAKO SUPPLY DEFLATOR
+%% 3. TAUCHEN- & ASSET-CONDITIONED WHANAU CARE K_whanau_net & MENTORING TRUST GATING
 super_age_yrs = 20 + (Jr - 1) * dt;
 is_super_cut  = double(super_age_yrs > 65.5);
 is_distress_z = double(z < 0.80) * double(a < 0.12 * Q_reg);
@@ -65,9 +67,7 @@ is_distress_z = double(z < 0.80) * double(a < 0.12 * Q_reg);
 K_whanau_net  = K_whanau - 0.28 * is_super_cut * is_distress_z;
 sandwich_drag = max(0.0, -K_whanau_net) * 0.035;
 
-kaiako_mult   = (1.65 / max(0.80, Q_reg)) ^ 0.22;
-G_ece_eff     = G_ece * kaiako_mult;
-M_mentor      = min(1.0, max(0.0, 0.173 + 12.0 * (G_ece_eff - 0.045)));
+M_mentor      = min(1.0, max(0.0, 0.173 + 12.0 * (G_ece - 0.045)));
 M_trust_gated = M_mentor * (0.45 + 0.55 * min(1.0, max(0.0, K_whanau_net) / 0.35));
 
 %% 4. BUDGET CONSTRAINT & "INCOME x GEOGRAPHY" TRANSFER RULE (FLOWS SCALED BY scale_dt)
@@ -82,8 +82,6 @@ c_budget = wealth_after_tax - aprime + youth_endow ...
     + scale_dt * ((1 - tau_l) * gross_earn + T_geo + pension_inc - (1 - s_sub) * ic - ebar_energy - sandwich_drag);
 c_eff    = max(scale_dt * c_floor, c_budget / (1 + tau_c)) / scale_dt;
 
-% Enforce borrowing/budget constraint on discretionary saving (aprime > 0) or child spend (ic > 0),
-% while allowing destitute households at (aprime == 0, ic == 0) to survive on the statutory c_floor safety net:
 if c_budget <= 0 && (aprime > 0 || ic > 0) && agej < Jr
     return;
 end
@@ -101,12 +99,13 @@ u_flow = scale_dt * ((u_comp ^ (1 - eta_c)) / (1 - eta_c) - 0.85 * manual_wear_m
 
 u_child = 0;
 if is_parenting
-    n_par_steps  = max(1, j_s2_end - j_s1_start + 1);
-    is_corner_ic = double(ic < 0.01);
-    Psi_perc     = -0.025 * is_corner_ic * max(0.0, (1 - 0.55 * K_whanau_net) * (1 - 0.80 * M_trust_gated)) ...
-        + 0.025 * max(0.0, M_trust_gated - 0.173);
-    h_child_exp  = (h ^ 0.40) * ((1 + ic + G_ece_eff + 0.025 * max(0.0, K_whanau_net) + gbar_ece) ^ 0.35) * exp(Psi_perc);
-    u_child      = (omega_ic / n_par_steps) * log(max(1e-4, h_child_exp));
+    is_corner_ic   = double(ic < 0.01);
+    metro_ece_mult = (max(1.0, Q_reg / 1.05) ^ 0.85) * (1.0 + 0.80 * max(0.0, 0.42 - K_whanau));
+    Psi_perc       = -0.025 * is_corner_ic * max(0.0, (1 - 0.55 * K_whanau_net) * (1 - 0.80 * M_trust_gated)) ...
+        + 0.045 * max(0.0, M_trust_gated - 0.173) * metro_ece_mult;
+    I_eff          = 1.0 + 2.20 * (ic + G_ece * metro_ece_mult * (1 + 0.25 * M_trust_gated) + 0.025 * max(0.0, K_whanau_net) + gbar_ece);
+    h_child_exp    = (h ^ 0.40) * (I_eff ^ 0.55) * exp(Psi_perc);
+    u_child        = scale_dt * omega_ic * log(max(1e-4, h_child_exp));
 end
 
 %% 6. END-OF-LIFE WARM-GLOW BEQUEST (WITH SKILL-MANIFOLD MORTALITY GRADIENT sj_eff(h, j))

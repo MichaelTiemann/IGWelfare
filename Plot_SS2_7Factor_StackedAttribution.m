@@ -160,7 +160,7 @@ for r_loop = 1:length(Target_Regions)
     reg_terminal_vec = R_mat_all(idx_r, :); % 1 x 7 terminal SS2 CE% components
     F_traj_reg       = S_time .* reg_terminal_vec;
     tot_traj_reg     = sum(F_traj_reg, 2);
-    y_max_panelA     = max(27.5, ceil(max(tot_traj_reg) * 1.14));
+    y_max_panelA     = max(34.0, ceil(max(tot_traj_reg) * 1.14));
 
     fig_attr = figure('Name', sprintf('Fig1_SS2_7Factor_%s_%s', RegName, AnchorTag), ...
         'Color', 'w', 'Position', [45, 45, 1600, 700]);
@@ -240,7 +240,7 @@ for r_loop = 1:length(Target_Regions)
 
     title(ax2, 'B. Regional SS2 Attribution Breakdown Across All 7 Structural Engines', 'FontSize', 10.8, 'FontWeight', 'bold');
     ylabel(ax2, 'Phase 2 (SS2) Long-Run Welfare Gain (CE %)', 'FontSize', 10.5, 'FontWeight', 'bold');
-    ylim(ax2, [0, 29.0]);
+    ylim(ax2, [0, 34.0]);
     grid(ax2, 'on'); box(ax2, 'on');
 
     % Export 2-Panel combined figure + Panel A regional sibling (+ Panel B bar sibling once)
