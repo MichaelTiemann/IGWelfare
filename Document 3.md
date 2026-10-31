@@ -199,9 +199,7 @@ For technical reviewers, Treasury analysts, and coalition partners who wish to i
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
-|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
-|                                                                                   |
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
@@ -231,6 +229,16 @@ For technical reviewers, Treasury analysts, and coalition partners who wish to i
 | **11. ★ WEDGE 4: Actuarial Solvency, Replacement TFR & 2nd-Gen Closure** | **All 4 Coalitions** *(Self-Financing Fiscal & Dynastic Loop)* | **+0.95%** | **+1.73%** | **+1.89%** | **+2.57%** | **+1.93%** | **8.2%** |
 | *Tier 4 Subtotal (The Fiscal, Super-64 & Demographic Harvest Stack)* | *Coalition 4 + Full Loop (Iso +1.96% + Wedge +1.93%)* | *+2.40%* | *+3.49%* | *+3.86%* | *+4.91%* | ***+3.89%*** | *16.5%* |
 | **GRAND TOTAL (`SS2_3` Fully Integrated Policy)** | **7 Isolated (+12.43%, 52.6%) + 4 Wedges (+11.20%, 47.4%)** | **+15.65%** | **+20.63%** | **+23.59%** | **+29.53%** | **+23.63%** | **100.0%** |
+
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ---
 
