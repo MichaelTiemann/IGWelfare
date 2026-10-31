@@ -44,22 +44,46 @@ if ~isfield(Params, 'super_age_SS2') || isempty(Params.super_age_SS2)
 else
     sa_ss2 = Params.super_age_SS2;
 end
-if sa_ss2 < 65
-    paye_cut_pp = max(0.0, 3.50 - (0.30*(65 - sa_ss2) + 0.085*(65 - sa_ss2)^2));
-    l10_label   = sprintf('10. [Isolated] PAYE Cut (-%.1f pp) & Super Age-%.0f Kuia Dividend Alone', paye_cut_pp, sa_ss2);
-    box25_label = sprintf('Yr 25: Phase 2 (SS2)\n-%.1fpp PAYE Cut + Super Age %.0f', paye_cut_pp, sa_ss2);
-elseif sa_ss2 == 65
-    l10_label   = '10. [Isolated] PAYE Tax-Relief Harvest (-3.5 pp at Super Age 65) Alone';
-    box25_label = sprintf('Yr 25: Phase 2 (SS2)\n-3.5pp PAYE Cut (Super Age 65)');
-else
-    tax_chg_pp  = -3.50 + 0.28 * ((sa_ss2 - 65)^1.30);
-    if tax_chg_pp <= 0
-        l10_label   = sprintf('10. [Isolated] Reduced PAYE Cut (%.1f pp) & Age-%.0f Super Squeeze', tax_chg_pp, sa_ss2);
-        box25_label = sprintf('Yr 25: Phase 2 (SS2)\n%.1fpp PAYE + Super Age %.0f Squeeze', tax_chg_pp, sa_ss2);
+
+% Pull exact SS2 PAYE tax change (in percentage points vs 22.0% baseline) from workspace/Params:
+if isfield(Params, 'tau_l_delta_SS2') && ~isempty(Params.tau_l_delta_SS2)
+    tax_chg_pp = 100.0 * Params.tau_l_delta_SS2;
+elseif evalin('base', 'exist(''Reform_Phase_Specs'', ''var'')')
+    rps_ws = evalin('base', 'Reform_Phase_Specs');
+    if numel(rps_ws) >= 2 && isfield(rps_ws(2), 'tau_l_delta')
+        tax_chg_pp = 100.0 * rps_ws(2).tau_l_delta;
     else
-        l10_label   = sprintf('10. [Isolated] Age-%.0f Super Austerity & +%.1f pp Tax Drag', sa_ss2, tax_chg_pp);
-        box25_label = sprintf('Yr 25: Phase 2 (SS2)\nAge %.0f Super Squeeze (+%.1fpp Tax)', sa_ss2, tax_chg_pp);
+        tax_chg_pp = -3.50;
     end
+elseif sa_ss2 < 65
+    tax_chg_pp = -3.50 + 0.30*(65 - sa_ss2) + 0.085*(65 - sa_ss2)^2;
+else
+    tax_chg_pp = -3.50 + 0.28*((sa_ss2 - 65)^1.30);
+end
+req_tax_pct = 22.0 + tax_chg_pp;
+
+if sa_ss2 < 65
+    if tax_chg_pp < -0.05
+        l10_label   = sprintf('10. [Isolated] PAYE Cut (%.2f pp to %.1f%%) & Super Age-%.0f Kuia Dividend Alone', tax_chg_pp, req_tax_pct, sa_ss2);
+        box25_label = sprintf('Yr 25: Phase 2 (SS2)\n%.2fpp PAYE Cut + Super Age %.0f', tax_chg_pp, sa_ss2);
+    else
+        l10_label   = sprintf('10. [Isolated] PAYE Hike (+%.2f pp to %.1f%%) to Fund Super Age-%.0f Alone', abs(tax_chg_pp), req_tax_pct, sa_ss2);
+        box25_label = sprintf('Yr 25: Phase 2 (SS2)\n+%.2fpp PAYE Hike for Super Age %.0f', abs(tax_chg_pp), sa_ss2);
+    end
+    tier4_hdr = sprintf('Tier 4: Fiscal/Super-%.0f/TFR', sa_ss2);
+elseif sa_ss2 == 65
+    l10_label   = sprintf('10. [Isolated] PAYE Tax-Relief Harvest (%.2f pp to %.1f%% at Age 65) Alone', tax_chg_pp, req_tax_pct);
+    box25_label = sprintf('Yr 25: Phase 2 (SS2)\n%.2fpp PAYE Cut (Super Age 65)', tax_chg_pp);
+    tier4_hdr   = 'Tier 4: Fiscal/Super-65/TFR';
+else
+    if tax_chg_pp < -0.05
+        l10_label   = sprintf('10. [Isolated] Reduced PAYE Cut (%.2f pp to %.1f%%) & Age-%.0f Super Squeeze', tax_chg_pp, req_tax_pct, sa_ss2);
+        box25_label = sprintf('Yr 25: Phase 2 (SS2)\n%.2fpp PAYE Cut + Age %.0f Squeeze', tax_chg_pp, sa_ss2);
+    else
+        l10_label   = sprintf('10. [Isolated] Age-%.0f Super Austerity & +%.2f pp PAYE Hike (to %.1f%%)', sa_ss2, tax_chg_pp, req_tax_pct);
+        box25_label = sprintf('Yr 25: Phase 2 (SS2) Austerity\nAge %.0f Super + %.2fpp PAYE Hike', sa_ss2, tax_chg_pp);
+    end
+    tier4_hdr = sprintf('Tier 4: Age-%.0f Squeeze/TFR', sa_ss2);
 end
 
 % =========================================================================
@@ -79,7 +103,7 @@ end
 %     Layer  8: ★ [WEDGE 3] Brain-Drain Reversal, Kaiako Supply & Firm-Skill Matching (Stack 1 x Stack 2)
 %   TIER 4 (Fiscal, Demographic & NZ Super Age SS2 Harvest Stack):
 %     Layer  9: [Isolated Factor 6] Sovereign Debt-Sinking & Interest Relief (dr = -60 bps Alone)
-%     Layer 10: [Isolated Factor 7] PAYE Cut (-3.5 pp) & Super Age SS2 Kuia Dividend (Alone)
+%     Layer 10: [Isolated Factor 7] PAYE Change & Super Age SS2 Policy (Alone)
 %     Layer 11: ★ [WEDGE 4] Fiscal Self-Financing, Replacement TFR & 2nd-Gen Daruich Closure
 
 Layer_Codes = { ...
@@ -92,7 +116,7 @@ Layer_Codes = { ...
     'L07_WEDGE2_LVR_Whanau_Synergy'; ...
     'L08_WEDGE3_CrossStack_HC_x_Spatial'; ...
     'L09_Iso_DebtSinking_Interest'; ...
-    sprintf('L10_Iso_PAYE_Cut_SuperAge_%d', Params.super_age_SS2); ...
+    sprintf('L10_Iso_PAYE_SuperAge_%.0f', sa_ss2); ...
     'L11_WEDGE4_Fiscal_TFR_2ndGen_Closure'};
 
 Layer_Legend_Labels = { ...
@@ -105,7 +129,7 @@ Layer_Legend_Labels = { ...
     '7. ★ WEDGE 2: LVR-Clearance & Whanau-Anchoring Synergy (TaxRebal \times Grant \times Geo)', ...
     '8. ★ WEDGE 3: Cross-Stack Synergy (Stack 1 \times Stack 2: Stops Brain Drain + Lifts Kaiako)', ...
     '9. [Isolated] Sovereign Debt-Sinking & Interest Relief Alone (\Deltar = -60 bps Alone)', ...
-    sprintf('10. [Isolated] PAYE Cut (-3.5 pp) & Super Age-%d Kuia Dividend Alone', Params.super_age_SS2), ...
+    l10_label, ...
     '11. ★ WEDGE 4: Actuarial Solvency, Replacement TFR & 2nd-Gen Compounding Closure'};
 
 Is_Wedge = [false; false; true; false; false; false; true; true; false; false; true];
@@ -121,24 +145,11 @@ Raw_SS2_11x4 = [ ...
     1.35,  1.85,  2.20,  2.85; ... % 7. ★ WEDGE 2: LVR & Whanau-Stay Synergy
     2.15,  3.10,  3.85,  5.10; ... % 8. ★ WEDGE 3: Cross-Stack (Stack 1 x Stack 2) Synergy
     0.55,  0.70,  0.80,  0.95; ... % 9. Iso Debt-Sinking
-    0.90,  1.05,  1.15,  1.35; ... % 10. Iso PAYE Cut & Super Age SS2
+    0.90,  1.05,  1.15,  1.35; ... % 10. Iso PAYE & Super Age SS2
     0.946, 1.720, 1.869, 2.525];   % 11. ★ WEDGE 4: Fiscal/TFR/2nd-Gen Closure
 
-% If SS2_Target_Reg >= 12% across regions (normal reform range, e.g. Super Age 60..67),
-% scale columns proportionally; if an extreme Super-Age austerity test (e.g. Age 80)
-% pulls SS2_Target_Reg below the Layers 1-9 core, keep Layers 1-9 positive and assign
-% the pension/whanau collapse to Layers 10 & 11:
-if all(SS2_Target_Reg >= 10.0)
-    SS2_11x4 = Raw_SS2_11x4 .* (SS2_Target_Reg ./ sum(Raw_SS2_11x4, 1));
-else
-    SS2_11x4 = Raw_SS2_11x4;
-    core_1_9 = sum(Raw_SS2_11x4(1:9, :), 1);
-    rem_10_11 = SS2_Target_Reg - core_1_9; % Negative in Age-80 collapse!
-    SS2_11x4(10, :) = 0.55 * rem_10_11;
-    SS2_11x4(11, :) = 0.45 * rem_10_11;
-end
-% Scale the 11 constructive layers to match SS2_Target_Reg (clamped >= 0 so stacked bars
-% above y=0 always sum to the green Total Integrated Welfare Trajectory line!):
+% Scale the 11 constructive layers to match SS2_Target_Reg (clamped >= 0.1 so stacked bars
+% above y=0 always sum cleanly to the green Total Integrated Welfare Trajectory line!):
 SS2_Pos_Reg = max(0.1, SS2_Target_Reg);
 if sa_ss2 > 65
     % When super_age_SS2 > 65 erodes SS2 below the full harvest, reduce Layers 10 & 11 first:
@@ -164,7 +175,7 @@ Raw_SS1_11x4 = [ ...
     0.75,  1.10,  1.40,  1.90; ... % 7. ★ WEDGE 2: LVR & Whanau Synergy
     0.80,  1.45,  2.00,  3.25; ... % 8. ★ WEDGE 3: Cross-Stack Synergy
     0.10,  0.20,  0.25,  0.35; ... % 9. Iso Debt-Sinking (Incubation phase)
-    0.00,  0.00,  0.00,  0.00; ... % 10. Iso PAYE Cut & Super Age SS2 (Triggers at Yr 25)
+    0.00,  0.00,  0.00,  0.00; ... % 10. Iso PAYE & Super Age SS2 (Triggers at Yr 25)
     0.112, 0.293, 0.381, 0.494];   % 11. ★ WEDGE 4: Incubation TFR/Exits Closure
 
 SS1_11x4 = Raw_SS1_11x4 .* (SS1_Target_Reg ./ sum(Raw_SS1_11x4, 1));
@@ -172,7 +183,7 @@ SS1_Nat_11 = SS1_11x4 * Pop_Weights';
 
 % Export Constructive Synergy Table (Table 19)
 Cumulative_Nat_SS2 = cumsum(SS2_Nat_11);
-Share_Of_Total_Pct = 100 * SS2_Nat_11 / SS2_Nat_Total;
+Share_Of_Total_Pct = 100 * SS2_Nat_11 / max(1e-6, sum(SS2_Nat_11));
 Layer_Type = repmat({'Isolated_Factor'}, 11, 1);
 Layer_Type(Is_Wedge) = {'SYNERGY_WEDGE'};
 
@@ -201,28 +212,26 @@ for i = 1:n_yr
         w_pre = 0.06 * exp(y / 5.0);
         Traj_11(i, :) = w_pre * SS1_Nat_11';
     elseif y < 25
-        % Fast PE/GE channels for isolated transfers/grants vs maturation ramp for skill & cross-stack wedges
         w_iso  = 0.22 + 0.78 * (1 - exp(-y / 8.0));
-        w_wed1 = 1 ./ (1 + exp(-(y - 11.0) / 4.2)); % ECE x Tuakana wedge matures as first cohort hits adolescence
-        w_wed2 = 1 ./ (1 + exp(-(y - 9.0)  / 4.0)); % LVR x Grant x Geo wedge
-        w_wed3 = 1 ./ (1 + exp(-(y - 16.0) / 4.0)); % Cross-stack brain-drain wedge matures at age-20 launch!
+        w_wed1 = 1 ./ (1 + exp(-(y - 11.0) / 4.2));
+        w_wed2 = 1 ./ (1 + exp(-(y - 9.0)  / 4.0));
+        w_wed3 = 1 ./ (1 + exp(-(y - 16.0) / 4.0));
         w_vec  = [w_iso, w_iso, w_wed1, w_iso, w_iso, w_iso, w_wed2, w_wed3, 0.5*w_iso, 0.0, w_wed3];
         Traj_11(i, :) = (SS1_Nat_11') .* w_vec;
     else
-        % Phase 2 (Year 25 = 2050 Protocol Trigger: Debt-Sinking, -3.5pp PAYE Cut & Super Age SS2)
-        w_iso25  = 0.22 + 0.78 * (1 - exp(-25 / 8.0));
+        w_iso25   = 0.22 + 0.78 * (1 - exp(-25 / 8.0));
         w_wed1_25 = 1 ./ (1 + exp(-(25 - 11.0) / 4.2));
         w_wed2_25 = 1 ./ (1 + exp(-(25 - 9.0)  / 4.0));
         w_wed3_25 = 1 ./ (1 + exp(-(25 - 16.0) / 4.0));
-        base_25  = (SS1_Nat_11') .* [w_iso25, w_iso25, w_wed1_25, w_iso25, w_iso25, w_iso25, w_wed2_25, w_wed3_25, 0.5*w_iso25, 0.0, w_wed3_25];
-        w_ss2    = 1 - exp(-(y - 25) / 8.5);
+        base_25   = (SS1_Nat_11') .* [w_iso25, w_iso25, w_wed1_25, w_iso25, w_iso25, w_iso25, w_wed2_25, w_wed3_25, 0.5*w_iso25, 0.0, w_wed3_25];
+        w_ss2     = 1 - exp(-(y - 25) / 8.5);
         Traj_11(i, :) = base_25 + w_ss2 * (SS2_Nat_11' - base_25);
     end
 end
 
-Total_Traj_CE     = sum(Traj_11, 2);
-Iso_Only_Traj_CE  = sum(Traj_11(:, ~Is_Wedge), 2);
-Wedge_Only_Traj_CE= sum(Traj_11(:, Is_Wedge), 2);
+Total_Traj_CE      = sum(Traj_11, 2);
+Iso_Only_Traj_CE   = sum(Traj_11(:, ~Is_Wedge), 2);
+Wedge_Only_Traj_CE = sum(Traj_11(:, Is_Wedge), 2);
 
 % Distinct Color Palette: Cool Slate/Teal/Blue for Isolated Factors vs. Vivid Gold/Orange/Crimson/Emerald for Synergy Wedges
 layer_colors = [ ...
@@ -235,7 +244,7 @@ layer_colors = [ ...
     0.94, 0.50, 0.12; ... % L7 [★ WEDGE 2]: LVR & Whanau-Stay Synergy (Tangerine Flame)
     0.84, 0.18, 0.24; ... % L8 [★ WEDGE 3]: Cross-Stack (Stack 1 x Stack 2) Synergy (Crimson Synergy)
     0.46, 0.42, 0.66; ... % L9 [Iso]: Sovereign Debt-Sinking (Muted Indigo)
-    0.62, 0.58, 0.78; ... % L10 [Iso]: PAYE Cut & Super Age SS2 Alone (Lavender Slate)
+    0.62, 0.58, 0.78; ... % L10 [Iso]: PAYE & Super Age SS2 Alone (Lavender Slate)
     0.05, 0.56, 0.32];    % L11 [★ WEDGE 4]: Fiscal/TFR/2nd-Gen Compounding Closure (Deep Emerald)
 
 % =========================================================================
@@ -246,7 +255,7 @@ fig_cf = figure('Name', sprintf('Fig_Constructive_Synergy_Attribution_%s', Ancho
 tiledlayout(1, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
 
 max_y_val = max([max(sum(SS2_11x5, 1)), max(Total_Traj_CE), 29.5]);
-y_top_lim = ceil(max_y_val * 1.16); % ~34% so Auckland (+29.03%) never touches the top frame!
+y_top_lim = ceil(max_y_val * 1.16);
 min_y_val = min([0, min(sum(SS2_11x5, 1)), min(Total_Traj_CE)]);
 y_bot_lim = floor(min_y_val * 1.15);
 
@@ -254,7 +263,7 @@ y_bot_lim = floor(min_y_val * 1.15);
 axA = nexttile(1); hold(axA, 'on');
 h_area = area(axA, Yr_Grid, Traj_11, 'LineWidth', 0.6, 'EdgeColor', [0.18 0.18 0.18]);
 for k = 1:11
-    h_area(k).FaceColor   = layer_colors(k, :);
+    h_area(k).FaceColor = layer_colors(k, :);
     if Is_Wedge(k)
         h_area(k).FaceAlpha = 0.92;
         h_area(k).EdgeColor = [0.10 0.10 0.10];
@@ -278,15 +287,16 @@ xline(axA, 25.0, '--',  'Color', [0.05 0.50 0.20], 'LineWidth', 1.6, 'HandleVisi
 % Annotate the Synergy Gap on Panel A at Year 52
 y_iso_52 = interp1(Yr_Grid, Iso_Only_Traj_CE, 52);
 y_tot_52 = interp1(Yr_Grid, Total_Traj_CE, 52);
+syn_pct_share = 100 * sum(SS2_Nat_11(Is_Wedge)) / max(1e-6, sum(SS2_Nat_11));
 plot(axA, [52, 52], [y_iso_52, y_tot_52], 'r-', 'LineWidth', 2.2, 'HandleVisibility', 'off');
 text(axA, 50.5, 0.5*(y_iso_52 + y_tot_52), ...
-    sprintf('Total Supermodular\nSynergy Wedges:\n+%.2f%% CE\n(47.4%% of Total!)', sum(SS2_Nat_11(Is_Wedge))), ...
+    sprintf('Total Supermodular\nSynergy Wedges:\n+%.2f%% CE\n(%.1f%% of Total!)', sum(SS2_Nat_11(Is_Wedge)), syn_pct_share), ...
     'HorizontalAlignment', 'right', 'FontSize', 8.2, 'FontWeight', 'bold', ...
     'Color', [0.65 0.05 0.10], 'BackgroundColor', [1.0 0.96 0.94], 'EdgeColor', [0.75 0.15 0.20], 'Margin', 4);
 
 text(axA, 1.0, 5.8, sprintf('Yr 0: Phase 1 (SS1)\nLaunch'), 'FontSize', 8.0, 'FontWeight', 'bold', ...
     'BackgroundColor', 'w', 'EdgeColor', [0.3 0.3 0.3], 'Margin', 3);
-text(axA, 25.8, 16.5, sprintf('Yr 25: Phase 2 (SS2)\nPAYE Cut & Super Age %d', Params.super_age_SS2), 'FontSize', 8.0, 'FontWeight', 'bold', ...
+text(axA, 25.8, 16.5, box25_label, 'FontSize', 8.0, 'FontWeight', 'bold', ...
     'Color', [0.00 0.42 0.18], 'BackgroundColor', 'w', 'EdgeColor', [0.00 0.45 0.20], 'Margin', 3);
 
 title(axA, 'A. Constructive Attribution: Isolated Factors + Dynamic Complementarity Wedges', ...
@@ -319,7 +329,7 @@ for c = 1:5
         val_kc = SS2_11x5(k, c);
         if val_kc >= 0.95
             y_mid = cum_bot + 0.5 * val_kc;
-            pct_sh = round(100 * val_kc / Reg_Totals_5(c));
+            pct_sh = round(100 * val_kc / max(1e-6, Reg_Totals_5(c)));
             if Is_Wedge(k)
                 lbl_str = sprintf('★+%.2f%%\n(%d%%)', val_kc, pct_sh);
                 txt_col = [0.10 0.05 0.00];
@@ -334,7 +344,6 @@ for c = 1:5
         end
         cum_bot = cum_bot + val_kc;
     end
-    % Total label above bar (with generous y_top_lim headroom!)
     iso_sum_c = sum(SS2_11x5(~Is_Wedge, c));
     wed_sum_c = sum(SS2_11x5(Is_Wedge, c));
     text(axB, c, Reg_Totals_5(c) + 0.85, ...
@@ -347,10 +356,10 @@ c_nat_cum = cumsum(SS2_Nat_11);
 tier_tops = [c_nat_cum(3), c_nat_cum(7), c_nat_cum(8), c_nat_cum(11)];
 tier_bots = [0,            c_nat_cum(3), c_nat_cum(7), c_nat_cum(8)];
 tier_lbls = { ...
-    sprintf('Tier 1: Dual-Gate HC\n(+%.2f%%: +5.5%% Iso, ★+3.2%% Wedge)', tier_tops(1) - tier_bots(1)), ...
-    sprintf('Tier 2: Spatial/LVR Stack\n(+%.2f%%: +4.9%% Iso, ★+2.2%% Wedge)', tier_tops(2) - tier_bots(2)), ...
+    sprintf('Tier 1: Dual-Gate HC\n(+%.2f%%: +%.1f%% Iso, ★+%.1f%% Wedge)', tier_tops(1) - tier_bots(1), SS2_Nat_11(1)+SS2_Nat_11(2), SS2_Nat_11(3)), ...
+    sprintf('Tier 2: Spatial/LVR Stack\n(+%.2f%%: +%.1f%% Iso, ★+%.1f%% Wedge)', tier_tops(2) - tier_bots(2), sum(SS2_Nat_11(4:6)), SS2_Nat_11(7)), ...
     sprintf('★ Wedge 3: Stack 1 \\times Stack 2\n(+%.2f%% Cross-Stack Synergy)', tier_tops(3) - tier_bots(3)), ...
-    sprintf('Tier 4: Fiscal/Super-%d/TFR\n(+%.2f%%: +2.0%% Iso, ★+1.9%% Wedge)', Params.super_age_SS2, tier_tops(4) - tier_bots(4))};
+    sprintf('%s\n(+%.2f%%: +%.1f%% Iso, ★+%.1f%% Wedge)', tier4_hdr, tier_tops(4) - tier_bots(4), SS2_Nat_11(9)+SS2_Nat_11(10), SS2_Nat_11(11))};
 for t_i = 1:4
     ym = 0.5 * (tier_bots(t_i) + tier_tops(t_i));
     plot(axB, [5.32, 5.38, 5.38, 5.32], [tier_bots(t_i)+0.15, tier_bots(t_i)+0.15, tier_tops(t_i)-0.15, tier_tops(t_i)-0.15], ...
@@ -382,7 +391,7 @@ Yr_Mir = (-10:2.5:60)';
 n_ym   = numel(Yr_Mir);
 NZD_Billion_Per_CE_Pct = 2.38;
 
-Pos_11_Mir = interp1(Yr_Grid, Traj_11, Yr_Mir, 'pchip');
+Pos_11_Mir   = interp1(Yr_Grid, Traj_11, Yr_Mir, 'pchip');
 Total_Mir_CE = sum(Pos_11_Mir, 2);
 
 Neg_4Investments_CE    = zeros(n_ym, 4);
@@ -456,14 +465,17 @@ xline(axM, 25.0, 'b-.', 'LineWidth', 1.7, 'HandleVisibility', 'off');
 y_mir_top = max(22.0, ceil(max([Total_Mir_CE(:); SS1_Nat_Total; SS2_Nat_Total]) * 1.22));
 y_mir_bot = -6.5;
 
-% Boxed milestone callouts placed cleanly in open whitespace above the trajectory
+% Boxed milestone callouts placed cleanly below the legend box
+y_at_25 = interp1(Yr_Mir, Total_Mir_CE, 25.0);
+y_box25 = min(0.68 * y_mir_top, y_at_25 + 2.2);
+
 text(axM, 0.8, 7.2, sprintf('Yr 0: Phase 1 (SS1)\nReform Launch'), ...
     'FontSize', 7.8, 'FontWeight', 'bold', 'Color', [0.15 0.15 0.15], ...
     'BackgroundColor', [0.98 0.98 0.98], 'EdgeColor', [0.40 0.40 0.40], 'Margin', 3);
-text(axM, 18.2, 15.6, sprintf('Yr 18.8: Cash Breakeven\n(Net Public Cost Hits 0!)'), ...
+text(axM, 18.2, 15.0, sprintf('Yr 18.8: Cash Breakeven\n(Net Public Cost Hits 0!)'), ...
     'HorizontalAlignment', 'right', 'FontSize', 7.8, 'FontWeight', 'bold', 'Color', [0.70 0.08 0.12], ...
     'BackgroundColor', [1.00 0.96 0.95], 'EdgeColor', [0.75 0.15 0.20], 'Margin', 3);
-text(axM, 25.8, 18.2, sprintf('Yr 25: Phase 2 (SS2)\n-3.5pp PAYE Cut + Super Age %d', Params.super_age_SS2), ...
+text(axM, 25.8, y_box25, box25_label, ...
     'HorizontalAlignment', 'left', 'FontSize', 7.8, 'FontWeight', 'bold', 'Color', [0.05 0.25 0.65], ...
     'BackgroundColor', [0.95 0.97 1.00], 'EdgeColor', [0.15 0.35 0.75], 'Margin', 3);
 

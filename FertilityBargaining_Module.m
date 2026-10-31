@@ -256,60 +256,89 @@ T_Fert2 = array2table([Stunted_mat, DepRatio_vec, ReqTax_vec], 'RowNames', FertS
     'DepRatio_65Plus_Pct','Required_LaborTax_Pct'});
 
 figFert = figure('Name', '4-Region Fertility Bargaining, Whanau Networks & NZ Super Solvency', ...
-    'Color', 'w', 'Position', [90, 60, 1420, 840]);
-tiledlayout(2, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
+    'Color', 'w', 'Position', [70, 40, 1480, 940]);
+tiledlayout(2, 2, 'TileSpacing', 'loose', 'Padding', 'loose');
 
 scen_labels = {'1. Baseline (65)', '2. Hyperbolic', '3. ECE Relief', '4. SS1 Pkg (65)', ...
     '5. Austerity (70)', sprintf('6. SS2 (Age %.0f)', super_age_ss2_target)};
 scen_cats   = categorical(scen_labels, scen_labels);
 
-nexttile;
-bar(scen_cats, TFR_mat, 'grouped');
-yline(2.10, 'k--', 'Replacement (2.1)', 'LabelHorizontalAlignment', 'left', 'FontSize', 8, 'FontWeight', 'bold');
-ylim([0, max(2.6, max(TFR_mat(:)) * 1.25)]);
-ylabel('Total Fertility Rate (TFR)', 'FontWeight', 'bold');
+% --- PANEL A: 4-REGION TOTAL FERTILITY RATE ---
+ax1 = nexttile;
+bar(ax1, scen_cats, TFR_mat, 'grouped');
+yline(ax1, 2.10, 'k--', 'Replacement (2.1)', 'LabelHorizontalAlignment', 'right', ...
+    'LabelVerticalAlignment', 'bottom', 'FontSize', 8.5, 'FontWeight', 'bold', 'HandleVisibility', 'off');
+ylim(ax1, [0, max(2.85, max(TFR_mat(:)) * 1.35)]);
+xtickangle(ax1, 22);
+ylabel(ax1, 'Total Fertility Rate (TFR)', 'FontWeight', 'bold');
 if super_age_ss2_target < 65
-    title(sprintf('A. 4-Region Total Fertility Rate (TFR: SS2 Age %.0f < 65 Hits Replacement!)', super_age_ss2_target), 'FontWeight', 'bold');
+    title(ax1, sprintf('A. 4-Region Total Fertility Rate (TFR: SS2 Age %.0f Hits Replacement!)', super_age_ss2_target), 'FontWeight', 'bold');
 else
-    title('A. 4-Region Total Fertility Rate', 'FontWeight', 'bold');
+    title(ax1, 'A. 4-Region Total Fertility Rate (TFR)', 'FontWeight', 'bold');
 end
-legend(Regions, 'Location', 'northoutside', 'Orientation', 'horizontal'); grid on;
+legend(ax1, Regions, 'Location', 'northwest', 'Orientation', 'horizontal', 'FontSize', 8.5);
+grid(ax1, 'on'); box(ax1, 'on');
 
-nexttile;
-bar(scen_cats, DiffFert_mat(:, 3:4), 'grouped');
-ylim([0, max(0.42, max(DiffFert_mat(:)) * 1.28)]);
-ylabel('Low-Skill minus High-Skill Births', 'FontWeight', 'bold');
-title('B. Metropolitan Differential Fertility Gap (Large vs Auckland)', 'FontWeight', 'bold');
-legend({'Large','Auckland'}, 'Location', 'northeast'); grid on;
+% --- PANEL B: METROPOLITAN DIFFERENTIAL FERTILITY GAP ---
+ax2 = nexttile;
+bar(ax2, scen_cats, DiffFert_mat(:, 3:4), 'grouped');
+ylim(ax2, [0, max(0.46, max(DiffFert_mat(:)) * 1.32)]);
+xtickangle(ax2, 22);
+ylabel(ax2, 'Low-Skill minus High-Skill Births', 'FontWeight', 'bold');
+title(ax2, 'B. Metropolitan Differential Fertility Gap (Large vs Auckland)', 'FontWeight', 'bold');
+legend(ax2, {'Large','Auckland'}, 'Location', 'northeast', 'FontSize', 8.5);
+grid(ax2, 'on'); box(ax2, 'on');
 
-nexttile;
-bar(scen_cats, Stunted_mat, 'grouped');
-ylim([0, max(25, max(Stunted_mat(:)) * 1.22)]);
-ylabel('Stunted Cohort Share (%)', 'FontWeight', 'bold');
-title('C. 4-Region Low-Skill Cohort Stunting Share (Age 70 Spike vs Age 64 Compression)', 'FontWeight', 'bold');
-legend(Regions, 'Location', 'northeast'); grid on;
+% --- PANEL C: 4-REGION LOW-SKILL COHORT STUNTING SHARE ---
+ax3 = nexttile;
+bar(ax3, scen_cats, Stunted_mat, 'grouped');
+ylim(ax3, [0, max(30, max(Stunted_mat(:)) * 1.25)]);
+xtickangle(ax3, 22);
+ylabel(ax3, 'Stunted Cohort Share (%)', 'FontWeight', 'bold');
+title(ax3, sprintf('C. 4-Region Low-Skill Cohort Stunting Share (Age 70 Spike vs Age %.0f Compression)', super_age_ss2_target), 'FontWeight', 'bold');
+legend(ax3, Regions, 'Location', 'northeast', 'FontSize', 8.5);
+grid(ax3, 'on'); box(ax3, 'on');
 
-nexttile;
-yyaxis left;
-b_dep = bar(scen_cats, DepRatio_vec, 0.48, 'FaceColor', [0.22 0.48 0.68], 'FaceAlpha', 0.85);
-ylim([0, max(55, max(DepRatio_vec) * 1.25)]);
-ylabel('Effective Fiscal Dependency Ratio (%)', 'FontWeight', 'bold');
+% --- PANEL D: EFFECTIVE DEPENDENCY RATIO & REQUIRED LABOR TAX RATE ---
+ax4 = nexttile;
+yyaxis(ax4, 'left');
+b_dep = bar(ax4, scen_cats, DepRatio_vec, 0.46, 'FaceColor', [0.22 0.48 0.68], 'FaceAlpha', 0.82);
+ylim(ax4, [0, max(58, max(DepRatio_vec) * 1.32)]);
+ylabel(ax4, 'Effective Fiscal Dependency Ratio (%)', 'FontWeight', 'bold');
+ax4.YColor = [0.15 0.35 0.55];
 
-yyaxis right;
-p_tax = plot(scen_cats, ReqTax_vec, '-s', 'Color', [0.80 0.15 0.15], 'MarkerFaceColor', [0.95 0.30 0.20], ...
-    'LineWidth', 2.5, 'MarkerSize', 8);
+yyaxis(ax4, 'right');
+y_tax_min = min(15.5, floor(min(ReqTax_vec) - 2.5));
+y_tax_max = max(30.5, ceil(max(ReqTax_vec) + 3.0));
+ylim(ax4, [y_tax_min, y_tax_max]);
+
+yline(ax4, 100*Params.tau_l, 'k:', '2026 Current PAYE (22.0%)', ...
+    'LabelHorizontalAlignment', 'left', 'LabelVerticalAlignment', 'bottom', ...
+    'FontSize', 8.2, 'FontWeight', 'bold', 'LineWidth', 1.4, 'HandleVisibility', 'off');
+
+p_tax = plot(ax4, scen_cats, ReqTax_vec, '-s', 'Color', [0.80 0.15 0.15], ...
+    'MarkerFaceColor', [0.95 0.30 0.20], 'LineWidth', 2.5, 'MarkerSize', 7.5);
+
 for s_i = 1:N_scen
-    text(scen_cats(s_i), ReqTax_vec(s_i) + 0.65, sprintf('%.2f%%', ReqTax_vec(s_i)), ...
-        'HorizontalAlignment', 'center', 'FontSize', 8.2, 'FontWeight', 'bold', 'Color', [0.65 0.05 0.05]);
+    % Place callout pill above marker for high tax rates and below marker when near/below 22% line
+    if ReqTax_vec(s_i) < 21.8 && s_i ~= 6
+        y_off = -1.15;
+    else
+        y_off = +1.15;
+    end
+    text(ax4, scen_cats(s_i), ReqTax_vec(s_i) + y_off, sprintf('%.2f%%', ReqTax_vec(s_i)), ...
+        'HorizontalAlignment', 'center', 'FontSize', 8.0, 'FontWeight', 'bold', ...
+        'Color', [0.65 0.05 0.05], 'BackgroundColor', [1.0 0.98 0.98], ...
+        'EdgeColor', [0.85 0.25 0.25], 'Margin', 2);
 end
-ylim([16, max(30, max(ReqTax_vec) * 1.18)])
-yline(100*Params.tau_l, 'k:', '2026 Current PAYE (22.0%)', 'LineWidth', 1.2);
-ylabel('Required Labor Tax \tau_l (%)', 'FontWeight', 'bold');
-title('D. Effective Dependency Ratio & Required Tax Rate', 'FontWeight', 'bold');
-grid on;
+xtickangle(ax4, 22);
+ylabel(ax4, 'Required Labor Tax \tau_l (%)', 'FontWeight', 'bold');
+ax4.YColor = [0.75 0.12 0.12];
+title(ax4, 'D. Effective Dependency Ratio & Required Tax Rate', 'FontWeight', 'bold');
+grid(ax4, 'on'); box(ax4, 'on');
 
 if exist('Export_Tables_Figures', 'var') && Export_Tables_Figures
-    exportgraphics(figFert, fullfile(OutputDir, 'FigFert_4Region_Bargaining_Solvency.png'), 'Resolution', 300);
+    exportgraphics(figFert, fullfile(OutputDir, 'FigFert_4Region_Bargaining_Solvency.png'), 'Resolution', 300, 'BackgroundColor', 'white');
     writetable(T_Fert1, fullfile(OutputDir, 'Table7_4Region_Fertility_Bargaining_TFR.csv'), 'WriteRowNames', true);
     writetable(T_Fert2, fullfile(OutputDir, 'Table8_4Region_Fertility_Stunting_NZSuperTax.csv'), 'WriteRowNames', true);
 end
