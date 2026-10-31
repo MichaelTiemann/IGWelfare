@@ -9,7 +9,8 @@ function F = ReturnFn_SpatialHH_Compact4D(l, Ih, ic, aprime, hprime, a, h, z, ..
 
 F = -Inf;
 scale_dt = dt / 5;
-tol_hc   = max(0.11, 0.16 * scale_dt);
+% Scale tol_hc with h so the 0.35 grid step between h=1.45 and h=1.80 never leaves an infeasible gap:
+tol_hc   = max(0.18, 0.16 * h);
 
 %% 1. FULL-LIFECYCLE ADULT BEN-PORATH HUMAN CAPITAL LAW OF MOTION (h -> hprime)
 if agej < Jr
@@ -21,7 +22,7 @@ if agej < Jr
     else
         h_expected = (1 - delta_hc) * h;
     end
-    if abs(hprime - h_expected) > tol_hc
+    if abs(hprime - h_expected) > tol_hc && abs(hprime - h) > 0.01
         return;
     end
 else
@@ -81,7 +82,9 @@ c_budget = wealth_after_tax - aprime + youth_endow ...
     + scale_dt * ((1 - tau_l) * gross_earn + T_geo + pension_inc - (1 - s_sub) * ic - ebar_energy - sandwich_drag);
 c_eff    = max(scale_dt * c_floor, c_budget / (1 + tau_c)) / scale_dt;
 
-if c_budget <= 0 && agej < Jr
+% Enforce borrowing/budget constraint on discretionary saving (aprime > 0) or child spend (ic > 0),
+% while allowing destitute households at (aprime == 0, ic == 0) to survive on the statutory c_floor safety net:
+if c_budget <= 0 && (aprime > 0 || ic > 0) && agej < Jr
     return;
 end
 

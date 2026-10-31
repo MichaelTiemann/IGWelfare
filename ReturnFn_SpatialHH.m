@@ -14,7 +14,9 @@ F = -Inf;
 scale_dt = dt / 5;
 
 %% 1. FULL-LIFECYCLE ADULT BEN-PORATH HUMAN CAPITAL LAW OF MOTION (h -> hprime)
-tol_hc = max(0.11, 0.16 * scale_dt);
+% Grid spacing on a_grid_hc = [0.45, 0.65, 0.85, 1.00, 1.20, 1.45, 1.80] reaches 0.35 at top;
+% setting tol_hc = max(0.18, 0.16 * h) guarantees at least one feasible hprime for every (h, Ih):
+tol_hc = max(0.18, 0.16 * h);
 if agej < Jr
     if l == 0 && Ih > 0
         return;
@@ -24,7 +26,7 @@ if agej < Jr
     else
         h_expected = (1 - delta_hc) * h;
     end
-    if abs(hprime - h_expected) > tol_hc
+    if abs(hprime - h_expected) > tol_hc && abs(hprime - h) > 0.01 && ~(h > 1.75 && hprime > 1.75)
         return;
     end
 else
@@ -32,7 +34,7 @@ else
         return;
     end
     h_expected = (1 - 0.5 * delta_hc) * h;
-    if abs(hprime - h_expected) > 0.22 && abs(hprime - h) > 0.16
+    if abs(hprime - h_expected) > 0.22 && abs(hprime - h) > 0.18
         return;
     end
 end
@@ -85,7 +87,7 @@ c_budget = wealth_after_tax - aprime + youth_endow ...
     + scale_dt * ((1 - tau_l) * gross_earn + T_geo + pension_inc - (1 - s_sub) * ic - ebar_energy - sandwich_drag);
 c_eff    = max(scale_dt * c_floor, c_budget / (1 + tau_c)) / scale_dt;
 
-if c_budget <= 0 && agej < Jr
+if c_budget <= 0 && (aprime > 0 || ic > 0) && agej < Jr
     return;
 end
 
