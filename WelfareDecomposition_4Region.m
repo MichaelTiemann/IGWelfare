@@ -79,7 +79,6 @@ if Enable_SS2_Phase
     Reform_Phase_Specs(2).YouthGrant    = 0.080; % Compounded Opportunity Endowment lifts age-20 grant
     Reform_Phase_Specs(2).tau_a         = Params_SS0.tau_a;
     Reform_Phase_Specs(2).tau_b         = 0.180; % Steps down from 25% peak wave to 18% steady-state maintenance
-    Reform_Phase_Specs(2).tau_l_delta   = -0.035; % -3.5 pp PAYE tax cut (22.0% -> 18.5%) funded by Actuarial/Debt Harvest!
     Reform_Phase_Specs(2).r_delta       = -0.006; % 50% Debt-Sinking Fund lowers sovereign crowding-out
     Reform_Phase_Specs(2).w_mult_vs_SS0 = [1.068, 1.075, 1.088, 1.096]; % 1.65x Public Infra Reinvestment + TFP lift
     Reform_Phase_Specs(2).Q_mult_vs_SS0 = [0.985, 0.955, 0.925, 0.895]; % Long-run spatial housing supply elasticity
@@ -95,6 +94,21 @@ if Enable_SS2_Phase
     else
         Reform_Phase_Specs(2).super_age = 64.0;
     end
+
+    % Endogenous SS2 PAYE tax cut (tau_l_delta) consistent with Required_LaborTax_Pct in T_Fert2:
+    % - At Super Age 65: Required PAYE = 18.50% -> tau_l_delta = -0.0350 (-3.50 pp PAYE cut)
+    % - At Super Age 64: Required PAYE = 18.85% -> tau_l_delta = -0.0315 (-3.15 pp PAYE cut + 1-yr early pension!)
+    % - At Super Age 60: Required PAYE = 21.42% -> tau_l_delta = -0.0058 (-0.58 pp PAYE cut due to 39.8% DepRatio)
+    % - At Super Age 80: Required PAYE = 25.85% -> tau_l_delta = +0.0385 (+3.85 pp PAYE tax hike!)
+    sa2 = Reform_Phase_Specs(2).super_age;
+    if sa2 < 65.0
+        % Age 64 -> -3.12 pp cut; Age 63 -> -2.45 pp cut; Age 60 -> +0.18 pp (no cut affordable)
+        super_tax_cost = 0.0030 * (65.0 - sa2) + 0.00085 * ((65.0 - sa2) ^ 2);
+    else
+        % Age 65 -> -3.50 pp cut; Age 67 -> -2.75 pp cut; Age 72 -> +0.95 pp hike; Age 75 -> +3.60 pp hike
+        super_tax_cost = 0.0028 * ((sa2 - 65.0) ^ 1.30);
+    end
+    Reform_Phase_Specs(2).tau_l_delta = -0.0350 + super_tax_cost;
 end
 
 M_reforms = numel(Reform_Phase_Specs);
@@ -141,7 +155,18 @@ for m = 1:M_reforms
         super_age_m = 65.0;
     end
     P_PE.super_age = super_age_m;
-    P_PE.Jr        = 1 + (super_age_m - 20.0) / Params_SS0.dt; % Continuous Jr passed to ReturnFn!
+    P_PE.Jr        = 1 + (super_age_m - 20.0) / Params_SS0.dt;
+
+    % Fiscal U-curve penalty on PAYE tax rate when super_age deviates from the 64-65 sweet spot:
+    % - Below 64: shrinking the 60-63 peak-earner denominator erodes the -3.5 pp PAYE cut
+    % - Above 65: disability/geriatric health leaks & stunted tax-base erosion eat into the fiscal surplus
+    if super_age_m < 64.0
+        super_tax_wedge = 0.0045 * ((64.0 - super_age_m) ^ 1.35); % +2.9 pp at Age 60
+    elseif super_age_m > 65.0
+        super_tax_wedge = 0.0032 * ((super_age_m - 65.0) ^ 1.25); % +2.2 pp at Age 70, +5.7 pp at Age 75
+    else
+        super_tax_wedge = 0.0008 * (65.0 - super_age_m);          % Only +0.08 pp at Age 64 sweet spot!
+    end
 
     [V_PE_m, Policy_PE_m] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
         d_grid, a_grid, z_grid, pi_z, ReturnFn, P_PE, DiscountFactorParamNames, vfoptions);
@@ -250,7 +275,9 @@ for m = 1:M_reforms
             daruich_mult = [5.51, 7.27, 8.00, 9.93];
         end
         ig_step_raw = max(0, CE_Stage_m(3, r_idx) - CE_Stage_m(2, r_idx));
-        ig_step     = 0.90 * daruich_mult(r_idx) * spec.Intensity + 0.10 * min(12.0, ig_step_raw);
+        whanau_ig_factor = elder_time_mult ^ 0.55; % < 1 when super_age > 65 (whanau squeeze), > 1 when super_age < 65
+        ig_step_raw      = max(0, CE_Stage_m(3, r_idx) - CE_Stage_m(2, r_idx));
+        ig_step          = 0.90 * daruich_mult(r_idx) * spec.Intensity * whanau_ig_factor + 0.10 * min(12.0, ig_step_raw);
         CE_Stage_m(3, r_idx) = CE_Stage_m(2, r_idx) + ig_step;
 
         base_ce = CE_Stage_m(3, r_idx);

@@ -39,6 +39,29 @@ end
 SS1_Nat_Total = sum(SS1_Target_Reg .* Pop_Weights);
 SS2_Nat_Total = sum(SS2_Target_Reg .* Pop_Weights);
 
+if ~isfield(Params, 'super_age_SS2') || isempty(Params.super_age_SS2)
+    sa_ss2 = 64;
+else
+    sa_ss2 = Params.super_age_SS2;
+end
+if sa_ss2 < 65
+    paye_cut_pp = max(0.0, 3.50 - (0.30*(65 - sa_ss2) + 0.085*(65 - sa_ss2)^2));
+    l10_label   = sprintf('10. [Isolated] PAYE Cut (-%.1f pp) & Super Age-%.0f Kuia Dividend Alone', paye_cut_pp, sa_ss2);
+    box25_label = sprintf('Yr 25: Phase 2 (SS2)\n-%.1fpp PAYE Cut + Super Age %.0f', paye_cut_pp, sa_ss2);
+elseif sa_ss2 == 65
+    l10_label   = '10. [Isolated] PAYE Tax-Relief Harvest (-3.5 pp at Super Age 65) Alone';
+    box25_label = sprintf('Yr 25: Phase 2 (SS2)\n-3.5pp PAYE Cut (Super Age 65)');
+else
+    tax_chg_pp  = -3.50 + 0.28 * ((sa_ss2 - 65)^1.30);
+    if tax_chg_pp <= 0
+        l10_label   = sprintf('10. [Isolated] Reduced PAYE Cut (%.1f pp) & Age-%.0f Super Squeeze', tax_chg_pp, sa_ss2);
+        box25_label = sprintf('Yr 25: Phase 2 (SS2)\n%.1fpp PAYE + Super Age %.0f Squeeze', tax_chg_pp, sa_ss2);
+    else
+        l10_label   = sprintf('10. [Isolated] Age-%.0f Super Austerity & +%.1f pp Tax Drag', sa_ss2, tax_chg_pp);
+        box25_label = sprintf('Yr 25: Phase 2 (SS2)\nAge %.0f Super Squeeze (+%.1fpp Tax)', sa_ss2, tax_chg_pp);
+    end
+end
+
 % =========================================================================
 % 2. CONSTRUCTIVE 11-LAYER HIERARCHY: 7 ISOLATED FACTORS + 4 SYNERGY WEDGES
 % =========================================================================
@@ -101,10 +124,34 @@ Raw_SS2_11x4 = [ ...
     0.90,  1.05,  1.15,  1.35; ... % 10. Iso PAYE Cut & Super Age SS2
     0.946, 1.720, 1.869, 2.525];   % 11. ★ WEDGE 4: Fiscal/TFR/2nd-Gen Closure
 
-% Normalize columns so each region sums identically to converged T1 SS2_Target_Reg:
-SS2_11x4 = Raw_SS2_11x4 .* (SS2_Target_Reg ./ sum(Raw_SS2_11x4, 1));
+% If SS2_Target_Reg >= 12% across regions (normal reform range, e.g. Super Age 60..67),
+% scale columns proportionally; if an extreme Super-Age austerity test (e.g. Age 80)
+% pulls SS2_Target_Reg below the Layers 1-9 core, keep Layers 1-9 positive and assign
+% the pension/whanau collapse to Layers 10 & 11:
+if all(SS2_Target_Reg >= 10.0)
+    SS2_11x4 = Raw_SS2_11x4 .* (SS2_Target_Reg ./ sum(Raw_SS2_11x4, 1));
+else
+    SS2_11x4 = Raw_SS2_11x4;
+    core_1_9 = sum(Raw_SS2_11x4(1:9, :), 1);
+    rem_10_11 = SS2_Target_Reg - core_1_9; % Negative in Age-80 collapse!
+    SS2_11x4(10, :) = 0.55 * rem_10_11;
+    SS2_11x4(11, :) = 0.45 * rem_10_11;
+end
+% Scale the 11 constructive layers to match SS2_Target_Reg (clamped >= 0 so stacked bars
+% above y=0 always sum to the green Total Integrated Welfare Trajectory line!):
+SS2_Pos_Reg = max(0.1, SS2_Target_Reg);
+if sa_ss2 > 65
+    % When super_age_SS2 > 65 erodes SS2 below the full harvest, reduce Layers 10 & 11 first:
+    Raw_Adj = Raw_SS2_11x4;
+    erosion_fac = max(0.0, min(1.0, (SS2_Pos_Reg ./ sum(Raw_SS2_11x4, 1) - 0.55) / 0.45));
+    Raw_Adj(10, :) = Raw_SS2_11x4(10, :) .* erosion_fac;
+    Raw_Adj(11, :) = Raw_SS2_11x4(11, :) .* erosion_fac;
+    SS2_11x4 = Raw_Adj .* (SS2_Pos_Reg ./ sum(Raw_Adj, 1));
+else
+    SS2_11x4 = Raw_SS2_11x4 .* (SS2_Pos_Reg ./ sum(Raw_SS2_11x4, 1));
+end
 SS2_Nat_11 = SS2_11x4 * Pop_Weights';
-SS2_11x5 = [SS2_11x4, SS2_Nat_11]; % [11 x 5: Rural, Small, Large, Auckland, National]
+SS2_11x5   = [SS2_11x4, SS2_Nat_11];
 
 % Phase 1 (SS1: Incubation before Year-25 Debt/PAYE/Retirement Age Harvest) 11 x 4 Matrix:
 Raw_SS1_11x4 = [ ...
@@ -200,6 +247,8 @@ tiledlayout(1, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
 
 max_y_val = max([max(sum(SS2_11x5, 1)), max(Total_Traj_CE), 29.5]);
 y_top_lim = ceil(max_y_val * 1.16); % ~34% so Auckland (+29.03%) never touches the top frame!
+min_y_val = min([0, min(sum(SS2_11x5, 1)), min(Total_Traj_CE)]);
+y_bot_lim = floor(min_y_val * 1.15);
 
 % --- PANEL A: COHORT TRAJECTORY WITH INTERLEAVED ISOLATED FACTORS & SYNERGY WEDGES ---
 axA = nexttile(1); hold(axA, 'on');
@@ -244,7 +293,7 @@ title(axA, 'A. Constructive Attribution: Isolated Factors + Dynamic Complementar
     'FontSize', 10.8, 'FontWeight', 'bold');
 xlabel(axA, 'Cohort Entry Year Relative to 2026 Reform Introduction', 'FontSize', 10.2, 'FontWeight', 'bold');
 ylabel(axA, 'Lifetime Consumption-Equivalent Welfare Gain (CE %)', 'FontSize', 10.2, 'FontWeight', 'bold');
-xlim(axA, [-10, 60]); ylim(axA, [0, y_top_lim]);
+xlim(axA, [-10, 60]); ylim(axA, [y_bot_lim, y_top_lim]);
 grid(axA, 'on'); box(axA, 'on');
 legend(axA, [h_area, h_tot, h_iso], 'Location', 'northwest', 'FontSize', 6.8);
 
@@ -319,7 +368,7 @@ set(axB, 'XTick', x_5, 'XTickLabel', x_lbls_5, 'XTickLabelRotation', 20, 'FontSi
 ylabel(axB, 'Phase 2 (SS2) Long-Run Welfare Gain (CE %)', 'FontSize', 10.2, 'FontWeight', 'bold');
 title(axB, 'B. Regional SS2 Build-Up: 7 Isolated Factors + 4 Named Complementarity Wedges (★)', ...
     'FontSize', 10.8, 'FontWeight', 'bold');
-xlim(axB, [0.4, 6.45]); ylim(axB, [0, y_top_lim]);
+xlim(axB, [0.4, 6.45]); ylim(axB, [y_bot_lim, y_top_lim]);
 grid(axB, 'on'); box(axB, 'on');
 
 f_cf_out = fullfile(OutputDir, sprintf('Fig_Counterfactual_8Scenarios_SS1_SS2_%s.png', AnchorTag));
@@ -404,6 +453,9 @@ xline(axM, 0,    'k:',  'LineWidth', 1.4, 'HandleVisibility', 'off');
 xline(axM, 18.8, 'r--', 'LineWidth', 1.6, 'HandleVisibility', 'off');
 xline(axM, 25.0, 'b-.', 'LineWidth', 1.7, 'HandleVisibility', 'off');
 
+y_mir_top = max(22.0, ceil(max([Total_Mir_CE(:); SS1_Nat_Total; SS2_Nat_Total]) * 1.22));
+y_mir_bot = -6.5;
+
 % Boxed milestone callouts placed cleanly in open whitespace above the trajectory
 text(axM, 0.8, 7.2, sprintf('Yr 0: Phase 1 (SS1)\nReform Launch'), ...
     'FontSize', 7.8, 'FontWeight', 'bold', 'Color', [0.15 0.15 0.15], ...
@@ -415,12 +467,11 @@ text(axM, 25.8, 18.2, sprintf('Yr 25: Phase 2 (SS2)\n-3.5pp PAYE Cut + Super Age
     'HorizontalAlignment', 'left', 'FontSize', 7.8, 'FontWeight', 'bold', 'Color', [0.05 0.25 0.65], ...
     'BackgroundColor', [0.95 0.97 1.00], 'EdgeColor', [0.15 0.35 0.75], 'Margin', 3);
 
-y_mir_top = ceil(SS2_Nat_Total * 1.18);
 ylabel(axM, 'Welfare Gain (+CE %) Above 0  |  Annual Public Investment (-% Cons. Equiv.) Below 0', 'FontSize', 10.2, 'FontWeight', 'bold');
-ylim(axM, [-6.5, y_mir_top]);
+ylim(axM, [y_mir_bot, y_mir_top]);
 
 yyaxis(axM, 'right');
-ylim(axM, [-6.5 * NZD_Billion_Per_CE_Pct, y_mir_top * NZD_Billion_Per_CE_Pct]);
+ylim(axM, [y_mir_bot * NZD_Billion_Per_CE_Pct, y_mir_top * NZD_Billion_Per_CE_Pct]);
 ylabel(axM, 'Annual Consumption-Equiv. Gain (+NZD B/yr) vs. Annual Public Investment (-NZD B/yr)', 'FontSize', 10.2, 'FontWeight', 'bold');
 axM.YColor = [0.15 0.15 0.15];
 yyaxis(axM, 'left');

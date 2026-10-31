@@ -11,14 +11,14 @@ scale_dt      = dt / 5;
 tol_hc        = max(0.18, 0.16 * h);
 age_start_yrs = 20 + (agej - 1) * dt;
 age_end_yrs   = age_start_yrs + dt;
-super_age_yrs = 20 + (Jr - 1) * dt; % Exact continuous statutory retirement age (e.g. 65, 64, 63, 62, 70)
+super_age_yrs = 20 + (Jr - 1) * dt; % Exact continuous statutory retirement age (e.g. 60, 64, 65, 70, 75)
 
-% Fraction of current period [age_start_yrs, age_end_yrs] spent in NZ Super eligibility:
+is_post_65    = (age_start_yrs >= 65.0 - 1e-4);
 super_share_j = min(1.0, max(0.0, (age_end_yrs - super_age_yrs) / dt));
-is_full_ret   = (super_share_j >= 0.999);
+is_full_ret   = is_post_65 && (super_share_j >= 0.999);
 
 %% 1. FULL-LIFECYCLE ADULT BEN-PORATH HUMAN CAPITAL LAW OF MOTION (h -> hprime)
-if ~is_full_ret
+if ~is_post_65
     if l == 0 && Ih > 0
         return;
     end
@@ -31,7 +31,7 @@ if ~is_full_ret
         return;
     end
 else
-    if l > 0 || Ih > 0 || ic > 0
+    if Ih > 0 || ic > 0 || (is_full_ret && l > 0)
         return;
     end
     h_expected = (1 - 0.5 * delta_hc) * h;
@@ -56,34 +56,41 @@ xi_hh            = min(1.0, xi_reg * (0.98 + 0.04 * lvr_access));
 is_evict_tail    = double(a < 0.08 * Q_reg) * double(z < 0.85);
 transience_wedge = 1.0 + 0.04 * is_evict_tail * max(0.0, (0.110 - G_ece) / 0.065);
 
-if ~is_full_ret
+if ~is_post_65
     p_H = (xi_hh * rh_reg + (1 - xi_hh) * (rr_reg / (0.5 * chi_bar))) * transience_wedge;
 else
     p_H = rh_reg;
 end
 
 %% 3. PARAMETRIC WHANAU CARE K_whanau_net(super_age_yrs) & MENTORING TRUST GATING
-is_super_cut    = double(super_age_yrs > 65.5);
-is_distress_z   = double(z < 0.80) * double(a < 0.12 * Q_reg);
-if super_age_yrs >= 65
-    elder_time_mult = exp(-0.09*(super_age_yrs - 65));
+yrs_above_65  = max(0.0, super_age_yrs - 65.0);
+yrs_below_65  = max(0.0, 65.0 - super_age_yrs);
+is_distress_z = double(z < 0.80) * double(a < 0.12 * Q_reg);
+
+if super_age_yrs >= 65.0
+    elder_time_mult = exp(-0.09 * yrs_above_65);
 else
-    elder_time_mult = 1 + 0.16*tanh((65 - super_age_yrs)/1.8);
+    elder_time_mult = 1.0 + 0.16 * tanh(yrs_below_65 / 1.8);
 end
 
-K_whanau_net  = (K_whanau * elder_time_mult) - 0.28 * is_super_cut * is_distress_z;
-sandwich_drag = max(0.0, -K_whanau_net) * 0.035;
+K_whanau_net  = (K_whanau * elder_time_mult) - 0.035 * yrs_above_65 * (0.4 + is_distress_z);
+sandwich_drag = max(0.0, -K_whanau_net) * 0.035 + 0.0012 * (yrs_above_65 ^ 1.20) * double(~is_post_65);
 
 M_mentor      = min(1.0, max(0.0, 0.173 + 12.0 * (G_ece - 0.045)));
 M_trust_gated = M_mentor * (0.45 + 0.55 * min(1.0, max(0.0, K_whanau_net) / 0.35));
 
 %% 4. BUDGET CONSTRAINT & "INCOME x GEOGRAPHY" TRANSFER RULE (FLOWS SCALED BY scale_dt)
 s_sub            = min(0.80, G_ece / (G_ece + gbar_ece));
-gross_earn       = w_reg * h * z * l;
+senescence_fac   = exp(-0.08 * max(0.0, age_end_yrs - 65.0)); % 8%/yr productivity decay past Age 65
+gross_earn       = w_reg * h * z * l * senescence_fac;
 T_geo            = Transfer_Geo * exp(-1.8 * gross_earn);
 wealth_after_tax = ((1 - tau_a) ^ dt) * a + r * (1 - tau_k) * a;
 youth_endow      = (agej == 1) * YouthGrant;
-pension_inc      = super_share_j * p_super; % Exact parametric pension share for any super_age!
+
+% When super_age_yrs > 65, displaced 65+ seniors who cannot receive NZ Super draw partial
+% Supported Living / Disability safety-net support (55% of p_super, funded out of government taxes):
+unpensioned_post65 = double(is_post_65) * max(0.0, 1.0 - super_share_j);
+pension_inc        = (super_share_j + 0.55 * unpensioned_post65) * p_super;
 
 c_budget = wealth_after_tax - aprime + youth_endow ...
     + scale_dt * ((1 - tau_l) * gross_earn + T_geo + pension_inc - (1 - s_sub) * ic - ebar_energy - sandwich_drag);
@@ -99,8 +106,9 @@ c_H    = (1 - phi_nd) * c_eff / p_H;
 u_comp = (c_nd ^ phi_nd) * (c_H ^ (1 - phi_nd));
 eta_c  = 2.0;
 
-manual_wear_mult = (1.0 - 0.55 * super_share_j * double(~is_full_ret)) ...
-    + 0.35 * double(age_end_yrs > 65.0) * double(~is_full_ret) * max(0.0, (1.00 - h) / 0.55);
+early_relief     = 0.38 * super_share_j * double(~is_post_65);
+post65_wear      = 0.14 * max(0.0, age_end_yrs - 65.0) * (1.0 + 0.40 * max(0.0, (1.15 - h) / 0.55));
+manual_wear_mult = max(0.55, 1.0 - early_relief + post65_wear);
 
 u_flow = scale_dt * ((u_comp ^ (1 - eta_c)) / (1 - eta_c) - 0.85 * manual_wear_mult * ((l + Ih) ^ 1.6) / 1.6);
 
@@ -117,11 +125,11 @@ end
 
 %% 6. END-OF-LIFE WARM-GLOW BEQUEST (WITH SKILL-MANIFOLD MORTALITY GRADIENT sj_eff(h, j))
 u_beq = 0;
-if super_share_j > 0
+if is_post_65 || (super_share_j > 0)
     mort_grad  = exp(0.05 * (1.05 - h));
     mort_prob  = min(0.99, max(0.01, (1 - sj) * mort_grad));
     net_estate = (1 - tau_b) * max(0, aprime);
-    u_beq      = super_share_j * mort_prob * b1_beq * (((b2_beq + net_estate) ^ (1 - eta_c)) / (1 - eta_c));
+    u_beq      = mort_prob * b1_beq * (((b2_beq + net_estate) ^ (1 - eta_c)) / (1 - eta_c));
 end
 
 F = u_flow + u_child + u_beq;

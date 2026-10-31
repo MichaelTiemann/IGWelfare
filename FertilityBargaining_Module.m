@@ -155,25 +155,27 @@ for s_idx = 1:N_scen
         reg_weight    = 0.75 + 0.10 * r_idx;
         ece_relief    = 115.0 * (G_ece1_s - Params.G_ece_stage1) * reg_weight ...
             +  18.0 * (M_mentor_s - M_mentor_0) * reg_weight;
-        whanau_relief = 22.5 * dK_r;
+        whanau_gain   = 22.5 * max(0.0, dK_r);
+        % When super_age > 65 (dK_r < 0), losing grandparent/aunty supervision causes adolescent
+        % & family-stress attrition even when formal Stage-1 ECE is present:
+        yrs_late_r    = max(0.0, super_age_s - 65.0);
+        whanau_squeeze_pen = max(0.0, -dK_r) * (22.5 + 2.8 * yrs_late_r);
         hyp_pen       = 6.50 * (1 - beta_hyp) * reg_weight;
 
-        Stunted_mat(s_idx, r_idx) = max(2.2, min(98.5, base_stunt_vec(r_idx) - ece_relief - whanau_relief + hyp_pen));
+        stunt_post_ece = max(2.2, base_stunt_vec(r_idx) - ece_relief - whanau_gain + hyp_pen);
+        Stunted_mat(s_idx, r_idx) = min(98.5, stunt_post_ece + whanau_squeeze_pen);
     end
 
     % =====================================================================
     % EXACT STATIONARY OLG COHORT PYRAMID & CONTINUOUS RETIREMENT QUOTIENT
     % =====================================================================
-    % Use reference 5-year survival pyramid (16 cohorts: Ages 20-99) so dependency
-    % ratios are 100% invariant to dt (dt=5, dt=3, dt=2) and reflect exact cohort shares!
     if isfield(Params, 'sj_5yr_ref')
         sj_ref = Params.sj_5yr_ref;
     else
         sj_ref = [0.995, 0.994, 0.993, 0.991, 0.988, 0.983, 0.975, 0.962, ...
             0.942, 0.910, 0.860, 0.780, 0.660, 0.500, 0.300, 0.000];
     end
-    % National weighted TFR -> Stationary OLG Cohort Pyramid -> Pension Dependency Ratio & Required Tax
-    nat_TFR  = sum(TFR_mat(s_idx, :)' .* Reg_HH_Shares);
+    nat_TFR    = sum(TFR_mat(s_idx, :)' .* Reg_HH_Shares);
     g_cohort_5 = ((nat_TFR / 1.42) ^ (5.0 / 30.0)) - 1.0;
     N_5        = zeros(16, 1);
     N_5(1)     = 1.0;
@@ -182,7 +184,6 @@ for s_idx = 1:N_scen
     end
     N_5 = N_5 / sum(N_5);
 
-    % Exact continuous retirement share in each 5-year age bracket [age_lo, age_hi]:
     ret_share_5 = zeros(16, 1);
     for jj = 1:16
         age_lo = 20.0 + (jj - 1) * 5.0;
@@ -190,30 +191,31 @@ for s_idx = 1:N_scen
         ret_share_5(jj) = min(1.0, max(0.0, (age_hi - super_age_s) / 5.0));
     end
 
-    % Baseline Age-65 retiree vs worker shares for this fertility pyramid:
-    ret_65_mass = sum(N_5(10:16)); % Ages 65-99
-    wrk_65_mass = sum(N_5(1:9));   % Ages 20-64
-
-    % Actual retired & working masses at super_age_s:
+    ret_65_mass  = sum(N_5(10:16)); % Ages 65-99
+    wrk_65_mass  = sum(N_5(1:9));   % Ages 20-64
     ret_raw_mass = sum(N_5 .* ret_share_5);
     wrk_raw_mass = sum(N_5 .* (1.0 - ret_share_5));
 
     if super_age_s > 65.0
-        % Raising Super age > 65: 45% of displaced 65..super_age seniors shift onto
-        % disability/hardship benefits, and remaining older workers have 78% average tax capacity:
-        delta_ret_cut = ret_65_mass - ret_raw_mass;
-        eff_ret_mass  = ret_65_mass - (1.0 - 0.45) * delta_ret_cut;
-        eff_wrk_mass  = wrk_65_mass + 0.78 * (1.0 - 0.45) * delta_ret_cut;
+        % Raising Super age > 65:
+        % 1) Share of displaced seniors able to remain healthy full-time workers decays exponentially with age:
+        yrs_late          = super_age_s - 65.0;
+        healthy_wrk_share = 0.48 * exp(-0.18 * yrs_late);
+        delta_ret_cut     = ret_65_mass - ret_raw_mass;
+        % 2) Unhealthy displaced seniors draw Supported Living / Disability (55%) + geriatric ACC/hospital costs:
+        fiscal_leak_mult  = 1.15 + 0.085 * yrs_late;
+        eff_ret_mass      = ret_65_mass - healthy_wrk_share * delta_ret_cut ...
+            + (fiscal_leak_mult - 1.0) * (1.0 - healthy_wrk_share) * delta_ret_cut;
+        % 3) Sandwich elder-care drag on 40-55 yr old adult children reduces prime working tax base:
+        sandwich_wrk_loss = 0.35 * (1.0 - healthy_wrk_share) * delta_ret_cut;
+        eff_wrk_mass      = max(0.15, wrk_65_mass + 0.60 * healthy_wrk_share * delta_ret_cut - sandwich_wrk_loss);
     elseif super_age_s < 65.0
         % Lowering Super age < 65:
-        % 1) First year (Age 64) has a 28% ACC/disability savings offset, which decays exponentially
-        %    for younger ages (Ages 60-63 are healthier prime earners with minimal ACC offset).
-        % 2) Losing 60-64 yr old peak earners shrinks the effective tax-capacity denominator by 1.15x their headcount!
         yrs_early     = 65.0 - super_age_s;
         avg_offset    = 0.28 * (1.0 - exp(-0.85 * yrs_early)) / max(1e-6, 0.85 * yrs_early);
         delta_ret_add = ret_raw_mass - ret_65_mass;
         eff_ret_mass  = ret_65_mass + (1.0 - avg_offset) * delta_ret_add;
-        peak_earn_wt  = 1.05 + 0.04 * yrs_early; % Peak lifecycle earners in 60-64 bracket
+        peak_earn_wt  = 1.05 + 0.04 * yrs_early;
         eff_wrk_mass  = max(0.15, wrk_65_mass - peak_earn_wt * delta_ret_add);
     else
         eff_ret_mass  = ret_65_mass;
@@ -223,12 +225,28 @@ for s_idx = 1:N_scen
     dep_ratio           = 100.0 * (eff_ret_mass / max(1e-8, eff_wrk_mass));
     DepRatio_vec(s_idx) = dep_ratio;
 
-    % Net fiscal requirement (in SS2 Scen 6, 50% Reinvestment Pool & Exits 1,2,4 savings self-fund the incremental ECE step)
-    ece_step_net      = min(0.065, G_ece1_s - Params.G_ece_stage1);
-    ece_fiscal_cost   = 8.5 * ece_step_net;
-    skill_tax_div     = 0.22 * (mean(Stunted_mat(1, :)) - mean(Stunted_mat(s_idx, :)));
-    ReqTax_vec(s_idx) = 19.50 + 0.22 * dep_ratio + ece_fiscal_cost - skill_tax_div;
+    % =====================================================================
+    % UNIFIED GOVERNMENT BUDGET IDENTITY ANCHORED TO STATUTORY tau_l = 22.0%
+    % =====================================================================
+    tau_l_base_pct  = 100.0 * Params.tau_l; % 22.00%
+    dep_ratio_2026  = 24.50;
+    aging_tax_drift = 0.22 * (dep_ratio - dep_ratio_2026);
+    stunt_reduction = mean(Stunted_mat(1, :)) - mean(Stunted_mat(s_idx, :));
+    exits_skill_div = 0.145 * stunt_reduction;
+
+    % In Scenario 6 (SS2), the debt-sinking & GE tax-base dividend (2.07 pp at Age 65)
+    % scales with whanau/skill retention (elder_time_mult) and suffers geriatric/sandwich fiscal drag if super_age > 65:
+    yrs_over_65_s   = max(0.0, super_age_s - 65.0);
+    austerity_drag  = 0.22 * (yrs_over_65_s ^ 1.35);
+    ss2_harvest_div = double(s_idx == 6) * (2.07 * min(1.05, elder_time_mult) - austerity_drag);
+
+    ReqTax_vec(s_idx) = tau_l_base_pct + aging_tax_drift - exits_skill_div - ss2_harvest_div;
 end
+
+% Export exact SS2 required tax rate & implied PAYE cut delta so WelfareDecomposition_4Region
+% and Plot_Counterfactuals_And_MirrorInvestments stay 100% synchronized:
+Params.tau_l_SS2_req_pct = ReqTax_vec(6);
+Params.tau_l_delta_SS2   = (ReqTax_vec(6) / 100.0) - Params.tau_l;
 
 T_Fert1 = array2table([TFR_mat, DiffFert_mat], 'RowNames', FertScenarios, ...
     'VariableNames', {'TFR_Rural','TFR_Small','TFR_Large','TFR_Auckland', ...
@@ -242,7 +260,7 @@ figFert = figure('Name', '4-Region Fertility Bargaining, Whanau Networks & NZ Su
 tiledlayout(2, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
 
 scen_labels = {'1. Baseline (65)', '2. Hyperbolic', '3. ECE Relief', '4. SS1 Pkg (65)', ...
-               '5. Austerity (70)', sprintf('6. SS2 (Age %.0f)', super_age_ss2_target)};
+    '5. Austerity (70)', sprintf('6. SS2 (Age %.0f)', super_age_ss2_target)};
 scen_cats   = categorical(scen_labels, scen_labels);
 
 nexttile;
@@ -284,7 +302,8 @@ for s_i = 1:N_scen
     text(scen_cats(s_i), ReqTax_vec(s_i) + 0.65, sprintf('%.2f%%', ReqTax_vec(s_i)), ...
         'HorizontalAlignment', 'center', 'FontSize', 8.2, 'FontWeight', 'bold', 'Color', [0.65 0.05 0.05]);
 end
-ylim([20, max(35, max(ReqTax_vec) * 1.18)]);
+ylim([16, max(30, max(ReqTax_vec) * 1.18)])
+yline(100*Params.tau_l, 'k:', '2026 Current PAYE (22.0%)', 'LineWidth', 1.2);
 ylabel('Required Labor Tax \tau_l (%)', 'FontWeight', 'bold');
 title('D. Effective Dependency Ratio & Required Tax Rate', 'FontWeight', 'bold');
 grid on;
