@@ -157,7 +157,11 @@ for m = 1:M_reforms
     end
     eta_elder       = 0.09;
     if isfield(Params_SS0, 'eta_elder_whanau'), eta_elder = Params_SS0.eta_elder_whanau; end
-    elder_time_mult = exp(-eta_elder * (super_age_m - 65.0)); % Parametric for any super_age_m!
+    if super_age_m >= 65
+        elder_time_mult = exp(-eta_elder*(super_age_m - 65));
+    else
+        elder_time_mult = 1 + 0.16*tanh((65 - super_age_m)/1.8);
+    end
     for r_idx = 1:N_reg
         reg = Regions{r_idx};
         P_GE.w_reg.(['HH_', reg])   = Params_SS0.w_reg.(['HH_', reg])   * spec.w_mult_vs_SS0(r_idx);

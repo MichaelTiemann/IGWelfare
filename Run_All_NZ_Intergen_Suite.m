@@ -291,6 +291,8 @@ Out_National_Dunedin = Plot_ActuarialContinuationValuation([], struct('Calibrati
 Out_Auckland_GUiNZ   = Plot_ActuarialContinuationValuation([], struct('Calibration_Anchor', 'MetroSqueeze_GUiNZ'), 'Auckland');
 Out_National_GUiNZ   = Plot_ActuarialContinuationValuation([], struct('Calibration_Anchor', 'MetroSqueeze_GUiNZ'), 'National');
 
+Out_National_Counterfactuals = Plot_Counterfactuals_And_MirrorInvestments(Params);
+
 %% 8. EXPORT ALL 4-REGION + ABROAD TABLES (.CSV), FIGURES (.PNG/.FIG), AND WORKSPACE (.MAT)
 if Export_Tables_Figures
     fprintf('=========================================================================================\n');

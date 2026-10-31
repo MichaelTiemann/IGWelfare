@@ -65,7 +65,11 @@ end
 %% 3. PARAMETRIC WHANAU CARE K_whanau_net(super_age_yrs) & MENTORING TRUST GATING
 is_super_cut    = double(super_age_yrs > 65.5);
 is_distress_z   = double(z < 0.80) * double(a < 0.12 * Q_reg);
-elder_time_mult = exp(-0.09 * (super_age_yrs - 65.0)); % Parametric for any super_age (64 -> 1.0942, 63 -> 1.1972, 62 -> 1.3100)
+if super_age_yrs >= 65
+    elder_time_mult = exp(-0.09*(super_age_yrs - 65));
+else
+    elder_time_mult = 1 + 0.16*tanh((65 - super_age_yrs)/1.8);
+end
 
 K_whanau_net  = (K_whanau * elder_time_mult) - 0.28 * is_super_cut * is_distress_z;
 sandwich_drag = max(0.0, -K_whanau_net) * 0.035;
