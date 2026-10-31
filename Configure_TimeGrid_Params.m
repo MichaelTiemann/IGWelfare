@@ -89,5 +89,13 @@ Params.u_target_4x5 = [ ...
 % Canonical Daruich (2018) 4-region endogenous intergenerational skill & retention lift
 Params.daruich_ig_mult = [5.51, 7.27, 8.00, 9.93];
 
+% Canonical NZ Super Eligibility Age & Grandparent-Whanau Time Elasticity Parameters
+if ~isfield(Params, 'super_age_base'),     Params.super_age_base     = 65.0; end % Status Quo & SS1 age
+if ~isfield(Params, 'super_age'),          Params.super_age          = Params.super_age_base; end
+if ~isfield(Params, 'super_age_SS1'),      Params.super_age_SS1      = 65.0; end % Phase 1 (SS1)
+if ~isfield(Params, 'super_age_SS2'),      Params.super_age_SS2      = 64.0; end % Phase 2 (SS2: try 64, 63, or 62!)
+if ~isfield(Params, 'eta_elder_whanau'),   Params.eta_elder_whanau   = 0.09; end % 9%/yr grandparent time semi-elasticity
+if ~isfield(Params, 'leak_rate_super_up'), Params.leak_rate_super_up = 0.45; end % 45% disability/hardship leak when age > 65
+if ~isfield(Params, 'offset_super_down'),  Params.offset_super_down  = 0.25; end % 25% ACC/Jobseeker savings when age < 65
 
 end

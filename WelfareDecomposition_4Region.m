@@ -58,6 +58,7 @@ if ~exist('Reform_Phase_Specs', 'var') || isempty(Reform_Phase_Specs)
         'HH_Small',    0.031, ...
         'HH_Large',    0.025, ...
         'HH_Auckland', 0.028);
+    Reform_Phase_Specs(1).super_age = 65.0;
 elseif ~isfield(Reform_Phase_Specs, 'tau_l_delta')
     [Reform_Phase_Specs.tau_l_delta] = deal(0.000);
 end
@@ -89,6 +90,11 @@ if Enable_SS2_Phase
         'HH_Small',    0.037, ...
         'HH_Large',    0.031, ...
         'HH_Auckland', 0.033);
+    if isfield(Params_SS0, 'super_age_SS2')
+        Reform_Phase_Specs(2).super_age = Params_SS0.super_age_SS2; % Default 64.0 (or set 63.0, 62.0!)
+    else
+        Reform_Phase_Specs(2).super_age = 64.0;
+    end
 end
 
 M_reforms = numel(Reform_Phase_Specs);
@@ -129,6 +135,13 @@ for m = 1:M_reforms
     P_PE.Transfer_Geo     = spec.Transfer_Geo;
     P_PE.Reform_Intensity = spec.Intensity;
     P_PE.Phase_Label      = spec.Label;
+    if isfield(spec, 'super_age') && ~isempty(spec.super_age)
+        super_age_m = spec.super_age;
+    else
+        super_age_m = 65.0;
+    end
+    P_PE.super_age = super_age_m;
+    P_PE.Jr        = 1 + (super_age_m - 20.0) / Params_SS0.dt; % Continuous Jr passed to ReturnFn!
 
     [V_PE_m, Policy_PE_m] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
         d_grid, a_grid, z_grid, pi_z, ReturnFn, P_PE, DiscountFactorParamNames, vfoptions);
@@ -142,15 +155,17 @@ for m = 1:M_reforms
     if isfield(spec, 'S_cohesion')
         P_GE.S_cohesion = spec.S_cohesion;
     end
+    eta_elder       = 0.09;
+    if isfield(Params_SS0, 'eta_elder_whanau'), eta_elder = Params_SS0.eta_elder_whanau; end
+    elder_time_mult = exp(-eta_elder * (super_age_m - 65.0)); % Parametric for any super_age_m!
     for r_idx = 1:N_reg
         reg = Regions{r_idx};
-        hh_type = ['HH_', reg];
-        P_GE.w_reg.(hh_type)        = Params_SS0.w_reg.(hh_type)        * spec.w_mult_vs_SS0(r_idx);
+        P_GE.w_reg.(['HH_', reg])   = Params_SS0.w_reg.(['HH_', reg])   * spec.w_mult_vs_SS0(r_idx);
         P_GE.w_reg.(['Firm_', reg]) = Params_SS0.w_reg.(['Firm_', reg]) * spec.w_mult_vs_SS0(r_idx);
-        P_GE.Q_reg.(hh_type)        = Params_SS0.Q_reg.(hh_type)        * spec.Q_mult_vs_SS0(r_idx);
+        P_GE.Q_reg.(['HH_', reg])   = Params_SS0.Q_reg.(['HH_', reg])   * spec.Q_mult_vs_SS0(r_idx);
         if isfield(Params_SS0, 'K_whanau_base')
-            elder_home_mult = min(1.15, max(0.50, (1.0 / spec.Q_mult_vs_SS0(r_idx)) ^ 0.35));
-            P_GE.K_whanau.(hh_type) = Params_SS0.K_whanau_base.(hh_type) * elder_home_mult;
+            elder_home_mult = min(1.25, max(0.50, (1.0 / spec.Q_mult_vs_SS0(r_idx)) ^ 0.35));
+            P_GE.K_whanau.(['HH_', reg]) = Params_SS0.K_whanau_base.(['HH_', reg]) * elder_home_mult * elder_time_mult;
         end
     end
 

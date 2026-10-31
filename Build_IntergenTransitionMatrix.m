@@ -94,7 +94,7 @@ if isfield(Params, 'j_s1_start') && isfield(Params, 'j_s2_end')
 else
     fertile_j = [3, 4];
 end
-retire_j = Params.Jr : Params.J;
+retire_j = round(Params.Jr) : Params.J;
 mort_vec = reshape(1 - double(gather(Params.sj(retire_j))), [1, 1, 1, length(retire_j)]);
 if use_gpu, mort_vec = gpuArray(mort_vec); end
 
