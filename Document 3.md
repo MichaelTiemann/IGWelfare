@@ -193,14 +193,20 @@ For technical reviewers, Treasury analysts, and coalition partners who wish to i
 ```text
 +-----------------------------------------------------------------------------------+
 |                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
 |                                                                                   |
 +-----------------------------------------------------------------------------------+
 ```
 
 ### Table A.1: The 11-Layer Constructive Synergy Build-Up (`SS2` Long-Run Welfare Gain, CE%)
 
-| Constructive Tier & Layer (`Table 19`) | Policy Constituency ("Owner Lane") | Rural (+15.65%) | Small (+20.63%) | Large (+23.59%) | Auckland (+29.53%) | National (+23.63%) | Share of National Prize |
+| Constructive Tier & Layer (`Table 19`) | Policy Constituency ("Owner Lane") | Rural (+15.7%) | Small (+20.6%) | Large (+23.6%) | Auckland (+29.5%) | National (+23.6%) | Share of National Prize |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **1. [Isolated] First-2,000-Days Universal ECE Alone** ($G_{\mathrm{ece},1}$) | **Coalition 1** *(Barnardos / Early Years)* | +2.50% | +3.12% | +3.48% | +4.17% | **+3.47%** | 14.7% |
 | **2. [Isolated] *Tuakana-Teina* / Montessori Mentoring Alone** ($G_{\mathrm{ece},2}$) | **Coalition 1** *(Youth / Educators)* | +1.50% | +1.86% | +2.07% | +2.49% | **+2.07%** | 8.8% |
