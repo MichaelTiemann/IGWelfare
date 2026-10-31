@@ -50,6 +50,7 @@ When Aotearoa pairs **Phase 1 ($SS1$: Revenue-Neutral Incubation & Capital Reall
 4. **Achieving 3.84x Audited Breakeven Inside One Parliamentary Term (Actuarial Valuation):** Whereas traditional cash-flow accounting takes **18.8 years** to cross cash breakeven, **ACC-style Actuarial Continuation Valuation** proves that by **Year 5 (against NZD 9.19B invested)**, the Crown already locks in **3.84x fiscal breakeven (NZD 35.25B)** at Treasury's 2% discount rate—and achieves **1.16x breakeven (NZD 10.68B) on direct fiscal cost avoidance alone**, before counting a single dollar of future tax increases.
 5. **The Retirement-Age U-Curve Sweet Spot — Lowering NZ Super to Age 64 & Cutting PAYE Taxes to 18.85% (The $SS2$ Rocket Ship):** Sweeping the statutory retirement age across Ages 60 to 75 proves that raising NZ Super to 70 backfires (triggering a 45% disability leak and stripping -36.2% of grandmother/aunty childcare time), while our $SS2$ harvest unlocks the **Age 64–65 fiscal and welfare sweet spot**: New Zealand can **lower the universal NZ Super age to 64** (or hold 65), retire **NZD 17.8B–21.9B** of sovereign debt per cohort wave (cutting interest rates by **-60 bps**), and cut working-age PAYE taxes from **22.00% down to 18.85%** at Age 64 (or **18.57%** at Age 65)!
 
+```text
 +-----------------------------------------------------------------------------------+
 |                                                                                   |
 |                                                                                   |
@@ -69,6 +70,7 @@ When Aotearoa pairs **Phase 1 ($SS1$: Revenue-Neutral Incubation & Capital Reall
 |                                                                                   |
 |                                                                                   |
 +-----------------------------------------------------------------------------------+
+```
 
 ---
 
