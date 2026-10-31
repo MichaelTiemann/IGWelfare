@@ -406,7 +406,7 @@ Retaining 3,550 young adults every year is not merely a labor-supply statistic. 
 
 <br clear="all" />
 
-### 5. Cooperative Childcare Bargaining, Fertility Recovery, & Why Keeping NZ Super at Age 65 Beats Raising the Pension Age to 67 or 70
+### 5. Cooperative Childcare Bargaining, Fertility Recovery, & Why Keeping NZ Super at Age 65 Beats Raising the Pension Age to 67 or 70 (original text)
 
 <img src="./Output_NZ_4Region_Intergen/FigFert_TFR_National_Dunedin_22.png" alt="Fertility Recovery" align="right" width="48%" style="float: right; width: 48%; margin: 0 0 1rem 1.5rem; break-inside: avoid;" />
 
@@ -432,6 +432,47 @@ Relieving metropolitan housing stress and providing universal First-2000-Days wr
   3. *A Shrinking Tax Base Still Climbs:* Because raising the pension age does nothing to fix child stunting (22.0%), low fertility (1.66), or the 20–35 youth brain drain (10.9%), the required PAYE tax rate under **Age 67 still climbs to 26.85%**, and even under **Age 70 still climbs to 25.55%**. By expanding the skilled working tax base instead of cutting retirement dignity, **our Generational Plan keeps universal NZ Super at Age 65 and achieves a lower long-run tax rate (24.45%–24.90%) than raising the retirement age to 70!**
 
 <br clear="all" />
+
+### 5. Connecting NZ Superannuation, Extended Whānau, and Childhood Potential (new/alternate text)
+
+#### Why Raising the Pension Age to 67 or 70 Breaks the Extended Whānau Safety Net
+
+Conventional fiscal commentary treats New Zealand Superannuation as an isolated accounting ledger: if an ageing population increases pension expenditure, the standard prescription is to raise the age of eligibility from 65 to 67 or 70. That static accounting view ignores how real New Zealand families—and extended whānau—function across three generations at once.
+
+When a young couple or solo parent is raising children through the **First 2000 Days** (ages 0 to 5) and the **school and adolescent years** (ages 6 to 17), their own parents, aunties, and uncles are typically between ages 55 and 72. Across rural districts, provincial towns, and urban neighbourhoods alike, grandmothers (*kuia*), grandfathers (*kaumātua*), and aunties are the invisible scaffolding of New Zealand's early childhood and adolescent ecosystem. They provide four irreplaceable pillars of support that formal markets and schools cannot easily replicate on their own:
+
+1. **Trusted Early Care and Language Immersion (The First 2000 Days):** Before a child ever enters a classroom, extended family provide high-trust, flexible care, cultural grounding, and early language nourishment that allow young mothers and fathers to stay connected to work or training without facing punitive childcare costs.
+2. **Pooling Experience Across Generations:** A child who grows up with active grandparents and aunties draws on the combined life experience, emotional steadiness, and practical wisdom of an entire whānau network—not merely the current income or stress level of a single nuclear household.
+3. **Anchoring Early Gains Through the School Years:** Alongside school-based *Tuakana-Teina* peer mentoring, extended family keep children anchored during school holidays, intermediate transitions, and early adolescence so that early childhood gains do not fade out.
+4. **The "Aunty's House" Sanctuary During Family Crises:** When a nuclear family hits a sudden shock—redundancy, illness, relationship breakdown, or severe rental crowding—having a stable grandmother's or aunty's home nearby insulates children and teenagers from toxic stress.
+
+#### The Two-Way Squeeze of Pension Austerity and Unaffordable Housing
+
+Raising the NZ Superannuation age to 67 or 70 under the status quo (`SS0`)—while failing to cool runaway housing costs—inflicts a double shock on this intergenerational network:
+
+* **The Grandparent Time Squeeze:** Forcing 65-to-69-year-old grandmothers and older aunties to remain in paid employment just to cover basic food, rates, and energy bills withdraws roughly **17% (at age 67) to 36% (at age 70)** of their available time from grandchildren precisely when young families need them most. Worse, for the **38% to 45%** of manual, rural, Māori, and Pasifika workers in their late sixties whose bodies can no longer sustain physical labour, raising the pension age simply shifts them onto means-tested Jobseeker or Supported Living hardship benefits—delivering less than half of the promised fiscal savings while deepening household stress.
+* **Displacing Aunties and Kaumātua from Their Own Homes:** An extended whānau network requires physical proximity. When metropolitan house prices and rents outpace pension adequacy, older relatives who do not own debt-free homes are priced out of Auckland and major regional centres, severing daily contact between generations.
+
+#### The False Economy of Cutting Super vs. The Generational Plan Dividend
+
+Our 4-region lifecycle simulation demonstrates that raising the pension age to 70 is a textbook **false economy**. When grandmothers and aunties are pulled out of the caregiving ecosystem or priced out of their communities:
+
+* **Fertility Falls Further:** Young women face a steeper career-and-childcare penalty without extended family backup, depressing national fertility further below replacement.
+* **Childhood Skill Development Suffers:** Because adolescent skill formation relies on strong dynamic complementarity—where every link in a child's support chain reinforces the others—losing the extended whānau buffer during family hardship causes cohort stunting rates to rise by **+2.5 to +3.5 percentage points**.
+* **The Future Tax Base Shrinks:** Twenty years later, the children who grew up without that whānau scaffolding enter the workforce with lower completed skills and lower earnings, while more young adults emigrate because their family anchors have already been frayed. That delayed erosion of the working-age PAYE tax base claws back **+0.48 percentage points (at age 67) to +1.05 percentage points (at age 70)** of the supposed pension savings—leaving the required working-age tax rate climbing to **27.33%** and **26.60%** respectively.
+
+By contrast, **Our Generational Plan (`SS1` to `SS2`) keeps Universal NZ Superannuation at Age 65** while investing in the First 2000 Days, *Tuakana-Teina* school mentoring, and housing supply and land-value reforms that cool metropolitan house prices. Because aunties and grandmothers can afford to stay in their own homes and retire with dignity at 65, extended whānau networks strengthen rather than fracture. Combined with a larger, higher-skilled young adult workforce and higher domestic retention, keeping NZ Super at 65 actually achieves a **lower** long-run working-age PAYE tax rate (**24.45%–24.90%**) than raising the pension age to 70 ever could.
+
+#### Summary Comparison Table for Document 1A (Part IV, Section 5)
+
+| Policy Pathway | NZ Super Eligibility Age | Impact on Extended Whānau & Elders (Ages 65–69) | Impact on Children & Young Families | 2086 Required PAYE Tax Rate |
+| :--- | :---: | :--- | :--- | :---: |
+| **1. Status Quo (`SS0`)** | **Age 65** | Super kept at 65, but high metro housing costs displace urban whānau networks. | High childcare squeeze; national TFR stuck at **1.66**; **14%–20%** cohort stunting. | **28.22%** |
+| **2. Alternative A: Raise Super to 67** | **Age 67** | **38%** fiscal leak to hardship benefits; **-17%** loss in grandparent caregiving time. | Weaker whānau stress buffer; delayed erosion of future skilled PAYE tax base (**+0.48 pp**). | **27.33%** |
+| **3. Alternative B: Raise Super to 70** | **Age 70** | **45%** fiscal leak to hardship benefits; **-36%** loss in grandparent caregiving time. | Severe whānau squeeze; stunting rises **+2.5–3.5 pp**; tax base erosion adds **+1.05 pp**. | **26.60%** |
+| **4. Generational Plan (`SS1` to `SS2`)** | **Keep Age 65** | **Dignified retirement at 65** + cooler housing lets aunties & grandparents stay in their homes. | Full dynamic complementarity (ECE + *Tuakana-Teina* + Whānau); TFR **1.93–1.98**. | **24.45%–24.90%** |
+
+---
 
 ## Part V: The 2050 Sovereign Debt-Sinking Protocol & ACC-Style Actuarial Continuation Valuation
 

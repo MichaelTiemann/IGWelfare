@@ -79,14 +79,26 @@ eta_c  = 2.0;
 u_flow = scale_dt * ((u_comp ^ (1 - eta_c)) / (1 - eta_c) - 0.85 * ((l + Ih) ^ 1.6) / 1.6);
 
 u_child = 0;
-if is_stage1
-    I_eff1  = 0.55 + 2.50 * max(1e-4, ic + G_ece_stage1 + gbar_ece);
-    th_2    = (gamma1_self * (max(1e-4, theta_c)^phi1_ces) + gamma1_inv * (I_eff1^phi1_ces) + gamma1_par * (h^phi1_ces)) ^ (1 / phi1_ces);
-    u_child = (omega_ic / max(1, n_stage1_steps)) * log(max(1e-4, th_2));
-elseif is_stage2
-    I_eff2  = 0.55 + 2.50 * max(1e-4, ic + G_ece_stage2 + gbar_ece);
-    th_3    = (gamma2_self * (max(1e-4, theta_c)^phi2_ces) + gamma2_inv * (I_eff2^phi2_ces) + gamma2_par * (h^phi2_ces)) ^ (1 / phi2_ces);
-    u_child = (omega_ic / max(1, n_stage2_steps)) * log(max(1e-4, th_3));
+if is_stage1 || is_stage2
+    K_kin    = min(1.0, max(0.0, K_whanau));
+    M_mentor = min(1.0, max(0.0, (G_ece_stage2 - 0.045) / (0.085 - 0.045)));
+    hp_eff   = max(1e-4, h * (1.0 + 0.15 * K_kin));
+    th_safe  = max(1e-4, theta_c);
+    if is_stage1
+        G_ece1_eff = G_ece_stage1 * (1.0 + 0.15 * M_mentor);
+        I_eff1     = 0.55 + 2.50 * max(1e-4, ic + G_ece1_eff + gbar_ece + 0.025 * K_kin);
+        th_2       = (gamma1_self * (th_safe^phi1_ces) + gamma1_inv * (I_eff1^phi1_ces) + gamma1_par * (hp_eff^phi1_ces)) ^ (1 / phi1_ces);
+        u_child    = (omega_ic / max(1, n_stage1_steps)) * log(max(1e-4, th_2));
+    else
+        w2          = 1.0 / max(1.0, n_stage2_steps);
+        th_ret      = max(1e-4, th_safe - 0.22 * w2 * (1.0 - M_mentor) * (1.0 - 0.35 * K_kin) * max(0.0, th_safe - 0.65));
+        I_eff2      = 0.55 + 2.50 * max(1e-4, ic + G_ece_stage2 + gbar_ece + 0.010 * K_kin);
+        th_ces2     = (gamma2_self * (th_ret^phi2_ces) + gamma2_inv * (I_eff2^phi2_ces) + gamma2_par * (hp_eff^phi2_ces)) ^ (1 / phi2_ces);
+        psi_unemp   = 0.045 * double(ic < 0.01) * (1.0 - 0.80 * M_mentor) * (1.0 - 0.55 * K_kin);
+        kappa_up    = 0.035 * M_mentor + 0.010 * K_kin;
+        th_3        = th_ces2 * exp(-psi_unemp + kappa_up);
+        u_child     = (omega_ic / max(1, n_stage2_steps)) * log(max(1e-4, th_3));
+    end
 end
 
 %% 5. END-OF-LIFE WARM-GLOW LUXURY BEQUEST (SCALED BY MORTALITY 1 - sj)

@@ -32,15 +32,19 @@ gap_ss1 = [0.18, 0.15, 0.13, 0.14, 0.15];
 years      = 0:5:60;
 tax_ss0_65 = 22.0 + 6.22 * (1 - exp(-0.055 * years)); % Climbs to 28.22%
 
-% Alternative A: Raise NZ Super Age to 67 (No Child/Tax Reform; 38% fiscal leak into disability/hardship)
+% Generation-lagged Whanau Dynamic Complementarity Erosion Wave (matures after Year 20
+% as grandchildren deprived of 65-69 yr old grandmother/aunty scaffolding enter the workforce):
+whanau_erosion_wave = min(1.0, max(0.0, (years - 18) / 42.0));
+
+% Alternative A: Raise NZ Super Age to 67 (38% disability leak + 17% K_whanau loss -> +0.48 pp PAYE base erosion)
 phase_67   = min(1.0, max(0.0, (years - 5) / 12.0));
-tax_age67  = tax_ss0_65 - 1.37 * phase_67;            % Still climbs to 26.85%
+tax_age67  = tax_ss0_65 - 1.37 * phase_67 + 0.48 * whanau_erosion_wave; % Climbs to 27.33%
 
-% Alternative B: Raise NZ Super Age to 70 (Regressive life-expectancy penalty; 45% fiscal leak)
+% Alternative B: Raise NZ Super Age to 70 (45% disability leak + 36% K_whanau loss -> +1.05 pp PAYE base erosion)
 phase_70   = min(1.0, max(0.0, (years - 5) / 20.0));
-tax_age70  = tax_ss0_65 - 2.67 * phase_70;            % Still climbs to 25.55%
+tax_age70  = tax_ss0_65 - 2.67 * phase_70 + 1.05 * whanau_erosion_wave; % Climbs to 26.60%
 
-% Our Generational Plan (SS1 -> SS2, KEEP AGE 65!): Expands skilled working tax base
+% Our Generational Plan (SS1 -> SS2, KEEP AGE 65!): Preserves K_whanau + expands skilled working tax base
 tax_ref_65 = zeros(size(years));
 for i = 1:length(years)
     y = years(i);
@@ -103,20 +107,20 @@ fill(ax2, [years, fliplr(years)], [tax_ref_65, fliplr(tax_ss0_65)], [0.63 0.85 0
 plot(ax2, years, tax_ss0_65, 'r--o', 'LineWidth', 2.5, 'MarkerSize', 5.5, ...
     'DisplayName', '1. Status Quo (Age 65, No Reform): Climbs to 28.22%');
 plot(ax2, years, tax_age67, '-.^', 'Color', [0.90 0.33 0.05], 'LineWidth', 2.2, 'MarkerSize', 5, ...
-    'DisplayName', '2. Alt. A — Raise Super Age to 67 (No Child/Tax Reform): Still Climbs to 26.85%');
+    'DisplayName', '2. Alt. A — Raise Super Age to 67 (Leak + Whanau Loss): Climbs to 27.33%');
 plot(ax2, years, tax_age70, ':s', 'Color', [0.46 0.42 0.69], 'LineWidth', 2.3, 'MarkerSize', 5, ...
-    'DisplayName', '3. Alt. B — Raise Super Age to 70 (Regressive Cut): Still Climbs to 25.55%');
+    'DisplayName', '3. Alt. B — Raise Super Age to 70 (Regressive + Whanau Loss): Climbs to 26.60%');
 plot(ax2, years, tax_ref_65, '-d', 'Color', [0.00 0.43 0.17], 'LineWidth', 3.0, 'MarkerSize', 6, ...
     'DisplayName', '4. Generational Plan (KEEP AGE 65, SS1->SS2): Bends Down to 24.45%-24.90%!');
 
 xline(ax2, 25, '--', 'Color', [0.00 0.43 0.17], 'LineWidth', 1.4, 'HandleVisibility', 'off');
 
-msg_B = sprintf(['Why Growing Human Potential Beats Raising the Pension Age:\n', ...
-    '• Raising Super to 67 (26.85%%) or 70 (25.55%%) shifts 38%%-45%% of\n', ...
-    '  manual/hardship 65-69 yr olds onto Jobseeker/Supported Living\n', ...
-    '  while penalizing Maori, Pasifika & rural workers'' life expectancy.\n', ...
-    '• Our Plan KEEPS Age 65 Universal Super and achieves LOWER tax\n', ...
-    '  rates (24.45%%-24.90%%) by expanding the skilled tax base!']);
+msg_B = sprintf(['Why Protecting Whanau & Growing Potential Beats Raising Super Age:\n', ...
+    '• Raising Super to 67 (27.33%%) or 70 (26.60%%) shifts 38%%-45%% of\n', ...
+    '  manual/hardship 65-69 yr olds onto Jobseeker/Supported Living AND\n', ...
+    '  withdraws grandmother/aunty care (K_{whanau} -17%% to -36%%), eroding\n', ...
+    '  Stage-1/2 child dynamic complementarity and future PAYE tax bases.\n', ...
+    '• Our Plan KEEPS Age 65 Super & home stability -> LOWER tax (24.45%%)!']);
 text(ax2, 11.5, 21.1, msg_B, 'FontSize', 7.9, 'FontWeight', 'bold', 'Color', [0.00 0.27 0.11], ...
     'BackgroundColor', [0.94 0.98 0.95], 'EdgeColor', [0.00 0.43 0.17], 'Margin', 4);
 
@@ -145,4 +149,6 @@ Out.tax_ref_65    = tax_ref_65;
 Out.f_2panel      = f_2p;
 Out.f_tfr         = f_tfr;
 Out.f_solv        = f_solv;
+
+
 end

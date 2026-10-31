@@ -78,15 +78,15 @@ for r_idx = 1:N_reg
 
     % VFI Toolkit experienceasset=1 requires: @(d_exp, a_exp, Params...)
     % 1st arg = ic (last decision), 2nd arg = theta_c (last endogenous state), 3rd+ args = Params fields
-    vfoptions.aprimeFn.(hh_type) = @(ic, theta_c, G_ece_stage1, G_ece_stage2, gbar_ece, ...
-        gamma1_self, gamma1_inv, gamma1_par, phi1_ces, ...
-        gamma2_self, gamma2_inv, gamma2_par, phi2_ces, ...
-        delta_hc, alpha_I, alpha_H, h_par_mean, Ih_mean, agej, Jr, dt, ...
+    vfoptions.aprimeFn.(hh_type) = @(ic, theta_c, agej, ...
+        phi1_ces, gamma1_self, gamma1_inv, gamma1_par, G_ece_stage1, ...
+        phi2_ces, gamma2_self, gamma2_inv, gamma2_par, G_ece_stage2, ...
+        gbar_ece, h_par_mean, K_whanau, ...
         j_s1_start, j_s1_end, j_s2_start, j_s2_end, n_stage1_steps, n_stage2_steps) ...
-        HumanCapital_Lifecycle_aprimeFn(ic, theta_c, G_ece_stage1, G_ece_stage2, gbar_ece, ...
-        gamma1_self, gamma1_inv, gamma1_par, phi1_ces, ...
-        gamma2_self, gamma2_inv, gamma2_par, phi2_ces, ...
-        delta_hc, alpha_I, alpha_H, h_par_mean, Ih_mean, agej, Jr, dt, ...
+        HumanCapital_Lifecycle_aprimeFn(ic, theta_c, agej, ...
+        phi1_ces, gamma1_self, gamma1_inv, gamma1_par, G_ece_stage1, ...
+        phi2_ces, gamma2_self, gamma2_inv, gamma2_par, G_ece_stage2, ...
+        gbar_ece, h_par_mean, K_whanau, ...
         j_s1_start, j_s1_end, j_s2_start, j_s2_end, n_stage1_steps, n_stage2_steps);
     simoptions.aprimeFn.(hh_type) = vfoptions.aprimeFn.(hh_type);
 
@@ -143,17 +143,19 @@ Params.ebar_energy.HH_Small    = 0.036;
 Params.ebar_energy.HH_Large    = 0.022;
 Params.ebar_energy.HH_Auckland = 0.016;
 
-% Regional "Income x Geography" Transfer Calibration
-Params.Transfer_Geo.HH_Rural    = 0.025;
-Params.Transfer_Geo.HH_Small    = 0.020;
-Params.Transfer_Geo.HH_Large    = 0.016;
-Params.Transfer_Geo.HH_Auckland = 0.014;
+% Regional Extended Family / Whanau Proximity & Alloparental Network Intensity K_whanau(k) in [0, 1]
+% Reflects higher multigenerational co-residence / proximity in Rural & Provincial regions
+% vs. nuclear-household isolation in high-rent metropolitan Auckland (shockable via papakainga / zoning policy)
+Params.K_whanau.HH_Rural    = 0.65;
+Params.K_whanau.HH_Small    = 0.50;
+Params.K_whanau.HH_Large    = 0.30;
+Params.K_whanau.HH_Auckland = 0.20;
 
 % Two-Stage Child Skill (Cunha et al.), Ben-Porath, Housing Tenure, & Tax Parameters
 Params.gamma1_self = 0.53; Params.gamma1_inv = 0.24; Params.gamma1_par = 0.23; Params.phi1_ces = 0.35;
 Params.gamma2_self = 0.87; Params.gamma2_inv = 0.07; Params.gamma2_par = 0.06; Params.phi2_ces = -0.95;
 Params.G_ece_stage1 = 0.045; Params.G_ece_stage2 = 0.065; Params.gbar_ece = 0.020;
-Params.s_sub = 0.100; Params.omega_ic = 0.420; Params.h_par_mean = 1.000; Params.Ih_mean = 0.120;
+Params.s_sub = 0.100; Params.omega_ic = 0.420; Params.h_par_mean = 1.000;
 
 Params.phi_nd = 0.80; Params.mu_maint = 0.04; Params.upsilon_h = 0.008; Params.chi_bar = 2.55;
 Params.alpha_I = 0.090; Params.alpha_H = 0.064;
@@ -161,6 +163,21 @@ Params.p_super = 0.18; Params.c_floor = 0.04; Params.b1_beq = 4.20; Params.b2_be
 Params.tau_l = 0.22; Params.tau_c = 0.15; Params.tau_k = 0.20; Params.tau_a = 0.005; Params.tau_b = 0.15;
 Params.alpha_k = 0.33; Params.lambda_col = 1.80;
 Params.sigma_hc_ig = 0.18;
+
+% Ensure Regional Extended Whanau Network K_whanau(k) is populated (even if loading older Step 1 cache)
+% and connect the dots between NZ Super age (Jr vs 65), pension adequacy (p_super),
+% and grandmothers'/aunties' ability to stay in their own homes (Q_reg vs baseline Q_base):
+K_whanau_base = struct('HH_Rural', 0.65, 'HH_Small', 0.50, 'HH_Large', 0.30, 'HH_Auckland', 0.20);
+Q_reg_base    = struct('HH_Rural', 1.05, 'HH_Small', 1.40, 'HH_Large', 2.05, 'HH_Auckland', 3.10);
+super_age_eff = 20 + (Params.Jr - 1) * Params.dt;
+elder_time_mult = exp(-0.09 * max(0, super_age_eff - 65)); % -9%/yr loss of grandparent time when Super age > 65
+for r_idx = 1:length(Regions)
+    hh_type = ['HH_', Regions{r_idx}];
+    elder_home_mult = min(1.15, max(0.50, (Params.p_super / 0.18) * ((Q_reg_base.(hh_type) / Params.Q_reg.(hh_type)) ^ 0.35)));
+    if ~isfield(Params, 'K_whanau') || ~isfield(Params.K_whanau, hh_type)
+        Params.K_whanau.(hh_type) = K_whanau_base.(hh_type) * elder_time_mult * elder_home_mult;
+    end
+end
 
 %% 5. SOLVE VFI & 4-REGION + ABROAD INTERGENERATIONAL TRANSITION LOOP
 for r_idx = 1:N_reg

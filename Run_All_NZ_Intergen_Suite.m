@@ -72,6 +72,21 @@ else
     fprintf('    [CACHE SAVED] Saved Step 1 checkpoint to %s\n', Cache_Step1);
 end
 
+% Ensure Regional Extended Whanau Network K_whanau(k) is populated (even if loading older Step 1 cache)
+% and connect the dots between NZ Super age (Jr vs 65), pension adequacy (p_super),
+% and grandmothers'/aunties' ability to stay in their own homes (Q_reg vs baseline Q_base):
+K_whanau_base = struct('HH_Rural', 0.65, 'HH_Small', 0.50, 'HH_Large', 0.30, 'HH_Auckland', 0.20);
+Q_reg_base    = struct('HH_Rural', 1.05, 'HH_Small', 1.40, 'HH_Large', 2.05, 'HH_Auckland', 3.10);
+super_age_eff = 20 + (Params.Jr - 1) * Params.dt;
+elder_time_mult = exp(-0.09 * max(0, super_age_eff - 65)); % -9%/yr loss of grandparent time when Super age > 65
+for r_idx = 1:length(Regions)
+    hh_type = ['HH_', Regions{r_idx}];
+    elder_home_mult = min(1.15, max(0.50, (Params.p_super / 0.18) * ((Q_reg_base.(hh_type) / Params.Q_reg.(hh_type)) ^ 0.35)));
+    if ~isfield(Params, 'K_whanau') || ~isfield(Params.K_whanau, hh_type)
+        Params.K_whanau.(hh_type) = K_whanau_base.(hh_type) * elder_time_mult * elder_home_mult;
+    end
+end
+
 % Store full 5D Baseline objects ([a, h, theta_c, z, j]) across all 4 regions
 N_reg                   = length(Regions);
 V_5D_BM                 = V;
@@ -136,7 +151,6 @@ if Use_ExpAsset_Pipeline && exist('ReturnFn_SpatialHH_Compact4D.m', 'file')
 
     for r_idx = 1:N_reg
         hh_type = ['HH_', Regions{r_idx}];
-
         vfoptions.experienceasset.(hh_type)  = 0;
         simoptions.experienceasset.(hh_type) = 0;
 
@@ -147,13 +161,13 @@ if Use_ExpAsset_Pipeline && exist('ReturnFn_SpatialHH_Compact4D.m', 'file')
 
         ReturnFn.(hh_type) = @(l, Ih, ic, aprime, hprime, a, h, z, ...
             w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
-            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, omega_ic, ...
+            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, K_whanau, omega_ic, ...
             delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
             tau_l, tau_c, tau_k, tau_a, tau_b, agej, Jr, sj, dt, ...
             j_s1_start, j_s2_end) ...
             ReturnFn_SpatialHH_Compact4D(l, Ih, ic, aprime, hprime, a, h, z, ...
             w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
-            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, omega_ic, ...
+            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, K_whanau, omega_ic, ...
             delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
             tau_l, tau_c, tau_k, tau_a, tau_b, agej, Jr, sj, dt, ...
             j_s1_start, j_s2_end);
@@ -165,7 +179,9 @@ if Use_ExpAsset_Pipeline && exist('ReturnFn_SpatialHH_Compact4D.m', 'file')
     Params.G_ece     = Params.G_ece_stage1;
     Params.rho_hc_ig = 0.40;
     Params.gamma_ic  = 0.35;
-    simoptions.d_grid = d_grid; simoptions.a_grid = a_grid;
+
+    simoptions.d_grid = d_grid;
+    simoptions.a_grid = a_grid;
 
     if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step4, 'file')
         fprintf('    [CACHE HIT] Loading Step 4 Compact 4D Baseline from %s...\n', Cache_Step4);

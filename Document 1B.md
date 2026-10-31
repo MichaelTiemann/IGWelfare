@@ -360,6 +360,200 @@ To resolve the unit disambiguation problem and reconcile model flows with the **
 +-----------------------------------------------------------------------------------+
 ```
 
+### 3.5 — Complete Standalone Mathematical Specification & Calibration Reference: Extended Whānau Networks, Pension Eligibility, and Dynamic Complementarity
+
+#### 3.5.1 Endogenous Coupling of NZ Superannuation, Housing User Costs, and Extended Whānau Capacity
+
+Let $K_{\mathrm{whanau},0}(k) \in \lbrack 0, 1 \rbrack$ denote the baseline regional extended-whānau proximity and alloparental network intensity across the four spatial regions $k \in \lbrace \mathrm{Rural}, \mathrm{Small}, \mathrm{Large}, \mathrm{Auckland} \rbrace$, calibrated at baseline to:
+
+$$
+\mathbf{K}_{\mathrm{whanau},0} = \lbrack 0.65,\; 0.50,\; 0.30,\; 0.20 \rbrack
+$$
+
+This gradient reflects higher multigenerational co-residence and proximity in rural and provincial regions versus nuclear-household isolation in high-rent metropolitan Auckland.
+
+Because cohorts at active parenting ages $j \in \lbrack j_{\mathrm{s1,start}}, j_{\mathrm{s2,end}} \rbrack$ (biological ages 26 to 43) overlap in calendar time with their own parents, aunties, and uncles at ages 55 to 72, the effective regional alloparental bandwidth $K_{\mathrm{kin}}(k) \in \lbrack 0, 1 \rbrack$ is not invariant to fiscal pension parameters or regional housing costs. Specifically, effective whānau capacity is governed by the product of baseline spatial proximity $K_{\mathrm{whanau},0}(k)$, an **Elder Time-Availability Multiplier** $\Phi_{\mathrm{time}}(J_r)$, and an **Elder Home-Stability Multiplier** $\Phi_{\mathrm{home}}(p_{\mathrm{super}}, Q_k)$:
+
+$$
+K_{\mathrm{kin}}(k) = \min\left(1.0,\; \max\left(0.0,\; K_{\mathrm{whanau},0}(k) \cdot \Phi_{\mathrm{time}}(J_r) \cdot \Phi_{\mathrm{home}}(p_{\mathrm{super}}, Q_k)\right)\right)
+$$
+
+The two endogenous multipliers are defined as follows:
+
+1. **Grandparent and Aunty Time Squeeze under Delayed Retirement ($\Phi_{\mathrm{time}}$):** Let $\mathrm{Age}_{J_r} = 20 + (J_r - 1)\Delta t$ denote the statutory NZ Superannuation eligibility age. Raising $\mathrm{Age}_{J_r}$ above 65 forces older kin aged 65 to $\mathrm{Age}_{J_r}$ to remain in market employment ($l > 0$) to satisfy the pre-retirement budget constraint, withdrawing alloparental caregiving time at rate $\lambda_{J_r} = 0.09$ per year of delayed retirement:
+
+$$
+\Phi_{\mathrm{time}}(J_r) = \exp\left(-\lambda_{J_r} \max\left(0,\; \mathrm{Age}_{J_r} - 65\right)\right)
+$$
+
+Evaluated at statutory retirement ages 65, 67, and 70, this yields $\Phi_{\mathrm{time}}(65) = 1.000$, $\Phi_{\mathrm{time}}(67) = 0.835$ (a 16.5% loss in grandparental time), and $\Phi_{\mathrm{time}}(70) = 0.638$ (a 36.2% loss in grandparental time).
+
+2. **Elder Housing Tenure Stability and Staying in Their Own Homes ($\Phi_{\mathrm{home}}$):** For retired or semi-retired grandmothers and aunties to provide a physical sanctuary in region $k$, their pension income $p_{\mathrm{super}}$ must cover the regional housing maintenance and energy user cost relative to the baseline house price $Q_{k,0}$:
+
+$$
+\Phi_{\mathrm{home}}(p_{\mathrm{super}}, Q_k) = \min\left(1.15,\; \max\left(0.50,\; \left(\frac{p_{\mathrm{super}}}{0.180}\right) \left(\frac{Q_{k,0}}{Q_k}\right)^{0.35}\right)\right)
+$$
+
+Under Status Quo (`SS0`) at Age 65 ($p_{\mathrm{super}} = 0.180$ and $Q_k = Q_{k,0}$), both multipliers evaluate to unity ($\Phi_{\mathrm{time}} = \Phi_{\mathrm{home}} = 1.0$), preserving the exact baseline calibration $K_{\mathrm{kin}}(k) = K_{\mathrm{whanau},0}(k)$. Under our Generational Plan (`SS1` to `SS2`), land-tax and housing-supply reforms cool metropolitan house prices ($Q_k < Q_{k,0}$) while keeping $\mathrm{Age}_{J_r} = 65$, endogenously raising $\Phi_{\mathrm{home}} > 1$ and strengthening urban whānau retention.
+
+---
+
+#### 3.5.2 Four Structural Channels in the Two-Stage CES Child Skill Law of Motion
+
+In `HumanCapital_Lifecycle_aprimeFn.m` (the single-experience-asset transition operator governing $\theta_c \to \theta_c^{\prime}$), extended whānau intensity $K_{\mathrm{kin}}(k)$ operates alongside bidirectional *Tuakana-Teina* peer/school mentoring intensity $M_{\mathrm{mentor}} \in \lbrack 0, 1 \rbrack$, where:
+
+$$
+M_{\mathrm{mentor}} = \min\left(1.0,\; \max\left(0.0,\; \frac{G_{\mathrm{ece},2} - 0.045}{0.085 - 0.045}\right)\right)
+$$
+
+Together, $K_{\mathrm{kin}}(k)$ and $M_{\mathrm{mentor}}$ enter the child skill accumulation technology through four distinct structural channels:
+
+* **Channel 1: Intergenerational Whānau Human Capital Pooling.** Rather than restricting a child's family scaffolding solely to the nuclear parent's human capital reference $h_{\mathrm{par}}$, extended family proximity pools the experiential and cultural human capital of grandparents and aunties with weight $\omega_{\mathrm{kin}} = 0.15$:
+
+$$
+h_p^{\mathrm{safe}} = \max\left(10^{-4},\; h_{\mathrm{par}} \left(1 + \omega_{\mathrm{kin}} K_{\mathrm{kin}}(k)\right)\right)
+$$
+
+* **Channel 2: Stage-1 Informal Kin Care and Early Language Immersion (First 2000 Days, $j \in \lbrack j_{\mathrm{s1,start}}, j_{\mathrm{s1,end}} \rbrack$).** During ages 0 to 5, where inputs exhibit high substitutability ($\phi_1 = 0.35 > 0$), grandmothers and aunties provide direct in-kind early care $g_{\mathrm{kin},1} = \eta_{\mathrm{kin},1} K_{\mathrm{kin}}(k)$ (with $\eta_{\mathrm{kin},1} = 0.025$), augmenting private investment $i_c$, downward *Tuakana-Teina* mentoring $G_{\mathrm{ece},1}^{\mathrm{eff}} = G_{\mathrm{ece},1}(1 + \kappa_{\mathrm{down}} M_{\mathrm{mentor}})$, and universal baseline support $\bar{g}_{\mathrm{ece}}$:
+
+$$
+I_{\mathrm{tot},1} = \max\left(10^{-4},\; i_c + G_{\mathrm{ece},1}\left(1 + \kappa_{\mathrm{down}} M_{\mathrm{mentor}}\right) + \bar{g}_{\mathrm{ece}} + \eta_{\mathrm{kin},1} K_{\mathrm{kin}}(k)\right)
+$$
+
+$$
+\theta_c^{\mathrm{target},1} = \left\lbrack \gamma_{1,\mathrm{self}} \left(\theta_c\right)^{\phi_1} + \gamma_{1,\mathrm{inv}} \left(I_{\mathrm{tot},1}\right)^{\phi_1} + \gamma_{1,\mathrm{par}} \left(h_p^{\mathrm{safe}}\right)^{\phi_1} \right\rbrack^{1/\phi_1}
+$$
+
+$$
+\theta_c^{\prime} = \left(1 - w_1\right)\theta_c + w_1 \theta_c^{\mathrm{target},1}, \quad w_1 = \frac{1}{n_{\mathrm{stage1,steps}}}
+$$
+
+* **Channel 3: Stage-2 Unbanked Skill Fade-Out Anchoring (School & Adolescent Years, $j \in \lbrack j_{\mathrm{s2,start}}, j_{\mathrm{s2,end}} \rbrack$).** Without sustained adolescent scaffolding, early Stage-1 skill gains above the baseline endowment ($\theta_{\mathrm{base}} = 0.65$) erode at rate $\delta_{\theta,\mathrm{fade}} = 0.22 w_2$ (where $w_2 = 1 / n_{\mathrm{stage2,steps}}$). School-based *Tuakana-Teina* mentoring $M_{\mathrm{mentor}}$ and extended whānau holiday/transition anchoring $K_{\mathrm{kin}}(k)$ jointly arrest this fade-out:
+
+$$
+\theta_c^{\mathrm{ret}} = \max\left(10^{-4},\; \theta_c - \delta_{\theta,\mathrm{fade}} \left(1 - M_{\mathrm{mentor}}\right)\left(1 - 0.35 K_{\mathrm{kin}}(k)\right) \max\left(0,\; \theta_c - \theta_{\mathrm{base}}\right)\right)
+$$
+
+* **Channel 4: Stage-2 Harmonic-Mean Bottleneck Relief and Adolescent Corner-Distress Co-Buffering.** In Stage 2, the CES technology exhibits strong Cunha-Heckman dynamic complementarity ($\phi_2 = -0.95 < 0$, approaching a harmonic-mean bottleneck):
+
+$$
+I_{\mathrm{tot},2} = \max\left(10^{-4},\; i_c + G_{\mathrm{ece},2} + \bar{g}_{\mathrm{ece}} + \eta_{\mathrm{kin},2} K_{\mathrm{kin}}(k)\right), \quad \eta_{\mathrm{kin},2} = 0.010
+$$
+
+$$
+\theta_c^{\mathrm{ces},2} = \left\lbrack \gamma_{2,\mathrm{self}} \left(\theta_c^{\mathrm{ret}}\right)^{\phi_2} + \gamma_{2,\mathrm{inv}} \left(I_{\mathrm{tot},2}\right)^{\phi_2} + \gamma_{2,\mathrm{par}} \left(h_p^{\mathrm{safe}}\right)^{\phi_2} \right\rbrack^{1/\phi_2}
+$$
+
+When a nuclear household suffers an unemployment, health, or housing-cost shock that forces private child investment to the corner ($i_c < 0.01$), the adolescent faces a toxic family-stress penalty $\psi_{\mathrm{unemp}} = 0.045$ per sub-period step. Active school mentoring $M_{\mathrm{mentor}}$ buffers 80% of this shock, while having an aunty's or grandmother's sanctuary ($K_{\mathrm{kin}}(k)$) independently buffers 55% of the residual distress alongside a positive socio-emotional leadership lift $\kappa_{\mathrm{up}}$:
+
+$$
+\Psi_{\mathrm{adolescent}} = -0.045 \cdot \mathbf{1}\left(i_c < 0.01\right)\left(1 - 0.80 M_{\mathrm{mentor}}\right)\left(1 - 0.55 K_{\mathrm{kin}}(k)\right) + 0.035 M_{\mathrm{mentor}} + 0.010 K_{\mathrm{kin}}(k)
+$$
+
+$$
+\theta_c^{\mathrm{target},2} = \theta_c^{\mathrm{ces},2} \exp\left(\Psi_{\mathrm{adolescent}}\right), \quad \theta_c^{\prime} = \left(1 - w_2\right)\theta_c^{\mathrm{ret}} + w_2 \theta_c^{\mathrm{target},2}
+$$
+
+---
+
+#### 3.5.3 Mirroring in the Household Bellman Return Function (5D Full and 4D Compact Representations)
+
+To ensure that the household's behavioral first-order condition with respect to private child investment $i_c$ is incentive-compatible with the experience-asset transition law $\theta_c^{\prime}$, the altruistic warm-glow utility term $u_{\mathrm{child}}$ in `ReturnFn_SpatialHH.m` evaluates perceived child skill using the exact state-specific adult human capital $h$ pooled with $K_{\mathrm{kin}}(k)$:
+
+$$
+h_p^{\mathrm{eff}} = \max\left(10^{-4},\; h \left(1 + \omega_{\mathrm{kin}} K_{\mathrm{kin}}(k)\right)\right)
+$$
+
+$$
+u_{\mathrm{child}}\left(i_c, h, \theta_c, j\right) =
+\begin{cases}
+\displaystyle \frac{\omega_{ic}}{n_{\mathrm{stage1,steps}}} \ln\left(\theta_{c,2}^{\mathrm{perc}}\left(i_c, h_p^{\mathrm{eff}}, \theta_c, K_{\mathrm{kin}}\right)\right) & \text{if } j \in \lbrack j_{\mathrm{s1,start}}, j_{\mathrm{s1,end}} \rbrack \\
+\displaystyle \frac{\omega_{ic}}{n_{\mathrm{stage2,steps}}} \ln\left(\theta_{c,3}^{\mathrm{perc}}\left(i_c, h_p^{\mathrm{eff}}, \theta_c, K_{\mathrm{kin}}, M_{\mathrm{mentor}}\right)\right) & \text{if } j \in \lbrack j_{\mathrm{s2,start}}, j_{\mathrm{s2,end}} \rbrack \\
+0 & \text{otherwise}
+\end{cases}
+$$
+
+In the 4D compact projection (`ReturnFn_SpatialHH_Compact4D.m`, used for the Step 4 and Step 6 welfare decompositions across $\lbrack a, h, z, j \rbrack$), where $\theta_c$ is integrated out of the state vector, $K_{\mathrm{kin}}(k)$ enters both the effective childcare cost subsidy rate $s_{\mathrm{sub}}(k)$ and the reduced-form expected child human capital proxy $h_{\mathrm{child}}^{\mathrm{exp}}$:
+
+$$
+s_{\mathrm{sub}}(k) = \min\left(0.80,\; \frac{G_{\mathrm{ece}} + 0.015 K_{\mathrm{kin}}(k)}{\max\left(10^{-4},\; G_{\mathrm{ece}} + \bar{g}_{\mathrm{ece}} + 0.015 K_{\mathrm{kin}}(k)\right)}\right)
+$$
+
+$$
+h_{\mathrm{child}}^{\mathrm{exp}} = \left(h \left(1 + 0.15 K_{\mathrm{kin}}(k)\right)\right)^{0.40} \left(1 + i_c + G_{\mathrm{ece}} + \bar{g}_{\mathrm{ece}} + 0.020 K_{\mathrm{kin}}(k)\right)^{0.35} \exp\left(-0.045 \cdot \mathbf{1}\left(i_c < 0.01\right)\left(1 - 0.55 K_{\mathrm{kin}}(k)\right) + 0.010 K_{\mathrm{kin}}(k)\right)
+$$
+
+---
+
+#### 3.5.4 Cross-Derivative Proof of the Dynamic Complementarity Casualty Under Super Age 70
+
+Why does raising the NZ Super age from 65 to 70 inflict disproportionate damage on low-income and shock-exposed children? Because $\phi_2 = -0.95 < 0$, the elasticity of substitution in Stage 2 is $\sigma_2 = 1 / (1 - \phi_2) = 0.513 < 1$. Taking the cross-partial derivative of $\theta_c^{\mathrm{ces},2}$ with respect to retained early skill $\theta_c^{\mathrm{ret}}$ and total Stage-2 inputs $X_m \in \lbrace I_{\mathrm{tot},2}, h_p^{\mathrm{safe}} \rbrace$ yields:
+
+$$
+\frac{\partial^2 \theta_c^{\mathrm{ces},2}}{\partial \theta_c^{\mathrm{ret}} \, \partial X_m} = \left(1 - \phi_2\right) \gamma_{2,\mathrm{self}} \gamma_{2,m} \left(\theta_c^{\mathrm{ces},2}\right)^{1 - 2\phi_2} \left(\theta_c^{\mathrm{ret}} X_m\right)^{\phi_2 - 1} > 0
+$$
+
+Because $1 - \phi_2 = 1.95 > 0$, a reduction in $K_{\mathrm{kin}}(k)$ caused by raising $\mathrm{Age}_{J_r}$ from 65 to 70 ($\Delta K_{\mathrm{kin}}(k) = -0.362 K_{\mathrm{whanau},0}(k)$) triggers a three-fold compounding loss:
+
+1. It lowers $\theta_c^{\mathrm{ret}}$ entering Stage 2 (both by reducing Stage-1 $I_{\mathrm{tot},1}$ and by accelerating Stage-2 fade-out).
+2. It lowers $h_p^{\mathrm{safe}}$ and $I_{\mathrm{tot},2}$ inside the harmonic-mean aggregator.
+3. For liquidity-constrained families at the $i_c = 0$ corner, it strips away $0.55 \vert \Delta K_{\mathrm{kin}}(k) \vert$ of the exponential stress buffer in $\exp(\Psi_{\mathrm{adolescent}})$.
+
+---
+
+#### 3.5.5 Intra-Household Fertility Bargaining, Migration Retention, and Long-Run Fiscal Solvency
+
+Finally, $K_{\mathrm{kin}}(k)$ feeds into two macro-demographic channels in `FertilityBargaining_Module.m` and `Build_IntergenTransitionMatrix.m`:
+
+1. **Mother's Childcare-Career Opportunity Cost and Total Fertility Rate ($n_{\mathrm{opt}}$):** Define the net change in regional whānau availability relative to baseline as $\Delta K_k = K_{\mathrm{kin}}(k) - K_{\mathrm{whanau},0}(k)$. In the intra-household Nash bargaining problem, extended family caregiving directly reduces the mother's effective career penalty $\chi_f w_k h_i$ alongside formal Stage-1 ECE $G_{\mathrm{ece},1}$:
+
+$$
+\mathrm{OppCost}_f(i, k) = \frac{\chi_f w_k h_i}{\max\left(0.50,\; 1 + 2.50 G_{\mathrm{ece},1} + 0.65 \Delta K_k\right)}
+$$
+
+$$
+n_{\mathrm{opt}}(i, k) = \frac{\beta_{\mathrm{hyp}}^{0.65} \cdot 2.28}{1 + \mathrm{OppCost}_f(i, k) + 0.22 \ln\left(\max(1.0, Q_k)\right) \cdot \mathbf{1}\left(Q_k > 1.8\right)}
+$$
+
+When raising the Super age to 70 makes $\Delta K_k < 0$, $\mathrm{OppCost}_f(i,k)$ rises, depressing completed fertility $n_{\mathrm{opt}}$ and worsening the long-run demographic dependency ratio.
+
+2. **Young-Adult Whānau Retention vs. Emigration (`whanau_stay_pull`):** In the Stage-3 Gumbel migration operator over destinations $d \in \lbrace 1, \dots, 4, \mathrm{Abroad} \rbrace$, stronger whānau and mentoring anchors reduce the utility of emigrating to Australia/OECD ($d = 5$), as well as cushioning severe housing-crowding penalties $\mathrm{crowd\_pen}_{\mathrm{eff}}(k) = \mathrm{crowd\_pen}(k) \cdot \max(0.50, 1 - 0.30 \Delta K_k)$ during young-adult launch:
+
+$$
+\Delta u_{k \to \mathrm{Abroad}}^{\mathrm{whanau}} = -\tau_{\mathrm{home}} \Delta K_k - 0.25 \left(M_{\mathrm{mentor}} - 0.50\right), \quad \tau_{\mathrm{home}} = 0.85
+$$
+
+3. **General Equilibrium PAYE Solvency Equation ($\tau_l^{\mathrm{req}}(t)$):** Over a 60-year horizon $t \in \lbrack 0, 60 \rbrack$, let $\mathrm{DepRatio}_{\mathrm{eff}}(J_r)$ denote the effective fiscal dependency ratio after accounting for the fraction $\theta_{\mathrm{leak}} \in \lbrack 0.38, 0.45 \rbrack$ of 65-to-69-year-old workers who shift onto Supported Living or Jobseeker hardship transfers when $\mathrm{Age}_{J_r} > 65$:
+
+$$
+\mathrm{DepRatio}_{\mathrm{eff}}\left(J_r\right) = \mathrm{DepRatio}_{65+} - \left(1 - \theta_{\mathrm{leak}}\right) \Delta \mathrm{DepRatio}_{\mathrm{mech}}\left(J_r\right)
+$$
+
+As the cohorts raised with eroded whānau scaffolding ($\Delta \overline{\mathrm{Stunted}} > 0$) reach prime working age after $t \ge 18$ years, the resulting contraction in aggregate skilled taxable earnings $\sum_k w_k h_1 z l$ imposes a lagged PAYE tax-base erosion wave $W_{\mathrm{erosion}}(t) = \min(1.0, \max(0.0, (t - 18)/42))$:
+
+$$
+\tau_l^{\mathrm{req}}(t) = \tau_{l,\mathrm{base}}(t) - \Delta \tau_{\mathrm{mech}}\left(J_r, t\right) + \nu_{\mathrm{whanau}}\left(J_r\right) W_{\mathrm{erosion}}(t)
+$$
+
+where $\nu_{\mathrm{whanau}}(67) = +0.48\text{ percentage points}$ and $\nu_{\mathrm{whanau}}(70) = +1.05\text{ percentage points}$. Consequently, raising the NZ Super age to 67 or 70 fails to stabilize the fiscal trajectory (climbing to **27.33%** and **26.60%** by Year 60), whereas preserving Universal NZ Super at Age 65 under `SS1` to `SS2` protects $K_{\mathrm{kin}}(k)$, expands the skilled tax base, and bends the required PAYE rate down to **24.45%–24.90%**.
+
+---
+
+#### 3.5.6 Structural Parameter Summary Table for Section 3.5
+
+| Parameter | Code Identifier | Calibrated Value | Structural Role in Model |
+| :--- | :--- | :---: | :--- |
+| $\mathbf{K}_{\mathrm{whanau},0}$ | `K_whanau_base` | $\lbrack 0.65, 0.50, 0.30, 0.20 \rbrack$ | Baseline extended whānau network intensity across `Rural`, `Small`, `Large`, `Auckland` |
+| $\lambda_{J_r}$ | `0.09` | $0.09\text{ yr}^{-1}$ | Rate of grandparent/aunty alloparental time loss per year NZ Super age exceeds 65 |
+| $\omega_{\mathrm{kin}}$ | `omega_kin` | $0.15$ | Extended whānau human capital pooling weight in $h_p^{\mathrm{safe}}$ |
+| $\eta_{\mathrm{kin},1}$ | `eta_kin1` | $0.025$ | Stage-1 (First 2000 Days) informal whānau care and language immersion coefficient |
+| $\eta_{\mathrm{kin},2}$ | `eta_kin2` | $0.010$ | Stage-2 (Ages 6–17) informal whānau care coefficient |
+| $\alpha_{\mathrm{fade,kin}}$ | `0.35` | $0.35$ | Extended whānau anchoring share against Stage-2 unbanked skill fade-out |
+| $\beta_{\mathrm{stress,kin}}$ | `0.55` | $0.55$ | Extended whānau buffering share against adolescent corner-stress shock ($i_c < 0.01$) |
+| $\kappa_{\mathrm{up,kin}}$ | `0.010` | $0.010$ | Stage-2 socio-emotional whānau identity lift in $\Psi_{\mathrm{adolescent}}$ |
+| $\theta_{\mathrm{leak}}$ | `0.38` to `0.45` | $38\%$ to $45\%$ | Fiscal benefit-substitution leak onto Jobseeker/Supported Living at Super Ages 67–70 |
+| $\nu_{\mathrm{whanau}}(J_r)$ | `0.48`, `1.05` | $+0.48\text{ pp}, +1.05\text{ pp}$ | Lagged PAYE tax-rate penalty from eroded whānau dynamic complementarity (Ages 67, 70) |
+
 ---
 
 ## 4. Part IV Cross-Reference: Core Model Output Tables (Tables 1 to 17)
