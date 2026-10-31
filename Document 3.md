@@ -151,6 +151,26 @@ In reality—and in our state-contingent VFI engine (`Trajectory 3b`)—human ca
 
 > **The Core Insight of Table 4.1:** Competitive "Stop-Go" interference between Pro-Social advocates and Deficit Hawks destroys **73.3% of the entire generational prize (+23.63% CE plunges to +6.31% CE)**. Human capability is highly perishable while in the 0–19 developmental pipeline, yet becomes extraordinarily durable once banked at Age 20.
 
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ---
 
 ## Part V: The Grand Coalition Compact — Phasing $SS1$ Rocket Fuel Before $SS2$ Debt & Tax-Relief Harvest
@@ -189,26 +209,6 @@ None of New Zealand's four policy tribes needs to abandon its core mission. The 
 ## Appendix A: Leave-Behind Reference Tables (Tables A.1, A.2, and A.3)
 
 For technical reviewers, Treasury analysts, and coalition partners who wish to inspect the exact regional and cohort numbers underlying the figures in Parts I and II, this appendix provides the complete leave-behind tables exported by `Plot_Counterfactuals_And_MirrorInvestments.m` (`Table 19`) and `Plot_Doc3_CoalitionSynergies_And_LTFMSinkhole.m` (`Tables 21 & 22`).
-
-```text
-+-----------------------------------------------------------------------------------+
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-+-----------------------------------------------------------------------------------+
-```
 
 ### Table A.1: The 11-Layer Constructive Synergy Build-Up (`SS2` Long-Run Welfare Gain, CE%)
 
