@@ -56,15 +56,7 @@ When Aotearoa pairs **Phase 1 ($SS1$: Revenue-Neutral Incubation & Capital Reall
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
-|                                                                                   |
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
