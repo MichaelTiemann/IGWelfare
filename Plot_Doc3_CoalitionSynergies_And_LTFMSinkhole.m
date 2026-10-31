@@ -131,9 +131,9 @@ CE_Unified_With_Defense = CE_Unified - 4.24 * def_ramp .* (0.65 + 0.35 * s_60);
 % Thin Spreadsheet Prediction (assumes 50% duty cycle = 50% of linear sum, no fade-out):
 CE_StopGo_Thin = 0.52 * CE_Unified;
 % Thick State-Contingent VFI Reality (unbanked Stage-1 gains suffer delta_theta = 0.22 adolescent
-% fade-out when Gate 2 mentoring is defunded in alternate 3-yr terms, plus loss of Wedges 1, 2, 3):
-osc_sawtooth    = 0.65 * sin(2 * pi * t_pos / 6.0) .* (Yr_Vec >= 0);
-CE_StopGo_Thick = 0.28 * CE_Unified + osc_sawtooth; % Captures only ~28% (+6.6% CE) with sawtooth attrition!
+% fade-out when Gate 2 mentoring is defunded in alternate pairs of 3-yr terms, plus loss of Wedges 1, 2, 3):
+osc_sawtooth    = 0.65 * sin(2 * pi * t_pos / 12.0) .* (Yr_Vec >= 0);
+CE_StopGo_Thick = 0.269 * CE_Unified + osc_sawtooth; % Captures only ~27% (+6.35% CE) with sawtooth attrition!
 
 % --- Trajectory 7 & 8: Single-Lane Silo Advocates Fighting Alone Against the LTFM Drift ---
 % Barnardos / Child & Youth Silo Alone (Layers 1+2+Wedge 1 = +8.72% gross, minus 55% of LTFM tax/rent erosion):
