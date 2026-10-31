@@ -118,7 +118,13 @@ Just as Emirates Team New Zealand could only get *Aotearoa* flying on foils when
 ```text
 +-----------------------------------------------------------------------------------+
 |                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
 |                                                                                   |
 +-----------------------------------------------------------------------------------+
 ```
