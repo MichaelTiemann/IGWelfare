@@ -55,9 +55,7 @@ When Aotearoa pairs **Phase 1 ($SS1$: Revenue-Neutral Incubation & Capital Reall
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
-|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
-|                                                                                   |
 |                                                                                   |
 |                                                                                   |
 |                                                                                   |
@@ -87,6 +85,14 @@ To test the realism, rigor, and achievability of our framework, **Part VI of Doc
 
 **The Lesson for Aotearoa:** Maintaining New Zealand's status quo—paying **NZD 17.7B every year** (climbing toward **NZD 28.5B**) to remediate preventable childhood hardship, underfunding infrastructure until systems fail, exporting our brightest young graduates, and watching net public debt spiral toward **185%–200% of GDP**—is *an expensive road to nowhere*. Because Aotearoa possesses the unitary sovereign fiscal powers that devolved Scotland lacks, we can unite all three lenses at once—restoring New Zealand's **Transparency International "social credit rating"** (which has slipped from #1 globally to a 30-year low of 81/100 behind Denmark, Finland, and Singapore) and building *prosperity we can keep* across generations.
 
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ---
 
 ## 5. Guide to the Monograph Suite: How We Calculate, The Tools We Use, & What It Means for Us
@@ -108,6 +114,14 @@ Just as Emirates Team New Zealand could only get *Aotearoa* flying on foils when
 | **4. Policy-Makers, Ministers, Treasury, & Reserve Bank Officials** | Enactment of the *4-Region Income $\times$ Geography* rule, *ACC-style Actuarial Valuation* (3.84x breakeven in Year 5), and the *2050 50/50 Debt-Sinking Protocol*. | **Read [Document 1A](Document%201A.md) (*Parts I.3, IV, & V*) + [Document 1B](Document%201B.md) (Answer Key) + [Document 3](Document%203.md):** Doc 1B provides every line-item `CBAx` / `OIA 20250878` audit table and the full Super Age 60–75 U-Curve (`Table 8B`). |
 | **5. Academic Economists & Quantitative Researchers** | Inspection, critique, and extension of our open-source 8-PType GPU VFI Toolkit codebase and state-contingent operators. | **Read [Document 2](Document%202.md) (Technical Guide) + [Document 1B](Document%201B.md) (*Sections 3.5 & 7*):** Doc 2 provides all Bellman equations, $\Delta t$-scaling laws, SMM matrices, and the "Thick vs. Thin" state-contingent proof. |
 | **6. Creatives, Storytellers, & Artists** | Narrative imagination (*pūrākau*), cultural leadership, and creative agency at Gate 2 (Ages 12–14) and Gate 3 (Ages 20–35) to author a domestic renaissance. | **Read [Document 1A](Document%201A.md) (*Parts I.5, II Synthesis, & III*) + [Document 3](Document%203.md):** Explore the Interactive HTML5 Sankey Explorer and the coalition story that replaces "managed decline" with shared hope. |
+
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ---
 
