@@ -93,7 +93,7 @@ mort_vec = reshape(1 - double(gather(Params.sj(retire_j))), [1, 1, 1, length(ret
 if use_gpu, mort_vec = gpuArray(mort_vec); end
 
 NewbornDist_PreMig = struct();
-reg_skill_drift    = [-0.09, -0.07, -0.03, +0.02]; % Anchors baseline stunting at 14%-21% across regions
+reg_skill_drift = [-0.083, -0.059, -0.024, -0.020]; % Hits [19.8%, 18.2%, 15.6%, 14.3%]
 
 %% STAGE 1 & 2 (100% GPU-VECTORIZED): SKILL FORMATION (Q_h) & PROPERTY BEQUESTS (Q_a)
 for r_idx = 1:N_reg
@@ -233,18 +233,27 @@ end
 V_scale = max(0.50, std(V_mean_j1));
 V_norm  = (V_mean_j1 - mean(V_mean_j1)) / V_scale;
 
+% Ensure immutable SS0 baseline K_whanau_base and active K_whanau exist in Params
+if ~isfield(Params, 'K_whanau_base')
+    Params.K_whanau_base = struct('HH_Rural', 0.42, 'HH_Small', 0.38, 'HH_Large', 0.32, 'HH_Auckland', 0.28);
+end
+if ~isfield(Params, 'K_whanau')
+    Params.K_whanau = Params.K_whanau_base;
+end
+
 % Bilateral migration cost matrix kappa_4x5 [Origin x (Rural, Small, Large, Auckland, Abroad)]
 % Reproduces empirical baseline: Rural Emig ~1.8%, Small ~9.1%, Large ~23.4%, Auckland ~7.0%
 % and responds endogenously as domestic wages w_k, housing Q_k, YouthGrant, and K_whanau improve!
 w_akl_ratio = Params.w_reg.HH_Auckland / 1.180;
 Q_akl_ratio = Params.Q_reg.HH_Auckland / 3.100;
-reform_pull = 3.20 * (w_akl_ratio - 1.0) - 2.40 * (Q_akl_ratio - 1.0) + 2.50 * Params.YouthGrant;
+reform_pull = 3.20 * (w_akl_ratio - 1.0) - 2.40 * (Q_akl_ratio - 1.0) ...
+    + 2.50 * (Params.YouthGrant - 0.030);
 
 u_target_4x5 = [ ...
-    2.85,  1.15,  0.65,  0.15, -0.85;   % From Rural
-    0.55,  2.45,  1.05,  0.45,  0.40;   % From Small
-    -0.25,  0.45,  2.15,  1.05,  1.35;   % From Large (Stepping-stone hub -> highest brain drain)
-    -0.45,  0.15,  0.65,  2.55,  0.30];  % From Auckland
+    2.85,  1.15,  0.65,  0.15, -0.82;   % From Rural    (1.8% Emig)
+    0.55,  2.45,  1.05,  0.45,  0.65;   % From Small    (9.1% Emig)
+    -0.25,  0.45,  2.15,  1.05,  1.45;   % From Large    (23.4% Emig)
+    -0.45,  0.15,  0.65,  2.55,  0.16];  % From Auckland (7.0% Net / 19.3% Gross Emig)
 
 Pi_mig_4x5     = zeros(N_reg, N_reg + 1);
 skill_emig_w   = linspace(0.45, 1.65, n_h)'; % Positive selection on skill h_1
@@ -254,11 +263,20 @@ pop_weights       = double(gather(Params.PTypeWeights(1:N_reg)));
 pop_weights       = pop_weights(:) / sum(pop_weights);
 
 for r_orig = 1:N_reg
-    u_row = u_target_4x5(r_orig, :);
+    orig_hh = ['HH_', Regions{r_orig}];
+
+    % Whanau stay-pull: measures change in extended whanau anchoring relative to SS0 baseline.
+    % - Equal to 0.00 in SS0 (preserving exact Stats NZ baseline migration matrix).
+    % - Positive in SS1/SS2 as cooler housing & pension security strengthen whanau roots.
+    % - Negative when NZ Super age is raised to 67/70 (K_whanau drops -36.2%), accelerating
+    %   both domestic drift from Rural/Small and trans-Tasman emigration to Australia!
+    dK_whanau        = Params.K_whanau.(orig_hh) - Params.K_whanau_base.(orig_hh);
+    whanau_stay_pull = Params_Mig.tau_home_amenity * 1.80 * dK_whanau;
+
+    u_row          = u_target_4x5(r_orig, :);
     u_row(1:N_reg) = u_row(1:N_reg) + 0.18 * (V_norm' - V_norm(r_orig));
-    whanau_stay_pull = Params_Mig.tau_home_amenity * (K_reg_vec(r_orig) - K_base_vec(r_orig)) ...
-        + 0.25 * (M_mentor - 0.50);
-    u_row(N_reg+1) = u_row(N_reg+1) - reform_pull - whanau_stay_pull; % Brain drain closes as domestic reform & whanau anchoring rise
+    u_row(r_orig)  = u_row(r_orig)  + 0.65 * whanau_stay_pull;           % Anchors youth in home region
+    u_row(N_reg+1) = u_row(N_reg+1) - reform_pull - whanau_stay_pull;    % Brain drain closes when pull > 0
 
     exp_u = exp(u_row - max(u_row));
     Pi_mig_4x5(r_orig, :) = exp_u / sum(exp_u);
