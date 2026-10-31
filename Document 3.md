@@ -233,9 +233,7 @@ For technical reviewers, Treasury analysts, and coalition partners who wish to i
 ```text
 +-----------------------------------------------------------------------------------+
 |                                                                                   |
-|                                                                                   |
 |                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
-|                                                                                   |
 |                                                                                   |
 +-----------------------------------------------------------------------------------+
 ```
@@ -252,6 +250,26 @@ For technical reviewers, Treasury analysts, and coalition partners who wish to i
 | **4. Fiscal Hawks & MBAs** | **★ WEDGE (1** $\times$ **4)**<br>**+1.45% CE**<br>*(+16.8k/Birth Surplus & TFR 2.03 Solves Super!)* | **★ WEDGE (2** $\times$ **4)**<br>**+0.65% CE**<br>*(Peak Estate Wave* $\tau_b$ *Self-Funds* $SS1$ *Outlay)* | **★ WEDGE (3** $\times$ **4)**<br>**+0.65% CE**<br>*(+8.8% Wage & Firm Growth Expands Tax Base +14.5%)* | **`[OWN SILO 4]`**<br>**+0.95% CE**<br>*(Static Debt/Tax Target—Impossible Alone!)* | **+3.70% CE**<br>*(74.3% from Neighbor Lanes!)* |
 
 > **Exact Matrix Identity:** The sum of the 4 Diagonal Own-Lane Silos (`7.52% + 5.06% + 2.10% + 0.95% = +15.63% CE`, which includes intra-silo pairings) plus the 6 unique Off-Diagonal Inter-Coalition Wedges (`2.15% + 1.95% + 1.45% + 1.15% + 0.65% + 0.65% = +8.00% CE`) equals **+23.63% CE**—reconciling to the second decimal place with the national $SS2$ welfare total in Table A.1!
+
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
 
 ---
 
