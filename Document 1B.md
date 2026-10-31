@@ -539,20 +539,54 @@ where $\nu_{\mathrm{whanau}}(67) = +0.48\text{ percentage points}$ and $\nu_{\ma
 
 ---
 
-#### 3.5.6 Structural Parameter Summary Table for Section 3.5
+#### 3.5.6 Named Calibration Parameters for NZ Superannuation Eligibility Age, Senescence, & Extended Whānau Elasticities (`Configure_TimeGrid_Params.m`)
 
-| Parameter | Code Identifier | Calibrated Value | Structural Role in Model |
-| :--- | :--- | :---: | :--- |
-| $\mathbf{K}_{\mathrm{whanau},0}$ | `K_whanau_base` | $\lbrack 0.65, 0.50, 0.30, 0.20 \rbrack$ | Baseline extended whānau network intensity across `Rural`, `Small`, `Large`, `Auckland` |
-| $\lambda_{J_r}$ | `0.09` | $0.09\text{ yr}^{-1}$ | Rate of grandparent/aunty alloparental time loss per year NZ Super age exceeds 65 |
-| $\omega_{\mathrm{kin}}$ | `omega_kin` | $0.15$ | Extended whānau human capital pooling weight in $h_p^{\mathrm{safe}}$ |
-| $\eta_{\mathrm{kin},1}$ | `eta_kin1` | $0.025$ | Stage-1 (First 2000 Days) informal whānau care and language immersion coefficient |
-| $\eta_{\mathrm{kin},2}$ | `eta_kin2` | $0.010$ | Stage-2 (Ages 6–17) informal whānau care coefficient |
-| $\alpha_{\mathrm{fade,kin}}$ | `0.35` | $0.35$ | Extended whānau anchoring share against Stage-2 unbanked skill fade-out |
-| $\beta_{\mathrm{stress,kin}}$ | `0.55` | $0.55$ | Extended whānau buffering share against adolescent corner-stress shock ($i_c < 0.01$) |
-| $\kappa_{\mathrm{up,kin}}$ | `0.010` | $0.010$ | Stage-2 socio-emotional whānau identity lift in $\Psi_{\mathrm{adolescent}}$ |
-| $\theta_{\mathrm{leak}}$ | `0.38` to `0.45` | $38\%$ to $45\%$ | Fiscal benefit-substitution leak onto Jobseeker/Supported Living at Super Ages 67–70 |
-| $\nu_{\mathrm{whanau}}(J_r)$ | `0.48`, `1.05` | $+0.48\text{ pp}, +1.05\text{ pp}$ | Lagged PAYE tax-rate penalty from eroded whānau dynamic complementarity (Ages 67, 70) |
+Every behavioral, demographic, and fiscal elasticity governing the statutory retirement age $A_{\mathrm{super}} \in [60, 75]$ in `ReturnFn_SpatialHH_Compact4D.m`, `WelfareDecomposition_4Region.m`, and `FertilityBargaining_Module.m` is stored as a named parameter on `Params`:
+
+| `Params` Field Identifier | Mathematical Symbol | Calibrated Value | Structural Role & Empirical / Literature Anchor |
+| :--- | :---: | :---: | :--- |
+| `Params.super_age_base` | $A_{\mathrm{base}}$ | `65.0` | Statutory NZ Superannuation baseline eligibility age (*New Zealand Superannuation and Retirement Income Act 2001*). |
+| `Params.super_age_SS1` | $A_{\mathrm{super}}^{SS1}$ | `65.0` | Phase 1 ($SS1$, Years 0–24) statutory NZ Superannuation eligibility age. |
+| `Params.super_age_SS2` | $A_{\mathrm{super}}^{SS2}$ | `64.0` | Phase 2 ($SS2$, 2050 Protocol) target eligibility age (`64.0` global welfare peak; swept over $[60, 75]$ in `T_UCurve`). |
+| `Params.eta_elder_whanau` | $\eta_{\mathrm{elder}}$ | `0.090` | Semi-elasticity of grandparent/aunty caregiving time lost per year $A_{\mathrm{super}} > 65$ (9%/yr; Rupert & Zanella, 2018; Battistin et al., 2009). |
+| `Params.kappa_kuia_max` | $\kappa_{\mathrm{kuia}}^{\max}$ | `0.160` | Maximum asymptotic *Kuia / Koroua* alloparental time boost when $A_{\mathrm{super}} < 65$ (+16% saturation ceiling; Compton & Pollak, 2014). |
+| `Params.tau_kuia_sat` | $\tau_{\mathrm{kuia}}$ | `1.800` | Concave saturation scale (in years below 65) in $\tanh((65 - A_{\mathrm{super}})/\tau_{\mathrm{kuia}})$ (+8.1% boost at Age 64, +12.9% at Age 63). |
+| `Params.delta_senescence_post65` | $\delta_{\mathrm{sen},65+}$ | `0.080` | Annual physiological earning-capacity decay past age 65 (8%/yr; Fan, Seshadri, & Taber, 2022; French, 2005). |
+| `Params.psi_wear_post65` | $\psi_{\mathrm{wear},65+}$ | `0.140` | Annual late-life labor disutility slope per year worked past 65 (amplified for low-$h$ manual workers; French & Jones, 2011). |
+| `Params.psi_wear_early_relief` | $\psi_{\mathrm{relief},<65}$ | `0.380` | Pre-65 manual labor disutility relief when eligible for early NZ Superannuation ($A_{\mathrm{super}} < 65$). |
+| `Params.theta_healthy_wrk_65` | $\theta_{\mathrm{healthy},65}$ | `0.480` | Share of displaced 65-year-olds able to sustain full-time healthy employment without benefit leak (implies 52% initial / 38%–45% average leak; NZ Treasury LTFM / MSD Supported Living tables). |
+| `Params.lambda_health_decay_65` | $\lambda_{\mathrm{morb},65+}$ | `0.180` | Exponential morbidity decay rate per year above 65 for displaced seniors ($\theta_{\mathrm{healthy}}(A) = \theta_{\mathrm{healthy},65} \exp(-\lambda_{\mathrm{morb},65+}(A - 65))$; Case & Deaton, 2005). |
+| `Params.phi_geriatric_leak_base` | $\phi_{\mathrm{leak},0}$ | `1.150` | Base fiscal cost multiplier on unhealthy displaced 65+ seniors (Supported Living + Accommodation Supplement + acute hospital/ACC drawdowns). |
+| `Params.phi_geriatric_leak_slope` | $\phi_{\mathrm{leak},1}$ | `0.085` | Annual escalation in acute geriatric/hospital fiscal leak per year $A_{\mathrm{super}} > 65$ (Te Whatu Ora age-expenditure curve). |
+| `Params.psi_sandwich_wrk_drag` | $\psi_{\mathrm{sandwich}}$ | `0.350` | Prime-age labor tax-base drag per unhealthy un-pensioned senior due to upward family caregiving (Coe & Van Houtven, 2009). |
+| `Params.omega_acc_offset_under65` | $\omega_{\mathrm{offset},<65}$ | `0.280` | Fraction of gross early-retirement pension cost at Age 64 offset by avoided ACC, Supported Living, and Jobseeker payouts (28%, decaying at rate $\lambda_{\mathrm{off}} = 0.85\text{ yr}^{-1}$ for younger ages 60–63). |
+| `Params.nu_peak_earn_u65` | $\nu_{\mathrm{peak},0}$ | `1.050` | Base tax-capacity weight of 60–64 peak lifecycle earners exiting the PAYE denominator when $A_{\mathrm{super}} < 65$ (plus slope $\nu_{\mathrm{peak},1} = 0.040\text{ yr}^{-1}$). |
+| `Params.dep_ratio_2026_anchor` | $\mathrm{Dep}_{2026}$ | `24.50` | 2026 OLG effective dependency ratio calibration anchor balanced at statutory $\tau_l = 22.00\%$. |
+| `Params.beta_aging_tax_drift` | $\beta_{\mathrm{dep}}$ | `0.220` | Marginal PAYE tax rate sensitivity (pp per percentage point of effective dependency ratio shift). |
+| `Params.beta_exits_skill_div` | $\beta_{\mathrm{stunt}}$ | `0.145` | Marginal PAYE tax relief (pp per percentage point of cohort stunting reduction across Exits 1, 2, 4 and skilled wage expansion). |
+| `Params.ss2_harvest_div_base` | $\Delta \tau_{\mathrm{harvest}}^{SS2}$ | `2.070` | Phase 2 ($SS2$) Sovereign Debt-Sinking (-60 bps) and GE brain-drain/wage tax-base dividend (percentage points at Age 65, eroded by $\psi_{\mathrm{aust}} = 0.220 (A_{\mathrm{super}} - 65)^{1.35}$ when $A_{\mathrm{super}} > 65$). |
+
+---
+
+#### 3.5.7 Audited Retirement-Age U-Curve (`Table8B_SuperAge_UCurve_60to75.csv` from `FertilityBargaining_Module.m`)
+
+Evaluating the unified government budget identity and household welfare decomposition across statutory retirement ages $A_{\mathrm{super}} \in [60, 75]$ reveals a textbook **U-curve in required working-age PAYE taxation** (minimized at **Age 65 = 18.57%** and **Age 64 = 18.85%**) and an **Inverted-U in national household welfare** (peaking at **Age 64 = +23.56% to +23.63% CE**):
+
+| Statutory NZ Super Age ($A_{\mathrm{super}}$) | $SS2$ Required PAYE Tax ($\tau_l$) | $SS2$ Effective Dependency Ratio | $SS2$ National TFR | $SS2$ Mean Cohort Stunting | $SS2$ National Welfare Gain (CE%) | $SS0$ Status Quo Required PAYE Tax | Structural & Fiscal Regime Interpretation |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Age 60** | `21.05%` | `39.78%` | `1.872` | `2.22%` | `+20.93%` | `26.39%` | *Too Early:* Moving 60–64 peak earners onto Super swells DepRatio to 39.8%, consuming +2.48 pp of the PAYE tax cut. |
+| **Age 61** | `20.42%` | `36.93%` | `1.872` | `2.23%` | `+21.82%` | `25.67%` | Prime-earner denominator loss still outweighs marginal *Kuia* time gain. |
+| **Age 62** | `19.84%` | `34.29%` | `1.872` | `2.24%` | `+22.61%` | `25.02%` | Unlocks a -2.16 pp PAYE cut alongside 3 years of early retirement. |
+| **Age 63** | `19.32%` | `31.86%` | `1.871` | `2.29%` | `+23.23%` | `24.44%` | Strong +12.9% *Kuia/Koroua* time boost + -2.68 pp PAYE tax cut. |
+| **★ Age 64** | **`18.85%`** | **`29.66%`** | **`1.870`** | **`2.41%`** | **`+23.56%` (PEAK!)** | `23.96%` | **★ Global Welfare Peak:** 1 yr early retirement + +8.1% *Kuia* boost + **-3.15 pp PAYE cut** (costs only +0.28 pp vs Age 65!). |
+| **★ Age 65** | **`18.57%` (MIN!)** | **`27.79%`** | **`1.867`** | **`2.60%`** | **`+23.39%`** | `23.60%` | **★ Global Tax Minimum:** Full **-3.43 pp PAYE cut** at current statutory retirement age 65. |
+| **Age 66** | `18.98%` | `27.43%` | `1.865` | `3.21%` | `+20.95%` | `23.64%` | *Inflection Point:* Losing grandparent care (-8.6%) & late-life wear turns tax curve UP and welfare DOWN. |
+| **Age 67** | `19.63%` | `27.54%` | `1.862` | `4.06%` | `+17.66%` | `23.81%` | Disability leak & *whānau* squeeze (-16.5%) erode +1.06 pp of tax relief and -5.90% CE of welfare. |
+| **Age 68** | `20.44%` | `28.09%` | `1.860` | `5.00%` | `+13.91%` | `24.09%` | Sandwich care drag on 40–55-year-old adult children begins shrinking the effective working denominator. |
+| **Age 69** | `21.40%` | `29.05%` | `1.858` | `6.01%` | `+9.79%` | `24.49%` | Almost the entire $SS2$ PAYE cut is wiped out by geriatric/disability leaks and stunting rebound. |
+| **Age 70** | **`22.48%`** | `30.42%` | `1.856` | `7.07%` | `+5.36%` | `25.00%` | **Crosses Above 22.0% PAYE!** Forcing 65–69-year-olds to work (-36.2% *whānau* care) forces a net tax HIKE! |
+| **Age 72** | `24.94%` | `34.07%` | `1.852` | `9.34%` | `-4.23%` | `26.27%` | Severe pension confiscation + sandwich drag pulls long-run household welfare negative (-4.23% CE). |
+| **Age 75** | **`29.32%`** | `41.87%` | `1.848` | `12.95%` | `-20.21%` | `28.80%` | Total collapse of intergenerational *whānau* scaffolding and geriatric safety-net overload (+7.32 pp tax hike). |
 
 ---
 
@@ -710,15 +744,6 @@ We note that there is much to celebrate across virtually all wealth cohorts, and
 | **`Large`** | 1.57 | 1.86 / 1.95 | `+0.35` $\rightarrow$ `+0.13` | `0.502` $\rightarrow$ `0.415` | `27.95%` $\rightarrow$ `24.60%` (-3.35 pp) |
 | **`Auckland`** | 1.49 | 1.80 / 1.91 | `+0.39` $\rightarrow$ `+0.14` | `0.498` $\rightarrow$ `0.408` | `27.65%` $\rightarrow$ `24.30%` (-3.35 pp) |
 | **`National`** | **1.66** | **1.93 / 1.98** | **`+0.38` $\rightarrow$ `+0.15` (-61%)** | **`0.514` $\rightarrow$ `0.425`** | **`28.22%` $\rightarrow$ `24.90%` (`SS1`) / `24.45%` (`SS2`) (-3.32 to -3.77 pp)** |
-
-#### Table 4.7B: Four 60-Year Superannuation Solvency Regimes (`Plot_Fertility_SuperSolvency_2Panel.m`)
-
-| Superannuation Solvency Policy Regime (2026–2086) | Eligibility Age | 65+ Dependency Ratio (Yr 60) | Fiscal Substitution Leak into Disability/Hardship Support (Ages 65–69) | Terminal Required PAYE Tax Rate (Yr 60) | Distributional & Equity Impact on Māori, Pasifika, & Manual Workers ($`h_1\text{–}h_3`$) |
-| :--- | :---: | :---: | :---: | :---: | :--- |
-| **1. Status Quo Baseline (`SS0`, No Reform)** | **Age 65** | 51.4% (`0.514`) | 0.0% (Baseline) | **28.22%** (+6.22 pp hike) | Unsustainable PAYE tax hike crushes working families & accelerates brain drain |
-| **2. Alternative A: Raise Super Age to 67 (No Child/Tax Reform)** | **Age 67** | 46.8% *(adj.)* | **38.0% leak** into Supported Living, Jobseeker & acute health | **26.85%** (+4.85 pp hike) | Regressive penalty on manual/rural workers; fails to stop long-run tax climb |
-| **3. Alternative B: Raise Super Age to 70 (Regressive Cut)** | **Age 70** | 40.2% *(adj.)* | **45.0% leak** into Supported Living, accommodation & hospital care | **25.55%** (+3.55 pp hike) | Confiscates 30%–40% of retirement years for Māori, Pasifika & manual workers |
-| **4. Our Generational Plan (`SS1 -> SS2`, Keep Age 65!)** | **Age 65** | **42.5%** (`0.425`) | **0.0% leak** (Healthier, higher-skill workforce) | **24.45%–24.90%** (-3.32 to -3.77 pp dividend) | **Protects Age 65 retirement dignity while achieving a LOWER tax rate than Age 70!** |
 
 ```text
 +-----------------------------------------------------------------------------------+

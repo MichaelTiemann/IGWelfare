@@ -226,6 +226,35 @@ $$\Delta \mathrm{NetSavings}_{t}\left(A_r^{\prime}\right) = \left\lbrack 1 - \la
 
 Consequently, raising the pension age to 67 or 70 under status-quo demographics still leaves the required PAYE tax rate climbing to $26.85\%$ (Age 67) or $25.55\%$ (Age 70) while imposing a regressive survival-weighted utility loss $\Delta V_k\left(a, h, z, j\right) < 0$ on Māori, Pasifika, and rural manual cohorts with lower conditional survival probabilities $s_j$. Conversely, expanding the denominator $\bar{H}_t$ via First-2000-Days wraparound investment ($G_{\mathrm{ECE},1}$), Montessori / *Tuakana–Teina* adolescent mentoring ($G_{\mathrm{ECE},2}$), youth retention ($\Pi_{\mathrm{mig}}$), and cooperative fertility recovery ($\mathrm{TFR}: 1.66 \to 1.98$) keeps $A_r = 65$ intact while bending $\tau_{l,t}^{\mathrm{req}}$ down from $28.22\%$ to $24.45\%\text{--}24.90\%$.
 
+#### Named Calibration Parameters for NZ Superannuation Eligibility Age, Senescence, & Extended Whānau Elasticities (`Configure_TimeGrid_Params.m`)
+
+Every behavioral, demographic, and fiscal elasticity governing the statutory retirement age $A_{\mathrm{super}} \in [60, 75]$ in `ReturnFn_SpatialHH_Compact4D.m`, `WelfareDecomposition_4Region.m`, and `FertilityBargaining_Module.m` is stored as a named parameter on `Params`:
+
+| `Params` Field Identifier | Mathematical Symbol | Calibrated Value | Structural Role & Empirical / Literature Anchor |
+| :--- | :---: | :---: | :--- |
+| `Params.super_age_base` | $A_{\mathrm{base}}$ | `65.0` | Statutory NZ Superannuation baseline eligibility age (*New Zealand Superannuation and Retirement Income Act 2001*). |
+| `Params.super_age_SS1` | $A_{\mathrm{super}}^{SS1}$ | `65.0` | Phase 1 ($SS1$, Years 0–24) statutory NZ Superannuation eligibility age. |
+| `Params.super_age_SS2` | $A_{\mathrm{super}}^{SS2}$ | `64.0` | Phase 2 ($SS2$, 2050 Protocol) target eligibility age (`64.0` global welfare peak; swept over $[60, 75]$ in `T_UCurve`). |
+| `Params.eta_elder_whanau` | $\eta_{\mathrm{elder}}$ | `0.090` | Semi-elasticity of grandparent/aunty caregiving time lost per year $A_{\mathrm{super}} > 65$ (9%/yr; Rupert & Zanella, 2018; Battistin et al., 2009). |
+| `Params.kappa_kuia_max` | $\kappa_{\mathrm{kuia}}^{\max}$ | `0.160` | Maximum asymptotic *Kuia / Koroua* alloparental time boost when $A_{\mathrm{super}} < 65$ (+16% saturation ceiling; Compton & Pollak, 2014). |
+| `Params.tau_kuia_sat` | $\tau_{\mathrm{kuia}}$ | `1.800` | Concave saturation scale (in years below 65) in $\tanh((65 - A_{\mathrm{super}})/\tau_{\mathrm{kuia}})$ (+8.1% boost at Age 64, +12.9% at Age 63). |
+| `Params.delta_senescence_post65` | $\delta_{\mathrm{sen},65+}$ | `0.080` | Annual physiological earning-capacity decay past age 65 (8%/yr; Fan, Seshadri, & Taber, 2022; French, 2005). |
+| `Params.psi_wear_post65` | $\psi_{\mathrm{wear},65+}$ | `0.140` | Annual late-life labor disutility slope per year worked past 65 (amplified for low-$h$ manual workers; French & Jones, 2011). |
+| `Params.psi_wear_early_relief` | $\psi_{\mathrm{relief},<65}$ | `0.380` | Pre-65 manual labor disutility relief when eligible for early NZ Superannuation ($A_{\mathrm{super}} < 65$). |
+| `Params.theta_healthy_wrk_65` | $\theta_{\mathrm{healthy},65}$ | `0.480` | Share of displaced 65-year-olds able to sustain full-time healthy employment without benefit leak (implies 52% initial / 38%–45% average leak; NZ Treasury LTFM / MSD Supported Living tables). |
+| `Params.lambda_health_decay_65` | $\lambda_{\mathrm{morb},65+}$ | `0.180` | Exponential morbidity decay rate per year above 65 for displaced seniors ($\theta_{\mathrm{healthy}}(A) = \theta_{\mathrm{healthy},65} \exp(-\lambda_{\mathrm{morb},65+}(A - 65))$; Case & Deaton, 2005). |
+| `Params.phi_geriatric_leak_base` | $\phi_{\mathrm{leak},0}$ | `1.150` | Base fiscal cost multiplier on unhealthy displaced 65+ seniors (Supported Living + Accommodation Supplement + acute hospital/ACC drawdowns). |
+| `Params.phi_geriatric_leak_slope` | $\phi_{\mathrm{leak},1}$ | `0.085` | Annual escalation in acute geriatric/hospital fiscal leak per year $A_{\mathrm{super}} > 65$ (Te Whatu Ora age-expenditure curve). |
+| `Params.psi_sandwich_wrk_drag` | $\psi_{\mathrm{sandwich}}$ | `0.350` | Prime-age labor tax-base drag per unhealthy un-pensioned senior due to upward family caregiving (Coe & Van Houtven, 2009). |
+| `Params.omega_acc_offset_under65` | $\omega_{\mathrm{offset},<65}$ | `0.280` | Fraction of gross early-retirement pension cost at Age 64 offset by avoided ACC, Supported Living, and Jobseeker payouts (28%, decaying at rate $\lambda_{\mathrm{off}} = 0.85\text{ yr}^{-1}$ for younger ages 60–63). |
+| `Params.nu_peak_earn_u65` | $\nu_{\mathrm{peak},0}$ | `1.050` | Base tax-capacity weight of 60–64 peak lifecycle earners exiting the PAYE denominator when $A_{\mathrm{super}} < 65$ (plus slope $\nu_{\mathrm{peak},1} = 0.040\text{ yr}^{-1}$). |
+| `Params.dep_ratio_2026_anchor` | $\mathrm{Dep}_{2026}$ | `24.50` | 2026 OLG effective dependency ratio calibration anchor balanced at statutory $\tau_l = 22.00\%$. |
+| `Params.beta_aging_tax_drift` | $\beta_{\mathrm{dep}}$ | `0.220` | Marginal PAYE tax rate sensitivity (pp per percentage point of effective dependency ratio shift). |
+| `Params.beta_exits_skill_div` | $\beta_{\mathrm{stunt}}$ | `0.145` | Marginal PAYE tax relief (pp per percentage point of cohort stunting reduction across Exits 1, 2, 4 and skilled wage expansion). |
+| `Params.ss2_harvest_div_base` | $\Delta \tau_{\mathrm{harvest}}^{SS2}$ | `2.070` | Phase 2 ($SS2$) Sovereign Debt-Sinking (-60 bps) and GE brain-drain/wage tax-base dividend (percentage points at Age 65, eroded by $\psi_{\mathrm{aust}} = 0.220 (A_{\mathrm{super}} - 65)^{1.35}$ when $A_{\mathrm{super}} > 65$). |
+
+---
+
 ### 5.5 Joint Income-Wealth Distributional Incidence across 12 Earn + Own Tiers (`Plot_WealthBracket_PainAndCelebration.m`)
 To evaluate welfare incidence across the empirical joint distribution of gross household income $Y_m$ and net worth $W_m$ (`Annual Income + Net Worth`, spanning $M_{\mathrm{tier}} = 12$ tiers from `Tier 1: NZD 50k + 0` at P10 to `Tier 12: NZD 10M + 250M` at P99.99, anchored to Stats NZ Household Net Worth 2022/2025, Rashbrooke 2021, and the IRD High-Wealth Individuals Research Project 2023), `Plot_WealthBracket_PainAndCelebration.m` decomposes the Consumption-Equivalent welfare change $\Delta \mathrm{CE}_m\left(\omega_{\mathrm{ent}}\right)$ as a function of the household's operating-enterprise equity share $\omega_{\mathrm{ent}} \in \lbrack 0, 1\rbrack$ (where $\omega_{\mathrm{ent}} = 0.80$ for **Active Growth Entrepreneurs** $z_f = z_{h,k}$ and $\omega_{\mathrm{ent}} = 0.15$ for **Passive Residential Land Hoarders** $z_f = z_{\ell,k}$):
 
