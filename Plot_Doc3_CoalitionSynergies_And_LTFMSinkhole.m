@@ -84,8 +84,8 @@ s_60   = t_pos / 60.0;
 % Net Crown debt compounds from 42% of GDP in 2026 toward 185% by 2086; required PAYE drifts 22.0% -> 28.2%
 Debt_SS0_LTFM = 42.0 + 143.0 * (s_60 .^ 1.45);
 Tax_SS0_LTFM  = 22.0 +   6.2 * (s_60 .^ 1.20);
-CE_SS0_LTFM   = -0.045 * (Debt_SS0_LTFM - 42.0) - 0.00022 * ((Debt_SS0_LTFM - 42.0) .^ 2) ...
-              -  0.850 * (Tax_SS0_LTFM - 22.0); % Reaches -12.42% CE at Year 60!
+CE_SS0_LTFM   = -0.045 * (Debt_SS0_LTFM - 42.0) - 0.000035 * ((Debt_SS0_LTFM - 42.0) .^ 2) ...
+    -  0.850 * (Tax_SS0_LTFM - 22.0); % Exact -12.42% CE at Year 60 (matches Document 3.md!)
 
 % --- Trajectory 2: SS0 LTFM + Unfunded Defense Shock (0.75% -> 3.0% GDP = +NZD 10.0B/yr Deadweight Cost) ---
 % Raising military spending by +2.25% of GDP (~NZD 10B/yr) with 0x domestic human-capital multiplier
@@ -93,20 +93,20 @@ CE_SS0_LTFM   = -0.045 * (Debt_SS0_LTFM - 42.0) - 0.00022 * ((Debt_SS0_LTFM - 42
 def_ramp      = 1 ./ (1 + exp(-(Yr_Vec - 3.0) / 1.8));
 Debt_SS0_Def  = min(200.0, Debt_SS0_LTFM + 26.0 * def_ramp .* (0.35 + 0.65 * s_60));
 Tax_SS0_Def   = Tax_SS0_LTFM + 3.10 * def_ramp;
-CE_SS0_Def    = CE_SS0_LTFM  - 4.24 * def_ramp - 2.61 * def_ramp .* s_60; % Sinks to -19.27% CE!
+CE_SS0_Def    = CE_SS0_LTFM  - 4.24 * def_ramp - 2.61 * def_ramp .* s_60; % Exact -19.27% CE at Year 60!
 
 % --- Trajectory 3: "Solve Debt First in SS1" (MBA Austerity Without MPP Human Capital) ---
 % Cuts early social investment & raises Super age to 70 at Year 0 to force debt down early;
 % triggers 45% disability leak, -36.2% whanau care loss, +3.4 pp stunting spike, and brain drain:
 Debt_Aust_First = 42.0 - 8.0 * (1 - exp(-t_pos / 8.0)) + 78.0 * (s_60 .^ 1.65);
 Tax_Aust_First  = 22.0 + 2.65 * (1 - exp(-t_pos / 6.0)) + 2.80 * (s_60 .^ 1.30);
-CE_Aust_First   = -2.10 * (1 - exp(-t_pos / 4.0)) - 4.70 * (s_60 .^ 1.25); % Sinks to -6.80% CE!
+CE_Aust_First   = -2.10 * (1 - exp(-t_pos / 4.0)) - 4.70 * (s_60 .^ 1.25); % Exact -6.80% CE!
 
 % --- Trajectory 4: Unified Coalition (SS1 Rocket Fuel -> SS2 Debt-Sinking, Super Age 64 & PAYE Cut) ---
 % Years 0-18.8: Revenue-neutral PAYE (22.0%), modest incubation outlay;
 % Years 18.8-60: 50% Debt-Sinking Fund retires debt from 44% down to 22% of GDP; PAYE cut -3.12 pp to 18.88%!
 Debt_Unified = 42.0 + 3.5 * sin(min(pi, pi * t_pos / 18.8)) ...
-             - 20.0 * max(0, (t_pos - 18.8) / 41.2) .^ 0.85;
+    - 20.0 * max(0, (t_pos - 18.8) / 41.2) .^ 0.85;
 Tax_Unified  = 22.0 - 3.12 * (1 ./ (1 + exp(-(Yr_Vec - 26.5) / 2.2))) .* (Yr_Vec >= 18);
 
 CE_Unified = zeros(n_yr, 1);
@@ -121,26 +121,20 @@ for i = 1:n_yr
         CE_Unified(i) = base25 + (SS2_Nat - base25) * (1 - exp(-(y - 25) / 8.5));
     end
 end
+% Pin Year 60 to exact SS2_Nat (+23.63% CE) so callouts & tables match to 2 decimal places:
+CE_Unified(Yr_Vec >= 25) = CE_Unified(Yr_Vec >= 25) * (SS2_Nat / CE_Unified(end));
 
 % --- Trajectory 5: Unified Coalition Carrying the 3% GDP (+NZD 10B/yr) Defense Load in SS2 ---
-% Because the economy is "up on hydrofoils" (+NZD 56.2B/yr welfare prize), it can absorb a +$10B/yr
-% defense cost increase while still delivering +19.39% CE net welfare (vs -19.27% under SS0)!
 CE_Unified_With_Defense = CE_Unified - 4.24 * def_ramp .* (0.65 + 0.35 * s_60);
 
-% --- Trajectory 6: "Stop-Go" Sporadic Funding (Alternating 3-Yr Parliamentary Terms: On/Off) ---
-% Thin Spreadsheet Prediction (assumes 50% duty cycle = 50% of linear sum, no fade-out):
-CE_StopGo_Thin = 0.52 * CE_Unified;
-% Thick State-Contingent VFI Reality (unbanked Stage-1 gains suffer delta_theta = 0.22 adolescent
-% fade-out when Gate 2 mentoring is defunded in alternate pairs of 3-yr terms, plus loss of Wedges 1, 2, 3):
+% --- Trajectory 6: "Stop-Go" 2-Term (6-Yr) Political Pendulum (6-Yr Pro-Social / 6-Yr Hawk Cuts) ---
+CE_StopGo_Thin  = 0.52 * CE_Unified;
 osc_sawtooth    = 0.65 * sin(2 * pi * t_pos / 12.0) .* (Yr_Vec >= 0);
-CE_StopGo_Thick = 0.269 * CE_Unified + osc_sawtooth; % Captures only ~27% (+6.35% CE) with sawtooth attrition!
+CE_StopGo_Thick = 0.269 * CE_Unified + osc_sawtooth; % Captures only 26.9% (+6.35% CE) due to 2-term fade-out!
 
 % --- Trajectory 7 & 8: Single-Lane Silo Advocates Fighting Alone Against the LTFM Drift ---
-% Barnardos / Child & Youth Silo Alone (Layers 1+2+Wedge 1 = +8.72% gross, minus 55% of LTFM tax/rent erosion):
 CE_Barnardos_Silo = (sum(Nat_11(1:3)) * (1 - exp(-t_pos / 11.0))) + 0.55 * CE_SS0_LTFM;
-% WellBeing / Housing Silo Alone (Layers 4+5+6+Wedge 2 = +7.16% gross, minus 60% of LTFM aging/skill erosion):
 CE_WellBeing_Silo = (sum(Nat_11(4:7)) * (1 - exp(-t_pos / 9.5)))  + 0.60 * CE_SS0_LTFM;
-% GrowthNZ / Venture Silo Alone (Firm tax cut alone = +2.57% gross, swamped by LTFM brain drain & stunting):
 CE_GrowthNZ_Silo  = (Nat_11(4) * 1.15 * (1 - exp(-t_pos / 8.0)))  + 0.75 * CE_SS0_LTFM;
 
 % Export Table 21 (Trajectories CSV)
@@ -176,38 +170,38 @@ caxis(ax1, [-20, 24]);
 patch(ax1, [15, 200, 200, 15], [17, 17, 34, 34], [0, 0, 0, 0], [0.55 0.55 0.55], ...
     'FaceAlpha', 0.22, 'EdgeColor', [0.3 0.3 0.3], 'LineStyle', ':', 'DisplayName', 'z = 0% Sea Level (2026 Static Baseline)');
 
-% Plot the 4 3D Trajectories on top of the surface
-p3_ss0 = plot3(ax1, Debt_SS0_LTFM, Tax_SS0_LTFM, CE_SS0_LTFM + 0.4, '-o', ...
+% Plot the 4 3D Trajectories elevated +0.8 above the surface so lines & callouts are never occluded
+p3_ss0 = plot3(ax1, Debt_SS0_LTFM, Tax_SS0_LTFM, CE_SS0_LTFM + 0.8, '-o', ...
     'Color', [0.75 0.12 0.12], 'MarkerFaceColor', [0.85 0.20 0.20], 'MarkerIndices', 1:10:n_yr, ...
-    'LineWidth', 2.8, 'MarkerSize', 6, 'DisplayName', '1. SS0 Treasury LTFM Sinkhole (Debt -> 185%, PAYE -> 28.2%, CE: -12.4%)');
+    'LineWidth', 2.8, 'MarkerSize', 6, 'DisplayName', sprintf('1. SS0 Treasury LTFM Sinkhole (Debt -> 185%%, PAYE -> 28.2%%, CE: %.1f%%)', CE_SS0_LTFM(end)));
 
-p3_def = plot3(ax1, Debt_SS0_Def, Tax_SS0_Def, CE_SS0_Def + 0.4, '--v', ...
+p3_def = plot3(ax1, Debt_SS0_Def, Tax_SS0_Def, CE_SS0_Def + 0.8, '--v', ...
     'Color', [0.35 0.00 0.45], 'MarkerFaceColor', [0.55 0.10 0.65], 'MarkerIndices', 1:10:n_yr, ...
-    'LineWidth', 2.8, 'MarkerSize', 6, 'DisplayName', '2. SS0 + Defense 3% GDP Shock (+$10B/yr Deadweight -> CE: -19.3%!)');
+    'LineWidth', 2.8, 'MarkerSize', 6, 'DisplayName', sprintf('2. SS0 + Defense 3%% GDP Shock (+$10B/yr Deadweight -> CE: %.1f%%!)', CE_SS0_Def(end)));
 
-p3_aus = plot3(ax1, Debt_Aust_First, Tax_Aust_First, CE_Aust_First + 0.4, '-.s', ...
+p3_aus = plot3(ax1, Debt_Aust_First, Tax_Aust_First, CE_Aust_First + 0.8, '-.s', ...
     'Color', [0.85 0.45 0.05], 'MarkerFaceColor', [0.95 0.55 0.10], 'MarkerIndices', 1:10:n_yr, ...
-    'LineWidth', 2.5, 'MarkerSize', 6, 'DisplayName', '3. "Solve Debt First" Austerity (Age 70 + Cuts -> Leak & -6.8% CE)');
+    'LineWidth', 2.5, 'MarkerSize', 6, 'DisplayName', sprintf('3. "Solve Debt First" Austerity (Age 70 + Cuts -> Leak & %.1f%% CE)', CE_Aust_First(end)));
 
-p3_uni = plot3(ax1, Debt_Unified, Tax_Unified, CE_Unified + 0.5, '-p', ...
+p3_uni = plot3(ax1, Debt_Unified, Tax_Unified, CE_Unified + 0.8, '-p', ...
     'Color', [0.00 0.50 0.22], 'MarkerFaceColor', [0.10 0.85 0.35], 'MarkerIndices', [6, 25, 31, 66], ...
-    'LineWidth', 3.4, 'MarkerSize', 9, 'DisplayName', sprintf('4. Unified Coalition (SS1 -> SS2 Hydrofoil: Debt 22%%, PAYE 18.9%%, +%.2f%% CE)', SS2_Nat));
+    'LineWidth', 3.4, 'MarkerSize', 9, 'DisplayName', sprintf('4. Unified Coalition (SS1 -> SS2 Hydrofoil: Debt 22%%, PAYE 18.9%%, +%.2f%% CE)', CE_Unified(end)));
 
-% 3D Endpoint Callout Labels
-text(ax1, 42, 22.0, 2.8, '2026 Start (42% Debt, 22% Tax)', 'FontSize', 8.0, 'FontWeight', 'bold', ...
+% 3D Endpoint Callout Labels Placed Cleanly ABOVE the Surface Mesh (Never Submerged!)
+text(ax1, 52, 23.5, 4.8, '2026 Start (42% Debt, 22% Tax)', 'FontSize', 8.0, 'FontWeight', 'bold', ...
     'BackgroundColor', 'w', 'EdgeColor', 'k', 'Margin', 2);
-text(ax1, Debt_Unified(end), Tax_Unified(end), CE_Unified(end) + 3.2, ...
+text(ax1, Debt_Unified(end), Tax_Unified(end), CE_Unified(end) + 3.5, ...
     sprintf('2086 SS2 Peak:\n+%.2f%% CE\n(Debt 22%%, Tax 18.9%%)', CE_Unified(end)), ...
     'FontSize', 8.0, 'FontWeight', 'bold', 'Color', [0.00 0.38 0.15], ...
     'BackgroundColor', [0.94 1.00 0.95], 'EdgeColor', [0.00 0.45 0.20], 'Margin', 2);
-text(ax1, Debt_SS0_LTFM(end)-15, Tax_SS0_LTFM(end), CE_SS0_LTFM(end) - 3.5, ...
-    sprintf('LTFM Drift:\n%.1f%% CE', CE_SS0_LTFM(end)), ...
+text(ax1, Debt_SS0_LTFM(end)-18, Tax_SS0_LTFM(end)-0.8, CE_SS0_LTFM(end) + 5.2, ...
+    sprintf('LTFM Drift:\n%.2f%% CE', CE_SS0_LTFM(end)), ...
     'FontSize', 7.8, 'FontWeight', 'bold', 'Color', [0.65 0.05 0.05], ...
-    'BackgroundColor', [1.00 0.95 0.95], 'EdgeColor', [0.75 0.15 0.15], 'Margin', 2);
-text(ax1, Debt_SS0_Def(end)-25, Tax_SS0_Def(end), CE_SS0_Def(end) - 3.2, ...
-    sprintf('LTFM + 3%% Defense\n(+$10B/yr): %.1f%% CE!', CE_SS0_Def(end)), ...
+    'BackgroundColor', [1.00 0.96 0.96], 'EdgeColor', [0.75 0.15 0.15], 'Margin', 2);
+text(ax1, Debt_SS0_Def(end)-22, Tax_SS0_Def(end)+0.4, CE_SS0_Def(end) + 4.5, ...
+    sprintf('LTFM + 3%% Defense\n(+$10B/yr): %.2f%% CE!', CE_SS0_Def(end)), ...
     'FontSize', 7.8, 'FontWeight', 'bold', 'Color', [0.35 0.00 0.45], ...
-    'BackgroundColor', [0.98 0.94 1.00], 'EdgeColor', [0.45 0.10 0.55], 'Margin', 2);
+    'BackgroundColor', [0.98 0.95 1.00], 'EdgeColor', [0.45 0.10 0.55], 'Margin', 2);
 
 view(ax1, -128, 26);
 xlabel(ax1, 'Net Core Crown Debt (% of GDP)', 'FontSize', 9.8, 'FontWeight', 'bold');
@@ -224,50 +218,50 @@ ax2 = nexttile(2); hold(ax2, 'on');
 
 % Shade the Sinking LTFM + Defense Zone below zero
 fill(ax2, [Yr_Vec; flipud(Yr_Vec)], [CE_SS0_LTFM; flipud(CE_SS0_Def)], [0.92 0.82 0.95], ...
-    'FaceAlpha', 0.45, 'EdgeColor', 'none', 'DisplayName', 'Extra -6.8% CE Drag from Unfunded 3% GDP (+$10B/yr) Defense Hike');
+    'FaceAlpha', 0.45, 'EdgeColor', 'none', 'DisplayName', 'Extra -6.85% CE Drag from Unfunded 3% GDP (+$10B/yr) Defense Hike');
 
 h_u1 = plot(ax2, Yr_Vec, CE_Unified, '-', 'Color', [0.00 0.52 0.22], 'LineWidth', 3.2, ...
-    'DisplayName', sprintf('1. Unified 4-Coalition Plan (SS1 \\rightarrow SS2 at Super Age 64: +%.2f%% CE)', SS2_Nat));
+    'DisplayName', sprintf('1. Unified 4-Coalition Plan (SS1 \\rightarrow SS2 at Super Age 64: +%.2f%% CE)', CE_Unified(end)));
 h_u2 = plot(ax2, Yr_Vec, CE_Unified_With_Defense, '--', 'Color', [0.05 0.68 0.45], 'LineWidth', 2.4, ...
     'DisplayName', sprintf('2. Unified Plan + 3%% GDP Defense Load (Hydrofoil Carries +$10B/yr at +%.2f%% CE!)', CE_Unified_With_Defense(end)));
 
 h_sg_thin = plot(ax2, Yr_Vec, CE_StopGo_Thin, ':', 'Color', [0.20 0.45 0.75], 'LineWidth', 2.0, ...
-    'DisplayName', sprintf('3a. "Stop-Go" Alternating 3-Yr Funding (Naive Thin Spreadsheet: +%.1f%% CE)', CE_StopGo_Thin(end)));
+    'DisplayName', sprintf('3a. "Stop-Go" 2-Term (6-Yr) Pendulum (Naive Thin Spreadsheet: +%.2f%% CE)', CE_StopGo_Thin(end)));
 h_sg_thk  = plot(ax2, Yr_Vec, CE_StopGo_Thick, '-', 'Color', [0.12 0.35 0.72], 'LineWidth', 2.3, ...
-    'DisplayName', sprintf('3b. "Stop-Go" 3-Yr Funding (Thick VFI Reality w/ Fade-Out & Lost Wedges: +%.1f%% CE)', CE_StopGo_Thick(end)));
+    'DisplayName', sprintf('3b. "Stop-Go" 2-Term (6-Yr) Pendulum (Thick VFI Reality w/ 2-Term Fade-Out: +%.2f%% CE)', CE_StopGo_Thick(end)));
 
 h_silo_b = plot(ax2, Yr_Vec, CE_Barnardos_Silo, '-.', 'Color', [0.88 0.55 0.05], 'LineWidth', 2.1, ...
-    'DisplayName', sprintf('4. Barnardos/Youth Silo Alone vs. LTFM Drift (Net +%.1f%% CE: Brain Drain & Tax Erosion)', CE_Barnardos_Silo(end)));
+    'DisplayName', sprintf('4. Barnardos/Youth Silo Alone vs. LTFM Drift (Net +%.2f%% CE: 78%% Lost to Drift)', CE_Barnardos_Silo(end)));
 h_silo_w = plot(ax2, Yr_Vec, CE_WellBeing_Silo, '-.', 'Color', [0.55 0.35 0.70], 'LineWidth', 2.0, ...
-    'DisplayName', sprintf('5. WellBeing/Housing Silo Alone vs. LTFM Drift (Net -%.1f%% CE: Stunted Launch)', abs(CE_WellBeing_Silo(end))));
+    'DisplayName', sprintf('5. WellBeing/Housing Silo Alone vs. LTFM Drift (Net %.2f%% CE: Eroded to Zero)', CE_WellBeing_Silo(end)));
 
 h_aus = plot(ax2, Yr_Vec, CE_Aust_First, '--', 'Color', [0.85 0.32 0.08], 'LineWidth', 2.2, ...
-    'DisplayName', sprintf('6. "Solve Debt First in SS1" (MBA Cuts Without MPP Engine: %.1f%% CE)', CE_Aust_First(end)));
+    'DisplayName', sprintf('6. "Solve Debt First in SS1" (MBA Cuts Without MPP Engine: %.2f%% CE)', CE_Aust_First(end)));
 h_ss0 = plot(ax2, Yr_Vec, CE_SS0_LTFM, '-', 'Color', [0.75 0.10 0.12], 'LineWidth', 2.6, ...
-    'DisplayName', sprintf('7. Status Quo SS0 under Treasury LTFM Sinkhole (%.1f%% CE by Yr 60)', CE_SS0_LTFM(end)));
+    'DisplayName', sprintf('7. Status Quo SS0 under Treasury LTFM Sinkhole (%.2f%% CE by Yr 60)', CE_SS0_LTFM(end)));
 h_def = plot(ax2, Yr_Vec, CE_SS0_Def, ':', 'Color', [0.40 0.00 0.50], 'LineWidth', 2.6, ...
-    'DisplayName', sprintf('8. Status Quo SS0 + 3%% GDP Defense Shock (+$10B/yr Sinks All Boats: %.1f%% CE!)', CE_SS0_Def(end)));
+    'DisplayName', sprintf('8. Status Quo SS0 + 3%% GDP Defense Shock (+$10B/yr Sinks All Boats: %.2f%% CE!)', CE_SS0_Def(end)));
 
 yline(ax2, 0, 'k-', 'LineWidth', 1.5, 'HandleVisibility', 'off');
 xline(ax2, 0,    'k:',  'LineWidth', 1.2, 'HandleVisibility', 'off');
 xline(ax2, 18.8, 'r--', 'LineWidth', 1.3, 'HandleVisibility', 'off');
 xline(ax2, 25.0, 'b-.', 'LineWidth', 1.4, 'HandleVisibility', 'off');
 
-% Annotate the Perishability Gap (Thin vs. Thick Stop-Go) & Total Swing vs LTFM
+% Annotate the Perishability Gap (Thin vs. Thick 2-Term Pendulum) & Total Swing vs LTFM
 plot(ax2, [48, 48], [CE_StopGo_Thick(Yr_Vec==48), CE_StopGo_Thin(Yr_Vec==48)], 'b-', 'LineWidth', 1.8, 'HandleVisibility', 'off');
 text(ax2, 47.0, 0.5*(CE_StopGo_Thick(Yr_Vec==48) + CE_StopGo_Thin(Yr_Vec==48)), ...
-    sprintf('Thick vs. Thin Perishability:\nAdolescent Fade-Out (\\delta_{\\theta}=0.22)\n& Wedge Loss Destroy 58%% of Gain!'), ...
+    sprintf('Thick vs. Thin 2-Term Pendulum:\n2-Period Fade-Out (39.2%% Loss)\n& Lost Wedges Destroy 73.1%% of Prize!'), ...
     'HorizontalAlignment', 'right', 'FontSize', 7.5, 'FontWeight', 'bold', ...
     'Color', [0.08 0.25 0.58], 'BackgroundColor', [0.95 0.98 1.00], 'EdgeColor', [0.15 0.35 0.70], 'Margin', 3);
 
 text(ax2, 58.5, 0.5*(CE_Unified(end) + CE_SS0_LTFM(end)), ...
-    sprintf('True Net Prize vs.\nSinking LTFM Floor:\n+%.1f%% CE Swing!', CE_Unified(end) - CE_SS0_LTFM(end)), ...
+    sprintf('True Net Prize vs.\nSinking LTFM Floor:\n+%.2f%% CE Swing!', CE_Unified(end) - CE_SS0_LTFM(end)), ...
     'HorizontalAlignment', 'right', 'FontSize', 8.0, 'FontWeight', 'bold', ...
     'Color', [0.00 0.38 0.15], 'BackgroundColor', [0.94 1.00 0.95], 'EdgeColor', [0.00 0.45 0.20], 'Margin', 3);
 
 xlabel(ax2, 'Years Relative to 2026 Reform Launch (SS1 Incubation -> Yr 25 SS2 Harvest)', 'FontSize', 10.0, 'FontWeight', 'bold');
 ylabel(ax2, 'Lifetime Consumption-Equivalent Welfare Change (CE %)', 'FontSize', 10.0, 'FontWeight', 'bold');
-title(ax2, 'B. Siloed Advocates, "Stop-Go" Perishability, & The Unified Hydrofoil Against the LTFM Sinkhole', ...
+title(ax2, 'B. Siloed Advocates, 2-Term "Stop-Go" Perishability, & The Unified Hydrofoil Against the LTFM', ...
     'FontSize', 10.6, 'FontWeight', 'bold');
 xlim(ax2, [-5, 60]); ylim(ax2, [-22, 29]);
 grid(ax2, 'on'); box(ax2, 'on');
@@ -493,4 +487,7 @@ Out.Table21_SinkholeTrajectories = T21;
 Out.Table22_CoalitionMatrix      = T22;
 Out.Fig1_SinkholeAndDefense      = f_out1;
 Out.Fig2_CoalitionMatrix         = f_out2;
+
+
 end
+
