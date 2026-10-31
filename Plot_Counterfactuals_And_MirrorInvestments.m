@@ -206,14 +206,15 @@ b_ss(2).FaceColor = [0.00, 0.52, 0.24]; b_ss(2).DisplayName = 'Phase 2 (SS2: 205
 % Overlay Regional Min-Max whiskers (Rural/Small to Auckland) on SS2 bars
 x_ss2_pts = b_ss(2).XEndPoints;
 for k = 1:8
-    y_min = min([SS2_Rural_CE(k), SS2_Small_CE(k)]);
-    y_max = SS2_Auckland_CE(k);
+    y_min  = min([SS2_Rural_CE(k), SS2_Small_CE(k)]);
+    y_max  = SS2_Auckland_CE(k);
+    if k == 1, hv_str = 'on'; else, hv_str = 'off'; end
     plot(axA, [x_ss2_pts(k), x_ss2_pts(k)], [y_min, y_max], '-', 'Color', [0.10 0.10 0.10], ...
-         'LineWidth', 1.8, 'HandleVisibility', k == 1);
+        'LineWidth', 1.8, 'HandleVisibility', hv_str);
     plot(axA, x_ss2_pts(k), y_max, '^', 'Color', [0.10 0.10 0.10], 'MarkerFaceColor', [0.98 0.75 0.20], ...
-         'MarkerSize', 5.5, 'HandleVisibility', k == 1);
+        'MarkerSize', 5.5, 'HandleVisibility', hv_str);
     text(axA, x_ss2_pts(k), y_max + 0.75, sprintf('+%.1f%%\n(Akl +%.1f%%)', SS2_National_CE(k), y_max), ...
-         'HorizontalAlignment', 'center', 'FontSize', 7.3, 'FontWeight', 'bold', 'Color', [0.00 0.35 0.15]);
+        'HorizontalAlignment', 'center', 'FontSize', 7.3, 'FontWeight', 'bold', 'Color', [0.00 0.35 0.15]);
 end
 % Fix legend entries for whiskers
 h_kids = get(axA, 'Children');
@@ -236,7 +237,7 @@ title(axA, 'A. Single-Factor & Pairwise Counterfactuals vs. Integrated Plan (SS1
       'FontSize', 10.6, 'FontWeight', 'bold');
 ylabel(axA, 'Long-Run Consumption-Equivalent Welfare Gain (CE %)', 'FontSize', 10.5, 'FontWeight', 'bold');
 set(axA, 'XTick', x_8, 'XTickLabel', strrep(Scenario_ShortLabels, '\n', ' '), 'XTickLabelRotation', 28, 'FontSize', 8.2);
-xlim(axA, [0.4, 8.6]); ylim(axA, [0, 29.0]);
+xlim(axA, [0.4, 8.6]); ylim(axA, [0, 34.0]);
 grid(axA, 'on'); box(axA, 'on');
 legend(axA, [b_ss(1), b_ss(2)], 'Location', 'northwest', 'FontSize', 8.0);
 
@@ -273,11 +274,11 @@ yyaxis(axB, 'right'); hold(axB, 'on');
 plot(axB, x_8, Stunted_SS2_Pct, '-s', 'Color', [0.80 0.10 0.10], 'MarkerFaceColor', [0.95 0.25 0.25], ...
      'LineWidth', 2.5, 'MarkerSize', 6.5, 'DisplayName', 'Adult Stunted Share (h_1-h_2 %, Right Axis)');
 ylabel(axB, 'Adult Cohort Stunted Share in SS2 (% of Cohort, Baseline = 22.0%)', 'FontSize', 10, 'FontWeight', 'bold');
-ylim(axB, [0, 26]); axB.YColor = [0.80 0.10 0.10];
+ylim(axB, [0, 28]); axB.YColor = [0.80 0.10 0.10];
 
 yyaxis(axB, 'left');
 ylabel(axB, 'SS2 National Welfare Gain Decomposed by Engine (CE %)', 'FontSize', 10.5, 'FontWeight', 'bold');
-ylim(axB, [0, 24.5]); axB.YColor = [0.10 0.10 0.10];
+ylim(axB, [0, 28]); axB.YColor = [0.10 0.10 0.10];
 title(axB, 'B. How the 7 Engines Activate Across Single-Factor vs. Integrated Reforms (SS2)', ...
       'FontSize', 10.6, 'FontWeight', 'bold');
 set(axB, 'XTick', x_8, 'XTickLabel', strrep(Scenario_ShortLabels, '\n', ' '), 'XTickLabelRotation', 28, 'FontSize', 8.2);
@@ -344,7 +345,7 @@ xline(axM, 25.0, 'b-.', 'LineWidth', 1.6, 'Label', 'Yr 25: SS2 (2050 Protocol Tr
 
 ylabel(axM, 'Welfare Gain (+CE %) Above 0  |  Annual Public Investment (-% Cons. Equiv.) Below 0', ...
        'FontSize', 10.5, 'FontWeight', 'bold');
-ylim(axM, [-6.5, 23.5]);
+ylim(axM, [-6.5, 28]);
 
 % Add Right Axis in Annual NZD Billions/yr (+NZD B/yr Gain vs -NZD B/yr Investment Outlay)
 yyaxis(axM, 'right');
