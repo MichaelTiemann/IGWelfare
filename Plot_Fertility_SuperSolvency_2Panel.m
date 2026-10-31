@@ -115,14 +115,73 @@ plot(ax2, years, tax_ref_65, '-d', 'Color', [0.00 0.43 0.17], 'LineWidth', 3.0, 
 
 xline(ax2, 25, '--', 'Color', [0.00 0.43 0.17], 'LineWidth', 1.4, 'HandleVisibility', 'off');
 
+% Pull live required tax rates and whanau multipliers directly from the model run
+tax_sq_pct    = ReqTax_vec(1);
+tax_ss1_pct   = ReqTax_vec(4);
+tax_a70_pct   = ReqTax_vec(5);
+tax_ss2_pct   = ReqTax_vec(6);
+paye_delta_pp = tax_ss2_pct - 100.0 * Params.tau_l;
+
+if super_age_ss2_target >= 65.0
+    whanau_ss2_pct = 100.0 * (exp(-0.09 * (super_age_ss2_target - 65.0)) - 1.0);
+else
+    whanau_ss2_pct = 100.0 * 0.16 * tanh((65.0 - super_age_ss2_target) / 1.8);
+end
+
+if super_age_ss2_target < 65.0 && paye_delta_pp < 0.0
+    % Sweet-Spot Early Retirement Harvest (e.g., Super Age 64, 63, 62)
+    bullet_2 = sprintf(['• Phase 1 KEEPS Age 65 Super (%.2f%% tax), while Phase 2 (SS2) harvests\n', ...
+                        '  the dividend to LOWER Super to Age %.0f (K_{whanau} +%.1f%% Kuia boost)\n', ...
+                        '  AND still cuts required PAYE to %.2f%% (%.2f pp below 22.0%%)!'], ...
+                        tax_ss1_pct, super_age_ss2_target, whanau_ss2_pct, tax_ss2_pct, paye_delta_pp);
+    box_fg = [0.00 0.27 0.11];
+    box_bg = [0.94 0.98 0.95];
+    box_ec = [0.00 0.43 0.17];
+elseif super_age_ss2_target < 65.0 && paye_delta_pp >= 0.0
+    % Too-Early Retirement Boundary Test (e.g., Super Age 60 denominator squeeze)
+    bullet_2 = sprintf(['• Phase 1 at Age 65 lowers required tax to %.2f%%, whereas dropping\n', ...
+                        '  SS2 Super all the way to Age %.0f shrinks the 60-64 taxpayer base\n', ...
+                        '  (DepRatio %.1f%%), consuming the PAYE cut (required tax %.2f%%).'], ...
+                        tax_ss1_pct, super_age_ss2_target, DepRatio_vec(6), tax_ss2_pct);
+    box_fg = [0.45 0.22 0.00];
+    box_bg = [1.00 0.97 0.92];
+    box_ec = [0.75 0.40 0.05];
+elseif super_age_ss2_target == 65.0
+    % Canonical Age 65 Harvest
+    bullet_2 = sprintf(['• Our Plan PROTECTS Age 65 Super & home stability, lowering required\n', ...
+                        '  PAYE to %.2f%% in SS1 and %.2f%% in SS2 (%.2f pp tax cut)!'], ...
+                        tax_ss1_pct, tax_ss2_pct, paye_delta_pp);
+    box_fg = [0.00 0.27 0.11];
+    box_bg = [0.94 0.98 0.95];
+    box_ec = [0.00 0.43 0.17];
+else
+    % High-Age Austerity Stress Test in SS2 (e.g., Super Age 67, 70, 72, 75, 80)
+    if paye_delta_pp <= 0.0
+        tax_str = sprintf('eroding the PAYE cut down to %.2f%% (%.2f%% tax)', paye_delta_pp, tax_ss2_pct);
+	box_fg = [0.45 0.22 0.00];
+	box_bg = [1.00 0.97 0.92];
+	box_ec = [0.75 0.40 0.05];
+    else
+        tax_str = sprintf('forcing a +%.2f pp PAYE HIKE to %.2f%%', paye_delta_pp, tax_ss2_pct);
+	box_fg = [0.55 0.06 0.08];
+	box_bg = [1.00 0.95 0.95];
+	box_ec = [0.75 0.15 0.18];
+    end
+    bullet_2 = sprintf(['• Stress-Test Warning: Raising SS2 Super to Age %.0f strips K_{whanau}\n', ...
+                        '  by %.1f%% and triggers geriatric/sandwich drag, %s\n', ...
+                        '  (vs. %.2f%% in SS1 at Age 65)!'], ...
+                        super_age_ss2_target, whanau_ss2_pct, tax_str, tax_ss1_pct);
+end
+
 msg_B = sprintf(['Why Protecting Whanau & Growing Potential Beats Raising Super Age:\n', ...
-    '• Raising Super to 67 (27.33%%) or 70 (26.60%%) shifts 38%%-45%% of\n', ...
-    '  manual/hardship 65-69 yr olds onto Jobseeker/Supported Living AND\n', ...
-    '  withdraws grandmother/aunty care (K_{whanau} -17%% to -36%%), eroding\n', ...
-    '  Stage-1/2 child dynamic complementarity and future PAYE tax bases.\n', ...
-    '• Our Plan KEEPS Age 65 Super & home stability -> LOWER tax (24.45%%)!']);
-text(ax2, 11.5, 21.1, msg_B, 'FontSize', 7.9, 'FontWeight', 'bold', 'Color', [0.00 0.27 0.11], ...
-    'BackgroundColor', [0.94 0.98 0.95], 'EdgeColor', [0.00 0.43 0.17], 'Margin', 4);
+    '• Status Quo aging drifts to %.2f%% tax, while Age 70 Austerity (%.2f%%)\n', ...
+    '  shifts displaced 65-69 yr olds onto disability/hardship support AND\n', ...
+    '  withdraws grandmother/aunty care (K_{whanau} -36.2%%), spiking stunting.\n', ...
+    '%s'], tax_sq_pct, tax_a70_pct, bullet_2);
+
+text(ax2, 11.5, 21.1, msg_B, 'FontSize', 7.9, 'FontWeight', 'bold', 'Color', box_fg, ...
+    'BackgroundColor', box_bg, 'EdgeColor', box_ec, 'Margin', 4);
+
 
 ylabel(ax2, 'Required Working-Age PAYE Tax Rate for Solvency (%)', 'FontSize', 10.5, 'FontWeight', 'bold');
 xlabel(ax2, 'Transition Horizon (Years from 2026 Reform Introduction)', 'FontSize', 10.5, 'FontWeight', 'bold');
