@@ -190,6 +190,14 @@ None of New Zealand's four policy tribes needs to abandon its core mission. The 
 
 For technical reviewers, Treasury analysts, and coalition partners who wish to inspect the exact regional and cohort numbers underlying the figures in Parts I and II, this appendix provides the complete leave-behind tables exported by `Plot_Counterfactuals_And_MirrorInvestments.m` (`Table 19`) and `Plot_Doc3_CoalitionSynergies_And_LTFMSinkhole.m` (`Tables 21 & 22`).
 
+```text
++-----------------------------------------------------------------------------------+
+|                                                                                   |
+|                       [ THIS SPACE INTENTIONALLY LEFT BLANK ]                     |
+|                                                                                   |
++-----------------------------------------------------------------------------------+
+```
+
 ### Table A.1: The 11-Layer Constructive Synergy Build-Up (`SS2` Long-Run Welfare Gain, CE%)
 
 | Constructive Tier & Layer (`Table 19`) | Policy Constituency ("Owner Lane") | Rural (+15.65%) | Small (+20.63%) | Large (+23.59%) | Auckland (+29.53%) | National (+23.63%) | Share of National Prize |
