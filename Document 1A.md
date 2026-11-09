@@ -336,7 +336,7 @@ Evaluating lifetime Consumption-Equivalent Variation (CE %) under the veil of ig
 | **Phase 2 (`SS2`): 3. Long-Run GE (Endogenous Intergen)** | Second-generation dynastic skill compounding (struggling launch share compressed to 1.5%) + *Kuia/Whānau* scaffolding + permanent brain-drain closure | **+20.63%** | **+22.98%** | **+24.57%** | **+27.91%** | **+24.70%** | **Long-run national welfare rises +24.70% CE (+40.91 pp net swing above the -16.21% CE LTFM baseline sinkhole)** |
 
 
-![Cohort Welfare Transition Path Across 4 Regions](Output_NZ_4Region_Intergen/Fig1_Daruich_Cohort_Welfare_4Region.png)
+![Cohort Welfare Transition Path Across 4 Regions](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig1_Daruich_Cohort_Welfare_4Region.png)
 
 * **Jump 1 ($c = 0$, Phase 1 *SS1* Launch):** The first birth cohort born under the reform experiences an immediate welfare surge as universal First-2,000-Days wraparound ($`G_{\mathrm{ece},1} = 0.110`$), *Montessori / Tuakana–Teina and Graeme Dingle Foundation* adolescent mentoring ($`G_{\mathrm{ece},2} = 0.085`$), the Age-20 Youth Capital Grant ($E = 0.065$), and Guvenen et al. firm capital reallocation take effect.
 * **Jump 2 ($c = +25$, Phase 2 *SS2* Harvest):** A second structural leap occurs 20 to 25 years into the transition when two forces converge: (i) the children of the first reformed cohort become parents themselves—entering parenthood with thriving human capital and higher earnings (the endogenous intergenerational multiplier)—and (ii) the Crown activates the **2050 50/50 Debt-Sinking and Infrastructure Protocol**, retiring sovereign debt, expanding public infrastructure, lowering the NZ Superannuation eligibility age to **64**, and cutting the working-age PAYE tax rate to **18.25% (including -0.64 pp from retiring 85% of the SS1 geographic transfer)** (or **17.97%** if Super is held at Age 65).
@@ -369,14 +369,14 @@ Decomposing welfare impacts across housing tenure groups clarifies the transitio
 
 To evaluate the distributional incidence of wealth and estate taxation transparently, we compute the reform's lifetime Consumption-Equivalent (CE %) welfare impact and post-reform net worth retention across **10 official survey-anchored Earn + Own (*Annual Household Income + Net Worth*) benchmarks**—drawn directly from the Statistics New Zealand Household Economic Survey (*HES* June 2024/2025 median household income = NZD 119k; median net worth = NZD 529k), Max Rashbrooke's New Zealand wealth percentile tables (`P90`, `P95`, `P98`, `P99`), the Inland Revenue High-Wealth Individuals Research Project (*HWIRP* median net worth = NZD 50M; median economic income = NZD 2.1M), and the *NBR Rich List* median (NZD 140M):
 
-![Fiscal Give vs Economic Gain](Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelA_GiveVsGain_Dunedin_22.png)
+![Fiscal Give vs Economic Gain](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelA_GiveVsGain_Dunedin_22.png)
 
 **1. Broad-Based Gains Across the Bottom 90%—And Positive-to-Breakeven Incidence Through the 98th Percentile (`Q1 Renter` through `P98`):** Across the first **90% of New Zealand households**—from the **Q1 Hardship Renter (`45k + 12k`, +25.4% CE)**, **Q2 Young Saver (`85k + 115k`, +19.1% CE)**, **Median Income (`120k + 340k`, +15.2% CE)**, and **Median Net Worth (`135k + 530k`, +11.4% CE)** right up to the **Top 10% (`P90: 240k + 2.15M`, +3.6% CE)**—**100% of households come out net positive regardless of portfolio composition**, with even passive property holders at `P90` remaining slightly ahead (**+0.4% CE**). Extending the lens to the **98th percentile (`P98: 450k + 5.20M`)**, the tier-average welfare change is **+0.1% CE**, with active career and operating-business households at `P98` gaining **+4.3% CE** while passive land-heavy portfolios contribute **-4.4% CE**.
 
 **2. The Guvenen "Use-It-Or-Lose-It" Bifurcation Inside the Top 2%—Active Enterprise Builders (`z_h`) vs. Passive Land Portfolios (`z_l`):** Within the top 2% to 0.01% of the wealth distribution, welfare incidence bifurcates by **asset composition and capital productivity** rather than net worth alone:
 * **Active Growth Entrepreneurs & Operating Investors ($`z_h`$, Green Solid Trajectory):** High-net-worth founders, family-enterprise stewards, and growth investors who deploy capital into productive operating businesses benefit from lower corporate and PAYE tax drag, 60 bps cheaper expansion credit, and a deeper domestic pool of skilled graduates ($`h_6\text{--}h_7`$ rising from 23.5% to 65.0% of the cohort)—remaining **net welfare positive at `P99` (`600k + 8.5M`, +3.6% CE) and the `IRD High-Wealth Median` (`2.1M + 50M`, +1.2% CE), and breaking even at the `NBR Rich List Median` (`6.5M + 140M`, -0.1% CE)**.
 
-![Net Worth Resilience Across Survey-Anchored Earn + Own Tiers](Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelB_WealthResilience_Dunedin_22.png)
+![Net Worth Resilience Across Survey-Anchored Earn + Own Tiers](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_WealthBrackets_PanelB_WealthResilience_Dunedin_22.png)
 
 * **Passive Residential Land Hoarders ($`z_{\ell}`$, Red Dashed Trajectory):** High-net-worth households whose portfolios are concentrated in leveraged, low-yield residential land bear the direct incidence of metropolitan house-price cooling (-7.5% in *SS1* to -10.5% in *SS2*), the 1.5% annual book-value land/wealth levy above the family-home threshold, and the estate tax—experiencing a net welfare adjustment ranging from **-2.7% CE at `P95` and -4.4% CE at `P98` to -11.2% CE at the `NBR Rich List Median`**.
 
@@ -444,7 +444,7 @@ When a young couple or solo parent is raising children through the **First 2,000
 
 To test how New Zealand Superannuation interacts with fertility bargaining, childhood hardship, and tax solvency, we evaluate our coupled 4-region lifecycle model across every statutory retirement age from **Age 60 to Age 75** (`FigFert_4Region_Bargaining_Solvency.png` below; full sweep in [Document 1B](Document%201B.md), Table 8B):
 
-![4-Region Fertility Bargaining, Whanau Networks & The NZ Super Retirement-Age U-Curve](Output_NZ_4Region_Intergen/FigFert_4Region_Bargaining_Solvency.png)
+![4-Region Fertility Bargaining, Whanau Networks & The NZ Super Retirement-Age U-Curve](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/FigFert_4Region_Bargaining_Solvency.png)
 
 Sweeping the statutory eligibility age reveals a striking **U-curve in required working-age PAYE taxation** and an **Inverted-U in national household welfare**:
 
@@ -512,7 +512,7 @@ Applying this exact ACC and New Zealand Treasury Cost-Benefit Analysis (CBAx) me
 
 Once forward liability reductions and trajectory shifts are recognised at Year 5, the apparent cash deficit vanishes across every region of New Zealand:
 
-![National Crown Fiscal Ledger and Economy-Wide GDP Prize](Output_NZ_4Region_Intergen/Fig_Actuarial_2Panel_National_Dunedin_22.png)
+![National Crown Fiscal Ledger and Economy-Wide GDP Prize](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_Actuarial_2Panel_National_Dunedin_22.png)
 
 * **Immediate National Fiscal Breakeven at Year 5 (Panel A):** Against the **NZD 9.19B** five-year investment outlay, recognised direct cost avoidance alone (reduced hospital nights, Oranga Tamariki care placements, youth justice, and long-term benefit dependency) reaches **NZD 10.68B** at the 2.0% Treasury discount rate—exceeding the entire public outlay by **1.16x** at the end of the very first parliamentary cycle. Including the Crown's tax revenue share from higher future earnings lifts the Year 5 recognised total fiscal return to **NZD 35.25B** at the 2.0% rate (**3.84x** the outlay) and **NZD 18.25B** (**1.99x** the outlay) even under the punitive 8.0% commercial sensitivity rate.
 * **The National Economy-Wide GDP Prize (Panel B):** While realized cash-basis GDP growth at Year 5 is **NZD 15.30B** (driven by immediate business capital reallocation from the property-to-enterprise tax shift), the recognised 25-year forward GDP prize at Year 5 is **NZD 85.40B** at the 2.0% discount rate and **NZD 48.05B** at the 8.0% sensitivity rate. Over the full 60-year transition, cumulative realized GDP growth reaches **NZD 1,510.7B** (a **6.86x** macroeconomic multiplier on the NZD 220.1B cumulative investment), while the recognised forward GDP prize reaches **NZD 2,095.8B**.
@@ -560,9 +560,9 @@ With both the lifecycle human-capital channels (*Part IV*) and the 2050 Debt-Sin
 
 ### 4.1 The Mirror Investment Ledger: Annual Public Outlays (-Below 0) vs. Compounding 11-Layer Welfare Gains (+Above 0)
 
-The Mirror Investment chart below (`Fig_7Segment_Welfare_And_MirrorInvestments_Dunedin_22.png`, exported alongside `Table 20` by `Plot_Counterfactuals_And_MirrorInvestments.m`) plots the gross annual public investment across our four direct expenditure pillars below the zero line (in both `% Consumption-Equivalent` on the left axis and `NZD Billions/yr` on the right axis, where `1.0% CE = NZD 2.38B/yr`) against the 11-layer stacked household welfare gains above the zero line:
+The Mirror Investment chart below (`Fig_11Layer_Welfare_And_MirrorInvestments_Dunedin_22.png`, exported alongside `Table 20` by `Plot_Counterfactuals_And_MirrorInvestments.m`) plots the gross annual public investment across our four direct expenditure pillars below the zero line (in both `% Consumption-Equivalent` on the left axis and `NZD Billions/yr` on the right axis, where `1.0% CE = NZD 2.38B/yr`) against the 11-layer stacked household welfare gains above the zero line:
 
-![Mirror-Image 11-Layer Welfare Gains vs Annual Public Investments](Output_NZ_4Region_Intergen/Fig_7Segment_Welfare_And_MirrorInvestments_Dunedin_22.png)
+![Mirror-Image 11-Layer Welfare Gains vs Annual Public Investments](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_11Layer_Welfare_And_MirrorInvestments_Dunedin_22.png)
 
 - **Below the Zero Line — The Four Annual Public Investment Pillars (`-3.30% CE` = `-NZD 7.86B/yr` Peak in `SS1`; Tapering to `-2.62% CE` = `-NZD 6.24B/yr` in `SS2` as Regional Enterprise Retires the Geographic Transfer):**
   1. **-Inv 1: Universal First-2,000-Days & Farm-to-ECE Wraparound** ($\Delta G_{\mathrm{ece},1}$): **-NZD 3.45B/yr** in *SS1* (`-1.45% CE`), stabilizing at **-NZD 3.21B/yr** in *SS2* (`-1.35% CE`).

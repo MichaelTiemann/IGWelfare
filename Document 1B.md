@@ -648,7 +648,7 @@ At or near the Stone–Geary corner ($`\mathbb{I}(i_c^\star > 0) = 0`$), the mar
 
 For each tier $`m \in \{1, \dots, 10\}`$, total Consumption-Equivalent welfare change ($`\Delta\mathrm{CE}_m`$) is decomposed into **3 Tax & Valuation-Cooling Channels** (House-price cooling $`\Delta Q_k`$, the annual book-value land/wealth levy *τ_a* = 0.015 (1.5%) above the family-home exemption, and the Estate levy $`\tau_b`$) and **4 Economic & Cohesion Gain Channels** (ECE/Rent relief + Youth Grant *E*, the **-3.75 to -4.03 pp *SS2* PAYE cut** + **-60 bps** credit relief, the Firm productive return boost $`\Delta R_k(z_{h,k})`$, and the Social Cohesion / retained-family dividend $`\Delta u_{\mathrm{rel}}`$), reporting separate trajectories for **Active Growth Entrepreneurs** ($`z_f = z_{h,k}`$, 80% operating equity share) versus **Passive Residential Land Hoarders** ($`z_f = z_{\ell,k}`$, 85% passive property share):
 
-![Fiscal Give vs Economic Gain and Net Worth Resilience Across 10 Survey-Anchored Tiers](Output_NZ_4Region_Intergen/Fig_WealthBrackets_2Panel_GiveAndGain_Dunedin_22.png)
+![Fiscal Give vs Economic Gain and Net Worth Resilience Across 10 Survey-Anchored Tiers](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_WealthBrackets_2Panel_GiveAndGain_Dunedin_22.png)
 
 | Survey Tier (`Table17_Survey10Tier_*`) | `Income + Net Worth` | Tax & Cooling (`H+W+E`) | Economic & Cohesion Gain (`ECE+Tax+Firm+S`) | **Tier Avg (CE %)** | **Active** ($`z_{h,k}`$) vs. **Passive** ($`z_{\ell,k}`$) | **Post-Reform Retained Net Worth (`% Base`)** | **After-Tax Cash (`/yr`)** |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -714,7 +714,7 @@ Across the bottom 90% of households (`Tiers 1–5`), net welfare gains are uncon
 
 *Source Files:* [`Table7_4Region_Fertility_Bargaining_TFR.csv`](Output_NZ_4Region_Intergen/Table7_4Region_Fertility_Bargaining_TFR.csv), [`Table8_4Region_Fertility_Struggling_NZSuperTax.csv`](Output_NZ_4Region_Intergen/Table8_4Region_Fertility_Struggling_NZSuperTax.csv), and `Table8B_SuperAge_UCurve_60to75.csv` *(Script: [`FertilityBargaining_Module.m`](FertilityBargaining_Module.m); Figure: [`FigFert_4Region_Bargaining_Solvency.png`](Output_NZ_4Region_Intergen/FigFert_4Region_Bargaining_Solvency.png))*
 
-![4-Region Fertility Bargaining, Whanau Networks & The NZ Super Retirement-Age U-Curve](Output_NZ_4Region_Intergen/FigFert_4Region_Bargaining_Solvency.png)
+![4-Region Fertility Bargaining, Whanau Networks & The NZ Super Retirement-Age U-Curve](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/FigFert_4Region_Bargaining_Solvency.png)
 
 ---
 
@@ -842,9 +842,9 @@ where the time-*t* credibility weight $`\lambda_{\mathrm{cred}}(t)`$ evolves bet
 
 *Source Scripts:* `Plot_Counterfactuals_And_MirrorInvestments.m` and `Plot_Doc3_CoalitionSynergies_And_LTFMSinkhole.m`
 *Output CSVs:* `Table19_Constructive_Synergy_Wedges_Dunedin_22.csv`, `Table20_Annual_MirrorInvestments_Vs_7SegmentWelfare_Dunedin_22.csv`, `Table21_Doc3_LTFM_Sinkhole_Defense_Trajectories_Dunedin_22.csv`, and `Table22_Doc3_2D_Coalition_Complementarity_Matrix_Dunedin_22.csv`
-*Figures:* `Fig_Counterfactual_8Scenarios_SS1_SS2_Dunedin_22.png` and `Fig_7Segment_Welfare_And_MirrorInvestments_Dunedin_22.png`
+*Figures:* `Fig_Counterfactual_8Scenarios_SS1_SS2_Dunedin_22.png` and `Fig_11Layer_Welfare_And_MirrorInvestments_Dunedin_22.png`
 
-![Constructive 11-Layer Synergy Attribution](Output_NZ_4Region_Intergen/Fig_Counterfactual_8Scenarios_SS1_SS2_Dunedin_22.png)
+![Constructive 11-Layer Synergy Attribution](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_Counterfactual_8Scenarios_SS1_SS2_Dunedin_22.png)
 
 #### How the 11-Layer Attribution and 4 Synergy Wedges Are Calculated (`Plot_Counterfactuals_And_MirrorInvestments.m`)
 
