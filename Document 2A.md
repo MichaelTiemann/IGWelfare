@@ -238,7 +238,25 @@ $$
 
 **Calibration of the Gumbel Scale Parameter ($`\rho_G = 0.10`$ in Labrousse & Perdereau, 2025, Table 8 → $`\varrho_{\mathrm{mig}} = 0.180`$ in `Calibrate_NZ_Moments.m`):** In Table 8 (p. 54) of Labrousse and Perdereau (2025), their baseline Gumbel shock scale parameter is calibrated to $`\rho_G = 0.10`$ to match France's 5-year inter-regional stay rate of 85% (3% annual mobility). In our New Zealand model (`Calibrate_NZ_Moments.m`), $`\varrho_{\mathrm{mig}} = 0.180`$ is higher than France's 0.10 because under the 1973 Trans-Tasman Travel Arrangement (TTTA), New Zealand citizens have visa-free labor-market access to Australia and exhibit the highest cross-border skilled mobility rate in the OECD. Calibrating $`\varrho_{\mathrm{mig}}`$ in SMM (Table 6.1, Row 13) to match New Zealand's observed 10.93% national (and 19.29%–23.41% Auckland/Large-city) age 20–35 trans-Tasman/OECD departure rate uniquely pins down $`\varrho_{\mathrm{mig}} = 0.180`$.
 
----
+### 4.4 Convex Transition Operator Mixing for Phased Armada Rollouts (Waiters vs. Active Participants)
+
+When the Phase 1 (`SS1`) reform suite is deployed across 13 annual regional waves (`Document 1D, Section 7` and `Document 2B, Section 7.6`) rather than as an instantaneous Day-1 step shock, at any transition period *t* inside the rollout window a fraction *s*<sub>k,m</sub>(*t*) ∈ {0, 1/3, 2/3, 1} of eligible households in region *k* are **Active Participants** receiving effective delivered policy intensity *G*<sub>k,m</sub><sup>eff</sup>(*t*), while the remaining 1 − *s*<sub>k,m</sub>(*t*) are **Waiters** facing the baseline status-quo intensity *G*<sub>m,0</sub>.
+
+* **1. Avoiding Jensen's Inequality Aggregation Bias on Concave CES & LVR Sub-Manifolds:** A naive representative-input approximation replaces the phased wave with the population-weighted mean parameter *Ḡ*<sub>k,m</sub>(*t*) = (1 − *s*<sub>k,m</sub>(*t*))*G*<sub>m,0</sub> + *s*<sub>k,m</sub>(*t*)*G*<sub>k,m</sub><sup>eff</sup>(*t*) inside the skill production operator (**Section 3.3**) and the age-20 bequest/grant operator (**Section 4.2**). However, because the Stage-2 Cunha–Heckman CES technology exhibits strong dynamic complementarity (φ<sub>2</sub> = −0.95 < 0, σ<sub>2</sub> = 0.513 < 1) and the Kiyotaki et al. (2024) 20% LVR deposit rule (*a*<sub>1</sub> + *E* ≥ 0.20 *Q*<sub>k</sub>) is a non-linear step threshold, evaluating the transition laws at the blended parameter *Ḡ*<sub>k,m</sub>(*t*) violates Jensen's Inequality:
+
+$$
+f_{\mathrm{CES}}\!\Bigl(\theta_c, i_c, \, (1 - s_{k,m}) G_{m,0} + s_{k,m} G_{k,m}^{\mathrm{eff}}\Bigr) > (1 - s_{k,m}) f_{\mathrm{CES}}\!\bigl(\theta_c, i_c, G_{m,0}\bigr) + s_{k,m} f_{\mathrm{CES}}\!\bigl(\theta_c, i_c, G_{k,m}^{\mathrm{eff}}\bigr)
+$$
+
+  Giving 100% of adolescents one-third of a *Tuakana–Teina* mentor or 100% of 20-year-olds one-third of a Youth Capital Grant *E* fails to clear either the harmonic-mean skill bottleneck or the 20% metropolitan deposit cliff; whereas giving one-third of the cohort full wraparound mentoring and the full grant lifts that one-third cleanly across the threshold while leaving the waiting two-thirds on the baseline trajectory until their wave arrives.
+
+* **2. Dimension-Free Isomorphism via Convex Operator Mixing (`Build_IntergenTransitionMatrix.m`):** Adding an explicit binary state variable ω ∈ {0 (Waiter), 1 (Active)} to the household state vector (*a*, *h*, θ<sub>c</sub>, *z*, ω, *j*) would double the size of all value, policy, and stationary distribution tensors (`61 × 7 × 9 × 7 × 2 × J`). Instead, by linearity of the Perron–Frobenius push-forward operator, `Build_IntergenTransitionMatrix.m` evaluates the pure **Active Participant transition kernel** **T**<sub>k</sub><sup>Active</sup>(*G*<sub>k,m</sub><sup>eff</sup>(*t*)) (`pdf_5D_act` and `Prob_a_act`) and the pure **Waiter transition kernel** **T**<sub>k</sub><sup>Waiter</sup>(*G*<sub>m,0</sub>) (`pdf_5D_wait` and `Prob_a_wait`) separately on the GPU and mixes their resulting probability measures:
+
+$$
+\mathbf{T}_{k,t}^{\mathrm{Mix}} = \bigl(1 - s_{k,m}(t)\bigr) \, \mathbf{T}_{k}^{\mathrm{Waiter}}\!\bigl(G_{m,0}\bigr) + s_{k,m}(t) \, \mathbf{T}_{k}^{\mathrm{Active}}\!\bigl(G_{k,m}^{\mathrm{eff}}(t)\bigr)
+$$
+
+  This convex combination of pure operators reproduces the exact cross-sectional marginal distribution of the augmented state space (*a*, *h*, θ<sub>c</sub>, *z*, ω) on the existing grid (`n_a = [61, 7, 9]`, `n_z = 7`) at **zero additional GPU memory or Bellman iteration cost**.
 
 ---
 

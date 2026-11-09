@@ -372,6 +372,33 @@ $$
 
 Because the vertical thickness at every horizontal station $\tau \in \left\lbrack 0, 1 \right\rbrack$ satisfies $y_{\mathrm{top}}\left(\tau\right) - y_{\mathrm{bot}}\left(\tau\right) = \left(1 - s\left(\tau\right)\right) H_L + s\left(\tau\right) H_R > 0$, every web SVG `<path>` is strictly non-self-intersecting, smooth, and 10x smaller in file size, while supporting interactive click inspection, collision-avoiding narrative callout placement, and 2-level (`Gate -> Block`) keyboard arrow-key traversal.
 
+## 7.6 The 13-Wave Armada Schedule, Coase–North Commissioning Friction, Lucas–Hayashi Adjustment Costs, & Arrow–Deming Learning (`Configure_TimeGrid_Params.m` & `Plot_Doc1D_ArmadaSequencing.m`)
+
+To evaluate realistic implementation constraints alongside the Decadal Orbital Launch Windows in **Document 1D**, Section 8 of `Configure_TimeGrid_Params.m` and `Plot_Doc1D_ArmadaSequencing.m` parameterize three operational frictions governing the deployment of program *m* ∈ {ECE<sub>1</sub>, Mentor<sub>2</sub>, Grant<sub>E</sub>, Elec<sub>ē</sub>} across region *k* ∈ {Rural, Small, Large, Auckland}:
+
+1. **Coase–North Commissioning Friction (τ<sub>fric</sub>(*t*)) & Arrow (1962) / Deming (1986) Inter-Wave Learning (γ<sub>learn</sub> = 0.45):** Let *L*<sub>m</sub>(*t* − 1) = ∑<sub>τ=1</sub><sup>t−1</sup> ∑<sub>k'</sub> ω<sub>k'</sub> *s*<sub>k',m</sub>(τ) denote cumulative national operational experience accumulated across prior regional waves up to year *t* − 1. Commissioning overhead decays exponentially from its Day-1 uncalibrated level τ<sub>fric,0</sub> = 0.280 toward the mature *Whānau Ora* high-trust floor τ<sub>fric,min</sub> = 0.035 as vanguard waves debug contracting, curriculum translation, and IDI data-sharing protocols.
+2. **Lucas (1967) / Hayashi (1982) Quadratic Workforce Bottleneck Penalty (φ<sub>adj</sub> = 0.18):** Attempting to hire and certify Δ*s*<sub>k,m</sub>(*t*) of a region's *kaiako* and *Tuakana* mentoring workforce in a single year against an inelastic 3-year tertiary training pipeline imposes a quadratic surge penalty φ<sub>adj</sub>(Δ*s*<sub>k,m</sub>(*t*))<sup>2</sup>.
+3. **Consecutive Front-Loading of Electrification Grants (`ebar_elec_relief_share = [0.28, 0.25, 0.18, 0.14]`):** Because `Rural` (*ē*<sub>k</sub> = 0.048) and `Small` (*ē*<sub>k</sub> = 0.036) households face mandatory transport and energy subsistence floors 2.25× to 3.00× higher than `Auckland` (*ē*<sub>k</sub> = 0.016) while `Large` and `Auckland` possess deep private home-equity capital for early adopters to self-fund electrification, public *Rewiring Aotearoa* grants [Ref 46] are deployed in **three consecutive waves to `Rural + Small` first (`Waves 1–3`, reaching 100% provincial coverage at Year 3)**, then **`Large` (`Waves 4–6`)**, and finally **`Auckland` (`Waves 7–9`)**.
+
+Combining local adoption maturation (1 − δ<sub>adopt</sub> *e*<sup>−λ<sub>adopt</sub>(*t* − *t*<sub>k,m</sub><sup>0</sup>)</sup>), inter-wave learning, and quadratic bottleneck relief yields the **Effective Delivery Multiplier** η<sub>k,m</sub>(*t*) ∈ (0, 1] applied to the statutory reform increments in `Configure_TimeGrid_Params.m` and `WelfareDecomposition_4Region.m`:
+
+$$\eta_{k,m}(t) = \bigl(1 - \delta_{\mathrm{adopt}} e^{-\lambda_{\mathrm{adopt}}(t - t_{k,m}^0)}\bigr) \cdot \left[1 - \tau_{\mathrm{fric},\min} - \bigl(\tau_{\mathrm{fric},0} - \tau_{\mathrm{fric},\min}\bigr) e^{-\gamma_{\mathrm{learn}} \mathcal{L}_m(t-1)}\right] \cdot \left[1 - \phi_{\mathrm{adj}} \bigl(\Delta s_{k,m}(t)\bigr)^2\right]$$
+
+| **`Params` Field Name** | **Symbol** | **Calibrated Value** | **Structural Role in `Configure_TimeGrid_Params.m` & `WelfareDecomposition_4Region.m`** |
+| :--- | :---: | :---: | :--- |
+| `Params.Rollout_Mode` | — | `'Armada'` | Toggles `'Armada'` (13-Wave phased rollout), `'SingleShot'` (penalized Day-1 step shock), or `'Frictionless_Textbook'`. |
+| `Params.tau_friction_0` | τ<sub>fric,0</sub> | `0.280` | Day-1 uncalibrated commissioning overhead before inter-wave PDSA learning (`Document 1B, Section 2.4.1`). |
+| `Params.tau_friction_floor` | τ<sub>fric,min</sub> | `0.035` | Mature *Whānau Ora* / high-trust asymptotic commissioning friction floor. |
+| `Params.gamma_learning` | γ<sub>learn</sub> | `0.450` | Arrow–Deming inter-wave learning elasticity wrt cumulative wave experience *L*<sub>m</sub>(*t* − 1). |
+| `Params.phi_adj_bottleneck` | φ<sub>adj</sub> | `0.180` | Quadratic workforce surge penalty on (Δ*s*<sub>k,m</sub>)<sup>2</sup> (`0.18` for Single-Shot Δ*s* = 1 vs. `0.02` for Armada Δ*s* = 1/3, an **88.9% reduction**). |
+| `Params.delta_adopt_ece` | δ<sub>adopt</sub> | `0.220` | Initial local cohort adoption lag amplitude upon wave activation (*t* = *t*<sub>k,m</sub><sup>0</sup>), converging at rate `lambda_adopt_ece = 0.350`/yr. |
+| `Params.ebar_elec_relief_share` | Δ*ē*<sub>elec,k</sub> | `[0.28, 0.25, 0.18, 0.14]` | Net compression of mandatory `ebar_energy` from *Rewiring Aotearoa* electrification grants across `[Rural, Small, Large, Auckland]` [Ref 46]. |
+| `Params.eta_delivery_SS1` | η<sub>k</sub><sup>SS1</sup> | `[0.955, 0.955, 0.962, 0.968]` (`Armada`)<br>`[0.835, 0.825, 0.810, 0.795]` (`1Shot`) | Time-averaged Phase 1 delivery yield (`SingleShot` suffers an ~18.5% implementation haircut; `Armada` recovers >96% yield via PDSA learning). |
+| `Params.eta_delivery_SS2` | η<sub>k</sub><sup>SS2</sup> | `[0.985, 0.985, 0.988, 0.990]` (`Armada`)<br>`[0.910, 0.905, 0.895, 0.885]` (`1Shot`) | Time-averaged Phase 2 delivery yield in `SS2`. |
+| `Params.s_active_ece_vec` | *s*<sub>k,ece</sub>(*t*) | `{0, 1/3, 2/3, 1}` | Active regional coverage share for Dual-Gate ECE & Mentoring (Waves 1–9), driving convex operator mixing in `Build_IntergenTransitionMatrix.m`. |
+| `Params.s_active_ygr_vec` | *s*<sub>k,ygr</sub>(*t*) | `{0, 1/3, 2/3, 1}` | Active regional coverage share for Age-20 Youth Grant *E* (Waves 7–13, launching in Year 7 as Wave-1 adolescent mentees turn Age 20). |
+| `Params.s_active_elec_vec` | *s*<sub>k,elec</sub>(*t*) | `{0, 1/3, 2/3, 1}` | Active regional coverage share for Electrification Grants (`Rural+Small` Waves 1–3, `Large` Waves 4–6, `Auckland` Waves 7–9). |
+
 ```text
 +-----------------------------------------------------------------------------------+
 |                                                                                   |
@@ -412,6 +439,8 @@ Because the vertical thickness at every horizontal station $\tau \in \left\lbrac
 | **20** | `Plot_WealthBracket_GiveAndGain.m` | Evaluates distributional welfare incidence (3 Fiscal Give Channels vs. 4 Economic Gain Channels, Active Entrepreneur vs. Passive Land Hoarder, and Retained Net Worth) across 10 survey-anchored `Earn + Own` tiers (`Table 17`) |
 | **21** | `exportSankeyToHTML.m` | Exports live MATLAB `SSankey` axes into standalone, zero-dependency interactive HTML5 + SVG web diagrams (`Interactive_ChildFates_*.html`, `Interactive_ChildFiscal_*.html`) with cosine-S-curve ribbon geometry |
 | **22** | `Plot_Doc3_CoalitionSynergies_And_LTFMSinkhole.m` | Renders the 3D LTFM Fiscal Sinkhole & +3%-GDP Defense Cost-Sheet Shock Surface, 60-year Two-Term "Stop-Go" Perishability trajectories (`Table 21`), and the 4 × 4 Coalition Complementarity Matrix (`Table 22`) for [Document 3](Document%203.md) |
+| **23** | `Plot_Doc1D_LaunchPlans.m` | Evaluates the three Decadal Orbital Launch Windows for `SS2` (**Plan A: Year 25 → Year 60**, **Plan B: Year 20 Cash-Breakeven → Year 50**, and **Plan C: Year 15 "We Got This!" → Year 40/45.9**), exporting `Table22_Doc1D_LaunchPlans_OrbitalComparison_<Anchor>.csv` and `Fig_Doc1D_*` for **[Document 1D](Document%201D.md)** |
+| **24** | `Plot_Doc1D_ArmadaSequencing.m` | Models the **13-Wave Armada Phased Rollout (`Years 1–13`)**, consecutive `Rural + Small → Large → Auckland` electrification waves, convex workforce adjustment costs ($\phi_{\mathrm{adj}}$), and inter-wave learning curves ($\gamma_{\mathrm{learn}}$), exporting `Table23_Doc1D_13Wave_Armada_Schedule_<Anchor>.csv`, `Table24_Doc1D_Armada_Vs_SingleShot_Trajectory_<Anchor>.csv`, and `Fig_Doc1D_13Wave_*` / `Fig_Doc1D_Armada_Vs_SingleShot_*` |
 
 ---
 

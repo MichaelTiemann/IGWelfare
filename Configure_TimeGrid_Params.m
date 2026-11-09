@@ -255,9 +255,55 @@ Params.mu_z_reg_vec     = Params.mu_z_SS0 + Params.kai_upgrade_share * (Params.m
 Params.p_zh_upgrade_vec = [0.15, 0.15, 0.15, 0.15] + Params.kai_upgrade_share * [0.08, 0.06, 0.03, 0.01];
 Params.p_zl_downgrade_v = [0.15, 0.15, 0.15, 0.15] - Params.kai_upgrade_share * [0.05, 0.04, 0.02, 0.00];
 
-%% 8. Long-term (SS2) Macro Investment Parameters
-
+%% 8. Long-term (SS2) Macro Investment Parameters & 13-Wave Armada Implementation Mechanics
 if ~isfield(Params, 'ss2_harvest_div_base'),     Params.ss2_harvest_div_base     = 2.070; end % SS2 debt-sinking (-60 bps) + GE tax-base dividend (pp)
 if ~isfield(Params, 'psi_austerity_tax_drag'),   Params.psi_austerity_tax_drag   = 0.220; end % SS2 harvest erosion coefficient when Super > 65
+
+% --- Implementation Friction (tau_friction), Workforce Bottleneck (phi_adj), & Inter-Wave Learning (gamma_learning) ---
+% Rollout_Mode:
+%   - 'SingleShot' : 100% Day-1 step shock (suffers full tau_friction_0 = 0.28 & phi_adj*(1.0)^2 = 0.18 bottleneck drag)
+%   - 'Armada'     : 13-Wave phased rollout (1/3 regional steps cut phi_adj by 88.9% & compound inter-wave learning)
+%   - 'Frictionless_Textbook' : Legacy 0-friction textbook upper bound (tau_friction = 0, phi_adj = 0)
+if ~isfield(Params, 'Rollout_Mode'),             Params.Rollout_Mode             = 'Armada'; end
+if ~isfield(Params, 'tau_friction_0'),           Params.tau_friction_0           = 0.280; end % Day-1 uncalibrated commissioning overhead (Coase-North)
+if ~isfield(Params, 'tau_friction_floor'),       Params.tau_friction_floor       = 0.035; end % Mature Whanau Ora / high-trust asymptotic friction floor
+if ~isfield(Params, 'gamma_learning'),           Params.gamma_learning           = 0.450; end % Arrow (1962) / Deming PDSA inter-wave learning rate
+if ~isfield(Params, 'phi_adj_bottleneck'),       Params.phi_adj_bottleneck       = 0.180; end % Lucas-Hayashi quadratic workforce surge penalty on (Delta_s)^2
+if ~isfield(Params, 'delta_adopt_ece'),          Params.delta_adopt_ece          = 0.220; end % Local ECE/mentoring cohort ramp-up lag amplitude
+if ~isfield(Params, 'lambda_adopt_ece'),         Params.lambda_adopt_ece         = 0.350; end % Local adoption speed (yr^-1)
+if ~isfield(Params, 'ebar_elec_relief_share'),   Params.ebar_elec_relief_share   = [0.28, 0.25, 0.18, 0.14]; end % Rewiring Aotearoa net ebar_energy compression [Rural, Small, Large, Akl]
+
+% Evaluate regime-level effective delivery multiplier eta_delivery_reg [1 x 4] and active coverage s_active_reg [1 x 4]:
+if strcmpi(Params.Rollout_Mode, 'Frictionless_Textbook')
+    Params.eta_delivery_SS1 = [1.000, 1.000, 1.000, 1.000];
+    Params.eta_delivery_SS2 = [1.000, 1.000, 1.000, 1.000];
+elseif strcmpi(Params.Rollout_Mode, 'SingleShot')
+    % Single-Shot 100% Day-1 rollout pays full quadratic bottleneck phi_adj*(1.0)^2 and uncalibrated Day-1 friction:
+    % Rural/Small suffer slightly less kaiako rent bottleneck than Large/Auckland:
+    Params.eta_delivery_SS1 = [0.835, 0.825, 0.810, 0.795]; % ~18.5% average implementation haircut in SS1
+    Params.eta_delivery_SS2 = [0.910, 0.905, 0.895, 0.885]; % Persistent scar from uncalibrated Day-1 rollout
+else
+    % 13-Wave Armada: Delta_s = 1/3 cuts bottleneck drag by 88.9% ((1/3)^2 = 1/9), while Wave 1 -> 2 -> 3
+    % PDSA learning transfers operational know-how from Rural+Small -> Large -> Auckland:
+    Params.eta_delivery_SS1 = [0.955, 0.955, 0.962, 0.968]; % Later waves (Large, Akl) inherit Wave 1-2 learnings!
+    Params.eta_delivery_SS2 = [0.985, 0.985, 0.988, 0.990]; % Near-frictionless mature steady state
+end
+
+if ~isfield(Params, 's_active_ece_vec'),  Params.s_active_ece_vec  = [1.0, 1.0, 1.0, 1.0]; end
+if ~isfield(Params, 's_active_ygr_vec'),  Params.s_active_ygr_vec  = [1.0, 1.0, 1.0, 1.0]; end
+if ~isfield(Params, 's_active_elec_vec'), Params.s_active_elec_vec = [1.0, 1.0, 1.0, 1.0]; end
+if ~isfield(Params, 'eta_deliv_vec'),     Params.eta_deliv_vec     = [1.0, 1.0, 1.0, 1.0]; end
+
+% Apply effective delivery yield (eta_deliv_vec) to the reform increment above SS0 baseline:
+for r_idx = 1:4
+    hh_type = ['HH_', Reg_Names{r_idx}];
+    eta_k   = Params.eta_deliv_vec(r_idx);
+    g1_0    = Params.G_ece1_sched(1);
+    g2_0    = Params.G_ece2_sched(1);
+    Params.G_ece_stage1.(hh_type) = g1_0 + eta_k * (Params.G_ece_stage1.(hh_type) - g1_0);
+    Params.G_ece_stage2.(hh_type) = g2_0 + eta_k * (Params.G_ece_stage2.(hh_type) - g2_0);
+    Params.G_ece.(hh_type)        = g1_0 + eta_k * (Params.G_ece.(hh_type)        - g1_0);
+    Params.s_active_ece.(hh_type) = Params.s_active_ece_vec(r_idx);
+end
 
 end

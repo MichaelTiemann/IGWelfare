@@ -157,30 +157,56 @@ for r_idx = 1:N_reg
         Diag.ResidualAHCShare.(reg)    = gather(sum(Dist_Fert .* w_ahc_az, 'all') / parent_mass);
 
         % 4D Compact Skill Transition: two-tier convex d_grid_ic stress & Adolescent lambda_psy hazard
+        % Supports exact non-linear [Waiter vs. Active Participant] cohort mixing for 13-Wave Armada:
         g_ece_k      = Params.G_ece.(hh_type);
         g_ece2_k     = Params.G_ece_stage2.(hh_type);
-        M_mentor     = min(1.0, max(0.0, (g_ece2_k - Params.G_ece1_sched(1)) / (Params.G_ece2_sched(2) - Params.G_ece1_sched(1))));
+        s_act_k      = 1.0;
+        if isfield(Params, 's_active_ece') && isfield(Params.s_active_ece, hh_type)
+            s_act_k  = min(1.0, max(0.0, Params.s_active_ece.(hh_type)));
+        end
 
+        % --- A. Active Participant Cohort Transition (Share = s_act_k) ---
+        M_mentor     = min(1.0, max(0.0, (g_ece2_k - Params.G_ece1_sched(1)) / (Params.G_ece2_sched(2) - Params.G_ece1_sched(1))));
         is_stress_4D = double(ic_4D < 0.005) + 0.55 .* double((ic_4D >= 0.005) & (ic_4D < 0.035));
         M_trust_k    = M_mentor * (0.45 + 0.55 * min(1.0, K_reg / 0.35));
         lambda_psy_k = max(0.22 * 0.38, 0.22 * (1.0 - 0.52 * M_trust_k) * (1.0 - 0.35 * min(1.0, K_reg / 0.38)));
         comp_load_4D = is_stress_4D + lambda_psy_k .* (1.0 + 0.65 .* is_stress_4D);
         unbuf_mult_k = max(0.38 * lambda_psy_k, (1.0 - 0.80 * M_trust_k) * (1.0 - 0.55 * K_reg));
 
-        stress_pen = 0.038 .* comp_load_4D .* unbuf_mult_k;
-        ece_lift   = 0.55 * (g_ece_k - Params.G_ece1_sched(1)) + 0.04 * (M_mentor - 0.50) + 0.12 * dK_reg;
-        hp_eff_4D  = h_G .* (1.0 + 0.15 * dK_reg);
+        stress_pen   = 0.038 .* comp_load_4D .* unbuf_mult_k;
+        ece_lift     = 0.55 * (g_ece_k - Params.G_ece1_sched(1)) + 0.04 * (M_mentor - 0.50) + 0.12 * dK_reg;
+        hp_eff_4D    = h_G .* (1.0 + 0.15 * dK_reg);
 
-        log_h_mean = Params.rho_hc_ig .* log(hp_eff_4D) ...
+        log_h_act    = Params.rho_hc_ig .* log(hp_eff_4D) ...
             + Params.gamma_ic .* log(0.82 + 1.15 * (ic_4D + g_ece_k + 0.020 * dK_reg)) ...
             + ece_lift - stress_pen + reg_skill_drift(r_idx) - crowd_G;
 
-        pdf_5D = exp(-0.5 .* ((log_h_dst - log_h_mean) ./ 0.24).^2);
-        pdf_5D = pdf_5D ./ sum(pdf_5D, 5);
+        pdf_5D_act   = exp(-0.5 .* ((log_h_dst - log_h_act) ./ 0.24).^2);
+        pdf_5D_act   = pdf_5D_act ./ sum(pdf_5D_act, 5);
+
+        if s_act_k < 0.999
+            % --- B. Waiter Cohort Transition (Share = 1 - s_act_k, at baseline G_ece_SS0) ---
+            g_ece0       = Params.G_ece1_sched(1);
+            M_trust_0    = 0.173 * (0.45 + 0.55 * min(1.0, K_reg / 0.35));
+            lam_psy_0    = max(0.22 * 0.38, 0.22 * (1.0 - 0.52 * M_trust_0) * (1.0 - 0.35 * min(1.0, K_reg / 0.38)));
+            comp_load_0  = is_stress_4D + lam_psy_0 .* (1.0 + 0.65 .* is_stress_4D);
+            unbuf_mult_0 = max(0.38 * lam_psy_0, (1.0 - 0.80 * M_trust_0) * (1.0 - 0.55 * K_reg));
+            stress_pen_0 = 0.038 .* comp_load_0 .* unbuf_mult_0;
+            ece_lift_0   = 0.04 * (0.173 - 0.50) + 0.12 * dK_reg;
+
+            log_h_wait   = Params.rho_hc_ig .* log(hp_eff_4D) ...
+                + Params.gamma_ic .* log(0.82 + 1.15 * (ic_4D + g_ece0 + 0.020 * dK_reg)) ...
+                + ece_lift_0 - stress_pen_0 + reg_skill_drift(r_idx) - crowd_G;
+            pdf_5D_wait  = exp(-0.5 .* ((log_h_dst - log_h_wait) ./ 0.24).^2);
+            pdf_5D_wait  = pdf_5D_wait ./ sum(pdf_5D_wait, 5);
+
+            pdf_5D       = s_act_k .* pdf_5D_act + (1.0 - s_act_k) .* pdf_5D_wait;
+        else
+            pdf_5D       = pdf_5D_act;
+        end
 
         Prob_h_child = squeeze(gather(sum(Dist_Fert .* pdf_5D, [1, 2, 3, 4]))) / gather(parent_mass);
         Prob_h_child = Prob_h_child(:) / sum(Prob_h_child(:));
-
         Diag.MeanTheta3.(reg) = Prob_h_child(:)' * h_vec(:);
         Diag.MeanTheta2.(reg) = 0.92 * Diag.MeanTheta3.(reg);
     end
@@ -190,17 +216,32 @@ for r_idx = 1:N_reg
     beq_mass   = max(1e-12, gather(sum(Dist_Ret, 'all')));
     ap_idx_4D  = max(1, min(n_a1, round(Pol_k(4, :, :, :, retire_j))));
     ap_val_4D  = reshape(a_G(ap_idx_4D(:)), size(Dist_Ret));
-
     a_exempt   = 1.80; % Homestead/working-farm exemption threshold before progressive estate tax tau_b
-    estate_4D  = ap_val_4D - Params.tau_b .* max(0, ap_val_4D - a_exempt) + Params.YouthGrant;
+
+    s_ygr_k    = 1.0;
+    if isfield(Params, 's_active_ygr_vec') && numel(Params.s_active_ygr_vec) >= r_idx
+        s_ygr_k = min(1.0, max(0.0, Params.s_active_ygr_vec(r_idx)));
+    end
+    yg_base    = Params.YouthGrant_sched(1);
+    yg_eff_k   = yg_base + s_ygr_k * (Params.YouthGrant - yg_base);
+
+    estate_4D  = ap_val_4D - Params.tau_b .* max(0, ap_val_4D - a_exempt) + yg_eff_k;
     total_beq_val = gather(sum(Dist_Ret .* estate_4D, 'all'));
 
-    possible_estates = a_vec(:) - Params.tau_b * max(0, a_vec(:) - a_exempt) + Params.YouthGrant;
-    [~, map_ap_to_achild] = min(abs(possible_estates - a_vec(:)'), [], 2);
-    a_child_idx_flat = map_ap_to_achild(gather(ap_idx_4D(:)));
+    ap_flat_cpu = gather(ap_idx_4D(:));
+    dist_ret_cpu = gather(Dist_Ret(:));
+    possible_est_act = a_vec(:) - Params.tau_b * max(0, a_vec(:) - a_exempt) + Params.YouthGrant;
+    [~, map_act]     = min(abs(possible_est_act - a_vec(:)'), [], 2);
+    Prob_a_act       = accumarray(map_act(ap_flat_cpu), dist_ret_cpu, [n_a1, 1]) / beq_mass;
 
-    Prob_a_child = accumarray(a_child_idx_flat, gather(Dist_Ret(:)), [n_a1, 1]);
-    Prob_a_child = Prob_a_child / beq_mass;
+    if s_ygr_k < 0.999
+        possible_est_wait = a_vec(:) - Params.tau_b * max(0, a_vec(:) - a_exempt) + yg_base;
+        [~, map_wait]     = min(abs(possible_est_wait - a_vec(:)'), [], 2);
+        Prob_a_wait       = accumarray(map_wait(ap_flat_cpu), dist_ret_cpu, [n_a1, 1]) / beq_mass;
+        Prob_a_child      = s_ygr_k * Prob_a_act + (1.0 - s_ygr_k) * Prob_a_wait;
+    else
+        Prob_a_child      = Prob_a_act;
+    end
 
     stat_z = (double(gather(pi_z.(hh_type)))^50)';
     stat_z = stat_z(:, 1);
