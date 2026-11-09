@@ -157,7 +157,7 @@ for r_idx = 1:N_reg
         Diag.ResidualAHCShare.(reg)    = gather(sum(Dist_Fert .* w_ahc_az, 'all') / parent_mass);
 
         % 4D Compact Skill Transition: two-tier convex d_grid_ic stress & Adolescent lambda_psy hazard
-        % Supports exact non-linear [Waiter vs. Active Participant] cohort mixing for 13-Wave Armada:
+        % Supports exact non-linear [Waiter vs. Active Participant] cohort mixing for 13-Wave Te Kāhui Waka:
         g_ece_k      = Params.G_ece.(hh_type);
         g_ece2_k     = Params.G_ece_stage2.(hh_type);
         s_act_k      = 1.0;

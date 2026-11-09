@@ -149,7 +149,7 @@ for m = 1:M_reforms
     mean_eta_m      = sum(P_PE.eta_deliv_vec(:) .* [0.160; 0.240; 0.259; 0.341]);
     yg0             = Params_SS0.YouthGrant_sched(1);
     % In SingleShot, Years 1-6 hand YouthGrant to unmentored SS0-skill cohorts (22% skill-mismatch dissipation);
-    % in Armada, Wave 7 (Yr 7) synchronizes YouthGrant with Gate-3 mentored graduates (0% skill-mismatch waste):
+    % in Te Kāhui Waka, Wave 7 (Yr 7) synchronizes YouthGrant with Gate-3 mentored graduates (0% skill-mismatch waste):
     if strcmpi(Params_SS0.Rollout_Mode, 'SingleShot') && (m == 1)
         eta_ygr_skill = 0.78 * mean_eta_m;
     else

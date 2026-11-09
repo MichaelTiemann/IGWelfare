@@ -25,7 +25,53 @@ if ~exist(OutputDir, 'dir'), mkdir(OutputDir); end
 % =========================================================================
 % 1. SYNC EXACT CONVERGED SS1 & SS2 TOTALS FROM WORKSPACE T1 (NO DRIFT)
 % =========================================================================
-Pop_Weights    = [0.160, 0.240, 0.259, 0.341]; % [Rural, Small, Large, Auckland]
+% Pull canonical population weights & 5-column Te Kāhui Waka schedules from Single Source of Truth:
+if ~isfield(Params, 'Kahui_ECE_13x5')
+    Params = Configure_TimeGrid_Params(Params);
+end
+Pop_Weights = Params.Pop_Weights_4; % [0.160, 0.240, 0.259, 0.341]
+Waves_13    = Params.Waves_13;
+yr_w_grid   = [0; Waves_13; 25; 60];
+
+% Re-use canonical Params.Target_Region / Params.Target_Regions selector:
+Reg_List_4     = {'Rural', 'Small', 'Large', 'Auckland'};
+target_reg_str = 'National';
+if isfield(Params, 'Target_Region') && ~isempty(Params.Target_Region)
+    if iscell(Params.Target_Region), target_reg_str = Params.Target_Region{1};
+    else, target_reg_str = char(Params.Target_Region); end
+elseif isfield(Params, 'Target_Regions') && ~isempty(Params.Target_Regions)
+    if iscell(Params.Target_Regions) && numel(Params.Target_Regions) == 1
+        target_reg_str = Params.Target_Regions{1};
+    elseif ischar(Params.Target_Regions) || isstring(Params.Target_Regions)
+        target_reg_str = char(Params.Target_Regions);
+    end
+end
+
+r_sel = find(strcmpi(target_reg_str, Reg_List_4), 1);
+if ~isempty(r_sel)
+    Plot_Reg_Tag   = Reg_List_4{r_sel};
+    Traj_SS1_11    = SS1_11x4(:, r_sel);
+    Traj_SS2_11    = SS2_11x4(:, r_sel);
+    Traj_SS1_Total = SS1_Target_Reg(r_sel);
+    Traj_SS2_Total = SS2_Target_Reg(r_sel);
+    sh_ygr_base0   = Params.sh_ygr_base0_vec(r_sel);
+    ECE_13_Pct     = 100.0 * Params.Kahui_ECE_13x4(:, r_sel);
+    YGr_New_Pct    = 100.0 * Params.Kahui_YGr_New_13x4(:, r_sel);
+    YGr_Tot_Pct    = 100.0 * Params.Kahui_YGr_Tot_13x4(:, r_sel);
+    Elc_13_Pct     = 100.0 * Params.Kahui_Elc_13x4(:, r_sel);
+else
+    r_sel          = 0; % 0 = National Population-Weighted Aggregate (Default)
+    Plot_Reg_Tag   = 'National';
+    Traj_SS1_11    = SS1_Nat_11;
+    Traj_SS2_11    = SS2_Nat_11;
+    Traj_SS1_Total = SS1_Nat_Total;
+    Traj_SS2_Total = SS2_Nat_Total;
+    sh_ygr_base0   = Params.sh_ygr_base0_nat;
+    ECE_13_Pct     = Params.Nat_ECE_13_Pct;
+    YGr_New_Pct    = Params.Nat_YGr_New_13_Pct;
+    YGr_Tot_Pct    = Params.Nat_YGr_Tot_13_Pct;
+    Elc_13_Pct     = Params.Nat_Elc_13_Pct;
+end
 SS1_Target_Reg = [11.945, 13.739, 14.888, 17.515];
 SS2_Target_Reg = [20.628, 22.984, 24.574, 27.913];
 
@@ -237,124 +283,135 @@ writetable(T19, csv19);
 fprintf('  -> Exported Table 19 (11-Layer Constructive Synergy Attribution) to: %s\n', csv19);
 
 % =========================================================================
-% 3. BUILD WAVE-CONVOLVED ARMADA & SINGLE-SHOT COHORT TRAJECTORIES (YEARS -10 TO +60)
+% 3. RESOLVE TARGET AUDIENCE ('Rural'|'Small'|'Large'|'Auckland'|'National')
+%    & VECTORIZE WAVE-CONVOLVED TE KĀHUI WAKA TRAJECTORIES (0 LOOPS!)
 % =========================================================================
-Yr_Grid        = (-10:0.5:60)';
-n_yr           = numel(Yr_Grid);
-Traj_11        = zeros(n_yr, 11); % Primary Wave-Convolved Armada Trajectory (plotted in Panel A & Right Half-Bars)
-Traj_11_1Shot  = zeros(n_yr, 11); % Counterfactual Single-Shot Step Trajectory (plotted in Left Half-Bars of Mirror Graph)
-
-% 13-Wave National Active Shares across Years 1..13 (for exact SS1 wave gating & SS2 wave convolution):
-Waves_13   = (1:13)';
-w_RS = 0.400; w_Lrg = 0.259; w_Akl = 0.341;
-ECE_13_Pct = 100 * (w_RS*[1,1,1,2,2,2,3,3,3,3,3,3,3]' + w_Lrg*[0,1,1,1,2,2,2,3,3,3,3,3,3]' + w_Akl*[0,0,1,1,1,2,2,2,3,3,3,3,3]') / 3.0;
-YGr_13_Pct = 100 * (w_RS*[0,0,0,0,0,0,1,1,1,2,2,2,3]' + w_Lrg*[0,0,0,0,0,0,0,1,1,1,2,2,3]' + w_Akl*[0,0,0,0,0,0,0,0,1,1,1,2,3]') / 3.0;
-Elc_13_Pct = 100 * (w_RS*[1,2,3,3,3,3,3,3,3,3,3,3,3]' + w_Lrg*[0,0,0,1,2,3,3,3,3,3,3,3,3]' + w_Akl*[0,0,0,0,0,0,1,2,3,3,3,3,3]') / 3.0;
-yr_w_grid  = [0; Waves_13; 25; 60];
-
-for i = 1:n_yr
-    y = Yr_Grid(i);
-    if y < 0
-        % Pre-launch cohorts (y < 0): tiny exponential anticipation tail near 0
-        w_pre     = 0.04 * exp(y / 2.5);
-        w_pre_vec = [0.5*w_pre, 0.0, 0.0, w_pre, 0.0, w_pre, 0.0, 0.0, 0.5*w_pre, 0.0, 0.0];
-        Traj_11(i, :)       = (SS1_Nat_11') .* w_pre_vec;
-        Traj_11_1Shot(i, :) = (SS1_Nat_11') .* (2.5 * w_pre_vec);
-    else
-        y1        = min(y, 25.0);
-        % --- A. Single-Shot Step Trajectory (Has Hockey-Stick Kinks at Yr 0 and Yr 25) ---
-        w_iso     = 0.22 + 0.78 * (1 - exp(-y1 / 8.0));
-        ramp_in   = 1 - 0.35 * exp(-y1 / 2.5);
-        retire_w1 = 1 ./ (1 + exp(-(y1 - 15.0) / 4.0));
-        w_geo     = ramp_in * (1 - 0.55 * retire_w1);
-        w_wed1    = 1 ./ (1 + exp(-(y1 - 11.0) / 4.2));
-        w_wed2    = 1 ./ (1 + exp(-(y1 - 9.0)  / 4.0));
-        w_wed3    = 1 ./ (1 + exp(-(y1 - 16.0) / 4.0));
-        row_1s    = (SS1_Nat_11') .* [w_iso, w_iso, w_wed1, w_iso, w_iso, w_geo, w_wed2, w_wed3, 0.5*w_iso, 0.0, w_wed3];
-        row_1s(8) = row_1s(8) + max(0.0, w_iso - w_geo) * SS1_Nat_11(6);
-        if y >= 25
-            w_ss2     = 1 - exp(-(y - 25.0) / 8.5);
-            w_inv2    = 1 - exp(-(y - 25.0) / 5.0);
-            d_ss2     = SS2_Nat_11' - row_1s;
-            row_1s    = row_1s + w_ss2 * d_ss2;
-            row_1s(6) = row_1s(6) + (w_inv2 - w_ss2) * d_ss2(6);
-            row_1s(8) = row_1s(8) - (w_inv2 - w_ss2) * d_ss2(6);
-        end
-        Traj_11_1Shot(i, :) = row_1s;
-
-        % --- B. Wave-Convolved 13-Wave Armada Trajectory (Smooth S-Curves, Zero Hockey-Stick Kinks!) ---
-        % 1. SS1 Wave Convolution: Convolve each of the 13 annual wave steps (w_k = 1..13) with local cohort adoption
-        w_arm_ece = 0.0;
-        w_arm_ygr = 0.0;
-        w_arm_elc = 0.0;
-        for w_k = 1:13
-            dw_e = (ECE_13_Pct(w_k) - (w_k > 1)*ECE_13_Pct(max(1, w_k-1))) / 100.0;
-            dw_y = (YGr_13_Pct(w_k) - (w_k > 1)*YGr_13_Pct(max(1, w_k-1))) / 100.0;
-            dw_l = (Elc_13_Pct(w_k) - (w_k > 1)*Elc_13_Pct(max(1, w_k-1))) / 100.0;
-            if y > (w_k - 0.8)
-                w_arm_ece = w_arm_ece + dw_e * (1.0 - 0.72 * exp(-(y - (w_k - 0.8)) / 5.2));
-                w_arm_elc = w_arm_elc + dw_l * (1.0 - 0.65 * exp(-(y - (w_k - 0.8)) / 3.5));
-            end
-            if (y >= 7.0) && (y > (w_k - 0.5))
-                % Youth Grant strictly 0 for y < 7.0! Launches at Wave 7 (Yr 7) and convolves Waves 7..13:
-                w_arm_ygr = w_arm_ygr + dw_y * (1.0 - 0.60 * exp(-(y - (w_k - 0.5)) / 4.2));
-            end
-        end
-        % Dual-Speed Tax Ramp (3-Yr CGT/Estate + 10-Yr LVT) convolved with firm capital reallocation:
-        sh_tax_t   = 0.38 * min(1.0, y / 3.0) + 0.62 * min(1.0, y / 10.0);
-        w_arm_tax  = sh_tax_t * (1.0 - 0.55 * exp(-y / 5.5));
-        retire_arm = 1.0 / (1.0 + exp(-(y1 - 14.0) / 3.8));
-        w_arm_geo  = (0.65 * w_arm_elc + 0.35 * (1.0 - exp(-y / 2.2))) * (1.0 - 0.55 * retire_arm);
-
-        % Synergy wedges in SS1 build smoothly as their constituent wave stocks accumulate:
-        w_wed1_arm = (w_arm_ece ^ 1.20) * (1.0 ./ (1.0 + exp(-(y1 - 9.5) / 4.2)));
-        w_wed2_arm = (0.75 * w_arm_ygr * w_arm_tax + 0.25 * w_arm_tax) * (1.0 ./ (1.0 + exp(-(y1 - 8.5) / 3.8)));
-        w_wed3_arm = (w_arm_ece * w_arm_tax) ^ 0.85 * (1.0 ./ (1.0 + exp(-(y1 - 13.5) / 4.2)));
-
-        row_arm    = (SS1_Nat_11') .* [w_arm_ece, w_arm_ece, w_wed1_arm, w_arm_tax, w_arm_ygr, ...
-            w_arm_geo, w_wed2_arm, w_wed3_arm, 0.55*w_arm_tax, 0.0, w_wed3_arm];
-        % As L6 (Geo Transfer) retires between Yr 10 and Yr 24, L8 (z_l -> z_h regional jobs) replaces it:
-        row_arm(8) = row_arm(8) + max(0.0, w_arm_ece - w_arm_geo) * SS1_Nat_11(6);
-
-        % 2. Wave-Convolved SS2 Generational & Fiscal Echo (Eliminates the Year-25 Hockey-Stick Kink!):
-        %    Each SS1 wave w_k = 1..13 triggers its 2nd-generation dynastic & enterprise echo T_gen = 20.5 yrs later
-        %    (so Wave 1 [Yr 1] begins echoing at Yr 21.5, Wave 5 at Yr 25.5, Wave 9 at Yr 29.5, Wave 13 at Yr 33.5),
-        %    while the statutory SS2 PAYE cut (-3.75 pp) & Debt-Sinking harvest ramps smoothly over Years 21.5-29:
-        w_ss2_echo_hc  = 0.0;
-        w_ss2_echo_ygr = 0.0;
-        for w_k = 1:13
-            dw_e = (ECE_13_Pct(w_k) - (w_k > 1)*ECE_13_Pct(max(1, w_k-1))) / 100.0;
-            dw_y = (YGr_13_Pct(w_k) - (w_k > 1)*YGr_13_Pct(max(1, w_k-1))) / 100.0;
-            t_arr_hc  = 20.5 + w_k; % Wave 1 echoes at Yr 21.5 -> Wave 9 at Yr 29.5
-            t_arr_ygr = 16.0 + w_k; % Wave 7 (Yr 7 Grant) echoes at Yr 23.0 -> Wave 13 at Yr 29.0
-            if y > t_arr_hc
-                w_ss2_echo_hc = w_ss2_echo_hc + dw_e * (1.0 - exp(-(y - t_arr_hc) / 6.2));
-            end
-            if y > t_arr_ygr
-                w_ss2_echo_ygr = w_ss2_echo_ygr + dw_y * (1.0 - exp(-(y - t_arr_ygr) / 6.0));
-            end
-        end
-        % Smooth S-curve ramp for statutory SS2 Fiscal Harvest (L09 Debt-Sinking & L10 PAYE Cut + Super Age 64):
-        % Begins phasing in after Yr 20 cash breakeven, centered across Years 23-30 (no vertical wall at Yr 25!):
-        w_ss2_fisc = (1.0 ./ (1.0 + exp(-(y - 25.5) / 2.6))) .* (1.0 - exp(-max(0.0, y - 20.5) / 6.8));
-        w_geo_ret2 = (1.0 ./ (1.0 + exp(-(y - 24.5) / 2.5))) .* (1.0 - exp(-max(0.0, y - 20.0) / 4.5));
-
-        d_ss2_arm  = SS2_Nat_11' - row_arm;
-        w_ss2_vec  = [w_ss2_echo_hc, w_ss2_echo_hc, w_ss2_echo_hc, w_ss2_echo_ygr, w_ss2_echo_ygr, ...
-            w_geo_ret2, w_ss2_echo_ygr, 0.5*(w_ss2_echo_hc + w_ss2_echo_ygr), ...
-            w_ss2_fisc, w_ss2_fisc, 0.65*w_ss2_echo_hc + 0.35*w_ss2_fisc];
-
-        row_arm    = row_arm + w_ss2_vec .* d_ss2_arm;
-        row_arm(8) = row_arm(8) - (w_geo_ret2 - 0.5*(w_ss2_echo_hc + w_ss2_echo_ygr)) * d_ss2_arm(6);
-        Traj_11(i, :) = max(0.0, row_arm);
+r_sel = 'National';
+if isfield(Params, 'Target_Region') && ~isempty(Params.Target_Region)
+    if iscell(Params.Target_Region), r_sel = char(Params.Target_Region{1});
+    else, r_sel = char(Params.Target_Region); end
+elseif isfield(Params, 'Target_Regions') && ~isempty(Params.Target_Regions)
+    if iscell(Params.Target_Regions) && numel(Params.Target_Regions) == 1
+        r_sel = char(Params.Target_Regions{1});
+    elseif ischar(Params.Target_Regions) || isstring(Params.Target_Regions)
+        r_sel = char(Params.Target_Regions);
     end
 end
 
-Total_Traj_CE      = sum(Traj_11, 2);
-Iso_Only_Traj_CE   = sum(Traj_11(:, ~Is_Wedge), 2);
-Total_1Shot_Grid   = sum(Traj_11_1Shot, 2);
+col_idx = find(strcmpi(r_sel, Params.Reg_Names_5), 1);
+if isempty(col_idx), col_idx = 5; end % Default to Column 5 = 'National'
+r_sel   = Params.Reg_Names_5{col_idx};
 
-% Distinct Color Palette: Layer 5 (Youth Grant) uses Vivid Orchid Purple to match -Inv 3 below zero!
+% Every single extracted vector below actively drives Sections 3, 4, and 5!
+SS1_Sel_11    = SS1_11x5(:, col_idx);            % [11 x 1] SS1 layers for selected region/National
+SS2_Sel_11    = SS2_11x5(:, col_idx);            % [11 x 1] SS2 layers for selected region/National
+SS2_Sel_Total = sum(SS2_Sel_11);                 % Scalar SS2 total CE% for selected region/National
+reg_pop_wt    = Params.Pop_Weights_5(col_idx);   % 1.000 for National; [0.160, 0.240, 0.259, 0.341] for regional
+NZD_Per_CE    = Params.NZD_Per_CE_Nat * reg_pop_wt; % Scales right-hand BNZD/yr axis to selected audience!
+GDP_Sel_BNZD  = Params.GDP_2026_BNZD  * reg_pop_wt;
+sh_ygr_base0  = Params.sh_ygr_base0_5(col_idx);  % 0.1730 Nat, or [0.196, 0.185, 0.158, 0.165] regional
+
+Waves_13      = Params.Waves_13;                 % [13 x 1]
+ECE_13_Share  = Params.Kahui_ECE_13x5(:, col_idx);     % [13 x 1] in [0, 1]
+YGr_New_Share = Params.Kahui_YGr_New_13x5(:, col_idx); % [13 x 1] in [0, 1]
+Elc_13_Share  = Params.Kahui_Elc_13x5(:, col_idx);     % [13 x 1] in [0, 1]
+
+% File suffix: keeps standard filename for 'National', appends '_Auckland' etc. when regional!
+if col_idx == 5, Reg_File_Suffix = AnchorTag;
+else,            Reg_File_Suffix = sprintf('%s_%s', r_sel, AnchorTag); end
+
+% --- Vectorized Cohort Grid Evaluation (Years -10 to +60, 0 Loops) ---
+Yr_Grid              = (-10:0.5:60)';
+n_yr                 = numel(Yr_Grid);
+m_pre                = Yr_Grid < 0;
+m_pos                = ~m_pre;
+y_pre                = Yr_Grid(m_pre);
+y_pos                = Yr_Grid(m_pos);
+y1_pos               = min(y_pos, 25.0);
+
+Traj_11              = zeros(n_yr, 11);
+Traj_11_1Shot        = zeros(n_yr, 11);
+YGr_Early_Share_Grid = zeros(n_yr, 1);
+
+% 3A. Pre-launch cohorts (y < 0):
+w_pre_mat              = (0.04 * exp(y_pre / 2.5)) * [0.5, 0, 0, 1, 0, 1, 0, 0, 0.5, 0, 0];
+Traj_11(m_pre, :)      = w_pre_mat .* (SS1_Sel_11');
+Traj_11_1Shot(m_pre,:) = (2.5 * w_pre_mat) .* (SS1_Sel_11');
+
+% 3B. Single-Phase Step Reference (y >= 0, Vectorized):
+b_drag_1s   = 1.0 - 0.14 * exp(-y_pos / 14.0);
+w_iso       = (0.22 + 0.78 * (1.0 - exp(-y1_pos / 8.0))) .* b_drag_1s;
+w_geo_1s    = (1.0 - 0.35 * exp(-y1_pos / 2.5)) .* (1.0 - 0.55 ./ (1.0 + exp(-(y1_pos - 15.0) / 4.0)));
+w_wed1_1s   = b_drag_1s ./ (1.0 + exp(-(y1_pos - 11.0) / 4.2));
+w_wed2_1s   = b_drag_1s ./ (1.0 + exp(-(y1_pos - 9.0)  / 4.0));
+w_wed3_1s   = b_drag_1s ./ (1.0 + exp(-(y1_pos - 16.0) / 4.0));
+unment_drag = 1.0 - (0.42 * (1.0 - sh_ygr_base0)) * exp(-y_pos / 5.5);
+
+W_1s_S1     = [w_iso, w_iso, w_wed1_1s, w_iso, w_iso.*unment_drag, w_geo_1s, w_wed2_1s.*unment_drag, w_wed3_1s, 0.5*w_iso, zeros(size(y_pos)), w_wed3_1s];
+Row_1s      = W_1s_S1 .* (SS1_Sel_11');
+Row_1s(:,8) = Row_1s(:,8) + max(0.0, w_iso - w_geo_1s) * SS1_Sel_11(6);
+
+m_25        = y_pos >= 25.0;
+w_ss2_1s    = (y_pos >= 25.0) .* (1.0 - exp(-max(0.0, y_pos - 25.0) / 8.5));
+w_inv2_1s   = (y_pos >= 25.0) .* (1.0 - exp(-max(0.0, y_pos - 25.0) / 5.0));
+D_ss2_1s    = (SS2_Sel_11') - Row_1s;
+Row_1s      = Row_1s + w_ss2_1s .* D_ss2_1s;
+Row_1s(:,6) = Row_1s(:,6) + m_25 .* (w_inv2_1s - w_ss2_1s) .* D_ss2_1s(:,6);
+Row_1s(:,8) = Row_1s(:,8) - m_25 .* (w_inv2_1s - w_ss2_1s) .* D_ss2_1s(:,6);
+Traj_11_1Shot(m_pos, :) = Row_1s;
+
+% 3C. Wave-Convolved 13-Wave Te Kāhui Waka Trajectory (y >= 0, Vectorized Implicit Expansion + Matrix Multiply):
+dw_e_13 = [ECE_13_Share(1); diff(ECE_13_Share)];                                  % [13 x 1]
+dw_y_13 = (1.0 - sh_ygr_base0) * [YGr_New_Share(1); diff(YGr_New_Share)];         % [13 x 1]
+dw_l_13 = [Elc_13_Share(1); diff(Elc_13_Share)];                                  % [13 x 1]
+
+dy_s1_e = y_pos - (Waves_13 - 0.8)';                                              % [N_pos x 13]
+w_kh_ece = ((dy_s1_e > 0) .* (1.0 - 0.72 * exp(-max(0.0, dy_s1_e) / 5.2))) * dw_e_13;
+w_kh_elc = ((dy_s1_e > 0) .* (1.0 - 0.65 * exp(-max(0.0, dy_s1_e) / 3.5))) * dw_l_13;
+
+dy_s1_y       = y_pos - (Waves_13 - 0.5)';                                        % [N_pos x 13]
+w_kh_ygr_new  = (((y_pos >= 7.0) & (dy_s1_y > 0)) .* (1.0 - 0.60 * exp(-max(0.0, dy_s1_y) / 4.2))) * dw_y_13;
+w_kh_ygr_base = (y_pos > 0.2) .* sh_ygr_base0 .* (1.0 - 0.45 * exp(-max(0.0, y_pos - 0.2) / 2.2));
+w_kh_ygr      = w_kh_ygr_base + w_kh_ygr_new;
+YGr_Early_Share_Grid(m_pos) = min(1.0, w_kh_ygr_base ./ max(1e-8, w_kh_ygr));
+
+sh_tax_t   = 0.38 * min(1.0, y_pos / Params.T_ramp_CGT_Est_yrs) + 0.62 * min(1.0, y_pos / Params.T_ramp_LVT_yrs);
+w_kh_tax   = sh_tax_t .* (1.0 - 0.55 * exp(-y_pos / 5.5));
+retire_kh  = 1.0 ./ (1.0 + exp(-(y1_pos - 14.0) / 3.8));
+w_kh_geo   = (0.65 * w_kh_elc + 0.35 * (1.0 - exp(-y_pos / 2.2))) .* (1.0 - 0.55 * retire_kh);
+
+w_wed1_kh  = (w_kh_ece .^ 1.15) ./ (1.0 + exp(-(y1_pos - 9.2) / 4.1));
+w_wed2_kh  = (0.75 * w_kh_ygr .* w_kh_tax + 0.25 * w_kh_tax) ./ (1.0 + exp(-(y1_pos - 8.0) / 3.8));
+w_wed3_kh  = ((w_kh_ece .* w_kh_tax) .^ 0.85) ./ (1.0 + exp(-(y1_pos - 13.0) / 4.1));
+
+Row_kh      = [w_kh_ece, w_kh_ece, w_wed1_kh, w_kh_tax, w_kh_ygr, w_kh_geo, w_wed2_kh, w_wed3_kh, 0.55*w_kh_tax, zeros(size(y_pos)), w_wed3_kh] .* (SS1_Sel_11');
+Row_kh(:,8) = Row_kh(:,8) + max(0.0, w_kh_ece - w_kh_geo) * SS1_Sel_11(6);
+
+% Wave-Convolved SS2 Generational & Fiscal Echo (Converging to Exact SS2_Sel_11 at Year 60):
+dy_s2_hc       = y_pos - (20.5 + Waves_13)';                                      % [N_pos x 13]
+dy_s2_ygr      = y_pos - (16.0 + Waves_13)';                                      % [N_pos x 13]
+w_ss2_echo_hc  = ((dy_s2_hc  > 0) .* (1.0 - exp(-max(0.0, dy_s2_hc)  / 6.0))) * dw_e_13;
+w_ss2_echo_ygr = sh_ygr_base0 * (y_pos > 18.0) .* (1.0 - exp(-max(0.0, y_pos - 18.0) / 6.0)) ...
+    + ((dy_s2_ygr > 0) .* (1.0 - exp(-max(0.0, dy_s2_ygr) / 5.8))) * dw_y_13;
+w_ss2_fisc     = (1.0 ./ (1.0 + exp(-(y_pos - 25.0) / 2.5))) .* (1.0 - exp(-max(0.0, y_pos - 20.0) / 6.2));
+w_geo_ret2     = (1.0 ./ (1.0 + exp(-(y_pos - 24.5) / 2.5))) .* (1.0 - exp(-max(0.0, y_pos - 20.0) / 4.5));
+
+D_ss2_kh    = (SS2_Sel_11') - Row_kh;
+W_ss2_mat   = [w_ss2_echo_hc, w_ss2_echo_hc, w_ss2_echo_hc, w_ss2_echo_ygr, w_ss2_echo_ygr, ...
+    w_geo_ret2, w_ss2_echo_ygr, 0.5*(w_ss2_echo_hc + w_ss2_echo_ygr), ...
+    w_ss2_fisc, w_ss2_fisc, 0.65*w_ss2_echo_hc + 0.35*w_ss2_fisc];
+Row_kh      = Row_kh + W_ss2_mat .* D_ss2_kh;
+Row_kh(:,8) = Row_kh(:,8) - (w_geo_ret2 - 0.5*(w_ss2_echo_hc + w_ss2_echo_ygr)) .* D_ss2_kh(:,6);
+Traj_11(m_pos, :) = max(0.0, Row_kh);
+
+Total_Traj_CE    = sum(Traj_11, 2);
+Iso_Only_Traj_CE = sum(Traj_11(:, ~Is_Wedge), 2);
+Total_1Shot_Grid = sum(Traj_11_1Shot, 2);
+
+% Distinct Color Palette: Layer 5 (Youth Grant) uses Vivid Orchid Purple, plus Super-Pale Lavender for Early Adopters!
+c_pale_purple_pos = [0.88, 0.76, 0.94];
+c_pale_purple_neg = [0.84, 0.68, 0.90];
+
 layer_colors = [ ...
     0.20, 0.48, 0.68; ... % L1 [Iso]: First-2000d ECE (Steel Blue)
     0.38, 0.65, 0.78; ... % L2 [Iso]: Tuakana Mentoring (Sky Teal)
@@ -369,9 +426,9 @@ layer_colors = [ ...
     0.05, 0.56, 0.32];    % L11 [★ WEDGE 4]: Fiscal/TFR/2nd-Gen Compounding Closure (Deep Emerald)
 
 % =========================================================================
-% 4. RENDER FIGURE A: 2-PANEL CONSTRUCTIVE SYNERGY ATTRIBUTION (WAVE-CONVOLVED ARMADA)
+% 4. RENDER FIGURE A: 2-PANEL CONSTRUCTIVE SYNERGY ATTRIBUTION
 % =========================================================================
-fig_cf = figure('Name', sprintf('Fig_Constructive_Synergy_Attribution_%s', AnchorTag), ...
+fig_cf = figure('Name', sprintf('Fig_Constructive_Synergy_Attribution_%s', Reg_File_Suffix), ...
     'Color', 'w', 'Position', [35, 45, 1660, 820]);
 tiledlayout(1, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
 
@@ -380,7 +437,6 @@ y_top_lim = ceil(max_y_val * 1.18);
 min_y_val = min([0, min(sum(SS2_11x5, 1)), min(Total_Traj_CE)]);
 y_bot_lim = floor(min_y_val * 1.15);
 
-% --- PANEL A: WAVE-CONVOLVED COHORT TRAJECTORY WITH INTERLEAVED ISOLATED FACTORS & SYNERGY WEDGES ---
 axA = nexttile(1); hold(axA, 'on');
 h_area = area(axA, Yr_Grid, Traj_11, 'LineWidth', 0.6, 'EdgeColor', [0.18 0.18 0.18]);
 for k = 1:11
@@ -395,41 +451,45 @@ for k = 1:11
     h_area(k).DisplayName = Layer_Legend_Labels{k};
 end
 
-% Plot Wave-Convolved Armada Total, Single-Shot Step Reference, and Additive Isolated Sum
+y_bot_L5   = sum(Traj_11(:, 1:4), 2);
+y_early_L5 = y_bot_L5 + Traj_11(:, 5) .* YGr_Early_Share_Grid;
+h_pale = fill(axA, [Yr_Grid; flipud(Yr_Grid)], [y_bot_L5; flipud(y_early_L5)], c_pale_purple_pos, ...
+    'FaceAlpha', 0.95, 'EdgeColor', [0.45 0.18 0.52], 'LineWidth', 0.5, ...
+    'DisplayName', sprintf('5a. [Early Adopters] Youth Grants for Existing %.1f%% %s Tuakana Mentees (Active Yr 1!)', 100*sh_ygr_base0, r_sel));
+
 h_tot = plot(axA, Yr_Grid, Total_Traj_CE, 'k-', 'LineWidth', 2.8, ...
-    'DisplayName', sprintf('Wave-Convolved 13-Wave Armada Plan: Isolated + All 4 Wedges (%+.2f%% in SS2)', SS2_Nat_Total));
+    'DisplayName', sprintf('Wave-Convolved 13-Wave Te Kāhui Waka (%s): Converges to %+.2f%% in SS2', r_sel, SS2_Sel_Total));
 h_1sh = plot(axA, Yr_Grid, Total_1Shot_Grid, ':', 'Color', [0.15 0.35 0.65], 'LineWidth', 2.0, ...
-    'DisplayName', 'Single-Phase Step Reference (Shows Unconvolved Yr-0 & Yr-25 Hockey-Stick Kinks)');
+    'DisplayName', sprintf('Single-Phase Step Reference (Early Bottleneck Drag \\rightarrow Same %+.2f%% SS2)', SS2_Sel_Total));
 h_iso = plot(axA, Yr_Grid, Iso_Only_Traj_CE, '--', 'Color', [0.15 0.15 0.15], 'LineWidth', 2.2, ...
-    'DisplayName', sprintf('Additive Sum of 7 Isolated Factors Without Synergy (%+.2f%% in SS2)', sum(SS2_Nat_11(~Is_Wedge))));
+    'DisplayName', sprintf('Additive Sum of 7 Isolated Factors Without Synergy (%+.2f%% in SS2)', sum(SS2_Sel_11(~Is_Wedge))));
 
 xline(axA, 0,    'k--', 'LineWidth', 1.3, 'HandleVisibility', 'off');
 xline(axA, 7.0,  ':',   'Color', [0.58 0.20 0.62], 'LineWidth', 1.5, 'HandleVisibility', 'off');
 xline(axA, 16.8, ':',   'Color', [0.40 0.15 0.60], 'LineWidth', 1.6, 'HandleVisibility', 'off');
 xline(axA, 25.0, '--',  'Color', [0.05 0.50 0.20], 'LineWidth', 1.6, 'HandleVisibility', 'off');
 
-% Annotate the Synergy Gap on Panel A at Year 52
 y_iso_52 = interp1(Yr_Grid, Iso_Only_Traj_CE, 52);
 y_tot_52 = interp1(Yr_Grid, Total_Traj_CE, 52);
-syn_pct_share = 100 * sum(SS2_Nat_11(Is_Wedge)) / max(1e-6, sum(SS2_Nat_11));
+syn_pct_share = 100 * sum(SS2_Sel_11(Is_Wedge)) / max(1e-6, SS2_Sel_Total);
 plot(axA, [52, 52], [y_iso_52, y_tot_52], 'r-', 'LineWidth', 2.2, 'HandleVisibility', 'off');
 text(axA, 50.5, 0.5*(y_iso_52 + y_tot_52), ...
-    sprintf('Total Supermodular\nSynergy Wedges:\n%+.2f%% CE\n(%.1f%% of Total!)', sum(SS2_Nat_11(Is_Wedge)), syn_pct_share), ...
+    sprintf('Total Supermodular\nSynergy Wedges (%s):\n%+.2f%% CE\n(%.1f%% of Total!)', r_sel, sum(SS2_Sel_11(Is_Wedge)), syn_pct_share), ...
     'HorizontalAlignment', 'right', 'FontSize', 8.2, 'FontWeight', 'bold', ...
     'Color', [0.65 0.05 0.10], 'BackgroundColor', [1.0 0.96 0.94], 'EdgeColor', [0.75 0.15 0.20], 'Margin', 4);
 
-text(axA, 0.6, 5.2, sprintf('Yrs 1-13: 13-Wave\nArmada Rollout\n(Grant E @ Yr 7)'), 'FontSize', 7.8, 'FontWeight', 'bold', ...
-    'BackgroundColor', 'w', 'EdgeColor', [0.3 0.3 0.3], 'Margin', 2.5);
+text(axA, 0.6, 5.2, sprintf('Yrs 1-6: %.1f%% Early-Adopter\nGrants (Pale Purple) \\rightarrow\nTe Kāhui Waka Expansion @ Yr 7+', 100*sh_ygr_base0), ...
+    'FontSize', 7.5, 'FontWeight', 'bold', 'BackgroundColor', 'w', 'EdgeColor', [0.45 0.18 0.52], 'Margin', 2.5);
 text(axA, 25.6, 16.2, sprintf('%s\n(Wave-Convolved SS2 Echo)', box25_label), 'FontSize', 7.8, 'FontWeight', 'bold', ...
     'Color', [0.00 0.42 0.18], 'BackgroundColor', 'w', 'EdgeColor', [0.00 0.45 0.20], 'Margin', 2.5);
 
-title(axA, 'A. Constructive Attribution: Wave-Convolved Armada Trajectory vs. Single-Phase Step Reference', ...
+title(axA, sprintf('A. Constructive Attribution (%s): Wave-Convolved Te Kāhui Waka vs. Single-Phase Reference', r_sel), ...
     'FontSize', 10.6, 'FontWeight', 'bold');
-xlabel(axA, 'Cohort Entry Year Relative to 2026 Reform Introduction (13-Wave Armada S-Curve)', 'FontSize', 10.2, 'FontWeight', 'bold');
+xlabel(axA, 'Cohort Entry Year Relative to 2026 Reform Introduction (13-Wave Te Kāhui Waka S-Curve)', 'FontSize', 10.2, 'FontWeight', 'bold');
 ylabel(axA, 'Lifetime Consumption-Equivalent Welfare Gain (CE %)', 'FontSize', 10.2, 'FontWeight', 'bold');
 xlim(axA, [-3, 63]); xticks(axA, 0:10:60); ylim(axA, [y_bot_lim, y_top_lim]);
 grid(axA, 'on'); box(axA, 'on');
-legend(axA, [h_area, h_tot, h_1sh, h_iso], 'Location', 'northwest', 'FontSize', 6.5);
+legend(axA, [h_area(1:5), h_pale, h_area(6:11), h_tot, h_1sh, h_iso], 'Location', 'northwest', 'FontSize', 6.2);
 
 % --- PANEL B: REGIONAL & NATIONAL SS2 STACKED BUILD-UP WITH WEDGE CALLOUTS ---
 axB = nexttile(2); hold(axB, 'on');
@@ -445,7 +505,6 @@ for k = 1:11
     end
 end
 
-% Add Segment Labels Inside Bars & Total Labels cleanly above each bar
 Reg_Totals_5 = sum(SS2_11x5, 1);
 for c = 1:5
     cum_bot = 0;
@@ -461,7 +520,7 @@ for c = 1:5
             else
                 lbl_str = sprintf('%+.2f%%\n(%d%%)', val_kc, pct_sh);
                 txt_col = [1 1 1];
-                if k == 5 || k == 6 || k == 10, txt_col = [0.12 0.12 0.12]; end
+                if k == 6 || k == 10, txt_col = [0.12 0.12 0.12]; end
             end
             text(axB, c, y_mid, lbl_str, 'HorizontalAlignment', 'center', ...
                 'FontSize', 6.7, 'FontWeight', 'bold', 'Color', txt_col);
@@ -475,7 +534,6 @@ for c = 1:5
         'HorizontalAlignment', 'center', 'FontSize', 7.5, 'FontWeight', 'bold', 'Color', [0.05 0.15 0.05]);
 end
 
-% Add Tier Bracket Callouts on the Right of the National Bar (x = 5.34)
 c_nat_cum = cumsum(SS2_Nat_11);
 tier_tops = [c_nat_cum(3), c_nat_cum(7), c_nat_cum(8), c_nat_cum(11)];
 tier_bots = [0,            c_nat_cum(3), c_nat_cum(7), c_nat_cum(8)];
@@ -491,12 +549,7 @@ for t_i = 1:4
     text(axB, 5.42, ym, tier_lbls{t_i}, 'FontSize', 7.1, 'FontWeight', 'bold', 'Color', [0.15 0.15 0.15]);
 end
 
-x_lbls_5 = { ...
-    sprintf('Rural (%+.2f%%)', Reg_Totals_5(1)), ...
-    sprintf('Small (%+.2f%%)', Reg_Totals_5(2)), ...
-    sprintf('Large (%+.2f%%)', Reg_Totals_5(3)), ...
-    sprintf('Auckland (%+.2f%%)', Reg_Totals_5(4)), ...
-    sprintf('National (%+.2f%%)', Reg_Totals_5(5))};
+x_lbls_5 = arrayfun(@(c) sprintf('%s (%+.2f%%)', Params.Reg_Names_5{c}, Reg_Totals_5(c)), 1:5, 'UniformOutput', false);
 set(axB, 'XTick', x_5, 'XTickLabel', x_lbls_5, 'XTickLabelRotation', 20, 'FontSize', 9.0, 'FontWeight', 'bold');
 ylabel(axB, 'Phase 2 (SS2) Long-Run Welfare Gain (CE %)', 'FontSize', 10.2, 'FontWeight', 'bold');
 title(axB, 'B. Regional SS2 Build-Up: 7 Isolated Factors + 4 Named Complementarity Wedges (★)', ...
@@ -504,147 +557,73 @@ title(axB, 'B. Regional SS2 Build-Up: 7 Isolated Factors + 4 Named Complementari
 xlim(axB, [0.4, 6.45]); ylim(axB, [y_bot_lim, y_top_lim]);
 grid(axB, 'on'); box(axB, 'on');
 
-f_cf_out = fullfile(OutputDir, sprintf('Fig_Counterfactual_8Scenarios_SS1_SS2_%s.png', AnchorTag));
+f_cf_out = fullfile(OutputDir, sprintf('Fig_Counterfactual_8Scenarios_SS1_SS2_%s.png', Reg_File_Suffix));
 exportgraphics(fig_cf, f_cf_out, 'Resolution', 300, 'BackgroundColor', 'white');
-fprintf('  -> Saved 2-Panel Constructive Synergy Attribution Figure to: %s\n', f_cf_out);
+fprintf('  -> Saved 2-Panel Constructive Synergy Attribution Figure (%s) to: %s\n', r_sel, f_cf_out);
 
 % =========================================================================
-% 5. PART 2: MIRROR-IMAGE 11-LAYER WELFARE GAINS VS. ANNUAL SS1/SS2 INVESTMENTS
-%            (SPLIT HALF-COLUMNS ON 2-YR GRID 0:2:60: SINGLE-PHASE LEFT vs. ARMADA RIGHT
-%             + APPLES-TO-APPLES ANNUAL INCREMENTAL LTFM DEFICIT FLOW)
+% 5. PART 2: VECTORIZED MIRROR-IMAGE 11-LAYER WELFARE GAINS VS. ANNUAL OUTLAYS
+%            (0 LOOPS! SINGLE-PHASE LEFT vs. TE KĀHUI WAKA RIGHT)
 % =========================================================================
-Yr_Mir = (0:2:60)';
-n_ym   = numel(Yr_Mir);
-NZD_Billion_Per_CE_Pct = 2.38;
-GDP_2026_BNZD          = 430.0; % 1.0% of GDP = 4.30 BNZD = 1.8067% CE
+Yr_Mir  = (0:2:60)';
+y1_mir  = min(Yr_Mir, 25.0);
+yr_w_g  = [0; Waves_13; 25; 60];
 
-Pos_11_Mir = interp1(Yr_Grid, Traj_11_1Shot, Yr_Mir, 'pchip');
-Total_Mir_CE = sum(Pos_11_Mir, 2);
+Pos_11_Mir    = interp1(Yr_Grid, Traj_11_1Shot,        Yr_Mir, 'pchip');
+Pos_11_Kahui  = interp1(Yr_Grid, Traj_11,              Yr_Mir, 'pchip');
+Early_Share_M = interp1(Yr_Grid, YGr_Early_Share_Grid, Yr_Mir, 'linear');
 
-Neg_4Investments_CE    = zeros(n_ym, 4);
-Remediation_Savings_CE = zeros(n_ym, 1);
+Total_Mir_CE   = sum(Pos_11_Mir,   2);
+Total_Kahui_CE = sum(Pos_11_Kahui, 2);
 
-% Annual Public Outlays across [-Inv1 ECE1, -Inv2 Tuakana, -Inv3 YouthGrant, -Inv4 GeoTransfer]:
-SS1_Inv_CE = -[1.45, 0.52, 0.68, 0.65]; % -3.30% (-NZD 7.86B/yr at SS1 peak)
-SS2_Inv_CE = -[1.35, 0.55, 0.60, 0.12]; % -2.62% (-NZD 6.24B/yr in SS2 after 82% GeoTransfer retirement)
+Pos_12_Mir   = [Pos_11_Mir(:, 1:4),   Pos_11_Mir(:, 5)*sh_ygr_base0,        Pos_11_Mir(:, 5)*(1-sh_ygr_base0),       Pos_11_Mir(:, 6:11)];
+Pos_12_Kahui = [Pos_11_Kahui(:, 1:4), Pos_11_Kahui(:, 5).*Early_Share_M,    Pos_11_Kahui(:, 5).*(1-Early_Share_M),   Pos_11_Kahui(:, 6:11)];
 
-% 13-Wave Armada + Dual-Speed Tax Ramp Arrays (Right Half-Column):
-Pos_11_Armada          = zeros(n_ym, 11);
-Neg_4Inv_Armada_CE     = zeros(n_ym, 4);
-Remed_Savings_Arm_CE   = zeros(n_ym, 1);
-Enrolled_Share_Armada  = zeros(n_ym, 1);
+SS1_Inv_CE = -[1.45, 0.52, 0.68, 0.65]; % -3.30% CE/yr at SS1 peak
+SS2_Inv_CE = -[1.35, 0.55, 0.60, 0.12]; % -2.62% CE/yr in SS2 after 82% GeoTransfer retirement
 
-Waves_13   = (1:13)';
-w_RS = 0.400; w_Lrg = 0.259; w_Akl = 0.341;
-ECE_13_Pct = 100 * (w_RS*[1,1,1,2,2,2,3,3,3,3,3,3,3]' + w_Lrg*[0,1,1,1,2,2,2,3,3,3,3,3,3]' + w_Akl*[0,0,1,1,1,2,2,2,3,3,3,3,3]') / 3.0;
-YGr_13_Pct = 100 * (w_RS*[0,0,0,0,0,0,1,1,1,2,2,2,3]' + w_Lrg*[0,0,0,0,0,0,0,1,1,1,2,2,3]' + w_Akl*[0,0,0,0,0,0,0,0,1,1,1,2,3]') / 3.0;
-Elc_13_Pct = 100 * (w_RS*[1,2,3,3,3,3,3,3,3,3,3,3,3]' + w_Lrg*[0,0,0,1,2,3,3,3,3,3,3,3,3]' + w_Akl*[0,0,0,0,0,0,1,2,3,3,3,3,3]') / 3.0;
-yr_w_grid  = [0; Waves_13; 25; 60];
+% 5A. Vectorized Single-Phase Negative Outlays & Remediation:
+ramp_1s_m   = 1.0 - 0.35 * exp(-y1_mir / 2.5);
+retire_1s_m = 1.0 ./ (1.0 + exp(-(y1_mir - 15.0) / 4.0));
+Neg_4Investments_CE      = ramp_1s_m * SS1_Inv_CE;
+Neg_4Investments_CE(:,4) = Neg_4Investments_CE(:,4) .* (1.0 - 0.55 * retire_1s_m);
+Remediation_Savings_CE   = 4.65 ./ (1.0 + exp(-(y1_mir - 16.5) / 4.2));
 
-for i = 1:n_ym
-    y  = Yr_Mir(i);
-    y1 = min(y, 25.0);
+w_inv2_m    = (Yr_Mir >= 25.0) .* (1.0 - exp(-max(0.0, Yr_Mir - 25.0) / 5.0));
+Neg_4Investments_CE    = Neg_4Investments_CE + w_inv2_m .* (SS2_Inv_CE - Neg_4Investments_CE);
+Remediation_Savings_CE = Remediation_Savings_CE + (Yr_Mir >= 25.0) .* (1.45 * (1.0 - exp(-max(0.0, Yr_Mir - 25.0) / 9.0)));
 
-    % --- 1. Single-Phase ("Single-Shot", Left Half-Column) ---
-    ramp_in   = 1 - 0.35 * exp(-y1 / 2.5);
-    retire_w1 = 1 ./ (1 + exp(-(y1 - 15.0) / 4.0));
-    inv_t     = ramp_in * SS1_Inv_CE;
-    inv_t(4)  = inv_t(4) * (1 - 0.55 * retire_w1); % Retires 55% by Year 25
-    rem_t     = 4.65 * (1 ./ (1 + exp(-(y1 - 16.5) / 4.2)));
+% 5B. Vectorized 13-Wave Te Kāhui Waka Negative Outlays & Early-Adopter Youth Grants:
+sh_ece_m     = interp1(yr_w_g, [0.00; ECE_13_Share; 1.0; 1.0], min(60.0, Yr_Mir), 'linear');
+sh_elc_m     = interp1(yr_w_g, [0.00; Elc_13_Share; 1.0; 1.0], min(60.0, Yr_Mir), 'linear');
+sh_ygr_ear_m = (Yr_Mir > 0)    .* sh_ygr_base0 .* min(1.0, Yr_Mir / 1.5);
+sh_ygr_new_m = (Yr_Mir >= 7.0) .* (1.0 - sh_ygr_base0) .* interp1(yr_w_g, [0.00; YGr_New_Share; 1.0; 1.0], min(60.0, Yr_Mir), 'linear');
+sh_ygr_m     = sh_ygr_ear_m + sh_ygr_new_m;
+retire_kh_m  = 1.0 ./ (1.0 + exp(-(y1_mir - 13.5) / 3.6));
 
-    if y >= 25
-        w_inv2 = 1 - exp(-(y - 25.0) / 5.0);
-        inv_t  = inv_t + w_inv2 * (SS2_Inv_CE - inv_t);
-        rem_t  = rem_t + 1.45 * (1 - exp(-(y - 25.0) / 9.0));
-    end
-    Neg_4Investments_CE(i, :) = inv_t;
-    Remediation_Savings_CE(i) = rem_t;
+Neg_4Inv_Kahui_CE = [sh_ece_m, sh_ece_m, sh_ygr_m, 0.65*sh_elc_m.*(1.0 - 0.72*retire_kh_m) + 0.35*min(1.0, Yr_Mir/2.0)] .* SS1_Inv_CE;
+w_inv_kh20        = (Yr_Mir >= 20.0) .* (1.0 - exp(-max(0.0, Yr_Mir - 20.0) / 4.8));
+Neg_4Inv_Kahui_CE = Neg_4Inv_Kahui_CE + w_inv_kh20 .* (SS2_Inv_CE - Neg_4Inv_Kahui_CE);
 
-    % --- 2. 13-Wave Armada + Dual-Speed Tax Ramps (Right Half-Column) ---
-    % Use exact linear lookup on yr_w_grid and hard-gate sh_ygr = 0 for all y < 7.0 (zero spline bleed!):
-    sh_ece = interp1(yr_w_grid, [0.00; ECE_13_Pct/100; 1.0; 1.0], min(60, y), 'linear');
-    sh_ygr = (y >= 7.0) * interp1(yr_w_grid, [0.00; YGr_13_Pct/100; 1.0; 1.0], min(60, y), 'linear');
-    sh_elc = interp1(yr_w_grid, [0.00; Elc_13_Pct/100; 1.0; 1.0], min(60, y), 'linear');
-    Enrolled_Share_Armada(i) = 0.75 * sh_ece + 0.25 * sh_ygr;
-    retire_geo_arm = 1.0 / (1.0 + exp(-(y1 - 13.5) / 3.6));
+ear_frac_inv3         = sh_ygr_ear_m ./ max(1e-8, sh_ygr_m);
+Neg_Inv3_Early_Kh_CE  = Neg_4Inv_Kahui_CE(:, 3) .* ear_frac_inv3;
+Neg_Inv3_New_Kh_CE    = Neg_4Inv_Kahui_CE(:, 3) .* (1.0 - ear_frac_inv3);
 
-    inv_arm = SS1_Inv_CE .* [sh_ece, sh_ece, sh_ygr, (0.65*sh_elc*(1 - 0.72*retire_geo_arm) + 0.35*min(1.0, y / 2.0))];
-    if y >= 20
-        w_inv_arm = 1 - exp(-(y - 20.0) / 4.8);
-        inv_arm   = inv_arm + w_inv_arm * (SS2_Inv_CE - inv_arm);
-    end
-    Neg_4Inv_Armada_CE(i, :) = inv_arm;
+sh_tax_m             = 0.38 * min(1.0, Yr_Mir / Params.T_ramp_CGT_Est_yrs) + 0.62 * min(1.0, Yr_Mir / Params.T_ramp_LVT_yrs);
+remed_raw_m          = 4.92 ./ (1.0 + exp(-(Yr_Mir - 14.8) / 3.85)) - 4.92 / (1.0 + exp(14.8 / 3.85));
+Remed_Savings_Kh_CE  = remed_raw_m + 0.28 * sh_tax_m .* exp(-max(0.0, Yr_Mir - 5.0) / 5.0) + 0.055 * min(1.0, Yr_Mir / 4.0);
 
-    sh_tax_ramp = 0.38 * min(1.0, y / 3.0) + 0.62 * min(1.0, y / 10.0);
-    remed_raw   = 4.92 ./ (1.0 + exp(-(y - 14.8) / 3.85)) - 4.92 ./ (1.0 + exp(14.8 / 3.85));
-    Remed_Savings_Arm_CE(i) = remed_raw + 0.28 * sh_tax_ramp * exp(-max(0, y - 5.0) / 5.0);
+Neg_5_Mir   = [Neg_4Investments_CE(:, 1:2), Neg_4Investments_CE(:, 3)*sh_ygr_base0, Neg_4Investments_CE(:, 3)*(1-sh_ygr_base0), Neg_4Investments_CE(:, 4)];
+Neg_5_Kahui = [Neg_4Inv_Kahui_CE(:, 1:2),   Neg_Inv3_Early_Kh_CE,                   Neg_Inv3_New_Kh_CE,                         Neg_4Inv_Kahui_CE(:, 4)];
 
-    % Exact Layer-by-Layer Armada Wave & Tax-Ramp Gating (Years 0 to 60):
-    % 1. Separate Pos_11_Mir(i,:) into its SS1 base trajectory vs. the SS2 jump increment:
-    %    In Single-Phase (Pos_11_Mir), the SS2 jump has a sharp kink at y = 25 (1 - exp(-(y-25)/8.5)).
-    %    In the 13-Wave Armada, the SS2 harvest is the 22-to-25-year generational echo of the SS1 waves:
-    %    Wave 1 (Yr 1) matures at Yr 23-25, Wave 5 (Yr 5) at Yr 27-29, Wave 9 (Yr 9) at Yr 31-33!
-    y_ss1_cap   = min(y, 24.99);
-    Pos_SS1_Only = interp1(Yr_Grid(Yr_Grid <= 25), Traj_11(Yr_Grid <= 25, :), y_ss1_cap, 'pchip');
-
-    % Convolve the SS1 Armada wave shares (ECE_13_Pct & YGr_13_Pct) forward by one generation (T_gen = 21 yrs)
-    % with a 5.5-year cohort maturation kernel to get the exact Armada SS2 Wave Echo:
-    w_ss2_echo_hc  = 0.0;
-    w_ss2_echo_ygr = 0.0;
-    for w_k = 1:13
-        dw_ece = (ECE_13_Pct(w_k) - (w_k > 1)*ECE_13_Pct(max(1, w_k-1))) / 100.0;
-        dw_ygr = (YGr_13_Pct(w_k) - (w_k > 1)*YGr_13_Pct(max(1, w_k-1))) / 100.0;
-        t_arrival_hc  = 20.5 + w_k; % Wave 1 arrives at Yr 21.5, Wave 9 at Yr 29.5
-        t_arrival_ygr = 16.5 + w_k; % Wave 7 (Yr 7 Age-20 Grant) hits prime career age 36 at Yr 23.5 -> Wave 13 at Yr 29.5
-        if y > t_arrival_hc
-            w_ss2_echo_hc = w_ss2_echo_hc + dw_ece * (1.0 - exp(-(y - t_arrival_hc) / 5.8));
-        end
-        if y > t_arrival_ygr
-            w_ss2_echo_ygr = w_ss2_echo_ygr + dw_ygr * (1.0 - exp(-(y - t_arrival_ygr) / 5.8));
-        end
-    end
-    % Statutory SS2 Fiscal Harvest (PAYE -3.75pp cut & Debt-Sinking -60bps) phases in over 5 yrs starting at Yr 22
-    % (after Armada crosses cash breakeven at Yr 16.8 and <42% GDP debt at Yr 15.4!):
-    w_ss2_fisc = (y > 22.0) * (1.0 - exp(-max(0.0, y - 22.0) / 5.5)) * (1.0 ./ (1.0 + exp(-(y - 25.0) / 2.2)));
-
-    learn_lift    = 1.0 + 0.032 * (1.0 ./ (1.0 + exp(-(y - 9.5) / 2.8)));
-    sh_geo_elc    = 0.65 * sh_elc + 0.35 * min(1.0, y / 2.0);
-    pos_arm_s1    = zeros(1, 11);
-    pos_arm_s1(1) = Pos_SS1_Only(1) * sh_ece * learn_lift;
-    pos_arm_s1(2) = Pos_SS1_Only(2) * sh_ece * learn_lift;
-    pos_arm_s1(3) = Pos_SS1_Only(3) * (sh_ece ^ 1.15) * learn_lift;
-    pos_arm_s1(4) = Pos_SS1_Only(4) * sh_tax_ramp * learn_lift;
-    pos_arm_s1(5) = Pos_SS1_Only(5) * sh_ygr * 1.12; % STRICTLY 0 at Yr 0, 2, 4, 6!
-    pos_arm_s1(6) = Pos_SS1_Only(6) * sh_geo_elc;
-    pos_arm_s1(7) = Pos_SS1_Only(7) * (0.75 * sh_ygr * sh_tax_ramp + 0.25 * sh_tax_ramp) * learn_lift;
-    pos_arm_s1(8) = Pos_SS1_Only(8) * (0.35 * sh_ece + 0.65 * sh_ece * sh_tax_ramp) * learn_lift;
-    pos_arm_s1(9) = Pos_SS1_Only(9) * sh_tax_ramp * learn_lift;
-    pos_arm_s1(10)= 0.0;
-    pos_arm_s1(11)= Pos_SS1_Only(11)* (sh_ece * sh_tax_ramp) * learn_lift;
-
-    % Add the Wave-Convolved SS2 Generational & Fiscal Echo:
-    ss2_target_arm    = SS2_Nat_11' * learn_lift;
-    ss2_target_arm(5) = SS2_Nat_11(5) * 1.12;
-    ss2_target_arm(6) = SS2_Nat_11(6); % Retires 82% in SS2
-    d_ss2_arm         = ss2_target_arm - pos_arm_s1;
-
-    w_ss2_vec = [w_ss2_echo_hc, w_ss2_echo_hc, w_ss2_echo_hc, w_ss2_echo_ygr, w_ss2_echo_ygr, ...
-        w_ss2_fisc, w_ss2_echo_ygr, 0.5*(w_ss2_echo_hc + w_ss2_echo_ygr), ...
-        w_ss2_fisc, w_ss2_fisc, w_ss2_echo_hc];
-
-    pos_arm_i           = pos_arm_s1 + w_ss2_vec .* d_ss2_arm;
-    Pos_11_Armada(i, :) = max(0.0, pos_arm_i);
-end
-
-Total_Armada_CE              = sum(Pos_11_Armada, 2);
 Gross_Investment_Mirror_CE   = sum(Neg_4Investments_CE, 2);
-Gross_Investment_Mirror_BNZD = Gross_Investment_Mirror_CE * NZD_Billion_Per_CE_Pct;
-Gross_Inv_Armada_CE          = sum(Neg_4Inv_Armada_CE, 2);
+Gross_Investment_Mirror_BNZD = Gross_Investment_Mirror_CE * NZD_Per_CE;
+Gross_Inv_Kahui_CE           = sum(Neg_4Inv_Kahui_CE, 2);
 
-Net_Fiscal_Outlay_Mirror_CE  = min(0, Gross_Investment_Mirror_CE + Remediation_Savings_CE);
-Net_Fiscal_Outlay_Armada_CE  = min(0, Gross_Inv_Armada_CE        + Remed_Savings_Arm_CE);
+Net_Fiscal_Outlay_Mirror_CE  = min(0.0, Gross_Investment_Mirror_CE + Remediation_Savings_CE);
+Net_Fiscal_Outlay_Kahui_CE   = min(0.0, Gross_Inv_Kahui_CE         + Remed_Savings_Kh_CE);
 
-% Overlay 2: Grounded ACC / Treasury CBAx Actuarial Continuation Valuation Curve
+% 5C. Vectorized 2D Rolling Window for Grounded ACC / Treasury CBAx Actuarial Continuation Valuation:
 r_disc_SRTP  = 0.020;
 g_cost_real  = 0.015;
 alpha_attr   = 0.300;
@@ -653,34 +632,28 @@ H_window     = 25;
 q_step       = ((1 + g_cost_real) / (1 + r_disc_SRTP)) * psi_persist;
 pv_mult_25yr = sum(q_step .^ (1:H_window)) / H_window;
 
-Actuarial_CBAx_Mirror_CE = zeros(n_ym, 1);
-Actuarial_CBAx_Armada_CE = zeros(n_ym, 1);
-for i = 1:n_ym
-    y         = Yr_Mir(i);
-    phi_pipe  = min(1.0, max(0.0, y / 15.0));
-    y_look    = linspace(y, min(max(Yr_Grid), y + H_window), H_window);
-    welf_look = interp1(Yr_Grid, Total_Traj_CE, y_look, 'pchip');
-    fwd_pot   = (1 - alpha_attr) * pv_mult_25yr * mean(welf_look);
+s_row_25     = linspace(0.0, 1.0, H_window);                                           % [1 x 25]
+Y_Look_2D    = Yr_Mir + (min(max(Yr_Grid), Yr_Mir + H_window) - Yr_Mir) .* s_row_25;   % [N_mir x 25]
+welf_look_m  = mean(interp1(Yr_Grid, Total_Traj_CE, Y_Look_2D, 'pchip'), 2);           % [N_mir x 1]
+fwd_pot_m    = (1.0 - alpha_attr) * pv_mult_25yr * welf_look_m;
 
-    phi_1s    = min(1.0, max(0.0, (y + 1.2) / 14.0));
-    fwd_1s    = phi_1s * fwd_pot;
-    Actuarial_CBAx_Mirror_CE(i) = min(Total_Mir_CE(end), ...
-        (1 - phi_pipe) * (Net_Fiscal_Outlay_Mirror_CE(i) + fwd_1s) + phi_pipe * Total_Mir_CE(i));
+phi_pipe_m   = min(1.0, max(0.0, Yr_Mir / 15.0));
+phi_1s_m     = min(1.0, max(0.0, (Yr_Mir + 1.2) / 14.0));
+sh_enr_m     = 0.75 * sh_ece_m + 0.25 * sh_ygr_m;
 
-    sh_enr    = Enrolled_Share_Armada(i);
-    fwd_arm   = (sh_enr ^ 0.75) * min(1.0, y / 12.5) * 1.03 * fwd_pot;
-    Actuarial_CBAx_Armada_CE(i) = min(Total_Armada_CE(end), ...
-        (1 - phi_pipe) * (Net_Fiscal_Outlay_Armada_CE(i) + fwd_arm) + phi_pipe * Total_Armada_CE(i));
-end
-Actuarial_CBAx_Mirror_BNZD = Actuarial_CBAx_Mirror_CE * NZD_Billion_Per_CE_Pct;
+Actuarial_CBAx_Mirror_CE = min(Total_Mir_CE(end), ...
+    (1.0 - phi_pipe_m) .* (Net_Fiscal_Outlay_Mirror_CE + phi_1s_m .* fwd_pot_m) + phi_pipe_m .* Total_Mir_CE);
+Actuarial_CBAx_Kahui_CE  = min(Total_Kahui_CE(end), ...
+    (1.0 - phi_pipe_m) .* (Net_Fiscal_Outlay_Kahui_CE  + (sh_enr_m .^ 0.75) .* min(1.0, Yr_Mir / 12.0) .* fwd_pot_m) + phi_pipe_m .* Total_Kahui_CE);
+Actuarial_CBAx_Mirror_BNZD = Actuarial_CBAx_Mirror_CE * NZD_Per_CE;
 
-% Apples-to-Apples Annual Incremental LTFM Fiscal Deficit / Debt-Sinking Flow (-dDebt/dt):
+% 5D. Apples-to-Apples Annual Incremental LTFM Fiscal Deficit / Debt-Sinking Flow (-dDebt/dt):
 Yr_Fine               = linspace(-3, 60, 631)';
-s60_fine              = max(0, Yr_Fine) / 60.0;
+s60_fine              = max(0.0, Yr_Fine) / 60.0;
 Debt_LTFM_Stock_Fine  = 42.0 + 143.0 * (s60_fine .^ 1.45);
 dDebt_dt_PctGDP_Fine  = -143.0 * (1.45 / 60.0) * (s60_fine .^ 0.45);
-LTFM_Ann_Deficit_BNZD = dDebt_dt_PctGDP_Fine * (GDP_2026_BNZD / 100.0);
-LTFM_Ann_Deficit_CE   = LTFM_Ann_Deficit_BNZD / NZD_Billion_Per_CE_Pct;
+LTFM_Ann_Deficit_BNZD = dDebt_dt_PctGDP_Fine * (GDP_Sel_BNZD / 100.0);
+LTFM_Ann_Deficit_CE   = LTFM_Ann_Deficit_BNZD / NZD_Per_CE;
 LTFM_Ann_Deficit_CE(Yr_Fine < 0)   = 0.0;
 LTFM_Ann_Deficit_BNZD(Yr_Fine < 0) = 0.0;
 
@@ -688,12 +661,12 @@ LTFM_Ann_Flow_CE_Mir   = interp1(Yr_Fine, LTFM_Ann_Deficit_CE,   Yr_Mir, 'pchip'
 LTFM_Ann_Flow_BNZD_Mir = interp1(Yr_Fine, LTFM_Ann_Deficit_BNZD, Yr_Mir, 'pchip');
 Debt_LTFM_Stock_Mir    = interp1(Yr_Fine, Debt_LTFM_Stock_Fine,  Yr_Mir, 'pchip');
 
-T20 = table(Yr_Mir, Total_Mir_CE, Total_Mir_CE * NZD_Billion_Per_CE_Pct, ...
+T20 = table(Yr_Mir, Total_Mir_CE, Total_Mir_CE * NZD_Per_CE, ...
     sum(Pos_11_Mir(:, ~Is_Wedge), 2), sum(Pos_11_Mir(:, Is_Wedge), 2), ...
     Neg_4Investments_CE(:,1), Neg_4Investments_CE(:,2), Neg_4Investments_CE(:,3), Neg_4Investments_CE(:,4), ...
     Gross_Investment_Mirror_CE, Gross_Investment_Mirror_BNZD, ...
     Net_Fiscal_Outlay_Mirror_CE, Actuarial_CBAx_Mirror_CE, Actuarial_CBAx_Mirror_BNZD, ...
-    Total_Armada_CE, Gross_Inv_Armada_CE, Net_Fiscal_Outlay_Armada_CE, Actuarial_CBAx_Armada_CE, ...
+    Total_Kahui_CE, Gross_Inv_Kahui_CE, Net_Fiscal_Outlay_Kahui_CE, Actuarial_CBAx_Kahui_CE, ...
     LTFM_Ann_Flow_CE_Mir, LTFM_Ann_Flow_BNZD_Mir, Debt_LTFM_Stock_Mir, ...
     'VariableNames', {'Year', 'Total_Welfare_Gain_CE_Pct', 'Total_Welfare_Equiv_BNZD_Yr', ...
     'Isolated_Factors_Sum_CE', 'Synergy_Wedges_Sum_CE', ...
@@ -701,82 +674,93 @@ T20 = table(Yr_Mir, Total_Mir_CE, Total_Mir_CE * NZD_Billion_Per_CE_Pct, ...
     'MirrorInv3_YouthGrant_CE', 'MirrorInv4_GeoTransfer_CE', ...
     'Total_Gross_Inv_Mirror_CE_Pct', 'Total_Gross_Inv_Mirror_BNZD_Yr', ...
     'Net_Unrecovered_Outlay_Mirror_CE', 'Actuarial_CBAx_Net_CE_Pct', 'Actuarial_CBAx_Net_BNZD_Yr', ...
-    'Total_Armada_Welfare_CE_Pct', 'Total_Gross_Inv_Armada_CE_Pct', 'Net_Unrecovered_Outlay_Armada_CE', 'Actuarial_CBAx_Armada_CE_Pct', ...
+    'Total_TeKahuiWaka_Welfare_CE_Pct', 'Total_Gross_Inv_TeKahuiWaka_CE_Pct', ...
+    'Net_Unrecovered_Outlay_TeKahuiWaka_CE', 'Actuarial_CBAx_TeKahuiWaka_CE_Pct', ...
     'LTFM_Annual_Deficit_Flow_CE_Pct', 'LTFM_Annual_Deficit_Flow_BNZD_Yr', 'LTFM_Cumulative_Debt_PctGDP'});
-csv20 = fullfile(OutputDir, sprintf('Table20_Annual_MirrorInvestments_Vs_7SegmentWelfare_%s.csv', AnchorTag));
+csv20 = fullfile(OutputDir, sprintf('Table20_Annual_MirrorInvestments_Vs_7SegmentWelfare_%s.csv', Reg_File_Suffix));
 writetable(T20, csv20);
 
-fig_mir = figure('Name', sprintf('Fig_11Layer_Welfare_And_MirrorInvestments_%s', AnchorTag), ...
+fig_mir = figure('Name', sprintf('Fig_11Layer_Welfare_And_MirrorInvestments_%s', Reg_File_Suffix), ...
     'Color', 'w', 'Position', [40, 35, 1640, 880]);
 axM = axes(fig_mir); hold(axM, 'on');
 
-% Split Half-Column Coordinates at every 2-yr step (Years 0, 2, 4, 6, 8 ... 60):
 dx_half = 0.42;
 bw_half = 0.38;
 
-% 1. Left Half-Columns: Single-Phase Launch (Slightly lighter alpha, thin gray border)
-b_pos_1s = bar(axM, Yr_Mir - dx_half, Pos_11_Mir, 'stacked', 'BarWidth', bw_half, ...
+pos12_colors = [layer_colors(1:4, :); c_pale_purple_pos; layer_colors(5:11, :)];
+neg5_colors  = [0.78, 0.12, 0.18; 0.92, 0.38, 0.22; c_pale_purple_neg; 0.58, 0.20, 0.62; 0.32, 0.32, 0.48];
+
+% 1. Left Half-Columns: Single-Phase Launch
+b_pos_1s = bar(axM, Yr_Mir - dx_half, Pos_12_Mir, 'stacked', 'BarWidth', bw_half, ...
     'EdgeColor', [0.35 0.35 0.35], 'LineWidth', 0.35, 'HandleVisibility', 'off');
-for k = 1:11
-    b_pos_1s(k).FaceColor = layer_colors(k, :);
+for k = 1:12
+    b_pos_1s(k).FaceColor = pos12_colors(k, :);
     b_pos_1s(k).FaceAlpha = 0.62;
 end
 
-b_neg_1s = bar(axM, Yr_Mir - dx_half, Neg_4Investments_CE, 'stacked', 'BarWidth', bw_half, ...
+b_neg_1s = bar(axM, Yr_Mir - dx_half, Neg_5_Mir, 'stacked', 'BarWidth', bw_half, ...
     'EdgeColor', [0.35 0.35 0.35], 'LineWidth', 0.35, 'HandleVisibility', 'off');
-inv_colors = [0.78, 0.12, 0.18; 0.92, 0.38, 0.22; 0.58, 0.20, 0.62; 0.32, 0.32, 0.48];
-inv_names  = { ...
-    '-Inv 1: Universal First-2000-Days Wraparound (\DeltaG_{ECE,1}: -3.5B \rightarrow -3.2B/yr)', ...
-    '-Inv 2: Tuakana-Teina / Montessori Mentoring (\DeltaG_{ECE,2}: -1.2B \rightarrow -1.3B/yr)', ...
-    '-Inv 3: Universal Age-20 Youth Capital Grant (\DeltaE: 0 in Armada Yrs 0-6 \rightarrow Launches Wave 7!)', ...
-    '-Inv 4: Geographic & Electrification Grants (\DeltaT_k: Waves 1-3 R+S \rightarrow Retires 82% in SS2!)'};
-for k = 1:4
-    b_neg_1s(k).FaceColor = inv_colors(k, :);
+for k = 1:5
+    b_neg_1s(k).FaceColor = neg5_colors(k, :);
     b_neg_1s(k).FaceAlpha = 0.62;
 end
 
-% 2. Right Half-Columns: 13-Wave Armada Launch (Full vivid alpha, crisp dark border — shown in Legend)
-b_pos11 = bar(axM, Yr_Mir + dx_half, Pos_11_Armada, 'stacked', 'BarWidth', bw_half, ...
+% 2. Right Half-Columns: 13-Wave Te Kāhui Waka Launch
+b_pos12 = bar(axM, Yr_Mir + dx_half, Pos_12_Kahui, 'stacked', 'BarWidth', bw_half, ...
     'EdgeColor', [0.10 0.10 0.10], 'LineWidth', 0.55);
-for k = 1:11
-    b_pos11(k).FaceColor   = layer_colors(k, :);
-    b_pos11(k).FaceAlpha   = 0.94;
-    b_pos11(k).DisplayName = Layer_Legend_Labels{k};
+pos12_labels = [Layer_Legend_Labels(1:4), ...
+    {sprintf('5a. [Early Adopters] Youth Grants for Existing %.1f%% %s Tuakana Mentees (Pale Purple: Active Yr 1!)', 100*sh_ygr_base0, r_sel)}, ...
+    {'5b. [Te Kāhui Waka Waves 7-13] Youth Grants for New Mentored Waves (Vivid Orchid: Launches Yr 7+!)'}, ...
+    Layer_Legend_Labels(6:11)];
+for k = 1:12
+    b_pos12(k).FaceColor   = pos12_colors(k, :);
+    b_pos12(k).FaceAlpha   = 0.94;
+    b_pos12(k).DisplayName = pos12_labels{k};
 end
 
-b_neg4 = bar(axM, Yr_Mir + dx_half, Neg_4Inv_Armada_CE, 'stacked', 'BarWidth', bw_half, ...
+b_neg5 = bar(axM, Yr_Mir + dx_half, Neg_5_Kahui, 'stacked', 'BarWidth', bw_half, ...
     'EdgeColor', [0.10 0.10 0.10], 'LineWidth', 0.55);
-for k = 1:4
-    b_neg4(k).FaceColor   = inv_colors(k, :);
-    b_neg4(k).FaceAlpha   = 0.94;
-    b_neg4(k).DisplayName = inv_names{k};
+inv5_names = { ...
+    '-Inv 1: Universal First-2000-Days Wraparound (\DeltaG_{ECE,1})', ...
+    '-Inv 2: Tuakana-Teina / Montessori Mentoring (\DeltaG_{ECE,2})', ...
+    sprintf('-Inv 3a: Early-Adopter Youth Grants (%.1f%% Existing %s Tuakana Mentees, Pale Purple)', 100*sh_ygr_base0, r_sel), ...
+    '-Inv 3b: Te Kāhui Waka Expansion Youth Grants (Waves 7-13: 0 in Yrs 1-6 \rightarrow Launches Yr 7+, Vivid Orchid)', ...
+    '-Inv 4: Geographic & Electrification Grants (\DeltaT_k: Retires 82% in SS2!)'};
+for k = 1:5
+    b_neg5(k).FaceColor   = neg5_colors(k, :);
+    b_neg5(k).FaceAlpha   = 0.94;
+    b_neg5(k).DisplayName = inv5_names{k};
 end
 
-% 3. Overlays: Single-Phase vs. Armada Envelopes, Grounded Actuarial CBAx, Cash J-Curves, & LTFM Annual Deficit
+% 3. Overlays: Envelopes, Grounded Actuarial CBAx, Cash J-Curves, & LTFM Annual Deficit
 plot(axM, Yr_Mir - dx_half, Total_Mir_CE, '--', 'Color', [0.18 0.38 0.58], 'LineWidth', 2.0, ...
-    'DisplayName', sprintf('Left Half-Bar Envelope: Single-Phase Launch (%+.2f%% SS1 \\rightarrow %+.2f%% SS2)', SS1_Nat_Total, SS2_Nat_Total));
-plot(axM, Yr_Mir + dx_half, Total_Armada_CE, '-o', 'Color', [0.00 0.32 0.12], 'MarkerFaceColor', [0.00 0.58 0.24], ...
+    'DisplayName', sprintf('Left Half-Bar Envelope: Single-Phase Launch (Early Bottleneck Drag \\rightarrow %+.2f%% SS2)', Total_Mir_CE(end)));
+plot(axM, Yr_Mir + dx_half, Total_Kahui_CE, '-o', 'Color', [0.00 0.32 0.12], 'MarkerFaceColor', [0.00 0.58 0.24], ...
     'LineWidth', 2.6, 'MarkerSize', 4.4, ...
-    'DisplayName', sprintf('Right Half-Bar Envelope: 13-Wave Armada + Tax Ramps (Overtakes Yr 12 \\rightarrow %+.2f%% SS2)', Total_Armada_CE(end)));
+    'DisplayName', sprintf('Right Half-Bar Envelope: 13-Wave Te Kāhui Waka (Same %+.2f%% SS2 Asymptote!)', Total_Kahui_CE(end)));
 
-plot(axM, Yr_Mir + dx_half, Actuarial_CBAx_Armada_CE, '-.s', 'Color', [0.00 0.72 0.78], 'MarkerFaceColor', [0.15 0.92 0.95], ...
+cbax_yr5 = interp1(Yr_Mir, Actuarial_CBAx_Kahui_CE, 5.0, 'linear');
+plot(axM, Yr_Mir + dx_half, Actuarial_CBAx_Kahui_CE, '-.s', 'Color', [0.00 0.72 0.78], 'MarkerFaceColor', [0.15 0.92 0.95], ...
     'MarkerEdgeColor', [0.00 0.38 0.44], 'LineWidth', 2.4, 'MarkerSize', 4.8, ...
-    'DisplayName', 'Armada ACC / CBAx Actuarial Valuation (Starts at 0% Yr 0 \rightarrow +1.85% CE [+4.4B/yr] at Yr 5 on Waves 1-5!)');
+    'DisplayName', sprintf('Te Kāhui Waka ACC / CBAx Actuarial Valuation (0%% Yr 0 \\rightarrow %+.2f%% CE [%+.1fB/yr] at Yr 5)', cbax_yr5, cbax_yr5*NZD_Per_CE));
 
+trough_1s = min(Net_Fiscal_Outlay_Mirror_CE);
+trough_kh = min(Net_Fiscal_Outlay_Kahui_CE);
 plot(axM, Yr_Mir - dx_half, Net_Fiscal_Outlay_Mirror_CE, ':v', 'Color', [0.85 0.48 0.05], 'MarkerFaceColor', [0.95 0.60 0.10], ...
     'LineWidth', 2.0, 'MarkerSize', 4.0, ...
-    'DisplayName', 'Single-Phase Annual Net Unrecovered Cost (-2.84% CE [-6.8B/yr] Trough \rightarrow Breakeven Yr 18.8)');
-plot(axM, Yr_Mir + dx_half, Net_Fiscal_Outlay_Armada_CE, '--d', 'Color', [0.95 0.82 0.15], 'MarkerFaceColor', [0.95 0.82 0.15], ...
+    'DisplayName', sprintf('Single-Phase Annual Net Unrecovered Cost (%.2f%% CE [%.1fB/yr] Trough \\rightarrow Breakeven Yr 18.8)', trough_1s, trough_1s*NZD_Per_CE));
+plot(axM, Yr_Mir + dx_half, Net_Fiscal_Outlay_Kahui_CE, '--d', 'Color', [0.95 0.82 0.15], 'MarkerFaceColor', [0.95 0.82 0.15], ...
     'MarkerEdgeColor', [0.25 0.20 0.00], 'LineWidth', 2.4, 'MarkerSize', 4.6, ...
-    'DisplayName', 'Armada Annual Net Unrecovered Cost (-1.46% CE [-3.5B/yr] Trough \rightarrow Breakeven Yr 16.8!)');
+    'DisplayName', sprintf('Te Kāhui Waka Annual Net Unrecovered Cost (%.2f%% CE [%.1fB/yr] Trough \\rightarrow Breakeven Yr 16.8!)', trough_kh, trough_kh*NZD_Per_CE));
 
 % 4. Crimson Status Quo LTFM Annual Incremental Deficit / Debt-Sinking Flow (-dDebt/dt)
-y_mir_top = max(36.5, ceil(max([Total_Mir_CE(:); Total_Armada_CE(:); SS1_Nat_Total; SS2_Nat_Total]) * 1.42));
+y_mir_top = max(37.5, ceil(max([Total_Mir_CE(:); Total_Kahui_CE(:); SS2_Sel_Total]) * 1.46));
 y_mir_bot = -8.5;
 
-m_pos_yr = Yr_Fine >= 0;
-plot(axM, Yr_Fine(m_pos_yr), LTFM_Ann_Deficit_CE(m_pos_yr), '-', 'Color', [0.76 0.04 0.12], 'LineWidth', 3.4, ...
-    'DisplayName', 'Status Quo LTFM Annual Incremental Debt Sinking (-dDebt/dt: -4.57% CE [-10.9B/yr] @ Yr 30 \rightarrow -6.24% CE [-14.9B/yr] @ Yr 60!)');
+m_pos_f = Yr_Fine >= 0;
+plot(axM, Yr_Fine(m_pos_f), LTFM_Ann_Deficit_CE(m_pos_f), '-', 'Color', [0.76 0.04 0.12], 'LineWidth', 3.4, ...
+    'DisplayName', sprintf('Status Quo LTFM Annual Incremental Debt Sinking (-dDebt/dt: -4.57%% CE [%.1fB/yr] @ Yr 30 \\rightarrow -6.24%% CE [%.1fB/yr] @ Yr 60!)', ...
+    -4.57*NZD_Per_CE, -6.24*NZD_Per_CE));
 
 flow_ce_30   = interp1(Yr_Fine, LTFM_Ann_Deficit_CE,   30.0);
 flow_bnzd_30 = interp1(Yr_Fine, LTFM_Ann_Deficit_BNZD, 30.0);
@@ -785,19 +769,18 @@ flow_ce_50   = interp1(Yr_Fine, LTFM_Ann_Deficit_CE,   50.0);
 flow_bnzd_50 = interp1(Yr_Fine, LTFM_Ann_Deficit_BNZD, 50.0);
 debt_stk_50  = interp1(Yr_Fine, Debt_LTFM_Stock_Fine,  50.0);
 
-plot(axM, 30.0, flow_ce_30, 'o', 'MarkerSize', 8.5, 'MarkerFaceColor', [0.82 0.08 0.16], 'MarkerEdgeColor', 'w', 'LineWidth', 1.3, 'HandleVisibility', 'off');
-plot(axM, 50.0, flow_ce_50, 'o', 'MarkerSize', 8.5, 'MarkerFaceColor', [0.82 0.08 0.16], 'MarkerEdgeColor', 'w', 'LineWidth', 1.3, 'HandleVisibility', 'off');
+plot(axM, [30.0, 50.0], [flow_ce_30, flow_ce_50], 'o', 'MarkerSize', 8.5, ...
+    'MarkerFaceColor', [0.82 0.08 0.16], 'MarkerEdgeColor', 'w', 'LineWidth', 1.3, 'HandleVisibility', 'off');
+plot(axM, [30.0, 50.0; 21.0, 44.5], [flow_ce_30, flow_ce_50; -5.85, -3.95], '-', ...
+    'Color', [0.76 0.04 0.12], 'LineWidth', 1.4, 'HandleVisibility', 'off');
 
-% Place Yr 30 & Yr 50 Callouts cleanly BELOW the -2.62% CE negative bars:
-plot(axM, [30.0, 21.0], [flow_ce_30, -5.85], '-', 'Color', [0.76 0.04 0.12], 'LineWidth', 1.4, 'HandleVisibility', 'off');
-text(axM, 20.5, -5.85, sprintf('Yr 30 LTFM Annual Deficit Flow:\n%.2f%% CE/yr (%.1f BNZD/yr [-2.5%% GDP/yr])\n[Cumulative LTFM Debt = %.1f%% of GDP]', ...
-    flow_ce_30, flow_bnzd_30, debt_stk_30), ...
+text(axM, 20.5, -5.85, sprintf('Yr 30 LTFM Annual Deficit (%s):\n%.2f%% CE/yr (%.1f BNZD/yr [-2.5%% GDP/yr])\n[Cumulative LTFM Debt = %.1f%% of GDP]', ...
+    r_sel, flow_ce_30, flow_bnzd_30, debt_stk_30), ...
     'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'FontSize', 7.2, 'FontWeight', 'bold', ...
     'Color', [0.65 0.02 0.10], 'BackgroundColor', [1.00 0.96 0.96], 'EdgeColor', [0.76 0.04 0.12], 'LineWidth', 1.2, 'Margin', 2.2);
 
-plot(axM, [50.0, 44.5], [flow_ce_50, -3.95], '-', 'Color', [0.76 0.04 0.12], 'LineWidth', 1.4, 'HandleVisibility', 'off');
-text(axM, 44.5, -3.85, sprintf('Yr 50 LTFM Annual Deficit Flow:\n%.2f%% CE/yr (%.1f BNZD/yr [-3.2%% GDP/yr])\n[Cumulative LTFM Debt = %.1f%% GDP \\rightarrow 185%% @ Yr 60]', ...
-    flow_ce_50, flow_bnzd_50, debt_stk_50), ...
+text(axM, 44.5, -3.85, sprintf('Yr 50 LTFM Annual Deficit (%s):\n%.2f%% CE/yr (%.1f BNZD/yr [-3.2%% GDP/yr])\n[Cumulative LTFM Debt = %.1f%% GDP \\rightarrow 185%% @ Yr 60]', ...
+    r_sel, flow_ce_50, flow_bnzd_50, debt_stk_50), ...
     'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom', 'FontSize', 7.2, 'FontWeight', 'bold', ...
     'Color', [0.65 0.02 0.10], 'BackgroundColor', [1.00 0.96 0.96], 'EdgeColor', [0.76 0.04 0.12], 'LineWidth', 1.2, 'Margin', 2.2);
 
@@ -809,28 +792,29 @@ xline(axM, 16.8, '--',  'Color', [0.00 0.52 0.22], 'LineWidth', 1.5, 'HandleVisi
 xline(axM, 18.8, 'r--', 'LineWidth', 1.5, 'HandleVisibility', 'off');
 xline(axM, 25.0, 'b-.', 'LineWidth', 1.7, 'HandleVisibility', 'off');
 
-text(axM, 0.8, 16.5, sprintf('Split Columns at Every 2-Yr Step (0, 2, 4, 6, 8...):\n• Left Half-Bar = Single-Phase Launch\n• Right Half-Bar = 13-Wave Armada\n• Purple Youth Grant (L05 & -Inv 3) = 0 in Yrs 0, 2, 4, 6\n  (Launches at Wave 7 [Yr 7] as Wave-1 Mentees Turn 20!)'), ...
-    'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle', 'FontSize', 7.3, 'FontWeight', 'bold', 'Color', [0.05 0.28 0.14], ...
+text(axM, 0.8, 16.8, sprintf('Split Columns (%s, Both Converge to %+.2f%% SS2!):\n• Left Half-Bar = Single-Phase | Right Half-Bar = 13-Wave Te Kāhui Waka\n• Pale Purple (5a & -Inv 3a) = %.1f%% Existing Tuakana Early Adopters (Yrs 1-6)\n• Vivid Orchid (5b & -Inv 3b) = New Mentored Waves (Launches Yr 7+!)', ...
+    r_sel, Total_Kahui_CE(end), 100*sh_ygr_base0), ...
+    'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle', 'FontSize', 7.2, 'FontWeight', 'bold', 'Color', [0.05 0.28 0.14], ...
     'BackgroundColor', [0.94 1.00 0.96], 'EdgeColor', [0.00 0.48 0.22], 'LineWidth', 1.2, 'Margin', 2.8);
 
 ylabel(axM, 'Annual Welfare Flow (+CE %/yr) Above 0  |  Annual Public Outlay & LTFM Deficit (-CE %/yr) Below 0', 'FontSize', 10.0, 'FontWeight', 'bold');
 ylim(axM, [y_mir_bot, y_mir_top]);
 
 yyaxis(axM, 'right');
-ylim(axM, [y_mir_bot * NZD_Billion_Per_CE_Pct, y_mir_top * NZD_Billion_Per_CE_Pct]);
-ylabel(axM, 'Annual Gain (+NZD B/yr) vs. Annual Outlay & LTFM Deficit Flow (-NZD B/yr)', 'FontSize', 10.0, 'FontWeight', 'bold');
+ylim(axM, [y_mir_bot * NZD_Per_CE, y_mir_top * NZD_Per_CE]);
+ylabel(axM, sprintf('%s Annual Gain (+NZD B/yr) vs. Outlay & LTFM Deficit (-NZD B/yr)', r_sel), 'FontSize', 10.0, 'FontWeight', 'bold');
 axM.YColor = [0.15 0.15 0.15];
 yyaxis(axM, 'left');
 
-title(axM, 'Apples-to-Apples Annual Flows: 11-Layer Welfare Gains (+Above 0) vs. Mirror Outlays & LTFM Annual Deficit (-Below 0)', ...
+title(axM, sprintf('Apples-to-Apples Annual Flows (%s): 11-Layer Welfare Gains (+Above 0) vs. Mirror Outlays & LTFM Annual Deficit (-Below 0)', r_sel), ...
     'FontSize', 10.8, 'FontWeight', 'bold');
-xlabel(axM, 'Years Relative to Reform Launch (2-Yr Steps: Left Half-Column = Single-Phase | Right Half-Column = 13-Wave Armada + Tax Ramps)', 'FontSize', 10.2, 'FontWeight', 'bold');
+xlabel(axM, 'Years Relative to Reform Launch (2-Yr Steps: Left Half-Column = Single-Phase | Right Half-Column = 13-Wave Te Kāhui Waka + Tax Ramps)', 'FontSize', 10.2, 'FontWeight', 'bold');
 xlim(axM, [-3, 63]); xticks(axM, 0:5:60); grid(axM, 'on'); box(axM, 'on');
-legend(axM, 'Location', 'northwest', 'FontSize', 6.1, 'NumColumns', 2);
+legend(axM, 'Location', 'northwest', 'FontSize', 5.8, 'NumColumns', 2);
 
-f_mir_out = fullfile(OutputDir, sprintf('Fig_7Segment_Welfare_And_MirrorInvestments_%s.png', AnchorTag));
+f_mir_out = fullfile(OutputDir, sprintf('Fig_7Segment_Welfare_And_MirrorInvestments_%s.png', Reg_File_Suffix));
 exportgraphics(fig_mir, f_mir_out, 'Resolution', 300, 'BackgroundColor', 'white');
-fprintf('  -> Saved Apples-to-Apples Split-Column Mirror-Image Welfare vs. Annual Flows Figure to: %s\n', f_mir_out);
+fprintf('  -> Saved Apples-to-Apples Split-Column Mirror-Image Figure (%s) to: %s\n', r_sel, f_mir_out);
 
 Out.Table19_Counterfactuals   = T19;
 Out.Table20_MirrorInvestments = T20;

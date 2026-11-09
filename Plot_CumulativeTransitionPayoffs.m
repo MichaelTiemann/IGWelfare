@@ -55,8 +55,7 @@ for t = 1:T_trans
         if isfield(PricePath, 'PTypeWeights_path')
             w_pop_k = PricePath.PTypeWeights_path(r, t) / sum(PricePath.PTypeWeights_path(1:N_reg, t));
         else
-            default_w = [0.160, 0.240, 0.259, 0.341];
-            w_pop_k = default_w(r);
+            w_pop_k = Params.Pop_Weights_4(r);
         end
 
         % 1. Regional Public Investment Outlay (\Delta G_ECE + s_sub*i_c + YouthGrant E + \Delta T_k)

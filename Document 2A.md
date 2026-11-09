@@ -238,7 +238,7 @@ $$
 
 **Calibration of the Gumbel Scale Parameter ($`\rho_G = 0.10`$ in Labrousse & Perdereau, 2025, Table 8 → $`\varrho_{\mathrm{mig}} = 0.180`$ in `Calibrate_NZ_Moments.m`):** In Table 8 (p. 54) of Labrousse and Perdereau (2025), their baseline Gumbel shock scale parameter is calibrated to $`\rho_G = 0.10`$ to match France's 5-year inter-regional stay rate of 85% (3% annual mobility). In our New Zealand model (`Calibrate_NZ_Moments.m`), $`\varrho_{\mathrm{mig}} = 0.180`$ is higher than France's 0.10 because under the 1973 Trans-Tasman Travel Arrangement (TTTA), New Zealand citizens have visa-free labor-market access to Australia and exhibit the highest cross-border skilled mobility rate in the OECD. Calibrating $`\varrho_{\mathrm{mig}}`$ in SMM (Table 6.1, Row 13) to match New Zealand's observed 10.93% national (and 19.29%–23.41% Auckland/Large-city) age 20–35 trans-Tasman/OECD departure rate uniquely pins down $`\varrho_{\mathrm{mig}} = 0.180`$.
 
-### 4.4 Convex Transition Operator Mixing for Phased Armada Rollouts (Waiters vs. Active Participants)
+### 4.4 Convex Transition Operator Mixing for Phased *Te Kāhui Waka* Rollouts (Waiters vs. Active Participants)
 
 When the Phase 1 (`SS1`) reform suite is deployed across 13 annual regional waves (`Document 1D, Section 7` and `Document 2B, Section 7.6`) rather than as an instantaneous Day-1 step shock, at any transition period *t* inside the rollout window a fraction *s*<sub>k,m</sub>(*t*) ∈ {0, 1/3, 2/3, 1} of eligible households in region *k* are **Active Participants** receiving effective delivered policy intensity *G*<sub>k,m</sub><sup>eff</sup>(*t*), while the remaining 1 − *s*<sub>k,m</sub>(*t*) are **Waiters** facing the baseline status-quo intensity *G*<sub>m,0</sub>.
 

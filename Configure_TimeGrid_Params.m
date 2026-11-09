@@ -71,7 +71,16 @@ Params.T_trans_years = 60;
 Params.T_trans       = round(Params.T_trans_years / dt); % 12 (dt=5), 20 (dt=3), 30 (dt=2)
 Params.zeta_cohort   = 1 - (1 - 0.085)^scale_dt;
 
-%% 5. CANONICAL 4-REGION WHANAU, HARDSHIP, & MIGRATION CALIBRATION (SINGLE SOURCE OF TRUTH)
+%% 5. CANONICAL 4-REGION POPULATION, WHANAU, HARDSHIP, & MIGRATION CALIBRATION (SINGLE SOURCE OF TRUTH)
+Params.Reg_Names_4    = {'Rural', 'Small', 'Large', 'Auckland'};
+Params.Reg_Names_5    = {'Rural', 'Small', 'Large', 'Auckland', 'National'};
+if ~isfield(Params, 'Pop_Weights_4'),  Params.Pop_Weights_4  = [0.160, 0.240, 0.259, 0.341]; end % Stats NZ HH shares [Rural, Small, Large, Auckland]
+if ~isfield(Params, 'Firm_Weights_4'), Params.Firm_Weights_4 = [0.150, 0.230, 0.269, 0.351]; end % Stats NZ Firm shares [Rural, Small, Large, Auckland]
+Params.Pop_Weights_5  = [Params.Pop_Weights_4, 1.000]; % 5th column = National (100% population weight)
+Params.Pop_Weights_3  = [Params.Pop_Weights_4(1) + Params.Pop_Weights_4(2), Params.Pop_Weights_4(3), Params.Pop_Weights_4(4)]; % [Rural+Small, Large, Auckland]
+Params.NZD_Per_CE_Nat = 2.38;  % National 1.0% CE equivalent in Real 2025 BNZD/yr
+Params.GDP_2026_BNZD  = 430.0; % National 2026 GDP anchor in Real 2025 BNZD/yr
+
 Params.K_whanau_base_vec = [0.42, 0.38, 0.32, 0.28]; % [Rural, Small, Large, Auckland]
 if ~isfield(Params, 'K_whanau_base')
     Params.K_whanau_base = struct('HH_Rural', 0.42, 'HH_Small', 0.38, 'HH_Large', 0.32, 'HH_Auckland', 0.28);
@@ -89,8 +98,8 @@ Params.reg_skill_drift = [-0.083, -0.059, -0.024, -0.020];
 
 % Canonical 4x5 Gumbel migration utility matrix [Rural, Small, Large, Auckland, Abroad]
 Params.u_target_4x5 = [ ...
-     2.85,  1.15,  0.65,  0.15, -0.82;   % From Rural    (1.8% Emig)
-     0.55,  2.45,  1.05,  0.45,  0.65;   % From Small    (9.1% Emig)
+    2.85,  1.15,  0.65,  0.15, -0.82;   % From Rural    (1.8% Emig)
+    0.55,  2.45,  1.05,  0.45,  0.65;   % From Small    (9.1% Emig)
     -0.25,  0.45,  2.15,  1.05,  1.45;   % From Large    (23.4% Emig)
     -0.45,  0.15,  0.65,  2.55,  0.16];  % From Auckland (7.0% Net / 19.3% Gross Emig)
 
@@ -255,16 +264,16 @@ Params.mu_z_reg_vec     = Params.mu_z_SS0 + Params.kai_upgrade_share * (Params.m
 Params.p_zh_upgrade_vec = [0.15, 0.15, 0.15, 0.15] + Params.kai_upgrade_share * [0.08, 0.06, 0.03, 0.01];
 Params.p_zl_downgrade_v = [0.15, 0.15, 0.15, 0.15] - Params.kai_upgrade_share * [0.05, 0.04, 0.02, 0.00];
 
-%% 8. Long-term (SS2) Macro Investment Parameters & 13-Wave Armada Implementation Mechanics
+%% 8. Long-term (SS2) Macro Investment Parameters & 13-Wave Te Kāhui Waka Implementation Mechanics
 if ~isfield(Params, 'ss2_harvest_div_base'),     Params.ss2_harvest_div_base     = 2.070; end % SS2 debt-sinking (-60 bps) + GE tax-base dividend (pp)
 if ~isfield(Params, 'psi_austerity_tax_drag'),   Params.psi_austerity_tax_drag   = 0.220; end % SS2 harvest erosion coefficient when Super > 65
 
 % --- Implementation Friction (tau_friction), Workforce Bottleneck (phi_adj), & Inter-Wave Learning (gamma_learning) ---
 % Rollout_Mode:
-%   - 'SingleShot' : 100% Day-1 step shock (suffers full tau_friction_0 = 0.28 & phi_adj*(1.0)^2 = 0.18 bottleneck drag)
-%   - 'Armada'     : 13-Wave phased rollout (1/3 regional steps cut phi_adj by 88.9% & compound inter-wave learning)
-%   - 'Frictionless_Textbook' : Legacy 0-friction textbook upper bound (tau_friction = 0, phi_adj = 0)
-if ~isfield(Params, 'Rollout_Mode'),             Params.Rollout_Mode             = 'Armada'; end
+%   - 'SingleShot'          : 100% Day-1 step shock (suffers full tau_friction_0 = 0.28 & phi_adj*(1.0)^2 = 0.18 bottleneck drag)
+%   - 'TeKahuiWaka'         : 13-Wave phased rollout (1/3 regional steps cut phi_adj by 88.9% & compound inter-wave learning)
+%   - 'Frictionless_Textbook': Legacy 0-friction textbook upper bound (tau_friction = 0, phi_adj = 0)
+if ~isfield(Params, 'Rollout_Mode'),             Params.Rollout_Mode             = 'TeKahuiWaka'; end
 if ~isfield(Params, 'tau_friction_0'),           Params.tau_friction_0           = 0.280; end % Day-1 uncalibrated commissioning overhead (Coase-North)
 if ~isfield(Params, 'tau_friction_floor'),       Params.tau_friction_floor       = 0.035; end % Mature Whanau Ora / high-trust asymptotic friction floor
 if ~isfield(Params, 'gamma_learning'),           Params.gamma_learning           = 0.450; end % Arrow (1962) / Deming PDSA inter-wave learning rate
@@ -276,26 +285,75 @@ if ~isfield(Params, 'T_ramp_LVT_yrs'),           Params.T_ramp_LVT_yrs          
 if ~isfield(Params, 'T_ramp_CGT_Est_yrs'),       Params.T_ramp_CGT_Est_yrs       = 3.0;   end % 3-year fast phase-in for Capital Gains & Estate Levy (Waves 1-3)
 if ~isfield(Params, 'T_ramp_CorpCut_yrs'),       Params.T_ramp_CorpCut_yrs       = 10.0;  end % 10-year synchronized corporate tax cut (20% -> 12% at -0.8%/yr alongside LVT)
 
-% Evaluate regime-level effective delivery multiplier eta_delivery_reg [1 x 4] and active coverage s_active_reg [1 x 4]:
+% --- Canonical Existing Gate-3 Mentoring Base & 13-Wave Te Kāhui Waka Matrices ---
+if ~isfield(Params, 'sh_ygr_base0_vec'), Params.sh_ygr_base0_vec = [0.196, 0.185, 0.158, 0.165]; end % [Rural, Small, Large, Auckland]
+w4_col = Params.Pop_Weights_4(:);
+b4_row = Params.sh_ygr_base0_vec(:)';
+w_RS   = Params.Pop_Weights_3(1);
+
+Params.sh_ygr_base0_nat      = b4_row * w4_col;                                                       % 0.1730 (17.30% exact)
+Params.sh_ygr_base0_5        = [b4_row, Params.sh_ygr_base0_nat];                                     % [1 x 5]: [Rural, Small, Large, Auckland, National]
+Params.sh_ygr_base0_3echelon = [(w4_col(1)*b4_row(1) + w4_col(2)*b4_row(2)) / w_RS, b4_row(3), b4_row(4)]; % [0.1894, 0.1580, 0.1650]
+
+Params.Waves_13 = (1:13)';
+ECE_13x3 = [ ...
+    1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3; ... % Echelon 1: Rural+Small (Waves 1, 4, 7)
+    0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3; ... % Echelon 2: Large Metros (Waves 2, 5, 8)
+    0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3]' / 3.0; % Echelon 3: Auckland (Waves 3, 6, 9)
+
+YGr_New_13x3 = [ ...
+    0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3; ... % Echelon 1: Rural+Small (Waves 7, 10, 13)
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 3; ... % Echelon 2: Large Metros (Waves 8, 11, 13)
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 3]' / 3.0; % Echelon 3: Auckland (Waves 9, 12, 13)
+
+Elc_13x3 = [ ...
+    1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3; ... % Echelon 1: Rural+Small Consecutive (Waves 1-3)
+    0, 0, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3; ... % Echelon 2: Large Metros Consecutive (Waves 4-6)
+    0, 0, 0, 0, 0, 0, 1, 2, 3, 3, 3, 3, 3]' / 3.0; % Echelon 3: Auckland Consecutive (Waves 7-9)
+
+b3_row                     = Params.sh_ygr_base0_3echelon;
+Params.Kahui_ECE_13x3      = ECE_13x3;
+Params.Kahui_Mnt_13x3      = ECE_13x3;
+Params.Kahui_YGr_New_13x3  = YGr_New_13x3;
+Params.Kahui_YGr_Tot_13x3  = b3_row + (1.0 - b3_row) .* YGr_New_13x3;
+Params.Kahui_Elc_13x3      = Elc_13x3;
+
+% Unified [13 x 5] Wave Matrices across {'Rural', 'Small', 'Large', 'Auckland', 'National'} (in [0, 1] shares):
+ECE_13x4                   = ECE_13x3(:, [1, 1, 2, 3]);
+YGr_New_13x4               = YGr_New_13x3(:, [1, 1, 2, 3]);
+YGr_Tot_13x4               = b4_row + (1.0 - b4_row) .* YGr_New_13x4;
+Elc_13x4                   = Elc_13x3(:, [1, 1, 2, 3]);
+
+Params.Kahui_ECE_13x5      = [ECE_13x4,     ECE_13x4     * w4_col];
+Params.Kahui_Mnt_13x5      = Params.Kahui_ECE_13x5;
+Params.Kahui_YGr_New_13x5  = [YGr_New_13x4, YGr_New_13x4 * w4_col];
+Params.Kahui_YGr_Tot_13x5  = [YGr_Tot_13x4, YGr_Tot_13x4 * w4_col];
+Params.Kahui_Elc_13x5      = [Elc_13x4,     Elc_13x4     * w4_col];
+
+% Evaluate regime-level effective delivery multiplier eta_delivery_reg [1 x 4]:
 if strcmpi(Params.Rollout_Mode, 'Frictionless_Textbook')
     Params.eta_delivery_SS1 = [1.000, 1.000, 1.000, 1.000];
     Params.eta_delivery_SS2 = [1.000, 1.000, 1.000, 1.000];
 elseif strcmpi(Params.Rollout_Mode, 'SingleShot')
-    % Single-Shot 100% Day-1 rollout pays full quadratic bottleneck phi_adj*(1.0)^2 and uncalibrated Day-1 friction:
-    % Rural/Small suffer slightly less kaiako rent bottleneck than Large/Auckland:
-    Params.eta_delivery_SS1 = [0.835, 0.825, 0.810, 0.795]; % ~18.5% average implementation haircut in SS1
-    Params.eta_delivery_SS2 = [0.910, 0.905, 0.895, 0.885]; % Persistent scar from uncalibrated Day-1 rollout
+    Params.eta_delivery_SS1 = [0.835, 0.825, 0.810, 0.795];
+    Params.eta_delivery_SS2 = [0.910, 0.905, 0.895, 0.885];
 else
-    % 13-Wave Armada: Delta_s = 1/3 cuts bottleneck drag by 88.9% ((1/3)^2 = 1/9), while Wave 1 -> 2 -> 3
-    % PDSA learning transfers operational know-how from Rural+Small -> Large -> Auckland:
-    Params.eta_delivery_SS1 = [0.955, 0.955, 0.962, 0.968]; % Later waves (Large, Akl) inherit Wave 1-2 learnings!
-    Params.eta_delivery_SS2 = [0.985, 0.985, 0.988, 0.990]; % Near-frictionless mature steady state
+    % 13-Wave Te Kāhui Waka ('TeKahuiWaka' or legacy 'Armada'):
+    Params.eta_delivery_SS1 = [0.955, 0.955, 0.962, 0.968];
+    Params.eta_delivery_SS2 = [0.985, 0.985, 0.988, 0.990];
 end
 
-if ~isfield(Params, 's_active_ece_vec'),  Params.s_active_ece_vec  = [1.0, 1.0, 1.0, 1.0]; end
-if ~isfield(Params, 's_active_ygr_vec'),  Params.s_active_ygr_vec  = [1.0, 1.0, 1.0, 1.0]; end
-if ~isfield(Params, 's_active_elec_vec'), Params.s_active_elec_vec = [1.0, 1.0, 1.0, 1.0]; end
-if ~isfield(Params, 'eta_deliv_vec'),     Params.eta_deliv_vec     = Params.eta_delivery_SS1; end
+if isfield(Params, 't_wave_yr') && ~isempty(Params.t_wave_yr) && Params.t_wave_yr >= 1 && Params.t_wave_yr <= 13
+    w_idx = round(Params.t_wave_yr);
+    Params.s_active_ece_vec  = Params.Kahui_ECE_13x5(w_idx, 1:4);
+    Params.s_active_ygr_vec  = Params.Kahui_YGr_Tot_13x5(w_idx, 1:4);
+    Params.s_active_elec_vec = Params.Kahui_Elc_13x5(w_idx, 1:4);
+else
+    if ~isfield(Params, 's_active_ece_vec'),  Params.s_active_ece_vec  = [1.0, 1.0, 1.0, 1.0]; end
+    if ~isfield(Params, 's_active_ygr_vec'),  Params.s_active_ygr_vec  = [1.0, 1.0, 1.0, 1.0]; end
+    if ~isfield(Params, 's_active_elec_vec'), Params.s_active_elec_vec = [1.0, 1.0, 1.0, 1.0]; end
+end
+if ~isfield(Params, 'eta_deliv_vec'), Params.eta_deliv_vec = Params.eta_delivery_SS1; end
 
 % Apply effective delivery yield (eta_deliv_vec) to the reform increment above SS0 baseline:
 for r_idx = 1:4
@@ -308,5 +366,6 @@ for r_idx = 1:4
     Params.G_ece.(hh_type)        = g1_0 + eta_k * (Params.G_ece.(hh_type)        - g1_0);
     Params.s_active_ece.(hh_type) = Params.s_active_ece_vec(r_idx);
 end
+
 
 end
