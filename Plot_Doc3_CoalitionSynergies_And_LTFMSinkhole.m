@@ -204,7 +204,7 @@ fprintf('  -> Exported Table 21 (LTFM Drift, 3%% GDP Defense & Stop-Go Trajector
 % =========================================================================
 % 3. RENDER FIGURE 1: 3D LTFM DRIFT SURFACE + 60-YR COALITION TRAJECTORIES
 % =========================================================================
-fig1 = figure('Name', sprintf('Fig_Doc3_LTFM_Sinkhole_And_DefenseShock_%s', AnchorTag), ...
+fig1 = figure('Name', sprintf('Fig_Doc3_2Panel_LTFM_Surface_and_Sinkhole_%s', AnchorTag), ...
     'Color', 'w', 'Position', [40, 40, 1680, 840]);
 tiledlayout(1, 2, 'TileSpacing', 'loose', 'Padding', 'loose');
 
@@ -315,9 +315,19 @@ xlim(ax2, [-5, 60]); ylim(ax2, [-25, 29]);
 grid(ax2, 'on'); box(ax2, 'on');
 legend(ax2, 'Location', 'northwest', 'FontSize', 6.8);
 
-f_out1 = fullfile(OutputDir, sprintf('Fig_Doc3_LTFM_Sinkhole_And_DefenseShock_%s.png', AnchorTag));
+f_out1 = fullfile(OutputDir, sprintf('Fig_Doc3_LTFM_Surface_And_Sinkhole_%s.png', AnchorTag));
 exportgraphics(fig1, f_out1, 'Resolution', 300, 'BackgroundColor', 'white');
-fprintf('  -> Saved Figure 1 (3D LTFM Surface + Defense Commitment + Policy Cycling) to: %s\n', f_out1);
+fprintf('  -> Saved Figure 1 (3D LTFM Surface + LTFM Sinkhole) to: %s\n', f_out1);
+
+fig1b = figure('Name', sprintf('Fig_Doc3_LTFM_Sinkhole_And_DefenseShock_%s', AnchorTag), ...
+    'Color', 'w', 'Position', [40, 40, 1280, 720]);
+ax_copied = copyobj(ax2,fig1b);
+legend(ax_copied, 'Location', 'northwest', 'FontSize', 6.8);
+set(ax_copied, 'OuterPosition', 'default');
+
+f_out1b = fullfile(OutputDir, sprintf('Fig_Doc3_LTFM_Sinkhole_And_DefenseShock_%s.png', AnchorTag));
+exportgraphics(fig1b, f_out1b, 'Resolution', 300, 'BackgroundColor', 'white');
+fprintf('  -> Saved Figure 1b (LTFM + Defense Commitment + Policy Cycling) to: %s\n', f_out1b);
 
 % =========================================================================
 % 4. CONSTRUCT THE 2D (4 x 4) COALITION COMPLEMENTARITY & DEPENDENCY MATRIX
@@ -495,7 +505,7 @@ fprintf('  -> Saved Figure 2 (2D Coalition Matrix & Constituency Outcome Compari
 
 Out.Table21_SinkholeTrajectories = T21;
 Out.Table22_CoalitionMatrix      = T22;
-Out.Fig1_SinkholeAndDefense      = f_out1;
+Out.Fig1_SinkholeAndDefense      = f_out1b;
 Out.Fig2_CoalitionMatrix         = f_out2;
 
 
