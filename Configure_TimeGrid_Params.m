@@ -295,7 +295,7 @@ end
 if ~isfield(Params, 's_active_ece_vec'),  Params.s_active_ece_vec  = [1.0, 1.0, 1.0, 1.0]; end
 if ~isfield(Params, 's_active_ygr_vec'),  Params.s_active_ygr_vec  = [1.0, 1.0, 1.0, 1.0]; end
 if ~isfield(Params, 's_active_elec_vec'), Params.s_active_elec_vec = [1.0, 1.0, 1.0, 1.0]; end
-if ~isfield(Params, 'eta_deliv_vec'),     Params.eta_deliv_vec     = [1.0, 1.0, 1.0, 1.0]; end
+if ~isfield(Params, 'eta_deliv_vec'),     Params.eta_deliv_vec     = Params.eta_delivery_SS1; end
 
 % Apply effective delivery yield (eta_deliv_vec) to the reform increment above SS0 baseline:
 for r_idx = 1:4

@@ -165,23 +165,23 @@ In neoclassical capital-accumulation theory (Lucas, 1967; Hayashi, 1982; Christi
 
 ### 7.2 Structural Equation: The Capital-Adoption & Inter-Wave Learning Operator
 
-In standard investment theory with flow adjustment costs (Christiano et al., 2005) augmented by Arrow (1962) / Deming (1986) cumulative operational learning, let $s_{k,m}(t) \in \{0, \frac{1}{3}, \frac{2}{3}, 1\}$ denote the statutory funded capacity share of program $m \in \{\mathrm{ECE}_1, \mathrm{Mentor}_2, \mathrm{Grant}_E, \mathrm{Elec}_{\bar{e}}\}$ in region $k \in \{\mathrm{Rural+Small}, \mathrm{Large}, \mathrm{Auckland}\}$ at calendar year $t \ge 1$.
+In standard investment theory with flow adjustment costs (Christiano et al., 2005) augmented by Arrow (1962) / Deming (1986) cumulative operational learning, let *s*<sub>k,m</sub>(*t*) ∈ {0, 1/3, 2/3, 1} denote the statutory funded capacity share of program *m* ∈ {ECE<sub>1</sub>, Mentor<sub>2</sub>, Grant<sub>E</sub>, Elec<sub>ē</sub>} in region *k* ∈ {`Rural+Small`, `Large`, `Auckland`} at calendar year *t* ≥ 1.
 
-The **Effective Delivered Capability Flow** $G_{k,m}^{\mathrm{eff}}(t)$ is governed by the product of funded capacity $s_{k,m}(t)$, the **Local Cohort Maturation Factor** $\Lambda_{\mathrm{local}}(t; \delta_m)$, and the **Cross-Wave Knowledge Spillover Multiplier** $\Psi_{\mathrm{armada}}\bigl(\mathcal{L}_{m}(t-1)\bigr)$ net of rapid-scaling congestion $\phi_{\mathrm{adj}} \bigl(\Delta s_{k,m}(t)\bigr)^2$:
-
-$$
-G_{k,m}^{\mathrm{eff}}(t) = G_{m}^{\star} \cdot s_{k,m}(t) \cdot \bigl(1 - \delta_m e^{-\lambda_m (t - t_{k,m}^0)}\bigr) \cdot \left(1 - \tau_{\mathrm{fric},0} \, e^{-\gamma_{\mathrm{learn}} \mathcal{L}_m(t-1)}\right) \cdot \left[1 - \phi_{\mathrm{adj}}\bigl(\Delta s_{k,m}(t)\bigr)^2\right]
-$$
-
-where Cumulative Armada Experience $\mathcal{L}_m(t-1)$ integrates the realized deployment across all preceding regional waves $k'$ up to year $t - 1$:
+The **Effective Delivered Capability Flow** *G*<sub>k,m</sub><sup>eff</sup>(*t*) is governed by the product of funded capacity *s*<sub>k,m</sub>(*t*), the **Local Cohort Maturation Factor** Λ<sub>local</sub>(*t*; δ<sub>m</sub>), and the **Cross-Wave Knowledge Spillover Multiplier** Ψ<sub>armada</sub>(*L*<sub>m</sub>(*t* − 1)) net of rapid-scaling congestion φ<sub>adj</sub>(Δ*s*<sub>k,m</sub>(*t*))<sup>2</sup>:
 
 $$
-\mathcal{L}_m(t-1) = \sum_{\tau=1}^{t-1} \sum_{k'} \omega_{k'} \, s_{k',m}(\tau)
+G_{k,m}^{\mathrm{eff}}(t) = G_{m}^{\star} \cdot s_{k,m}(t) \cdot \bigl(1 - \delta_m e^{-\lambda_m (t - t_{k,m}^0)}\bigr) \cdot \left(1 - \tau_{\mathrm{fric},0} e^{-\gamma_{\mathrm{learn}} \mathcal{L}_m(t-1)}\right) \cdot \left[1 - \phi_{\mathrm{adj}}\bigl(\Delta s_{k,m}(t)\bigr)^2\right]
+$$
+
+where Cumulative Armada Experience *L*<sub>m</sub>(*t* − 1) integrates the realized deployment across all preceding regional waves *k'* up to year *t* − 1:
+
+$$
+\mathcal{L}_m(t-1) = \sum_{\tau=1}^{t-1} \sum_{k'} \omega_{k'} s_{k',m}(\tau)
 $$
 
 * **Why the 13-Wave Armada Beats the "Day-1 Single-Shot" in Net Present Efficiency:**
-  - Under a **Day-1 Single-Shot** ($\Delta s_{k,m}(1) = 1.0$ everywhere at $t = 1$ with $\mathcal{L}_m(0) = 0$), the quadratic workforce bottleneck penalty $\phi_{\mathrm{adj}}(1.0)^2$ is maximized (`9x` higher per unit than a $\Delta s = 1/3$ wave step where $(1/3)^2 = 1/9$), and every region pays the uncalibrated Day-1 commissioning friction $\tau_{\mathrm{fric},0} = 0.32$ simultaneously.
-  - Under the **13-Wave Armada** ($\Delta s_{k,m}(t) = 1/3$ per wave), congestion drag falls by **88.9%**, while cumulative learning $\mathcal{L}_m(t-1)$ compresses commissioning friction from `0.28` in Echelon 1 (Waves 1–3) to `0.11` in Echelon 2 (Waves 4–6) and `< 0.05` in Echelon 3 (Waves 7–9)—delivering **higher steady-state program fidelity** while cutting the cumulative upfront J-curve cash trough by **36.2% (saving NZD 32.9B in early Crown borrowing)**!
+  - Under a **Day-1 Single-Shot** (Δ*s*<sub>k,m</sub>(1) = 1.0 everywhere at *t* = 1 with *L*<sub>m</sub>(0) = 0), the quadratic workforce bottleneck penalty φ<sub>adj</sub>(1.0)<sup>2</sup> is maximized (`9x` higher per unit than a Δ*s* = 1/3 wave step where (1/3)<sup>2</sup> = 1/9), and every region pays the uncalibrated Day-1 commissioning friction τ<sub>fric,0</sub> = 0.32 simultaneously.
+  - Under the **13-Wave Armada** (Δ*s*<sub>k,m</sub>(*t*) = 1/3 per wave), congestion drag falls by **88.9%**, while cumulative learning *L*<sub>m</sub>(*t* − 1) compresses commissioning friction from `0.28` in Echelon 1 (Waves 1–3) to `0.11` in Echelon 2 (Waves 4–6) and `< 0.05` in Echelon 3 (Waves 7–9)—delivering **higher steady-state program fidelity** while cutting the cumulative upfront J-curve cash trough by **36.2% (saving NZD 32.9B in early Crown borrowing)**!
 
 ### 7.2.1 The Generational Wave-Convolution Operator: Why `SS2` Echoes the Rhythm of `SS1`
 
@@ -190,7 +190,9 @@ In a naive two-stage step model, Phase 1 (`SS1`) and Phase 2 (`SS2`) are depicte
 1. **The Biological Generation Lag (*T*<sub>gen</sub> ≈ 21.5 Years):** In our OLG demographic transition matrix (`Configure_TimeGrid_Params.m`), children who enter Dual-Gate early-childhood and adolescent wraparound in Wave *w* ∈ {1, …, 9} reach prime enterprise-building and parenting ages (`Ages 26–35`, where Daruich's 2nd-generation dynastic skill transmission and Guvenen's *z*<sub>l</sub> → *z*<sub>h</sub> occupational sorting peak) roughly **21.5 years after their wave's initial launch**. Similarly, youth who receive the Age-20 Youth Capital Grant (*E*) in Waves *w* ∈ {7, …, 13} reach peak mid-career enterprise equity and homeownership maturity **16.5 years after their Age-20 grant wave** (`Years 23.5 to 29.5`).
 2. **Discrete Convolution of the 13 Waves into `SS2`:** Let Δ*s*<sub>m</sub>(*w*) = *s*<sub>m</sub>(*w*) − *s*<sub>m</sub>(*w* − 1) denote the incremental national population share activated in Wave *w* ∈ {1, …, 13} for capability stack *m* ∈ {HC, Grant<sub>E</sub>}, and let *K*<sub>mat</sub>(τ) = 1 − exp(−τ / τ<sub>echo</sub>) (for τ > 0, with τ<sub>echo</sub> = 5.8 years) denote the single-wave cohort maturation kernel. The **Wave-Convolved `SS2` Generational Echo Weight** Ω<sub>echo,m</sub>(*t*) at calendar year *t* is the exact discrete convolution of the `SS1` wave increments shifted by their biological generation lag *T*<sub>gen,m</sub>:
 
-$$\Omega_{\mathrm{echo},m}(t) = \sum_{w=1}^{13} \Delta s_{m}(w) \cdot \mathbb{I}\!\bigl(t > w + T_{\mathrm{gen},m}\bigr) \left[1 - \exp\!\left(-\frac{t - (w + T_{\mathrm{gen},m})}{\tau_{\mathrm{echo}}}\right)\right]$$
+$$
+\Omega_{\mathrm{echo},m}(t) = \sum_{w=1}^{13} \Delta s_{m}(w) \cdot \mathbb{I}\bigl(t > w + T_{\mathrm{gen},m}\bigr) \left[1 - \exp\left(-\frac{t - (w + T_{\mathrm{gen},m})}{\tau_{\mathrm{echo}}}\right)\right]
+$$
 
 * **Eliminating the Artificial Year-25 Kink:** Because **Wave 1 (`Rural + Small`, launched at *w* = 1)** reaches its generational echo at *t* = 22.5 years, **Wave 5 (`Large`, *w* = 5)** at *t* = 26.5 years, and **Wave 9 (`Auckland`, *w* = 9)** at *t* = 30.5 years—while the statutory `SS2` fiscal harvest (`-3.75 pp` PAYE cut and `-60 bps` debt-sinking dividend) phases in smoothly across Years 21.5–28 as regional transfers (`Transfer_Geo`) retire in wave order—the sharp hockey-stick corner at Year 25 disappears completely. Instead, the `SS2` harvest rises along a smooth, C<sup>1</sup>-continuous S-curve whose slope is governed by the exact 13-wave cadence established in `SS1`.
 

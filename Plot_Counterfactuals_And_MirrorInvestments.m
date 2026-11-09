@@ -255,7 +255,7 @@ yr_w_grid  = [0; Waves_13; 25; 60];
 for i = 1:n_yr
     y = Yr_Grid(i);
     if y < 0
-        % Pre-launch cohorts (y < 0): tiny экспоненциальный anticipation tail near 0
+        % Pre-launch cohorts (y < 0): tiny exponential anticipation tail near 0
         w_pre     = 0.04 * exp(y / 2.5);
         w_pre_vec = [0.5*w_pre, 0.0, 0.0, w_pre, 0.0, w_pre, 0.0, 0.0, 0.5*w_pre, 0.0, 0.0];
         Traj_11(i, :)       = (SS1_Nat_11') .* w_pre_vec;

@@ -318,7 +318,7 @@ for k = 1:N
         phi_p = min(1.0, max(0.0, y / 15.0));
         y_lk  = linspace(y, min(60.0, y + 25.0), 25);
         w_lk  = interp1(y_all, welf, y_lk, 'pchip');
-        fwd_l = min(1.0, max(0.0, (y + 1.2) / 14.0));
+        fwd_l = min(1.0, max(0.0, (y + 1.2) / 14.0)) * 0.70 * 0.884 * mean(w_lk);
         act(k) = min(SS2_Tot, (1.0 - phi_p)*(unrec(k) + fwd_l) + phi_p*welf(k));
     end
 end
