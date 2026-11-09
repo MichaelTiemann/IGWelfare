@@ -19,7 +19,7 @@ Left unresisted, the compounding arithmetic of demographic aging, untaxed land s
 * **Wartime Resolve Without Wartime Tragedy (*"All Must Give Some, None Must Give All"*):** In war, a nation asks its youth to give everything so the country may endure. Under forty years of 3-year electoral "Stop–Go" drift, we inverted that compact—balancing short-term budgets by underinvesting in the **First 2,000 Days** (`Gate 1–2`) and early adolescence (`Gate 3`), consigning `19.8%` of rural children and `14.3%–18.2%` of urban children to preventable early hardship. Our compact restores intergenerational honor through proportionate shared contribution: **all must give some, and happily we ask none to give all**. Holders of passive land and dynastic estates phase in a predictable **10-year Land Value Tax ramp** (`+0.15%/yr` to `1.50%`) and **3-year Capital Gains / Estate ramp** (`25%`), paired in 1-to-1 lockstep with an immediate **`-0.80%/yr` cut in productive corporate taxation (`20.0% → 12.0%`)**.
 * **Not an Apology for Investment—A Sovereign Triumph Over Drift:** Look below the zero line in our **Apples-to-Apples Annual Flows** ledger (`Figure 1D.1`). By Year 3.5, the Status Quo's crimson LTFM deficit curve is *already* sinking faster every single year than *Te Kāhui Waka*'s disciplined investment outlay—and the Status Quo *never* comes back up. By contrast, *Te Kāhui Waka*'s net unrecovered outlay peaks at a modest **`-1.76% CE/yr` (`-NZD 4.2B/yr`)**, crosses **100% self-financing cash breakeven at `Year 16.8`**, fuses into a single unified post-learning trajectory from **`Year 16`** onward, and lifts permanent national household welfare to **`+25.19%–25.21% CE` (`+NZD 60.0 billion per year`)** while retiring sovereign debt to **`21%–22% of GDP`**.
 
-![Apples-to-Apples Annual Flows: 11-Layer Welfare Gains vs Mirror Outlays and LTFM Annual Deficit](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_11Layer_Welfare_And_MirrorInvestments_Dunedin_22.png)
+![Apples-to-Apples Annual Flows: 11-Layer Welfare Gains vs Mirror Outlays and LTFM Annual Deficit](Output_NZ_4Region_Intergen/Fig_11Layer_Welfare_And_MirrorInvestments_Dunedin_22.png)
 *Figure 1D.1: Apples-to-Apples annual flows (`National`, `1.0% CE = NZD 2.38B/yr`). Years 0–14 compare Single-Phase launch (left half-columns) against the 13-Wave Te Kāhui Waka rollout (right half-columns), including the pale-purple transitional Early-Adopter Youth Grant bridge (`17.3%` existing Tuakana–Teina vanguard, folding into universal vivid-orchid coverage by Year 13). Once wave deployment and 4-year school system learning complete, both paths fuse into a single unified full-width trajectory from Year 16 to Year 60 (`+25.19% CE` / `+NZD 60.0B/yr`), towering above the relentless downward plunge of the Status Quo LTFM annual deficit (`-dDebt/dt`, solid crimson).*
 
 ---
@@ -30,7 +30,7 @@ Why have decades of well-intentioned, single-ministry pilots failed to bend New 
 
 As demonstrated in **`Figure 1D.2`**, if Parliament enacted all **seven isolated policy instruments** one at a time without connecting the gates, their standalone effects would sum to only **`+11.23% CE`** in long-run steady state (`dashed black curve` in Panel A)—leaving **`+13.98% CE` (`55.4%` of the entire `+25.21% CE` national gain, or `NZD 33.3 billion per year`)** unrealized on the table!
 
-![Constructive Synergy Attribution: Wave-Convolved Te Kāhui Waka and Regional SS2 Build-Up](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_Counterfactual_8Scenarios_SS1_SS2_Dunedin_22.png)
+![Constructive Synergy Attribution: Wave-Convolved Te Kāhui Waka and Regional SS2 Build-Up](Output_NZ_4Region_Intergen/Fig_Counterfactual_8Scenarios_SS1_SS2_Dunedin_22.png)
 *Figure 1D.2: Constructive 11-layer attribution (`Table 19`). Panel A traces how the wave-convolved 13-Wave Te Kāhui Waka S-curve eliminates the artificial Day-1 and Year-25 step-shock kinks while converging to the exact `+25.21% CE` long-run SS2 steady state (`+11.23% CE` isolated factors + `+13.98% CE` supermodular synergy wedges). Panel B disaggregates the mature SS2 harvest across all four regions and nationally.*
 
 Four named **Synergy Wedges (`★`)** drive that `55.4%` complementarity dividend across every community in Aotearoa (`Panel B`):
@@ -52,10 +52,10 @@ When master navigators **Kāne** and **Kupe** led trans-oceanic migrations, they
 
 Our implementation architecture (`Figure 1D.3` and Appendix `Table 1D.3`) translates *Te Kāhui Waka* into 11 synchronized operational tracks across `Rural + Small` (`40.0%` population), `Large Metros` (`25.9%`), and `Auckland` (`34.1%`):
 
-![13-Wave Te Kāhui Waka Schedule and Dual-Speed Tax Ramp Matrix](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_Doc1D_13Wave_TeKahuiWaka_Schedule_Dunedin_22.png)
+![13-Wave Te Kāhui Waka Schedule and Dual-Speed Tax Ramp Matrix](Output_NZ_4Region_Intergen/Fig_Doc1D_13Wave_TeKahuiWaka_Schedule_Dunedin_22.png)
 *Figure 1D.3: The 13-Wave Te Kāhui Waka deployment schedule (`Table 23`). Panel A maps the 11 regional expenditure and national tax-ramp tracks across Waves 1–13, highlighting the pale-purple Early-Adopter Youth Grant baselines (`18.9%` Rural+Small, `15.8%` Large, `16.5%` Auckland = `17.3%` nationally) in Waves 1–8. Panel B shows the resulting national coverage staircases and PDSA effective program yield (`1 - τ_fric`) rising from `72%` in Wave 1 to `>95%` by Wave 7.*
 
-Let $s_{k,m}(t) \in \{0, \frac{1}{3}, \frac{2}{3}, 1\}$ denote the funded capacity share of program $m \in \{\text{ECE}_1, \text{Mentor}_2, \text{Grant}_E, \text{Elec}_{\bar{e}}\}$ in regional echelon $k$ at year $t \ge 1$. Under flow adjustment costs (Christiano et al., 2005) and Arrow (1962) / Deming PDSA inter-wave learning, **Effective Delivered Capability** $G_{k,m}^{\mathrm{eff}}(t)$ is:
+Let $s_{k,m}(t) \in \{0, \frac{1}{3}, \frac{2}{3}, 1\}$ denote the funded capacity share of program $m$ (`ECE`<sub>1</sub>, `Mentor`<sub>2</sub>, `Grant`<sub>E</sub>, `Elec`<sub>ē</sub>) in regional echelon $k$ at year $t \ge 1$. Under flow adjustment costs (Christiano et al., 2005) and Arrow (1962) / Deming PDSA inter-wave learning, **Effective Delivered Capability** $G_{k,m}^{\mathrm{eff}}(t)$ is:
 
 $$G_{k,m}^{\mathrm{eff}}(t) = G_m^\star \cdot s_{k,m}(t) \cdot \left(1 - \delta_m e^{-\lambda_m (t - t_{k,m}^0)}\right) \cdot \underbrace{\left(1 - \tau_{\mathrm{fric},0} e^{-\gamma_{\mathrm{learn}} L_m(t-1)}\right)}_{\Psi_{\mathrm{kahui}}(L_m(t-1))} \cdot \left[1 - \phi_{\mathrm{adj}}\left(\Delta s_{k,m}(t)\right)^2\right]$$
 
@@ -69,7 +69,7 @@ where cumulative fleet experience $L_m(t-1) = \sum_{\tau=1}^{t-1} \sum_{k'} \ome
 
 **`Figure 1D.4`** puts the Single-Shot step shock (`dashed red`) and *Te Kāhui Waka* (`solid green`) under a `4.2x` vertical microscope across Years 0–20 (`Panel A inset`) and traces the resulting Core Crown Debt path (`Panel B`):
 
-![Te Kāhui Waka vs Single-Shot J-Curve and Sovereign Debt Comparison](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_Doc1D_TeKahuiWaka_Vs_SingleShot_JCurve_Dunedin_22.png)
+![Te Kāhui Waka vs Single-Shot J-Curve and Sovereign Debt Comparison](Output_NZ_4Region_Intergen/Fig_Doc1D_TeKahuiWaka_Vs_SingleShot_JCurve_Dunedin_22.png)
 *Figure 1D.4: Head-to-head comparison of 13-Wave Te Kāhui Waka + Dual-Speed Tax Ramps vs. Day-1 Single-Shot rollout (`Table 24`). The magnified J-curve inset (`Years 0–20`, `-4%` to `0% CE`) measures the exact Year-3 capital-at-risk caliper (`-75%`), peak trough reduction (`-4.4B/yr` vs. `-6.7B/yr`), `NZD 12.9B` grant-phasing saving (`green wedge`), `NZD 3.8B` avoided waste (`coral band`), and unobstructed breakeven race (`Yr 16.9` vs. `Yr 19.3`), contrasted against the sinking dotted crimson LTFM deficit.*
 
 Every financial risk metric bends decisively in Aotearoa's favor (`Appendix Table 1D.4`):
@@ -85,11 +85,11 @@ In astrodynamics, mission planners organize around *Decadal Launch Windows* beca
 
 Once *Te Kāhui Waka* launches **Phase 1 (`SS1` — Capability & Balance-Sheet Foundation)** at Year 0, when should Parliament trigger **Phase 2 (`SS2` — The `-3.75 pp` Working-Age PAYE Tax Cut `22.0% → 18.25%` & Enterprise Builder Slingshot)**? In the generational wave-convolution operator (`Ω_echo`), each SS1 cohort wave $w \in \{1,\dots,13\}$ echoes into prime enterprise formation and parenting (`Ages 26–35`) roughly $T_{\mathrm{gen}} \approx 20.5$ years after launch:
 
-$$\Omega_{\mathrm{echo},m}(t) = \sum_{w=1}^{13} \Delta s_m(w) \cdot \mathbb{I}(t > w + T_{\mathrm{gen},m}) \left[1 - \exp\!\left(-\frac{t - (w + T_{\mathrm{gen},m})}{\tau_{\mathrm{echo}}}\right)\right]$$
+$$\Omega_{\mathrm{echo},m}(t) = \sum_{w=1}^{13} \Delta s_m(w) \cdot \mathbb{I}(t > w + T_{\mathrm{gen},m}) \left[1 - \exp\left(-\frac{t - (w + T_{\mathrm{gen},m})}{\tau_{\mathrm{echo}}}\right)\right]$$
 
 Crucially, young adults make their highest-elasticity **trans-Tasman migration (`Node 18`)** and **Productive Enterprise Builder sorting (`Node 20`, `z_l → z_h`)** decisions as they enter **Gate 4 (`Age 20–29`)**. **`Figure 1D.5`** and **`Figure 1D.6`** evaluate three decadal `SS2` launch windows on top of the live *Te Kāhui Waka* ledger (`Table 22`):
 
-![Integrated Orbital Mechanics of Te Kāhui Waka: Three SS2 Launch Windows](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_Doc1D_Integrated_Orbital_Launch_Comparison_Dunedin_22.png)
+![Integrated Orbital Mechanics of Te Kāhui Waka: Three SS2 Launch Windows](Output_NZ_4Region_Intergen/Fig_Doc1D_Integrated_Orbital_Launch_Comparison_Dunedin_22.png)
 *Figure 1D.5: Integrated orbital mechanics of Te Kāhui Waka (`Table 22`). Panel A compares household welfare trajectories, CBAx actuarial valuation (`+1.86% CE` / `+NZD 4.4B/yr` already at the Year 5 audit), cash J-curve breakeven (`Yr 16.8`), and LTFM deficit flows across Launch Windows C (`Year 15`), B (`Year 20`), and A (`Year 25`). Panel B aligns all three launch windows against Core Crown Debt (`% of GDP`).*
 
 ### Comparing the Three Flight Plans (`Figure 1D.6` & Appendix `Tables 1D.1–1D.2`)
@@ -102,7 +102,7 @@ Crucially, young adults make their highest-elasticity **trans-Tasman migration (
    * *Why *Te Kāhui Waka* Unlocks Window C:* Look at the orange callout at Year 15 in `Figure 1D.5`: under *Te Kāhui Waka*, **all 13 waves are already 100% live (`Year 13`)**, **`96.6%` of the cumulative J-curve has already been paid off** (leaving a tiny **`-NZD 1.49B`** cash tail!), and **Core Crown Debt has already crossed *below* its `42.0%` starting mark at `Year 14.1` (`41.7% of GDP` at Year 15, falling for nine straight years since its `43.36%` Year-6 peak)**!
    * *The Slingshot Payoff:* Bridging `-NZD 1.49B` in remaining Phase-1 tail plus `~NZD 5.1B` in early PAYE deferral out of the peaking baby-boomer estate levy (`Debt` stays below `42%` from `Year 18.3` onward) pre-primes the enterprise economy for incoming *Tuakana*-mentored cohorts at Age 20—propelling Aotearoa to **`+24.85% CE` (`98.6%` of asymptote) by `Year 40.0`**, crossing Plan A's Year-60 target **13.1 years early at `Year 46.9`**, and delivering **`+NZD 190B` in extra 60-year household welfare** (`55.5x` fiscal ROI)!
 
-![3-Panel Individual Launch Plans A, B, and C](https://raw.githubusercontent.com/MichaelTiemann/IGWelfare/launch/Output_NZ_4Region_Intergen/Fig_Doc1D_3Panel_Individual_Launch_Plans_Dunedin_22.png)
+![3-Panel Individual Launch Plans A, B, and C](Output_NZ_4Region_Intergen/Fig_Doc1D_3Panel_Individual_Launch_Plans_Dunedin_22.png)
 *Figure 1D.6: Individual flight-plan anatomy for Plan A (`Year 25` launch), Plan B (`Year 20` launch), and Plan C (`Year 15 "We Got This!"` launch), decomposing total household welfare into the 7 isolated policy factors (`blue area`), 4 supermodular synergy wedges (`green area`), gross public investment outlays (`amber area below 0`), CBAx actuarial valuation, and net unrecovered cash flow.*
 
 ---
@@ -152,12 +152,12 @@ In *Te Ao Māori*, we walk *ka mua, ka muri*—into the future with our eyes fix
 | :--- | :---: | :---: | :---: | :---: |
 | **Year 0** *(Launch `SS1`)* | `0.00%` \| `0.0B` \| `42.0%` | `0.00%` \| `0.0B` \| `42.0%` | `0.00%` \| `0.0B` \| `42.0%` | `0.0B/yr` \| `42.0% GDP` |
 | **Year 6** *(Debt Apogee)* | `+5.4%` \| `+12.9B` \| **`43.36%`** | `+5.4%` \| `+12.9B` \| **`43.36%`** | `+5.4%` \| `+12.9B` \| **`43.36%`** | `-5.3B/yr` \| `47.1% GDP` |
-| **Year 15** *(Window C!)* | `+13.17%` \| `+31.3B` \| `41.7%` | `+13.17%` \| `+31.3B` \| `41.7%` | **`+13.17%` \| `+31.3B` \| `41.7%` *(Launch C!)* ** | `-7.9B/yr` \| `61.2% GDP` |
-| **Year 20** *(Window B!)* | `+14.74%` \| `+35.1B` \| `39.6%` | **`+14.74%` \| `+35.1B` \| `39.6%` *(Launch B!)* ** | **`+18.6%` \| `+44.3B` \| `41.4%`** | `-9.0B/yr` \| `71.1% GDP` |
-| **Year 25** *(Window A!)* | **`+17.10%` \| `+40.7B` \| `36.6%` *(Launch A!)* ** | **`+20.2%` \| `+48.1B` \| `36.2%`** | **`+21.9%` \| `+52.1B` \| `36.5%`** | `-10.0B/yr` \| `82.2% GDP` |
-| **Year 40** *(Plan C Mark)* | `+23.4%` \| `+55.7B` \| `29.2%` | `+24.4%` \| `+58.1B` \| `28.8%` | **`+24.85%` \| `+59.1B` \| `28.0%` *(98.6%!)* ** | `-12.4B/yr` \| `121.5% GDP` |
-| **Year 50** *(Plan B Mark)* | `+24.6%` \| `+58.5B` \| `25.5%` | **`+25.08%` \| `+59.7B` \| `25.0%` *(99.5%!)* ** | `+25.12%` \| `+59.8B` \| `24.2%` | `-13.7B/yr` \| `151.8% GDP` |
-| **Year 60** *(Plan A Mark)* | **`+25.08%` \| `+59.7B` \| `22.0%` *(99.5%!)* ** | `+25.18%` \| `+59.9B` \| `21.8%` | `+25.19%` \| `+60.0B` \| `21.0%` | **`-14.9B/yr` \| `185.0% GDP`** |
+| **Year 15** *(Window C!)* | `+13.17%` \| `+31.3B` \| `41.7%` | `+13.17%` \| `+31.3B` \| `41.7%` | **`+13.17%` \| `+31.3B` \| `41.7%` *(Launch C!)*** | `-7.9B/yr` \| `61.2% GDP` |
+| **Year 20** *(Window B!)* | `+14.74%` \| `+35.1B` \| `39.6%` | **`+14.74%` \| `+35.1B` \| `39.6%` *(Launch B!)*** | **`+18.6%` \| `+44.3B` \| `41.4%`** | `-9.0B/yr` \| `71.1% GDP` |
+| **Year 25** *(Window A!)* | **`+17.10%` \| `+40.7B` \| `36.6%` *(Launch A!)*** | **`+20.2%` \| `+48.1B` \| `36.2%`** | **`+21.9%` \| `+52.1B` \| `36.5%`** | `-10.0B/yr` \| `82.2% GDP` |
+| **Year 40** *(Plan C Mark)* | `+23.4%` \| `+55.7B` \| `29.2%` | `+24.4%` \| `+58.1B` \| `28.8%` | **`+24.85%` \| `+59.1B` \| `28.0%` *(98.6%!)*** | `-12.4B/yr` \| `121.5% GDP` |
+| **Year 50** *(Plan B Mark)* | `+24.6%` \| `+58.5B` \| `25.5%` | **`+25.08%` \| `+59.7B` \| `25.0%` *(99.5%!)*** | `+25.12%` \| `+59.8B` \| `24.2%` | `-13.7B/yr` \| `151.8% GDP` |
+| **Year 60** *(Plan A Mark)* | **`+25.08%` \| `+59.7B` \| `22.0%` *(99.5%!)*** | `+25.18%` \| `+59.9B` \| `21.8%` | `+25.19%` \| `+60.0B` \| `21.0%` | **`-14.9B/yr` \| `185.0% GDP`** |
 
 ---
 
