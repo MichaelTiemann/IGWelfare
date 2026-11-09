@@ -148,7 +148,14 @@ for m = 1:M_reforms
     P_PE            = Configure_TimeGrid_Params(P_PE);
     mean_eta_m      = sum(P_PE.eta_deliv_vec(:) .* [0.160; 0.240; 0.259; 0.341]);
     yg0             = Params_SS0.YouthGrant_sched(1);
-    P_PE.YouthGrant = yg0 + mean_eta_m * (spec.YouthGrant - yg0);
+    % In SingleShot, Years 1-6 hand YouthGrant to unmentored SS0-skill cohorts (22% skill-mismatch dissipation);
+    % in Armada, Wave 7 (Yr 7) synchronizes YouthGrant with Gate-3 mentored graduates (0% skill-mismatch waste):
+    if strcmpi(Params_SS0.Rollout_Mode, 'SingleShot') && (m == 1)
+        eta_ygr_skill = 0.78 * mean_eta_m;
+    else
+        eta_ygr_skill = 1.00 * mean_eta_m;
+    end
+    P_PE.YouthGrant = yg0 + eta_ygr_skill * (spec.YouthGrant - yg0);
     P_PE.tau_a      = spec.tau_a;
     P_PE.tau_b      = spec.tau_b;
     if isfield(spec, 'tau_k') && ~isempty(spec.tau_k)
@@ -239,68 +246,6 @@ for m = 1:M_reforms
         % Consecutive Rural+Small -> Large -> Auckland electrification grants compress net ebar_energy:
         elec_comp = P_GE.s_active_elec_vec(r_idx) * P_GE.eta_deliv_vec(r_idx) * Params_SS0.ebar_elec_relief_share(r_idx);
         P_GE.ebar_energy.(hh_type) = Params_SS0.ebar_energy.(hh_type) * (1.0 - elec_comp);
-
-        % Endogenous regional z_l -> z_h shift from local procurement & youth career pathways (CEFS LFPI / FYI):
-        d_mu_z_r            = P_GE.mu_z_reg_vec(r_idx) - Params_SS0.mu_z_SS0(r_idx);
-        z_grid_m.(hh_type)  = z_grid.(hh_type) * exp(d_mu_z_r);
-        p_up_m              = P_GE.p_zh_upgrade_vec(r_idx);
-        p_dn_m              = P_GE.p_zl_downgrade_v(r_idx);
-        pi_z_m.(firm_type)  = [1.0 - p_up_m, p_up_m; p_dn_m, 1.0 - p_dn_m];
-    end
-
-    [V_GE_Exo_m, Policy_GE_Exo_m] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
-        d_grid, a_grid, z_grid_m, pi_z_m, ReturnFn, P_GE, DiscountFactorParamNames, vfoptions);
-
-    % 3B. Stage B: Long-Run GE with Exogenous Skills (Phase-m GE prices & z_l -> z_h job upgrading; prior jDist)
-    P_GE   = P_PE;
-    P_GE.r = Params_SS0.r + spec.r_delta;
-    if isfield(spec, 'Frac_struggling')
-        P_GE.Frac_struggling = spec.Frac_struggling;
-    end
-    if isfield(spec, 'S_cohesion')
-        P_GE.S_cohesion = spec.S_cohesion;
-    end
-
-    if super_age_m >= 65
-        elder_time_mult = exp(-Params_SS0.eta_elder_whanau*(super_age_m - 65));
-    else
-        elder_time_mult = 1 + 0.16*tanh((65 - super_age_m)/1.8);
-    end
-    if isfield(spec, 'M_olig_vec') && ~isempty(spec.M_olig_vec)
-        P_GE.active_M_olig_vec = spec.M_olig_vec;
-    elseif m >= 2
-        P_GE.active_M_olig_vec = Params_SS0.M_olig_SS2;
-    else
-        P_GE.active_M_olig_vec = Params_SS0.M_olig_SS1;
-    end
-    if isfield(spec, 'mu_monop_vec') && ~isempty(spec.mu_monop_vec)
-        P_GE.active_mu_monop_vec = spec.mu_monop_vec;
-    elseif m >= 2
-        P_GE.active_mu_monop_vec = Params_SS0.mu_monop_SS2;
-    else
-        P_GE.active_mu_monop_vec = Params_SS0.mu_monop_SS1;
-    end
-    if isfield(spec, 'phi_local_vec') && ~isempty(spec.phi_local_vec)
-        P_GE.active_phi_local_vec = spec.phi_local_vec;
-    elseif m >= 2
-        P_GE.active_phi_local_vec = Params_SS0.phi_local_SS2;
-    else
-        P_GE.active_phi_local_vec = Params_SS0.phi_local_SS1;
-    end
-    P_GE = Configure_TimeGrid_Params(P_GE);
-
-    % Update regional prices, whanau care, and endogenous z_l -> z_h productivity grids (z_grid_m, pi_z_m)
-    z_grid_m = z_grid;
-    pi_z_m   = pi_z;
-    for r_idx = 1:N_reg
-        reg       = Regions{r_idx};
-        hh_type   = ['HH_', reg];
-        firm_type = ['Firm_', reg];
-        P_GE.w_reg.(hh_type)   = Params_SS0.w_reg.(hh_type)   * spec.w_mult_vs_SS0(r_idx);
-        P_GE.w_reg.(firm_type) = Params_SS0.w_reg.(firm_type) * spec.w_mult_vs_SS0(r_idx);
-        P_GE.Q_reg.(hh_type)   = Params_SS0.Q_reg.(hh_type)   * spec.Q_mult_vs_SS0(r_idx);
-        elder_home_mult        = min(1.25, max(0.50, (1.0 / spec.Q_mult_vs_SS0(r_idx)) ^ 0.35));
-        P_GE.K_whanau.(hh_type) = Params_SS0.K_whanau_base.(hh_type) * elder_home_mult * elder_time_mult;
 
         % Endogenous regional z_l -> z_h shift from local procurement & youth career pathways (CEFS LFPI / FYI):
         d_mu_z_r            = P_GE.mu_z_reg_vec(r_idx) - Params_SS0.mu_z_SS0(r_idx);
