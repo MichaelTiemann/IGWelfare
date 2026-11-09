@@ -297,71 +297,79 @@ w_pre_mat              = (0.04 * exp(y_pre / 2.5)) * [0.5, 0, 0, 1, 0, 1, 0, 0, 
 Traj_11(m_pre, :)      = w_pre_mat .* (SS1_Sel_11');
 Traj_11_1Shot(m_pre,:) = (2.5 * w_pre_mat) .* (SS1_Sel_11');
 
-% 3B. Single-Phase Step Reference (y >= 0, Vectorized):
-b_drag_1s   = 1.0 - 0.14 * exp(-y_pos / 14.0);
-w_iso       = (0.22 + 0.78 * (1.0 - exp(-y1_pos / 8.0))) .* b_drag_1s;
-w_geo_1s    = (1.0 - 0.35 * exp(-y1_pos / 2.5)) .* (1.0 - 0.55 ./ (1.0 + exp(-(y1_pos - 15.0) / 4.0)));
-w_wed1_1s   = b_drag_1s ./ (1.0 + exp(-(y1_pos - 11.0) / 4.2));
-w_wed2_1s   = b_drag_1s ./ (1.0 + exp(-(y1_pos - 9.0)  / 4.0));
-w_wed3_1s   = b_drag_1s ./ (1.0 + exp(-(y1_pos - 16.0) / 4.0));
-unment_drag = 1.0 - (0.42 * (1.0 - sh_ygr_base0)) * exp(-y_pos / 5.5);
+% 3B & 3C. Accelerated Educational System Learning (Fixsen et al. 2005: 2-4 yrs;
+%          Papay & Kraft 2015: 3-5 yr teacher learning curve; Borman et al. 2003: 5-yr CSR maturity;
+%          NZ Education Counts: 17.3%/yr school turnover = ~5.8-yr average tenure).
+% Both regimes complete system learning & wave rollout by Year 15, joining into ONE unified trajectory at t_join = 16!
+t_join = 16.0;
 
-W_1s_S1     = [w_iso, w_iso, w_wed1_1s, w_iso, w_iso.*unment_drag, w_geo_1s, w_wed2_1s.*unment_drag, w_wed3_1s, 0.5*w_iso, zeros(size(y_pos)), w_wed3_1s];
-Row_1s      = W_1s_S1 .* (SS1_Sel_11');
-Row_1s(:,8) = Row_1s(:,8) + max(0.0, w_iso - w_geo_1s) * SS1_Sel_11(6);
-
-m_25        = y_pos >= 25.0;
-w_ss2_1s    = (y_pos >= 25.0) .* (1.0 - exp(-max(0.0, y_pos - 25.0) / 8.5));
-w_inv2_1s   = (y_pos >= 25.0) .* (1.0 - exp(-max(0.0, y_pos - 25.0) / 5.0));
-D_ss2_1s    = (SS2_Sel_11') - Row_1s;
-Row_1s      = Row_1s + w_ss2_1s .* D_ss2_1s;
-Row_1s(:,6) = Row_1s(:,6) + m_25 .* (w_inv2_1s - w_ss2_1s) .* D_ss2_1s(:,6);
-Row_1s(:,8) = Row_1s(:,8) - m_25 .* (w_inv2_1s - w_ss2_1s) .* D_ss2_1s(:,6);
-Traj_11_1Shot(m_pos, :) = Row_1s;
-
-% 3C. Wave-Convolved 13-Wave Te Kāhui Waka Trajectory (y >= 0, Vectorized Implicit Expansion + Matrix Multiply):
+% --- Wave-Convolved 13-Wave Te Kāhui Waka Trajectory (y >= 0, Vectorized) ---
 dw_e_13 = [ECE_13_Share(1); diff(ECE_13_Share)];                                  % [13 x 1]
 dw_y_13 = (1.0 - sh_ygr_base0) * [YGr_New_Share(1); diff(YGr_New_Share)];         % [13 x 1]
 dw_l_13 = [Elc_13_Share(1); diff(Elc_13_Share)];                                  % [13 x 1]
 
-dy_s1_e = y_pos - (Waves_13 - 0.8)';                                              % [N_pos x 13]
-w_kh_ece = ((dy_s1_e > 0) .* (1.0 - 0.72 * exp(-max(0.0, dy_s1_e) / 5.2))) * dw_e_13;
-w_kh_elc = ((dy_s1_e > 0) .* (1.0 - 0.65 * exp(-max(0.0, dy_s1_e) / 3.5))) * dw_l_13;
+% Faster 3.2-yr local school installation/coaching time constant (95% mature within ~4-5 yrs per wave):
+dy_s1_e  = y_pos - (Waves_13 - 0.8)';                                             % [N_pos x 13]
+w_kh_ece = ((dy_s1_e > 0) .* (1.0 - 0.68 * exp(-max(0.0, dy_s1_e) / 3.2))) * dw_e_13;
+w_kh_elc = ((dy_s1_e > 0) .* (1.0 - 0.60 * exp(-max(0.0, dy_s1_e) / 2.6))) * dw_l_13;
 
 dy_s1_y       = y_pos - (Waves_13 - 0.5)';                                        % [N_pos x 13]
-w_kh_ygr_new  = (((y_pos >= 7.0) & (dy_s1_y > 0)) .* (1.0 - 0.60 * exp(-max(0.0, dy_s1_y) / 4.2))) * dw_y_13;
-w_kh_ygr_base = (y_pos > 0.2) .* sh_ygr_base0 .* (1.0 - 0.45 * exp(-max(0.0, y_pos - 0.2) / 2.2));
+w_kh_ygr_new  = (((y_pos >= 7.0) & (dy_s1_y > 0)) .* (1.0 - 0.55 * exp(-max(0.0, dy_s1_y) / 2.8))) * dw_y_13;
+w_kh_ygr_base = (y_pos > 0.2) .* sh_ygr_base0 .* (1.0 - 0.45 * exp(-max(0.0, y_pos - 0.2) / 1.8));
 w_kh_ygr      = w_kh_ygr_base + w_kh_ygr_new;
-YGr_Early_Share_Grid(m_pos) = min(1.0, w_kh_ygr_base ./ max(1e-8, w_kh_ygr));
+
+% Early-adopter bridge folds cleanly into universal Te Kāhui Waka across Waves 7-13 (0% from Year 14+!):
+yr_w_pos          = [0; Waves_13; 25; 60];
+ygr_uni_cov       = (y_pos >= 7.0) .* interp1(yr_w_pos, [0.00; YGr_New_Share; 1.0; 1.0], min(60.0, max(0.0, y_pos - 0.5)), 'linear');
+w_kh_ygr_ear_only = w_kh_ygr_base .* max(0.0, 1.0 - ygr_uni_cov);
+YGr_Early_Share_Grid(m_pos) = min(1.0, w_kh_ygr_ear_only ./ max(1e-8, w_kh_ygr));
 
 sh_tax_t   = 0.38 * min(1.0, y_pos / Params.T_ramp_CGT_Est_yrs) + 0.62 * min(1.0, y_pos / Params.T_ramp_LVT_yrs);
-w_kh_tax   = sh_tax_t .* (1.0 - 0.55 * exp(-y_pos / 5.5));
+w_kh_tax   = sh_tax_t .* (1.0 - 0.50 * exp(-y_pos / 3.8));
 retire_kh  = 1.0 ./ (1.0 + exp(-(y1_pos - 14.0) / 3.8));
-w_kh_geo   = (0.65 * w_kh_elc + 0.35 * (1.0 - exp(-y_pos / 2.2))) .* (1.0 - 0.55 * retire_kh);
+w_kh_geo   = (0.65 * w_kh_elc + 0.35 * (1.0 - exp(-y_pos / 2.0))) .* (1.0 - 0.55 * retire_kh);
 
-w_wed1_kh  = (w_kh_ece .^ 1.15) ./ (1.0 + exp(-(y1_pos - 9.2) / 4.1));
-w_wed2_kh  = (0.75 * w_kh_ygr .* w_kh_tax + 0.25 * w_kh_tax) ./ (1.0 + exp(-(y1_pos - 8.0) / 3.8));
-w_wed3_kh  = ((w_kh_ece .* w_kh_tax) .^ 0.85) ./ (1.0 + exp(-(y1_pos - 13.0) / 4.1));
+w_wed1_kh  = (w_kh_ece .^ 1.12) ./ (1.0 + exp(-(y1_pos - 8.2) / 3.6));
+w_wed2_kh  = (0.75 * w_kh_ygr .* w_kh_tax + 0.25 * w_kh_tax) ./ (1.0 + exp(-(y1_pos - 7.5) / 3.5));
+w_wed3_kh  = ((w_kh_ece .* w_kh_tax) .^ 0.85) ./ (1.0 + exp(-(y1_pos - 11.8) / 3.8));
 
 Row_kh      = [w_kh_ece, w_kh_ece, w_wed1_kh, w_kh_tax, w_kh_ygr, w_kh_geo, w_wed2_kh, w_wed3_kh, 0.55*w_kh_tax, zeros(size(y_pos)), w_wed3_kh] .* (SS1_Sel_11');
 Row_kh(:,8) = Row_kh(:,8) + max(0.0, w_kh_ece - w_kh_geo) * SS1_Sel_11(6);
 
-% Wave-Convolved SS2 Generational & Fiscal Echo (Converging to Exact SS2_Sel_11 at Year 60):
-dy_s2_hc       = y_pos - (20.5 + Waves_13)';                                      % [N_pos x 13]
-dy_s2_ygr      = y_pos - (16.0 + Waves_13)';                                      % [N_pos x 13]
-w_ss2_echo_hc  = ((dy_s2_hc  > 0) .* (1.0 - exp(-max(0.0, dy_s2_hc)  / 6.0))) * dw_e_13;
-w_ss2_echo_ygr = sh_ygr_base0 * (y_pos > 18.0) .* (1.0 - exp(-max(0.0, y_pos - 18.0) / 6.0)) ...
-    + ((dy_s2_ygr > 0) .* (1.0 - exp(-max(0.0, dy_s2_ygr) / 5.8))) * dw_y_13;
-w_ss2_fisc     = (1.0 ./ (1.0 + exp(-(y_pos - 25.0) / 2.5))) .* (1.0 - exp(-max(0.0, y_pos - 20.0) / 6.2));
+% Wave-Convolved SS2 Generational & Fiscal Echo:
+dy_s2_hc       = y_pos - (20.5 + Waves_13)';
+dy_s2_ygr      = y_pos - (16.0 + Waves_13)';
+w_ss2_echo_hc  = ((dy_s2_hc  > 0) .* (1.0 - exp(-max(0.0, dy_s2_hc)  / 5.8))) * dw_e_13;
+w_ss2_echo_ygr = sh_ygr_base0 * (y_pos > 18.0) .* (1.0 - exp(-max(0.0, y_pos - 18.0) / 5.8)) ...
+    + ((dy_s2_ygr > 0) .* (1.0 - exp(-max(0.0, dy_s2_ygr) / 5.6))) * dw_y_13;
+w_ss2_fisc     = (1.0 ./ (1.0 + exp(-(y_pos - 25.0) / 2.5))) .* (1.0 - exp(-max(0.0, y_pos - 20.0) / 6.0));
 w_geo_ret2     = (1.0 ./ (1.0 + exp(-(y_pos - 24.5) / 2.5))) .* (1.0 - exp(-max(0.0, y_pos - 20.0) / 4.5));
 
 D_ss2_kh    = (SS2_Sel_11') - Row_kh;
 W_ss2_mat   = [w_ss2_echo_hc, w_ss2_echo_hc, w_ss2_echo_hc, w_ss2_echo_ygr, w_ss2_echo_ygr, ...
     w_geo_ret2, w_ss2_echo_ygr, 0.5*(w_ss2_echo_hc + w_ss2_echo_ygr), ...
     w_ss2_fisc, w_ss2_fisc, 0.65*w_ss2_echo_hc + 0.35*w_ss2_fisc];
-Row_kh      = Row_kh + W_ss2_mat .* D_ss2_kh;
-Row_kh(:,8) = Row_kh(:,8) - (w_geo_ret2 - 0.5*(w_ss2_echo_hc + w_ss2_echo_ygr)) .* D_ss2_kh(:,6);
-Traj_11(m_pos, :) = max(0.0, Row_kh);
+Row_kh      = max(0.0, Row_kh + W_ss2_mat .* D_ss2_kh);
+Row_kh(:,8) = max(0.0, Row_kh(:,8) - (w_geo_ret2 - 0.5*(w_ss2_echo_hc + w_ss2_echo_ygr)) .* D_ss2_kh(:,6));
+Traj_11(m_pos, :) = Row_kh;
+
+% --- Single-Phase Step Reference (y >= 0): Day-1 Surge Followed by 4.2-Yr System Learning,
+%     Smoothly Blending Into the Unified Post-Learning Trajectory by t_join = 16! ---
+b_drag_1s   = 1.0 - 0.16 * exp(-y_pos / 4.2); % 4.2-yr system-learning half-life (98% complete by Yr 16!)
+w_iso_1s    = (0.28 + 0.72 * (1.0 - exp(-y1_pos / 4.8))) .* b_drag_1s;
+w_geo_1s    = (1.0 - 0.30 * exp(-y1_pos / 2.0)) .* (1.0 - 0.55 ./ (1.0 + exp(-(y1_pos - 14.0) / 3.8)));
+w_wed1_1s   = b_drag_1s ./ (1.0 + exp(-(y1_pos - 8.2)  / 3.6));
+w_wed2_1s   = b_drag_1s ./ (1.0 + exp(-(y1_pos - 7.5)  / 3.5));
+w_wed3_1s   = b_drag_1s ./ (1.0 + exp(-(y1_pos - 11.8) / 3.8));
+unment_drag = 1.0 - (0.42 * (1.0 - sh_ygr_base0)) * exp(-y_pos / 3.8);
+
+Row_1s_raw      = [w_iso_1s, w_iso_1s, w_wed1_1s, w_iso_1s, w_iso_1s.*unment_drag, w_geo_1s, w_wed2_1s.*unment_drag, w_wed3_1s, 0.55*w_iso_1s, zeros(size(y_pos)), w_wed3_1s] .* (SS1_Sel_11');
+Row_1s_raw(:,8) = Row_1s_raw(:,8) + max(0.0, w_iso_1s - w_geo_1s) * SS1_Sel_11(6);
+
+% Smooth C^1 blend weight join_w: 0 in Years 0-10 -> 1.0 at t_join = 16+ (Identical joined trajectory from Yr 16 onward!):
+join_w = min(1.0, max(0.0, (y_pos - 10.0) / (t_join - 10.0)));
+join_w = (join_w .^ 2) .* (3.0 - 2.0 * join_w); % Hermite smoothstep [0 -> 1] completed strictly at y = 16.0!
+Traj_11_1Shot(m_pos, :) = (1.0 - join_w) .* Row_1s_raw + join_w .* Row_kh;
 
 Total_Traj_CE    = sum(Traj_11, 2);
 Iso_Only_Traj_CE = sum(Traj_11(:, ~Is_Wedge), 2);
@@ -535,8 +543,10 @@ Early_Share_M = interp1(Yr_Grid, YGr_Early_Share_Grid, Yr_Mir, 'linear');
 Total_Mir_CE   = sum(Pos_11_Mir,   2);
 Total_Kahui_CE = sum(Pos_11_Kahui, 2);
 
-Pos_12_Mir   = [Pos_11_Mir(:, 1:4),   Pos_11_Mir(:, 5)*sh_ygr_base0,        Pos_11_Mir(:, 5)*(1-sh_ygr_base0),       Pos_11_Mir(:, 6:11)];
-Pos_12_Kahui = [Pos_11_Kahui(:, 1:4), Pos_11_Kahui(:, 5).*Early_Share_M,    Pos_11_Kahui(:, 5).*(1-Early_Share_M),   Pos_11_Kahui(:, 6:11)];
+% Single-Phase Left Half-Bars have NO separate Early-Adopter bridge (col 5a = 0, 100% in col 5b);
+% Te Kāhui Waka Right Half-Bars show Pale-Purple Early Adopters in Yrs 1-12 fading to 0 once Waves 7-13 complete!
+Pos_12_Mir   = [Pos_11_Mir(:, 1:4),   zeros(size(Yr_Mir)),               Pos_11_Mir(:, 5),                       Pos_11_Mir(:, 6:11)];
+Pos_12_Kahui = [Pos_11_Kahui(:, 1:4), Pos_11_Kahui(:, 5).*Early_Share_M, Pos_11_Kahui(:, 5).*(1-Early_Share_M),  Pos_11_Kahui(:, 6:11)];
 
 SS1_Inv_CE = -[1.45, 0.52, 0.68, 0.65]; % -3.30% CE/yr at SS1 peak
 SS2_Inv_CE = -[1.35, 0.55, 0.60, 0.12]; % -2.62% CE/yr in SS2 after 82% GeoTransfer retirement
@@ -552,17 +562,30 @@ w_inv2_m    = (Yr_Mir >= 25.0) .* (1.0 - exp(-max(0.0, Yr_Mir - 25.0) / 5.0));
 Neg_4Investments_CE    = Neg_4Investments_CE + w_inv2_m .* (SS2_Inv_CE - Neg_4Investments_CE);
 Remediation_Savings_CE = Remediation_Savings_CE + (Yr_Mir >= 25.0) .* (1.45 * (1.0 - exp(-max(0.0, Yr_Mir - 25.0) / 9.0)));
 
-% 5B. Vectorized 13-Wave Te Kāhui Waka Negative Outlays & Early-Adopter Youth Grants:
+% 5B. Vectorized 13-Wave Te Kāhui Waka Negative Outlays & Transitional Early-Adopter Bridge (Fades Out by Yr 13!):
 sh_ece_m     = interp1(yr_w_g, [0.00; ECE_13_Share; 1.0; 1.0], min(60.0, Yr_Mir), 'linear');
 sh_elc_m     = interp1(yr_w_g, [0.00; Elc_13_Share; 1.0; 1.0], min(60.0, Yr_Mir), 'linear');
-sh_ygr_ear_m = (Yr_Mir > 0)    .* sh_ygr_base0 .* min(1.0, Yr_Mir / 1.5);
-sh_ygr_new_m = (Yr_Mir >= 7.0) .* (1.0 - sh_ygr_base0) .* interp1(yr_w_g, [0.00; YGr_New_Share; 1.0; 1.0], min(60.0, Yr_Mir), 'linear');
-sh_ygr_m     = sh_ygr_ear_m + sh_ygr_new_m;
+uni_ygr_cov  = (Yr_Mir >= 7.0) .* interp1(yr_w_g, [0.00; YGr_New_Share; 1.0; 1.0], min(60.0, Yr_Mir), 'linear');
+
+% Total Youth Grant share = sh_ygr_base0 + (1 - sh_ygr_base0)*uni_ygr_cov, partitioned into:
+%   - sh_ygr_ear_m (Pale Purple Bridge): sh_ygr_base0 * (1 - uni_ygr_cov) -> 17.3% in Yrs 1-6, stepping to 0.0% at Yr 13!
+%   - sh_ygr_uni_m (Vivid Orchid Universal): uni_ygr_cov -> 0.0% in Yrs 1-6, stepping to 100.0% at Yr 13!
+%   Notice sh_ygr_ear_m + sh_ygr_uni_m == sh_ygr_base0 + (1 - sh_ygr_base0)*uni_ygr_cov identically!
+sh_ygr_ear_m = (Yr_Mir > 0) .* min(1.0, Yr_Mir / 1.5) .* sh_ygr_base0 .* (1.0 - uni_ygr_cov);
+sh_ygr_uni_m = uni_ygr_cov;
+sh_ygr_m     = sh_ygr_ear_m + sh_ygr_uni_m;
 retire_kh_m  = 1.0 ./ (1.0 + exp(-(y1_mir - 13.5) / 3.6));
 
 Neg_4Inv_Kahui_CE = [sh_ece_m, sh_ece_m, sh_ygr_m, 0.65*sh_elc_m.*(1.0 - 0.72*retire_kh_m) + 0.35*min(1.0, Yr_Mir/2.0)] .* SS1_Inv_CE;
 w_inv_kh20        = (Yr_Mir >= 20.0) .* (1.0 - exp(-max(0.0, Yr_Mir - 20.0) / 4.8));
 Neg_4Inv_Kahui_CE = Neg_4Inv_Kahui_CE + w_inv_kh20 .* (SS2_Inv_CE - Neg_4Inv_Kahui_CE);
+
+% Join negative investment outlays once wave deployment & system learning complete at t_join = 16:
+join_m = min(1.0, max(0.0, (Yr_Mir - 11.0) / (t_join - 11.0)));
+join_m = (join_m .^ 2) .* (3.0 - 2.0 * join_m); % Strictly 1.0 for Yr_Mir >= 16!
+Neg_4Investments_CE = (1.0 - join_m) .* Neg_4Investments_CE + join_m .* Neg_4Inv_Kahui_CE;
+Pos_12_Mir   = [Pos_11_Mir(:, 1:4),   zeros(size(Yr_Mir)),               Pos_11_Mir(:, 5),                      Pos_11_Mir(:, 6:11)];
+Pos_12_Kahui = [Pos_11_Kahui(:, 1:4), Pos_11_Kahui(:, 5).*Early_Share_M, Pos_11_Kahui(:, 5).*(1-Early_Share_M), Pos_11_Kahui(:, 6:11)];
 
 ear_frac_inv3         = sh_ygr_ear_m ./ max(1e-8, sh_ygr_m);
 Neg_Inv3_Early_Kh_CE  = Neg_4Inv_Kahui_CE(:, 3) .* ear_frac_inv3;
@@ -572,8 +595,8 @@ sh_tax_m             = 0.38 * min(1.0, Yr_Mir / Params.T_ramp_CGT_Est_yrs) + 0.6
 remed_raw_m          = 4.92 ./ (1.0 + exp(-(Yr_Mir - 14.8) / 3.85)) - 4.92 / (1.0 + exp(14.8 / 3.85));
 Remed_Savings_Kh_CE  = remed_raw_m + 0.28 * sh_tax_m .* exp(-max(0.0, Yr_Mir - 5.0) / 5.0) + 0.055 * min(1.0, Yr_Mir / 4.0);
 
-Neg_5_Mir   = [Neg_4Investments_CE(:, 1:2), Neg_4Investments_CE(:, 3)*sh_ygr_base0, Neg_4Investments_CE(:, 3)*(1-sh_ygr_base0), Neg_4Investments_CE(:, 4)];
-Neg_5_Kahui = [Neg_4Inv_Kahui_CE(:, 1:2),   Neg_Inv3_Early_Kh_CE,                   Neg_Inv3_New_Kh_CE,                         Neg_4Inv_Kahui_CE(:, 4)];
+Neg_5_Mir   = [Neg_4Investments_CE(:, 1:2), zeros(size(Yr_Mir)),  Neg_4Investments_CE(:, 3), Neg_4Investments_CE(:, 4)];
+Neg_5_Kahui = [Neg_4Inv_Kahui_CE(:, 1:2),   Neg_Inv3_Early_Kh_CE, Neg_Inv3_New_Kh_CE,        Neg_4Inv_Kahui_CE(:, 4)];
 
 Gross_Investment_Mirror_CE   = sum(Neg_4Investments_CE, 2);
 Gross_Investment_Mirror_BNZD = Gross_Investment_Mirror_CE * NZD_Per_CE;
@@ -643,72 +666,104 @@ fig_mir = figure('Name', sprintf('Fig_11Layer_Welfare_And_MirrorInvestments_%s',
     'Color', 'w', 'Position', [40, 35, 1640, 880]);
 axM = axes(fig_mir); hold(axM, 'on');
 
+m_split = Yr_Mir <  t_join; % Years 0..14: Split Left (Single-Phase) vs. Right (Te Kāhui Waka) Half-Columns
+m_join  = Yr_Mir >= t_join; % Years 16..60: Single Joined Full-Width Trajectory (System Learning Complete!)
+
 dx_half = 0.42;
 bw_half = 0.38;
+bw_join = 0.72; % Full unified column width for Years 16..60!
 
 pos12_colors = [layer_colors(1:4, :); c_pale_purple_pos; layer_colors(5:11, :)];
 neg5_colors  = [0.78, 0.12, 0.18; 0.92, 0.38, 0.22; c_pale_purple_neg; 0.58, 0.20, 0.62; 0.32, 0.32, 0.48];
 
-% 1. Left Half-Columns: Single-Phase Launch
-b_pos_1s = bar(axM, Yr_Mir - dx_half, Pos_12_Mir, 'stacked', 'BarWidth', bw_half, ...
+% 1A. Years 0..14 Left Half-Columns: Single-Phase Launch
+b_pos_1s = bar(axM, Yr_Mir(m_split) - dx_half, Pos_12_Mir(m_split, :), 'stacked', 'BarWidth', bw_half, ...
     'EdgeColor', [0.35 0.35 0.35], 'LineWidth', 0.35, 'HandleVisibility', 'off');
 for k = 1:12
     b_pos_1s(k).FaceColor = pos12_colors(k, :);
-    b_pos_1s(k).FaceAlpha = 0.62;
+    b_pos_1s(k).FaceAlpha = 0.60;
 end
 
-b_neg_1s = bar(axM, Yr_Mir - dx_half, Neg_5_Mir, 'stacked', 'BarWidth', bw_half, ...
+b_neg_1s = bar(axM, Yr_Mir(m_split) - dx_half, Neg_5_Mir(m_split, :), 'stacked', 'BarWidth', bw_half, ...
     'EdgeColor', [0.35 0.35 0.35], 'LineWidth', 0.35, 'HandleVisibility', 'off');
 for k = 1:5
     b_neg_1s(k).FaceColor = neg5_colors(k, :);
-    b_neg_1s(k).FaceAlpha = 0.62;
+    b_neg_1s(k).FaceAlpha = 0.60;
 end
 
-% 2. Right Half-Columns: 13-Wave Te Kāhui Waka Launch
-b_pos12 = bar(axM, Yr_Mir + dx_half, Pos_12_Kahui, 'stacked', 'BarWidth', bw_half, ...
+% 1B. Years 0..14 Right Half-Columns: 13-Wave Te Kāhui Waka Launch
+b_pos_sp = bar(axM, Yr_Mir(m_split) + dx_half, Pos_12_Kahui(m_split, :), 'stacked', 'BarWidth', bw_half, ...
+    'EdgeColor', [0.10 0.10 0.10], 'LineWidth', 0.55, 'HandleVisibility', 'off');
+for k = 1:12
+    b_pos_sp(k).FaceColor = pos12_colors(k, :);
+    b_pos_sp(k).FaceAlpha = 0.94;
+end
+
+b_neg_sp = bar(axM, Yr_Mir(m_split) + dx_half, Neg_5_Kahui(m_split, :), 'stacked', 'BarWidth', bw_half, ...
+    'EdgeColor', [0.10 0.10 0.10], 'LineWidth', 0.55, 'HandleVisibility', 'off');
+for k = 1:5
+    b_neg_sp(k).FaceColor = neg5_colors(k, :);
+    b_neg_sp(k).FaceAlpha = 0.94;
+end
+
+% 2. Years 16..60 Unified Full-Width Columns (System Learning & 13 Waves Complete — Shown in Legend!)
+b_pos12 = bar(axM, Yr_Mir(m_join), Pos_12_Kahui(m_join, :), 'stacked', 'BarWidth', bw_join, ...
     'EdgeColor', [0.10 0.10 0.10], 'LineWidth', 0.55);
 pos12_labels = [Layer_Legend_Labels(1:4), ...
-    {sprintf('5a. [Early Adopters] Youth Grants for Existing %.1f%% %s Tuakana Mentees (Pale Purple: Active Yr 1!)', 100*sh_ygr_base0, r_sel)}, ...
-    {'5b. [Te Kāhui Waka Waves 7-13] Youth Grants for New Mentored Waves (Vivid Orchid: Launches Yr 7+!)'}, ...
+    {sprintf('5a. [Early-Adopter Bridge] Youth Grants for %.1f%% %s Tuakana Base (Yrs 1-12 \\rightarrow Folds In by Yr 14!)', 100*sh_ygr_base0, r_sel)}, ...
+    {'5b. [Universal Te Kāhui Waka] Youth Grants Across Mentored Waves (100% Universal Yr 13+!)'}, ...
     Layer_Legend_Labels(6:11)];
 for k = 1:12
     b_pos12(k).FaceColor   = pos12_colors(k, :);
     b_pos12(k).FaceAlpha   = 0.94;
     b_pos12(k).DisplayName = pos12_labels{k};
 end
+% Ensure Pale-Purple 5a swatch is visible in legend even though m_join (>= Yr 16) is 0 for 5a:
+b_pos_sp(5).HandleVisibility = 'on';
+b_pos_sp(5).DisplayName      = pos12_labels{5};
+b_pos12(5).HandleVisibility  = 'off';
 
-b_neg5 = bar(axM, Yr_Mir + dx_half, Neg_5_Kahui, 'stacked', 'BarWidth', bw_half, ...
+b_neg5 = bar(axM, Yr_Mir(m_join), Neg_5_Kahui(m_join, :), 'stacked', 'BarWidth', bw_join, ...
     'EdgeColor', [0.10 0.10 0.10], 'LineWidth', 0.55);
 inv5_names = { ...
     '-Inv 1: Universal First-2000-Days Wraparound (\DeltaG_{ECE,1})', ...
     '-Inv 2: Tuakana-Teina / Montessori Mentoring (\DeltaG_{ECE,2})', ...
-    sprintf('-Inv 3a: Early-Adopter Youth Grants (%.1f%% Existing %s Tuakana Mentees, Pale Purple)', 100*sh_ygr_base0, r_sel), ...
-    '-Inv 3b: Te Kāhui Waka Expansion Youth Grants (Waves 7-13: 0 in Yrs 1-6 \rightarrow Launches Yr 7+, Vivid Orchid)', ...
+    sprintf('-Inv 3a: Early-Adopter Bridge Grants (%.1f%% %s Tuakana Base in Yrs 1-6 \\rightarrow Folds In Yr 13)', 100*sh_ygr_base0, r_sel), ...
+    '-Inv 3b: Universal Te Kāhui Waka Youth Grants (Waves 7-13 \rightarrow 100% Universal Yr 13+, Vivid Orchid)', ...
     '-Inv 4: Geographic & Electrification Grants (\DeltaT_k: Retires 82% in SS2!)'};
 for k = 1:5
     b_neg5(k).FaceColor   = neg5_colors(k, :);
     b_neg5(k).FaceAlpha   = 0.94;
     b_neg5(k).DisplayName = inv5_names{k};
 end
+b_neg_sp(3).HandleVisibility = 'on';
+b_neg_sp(3).DisplayName      = inv5_names{3};
+b_neg5(3).HandleVisibility   = 'off';
 
-% 3. Overlays: Envelopes, Grounded Actuarial CBAx, Cash J-Curves, & LTFM Annual Deficit
-plot(axM, Yr_Mir - dx_half, Total_Mir_CE, '--', 'Color', [0.18 0.38 0.58], 'LineWidth', 2.0, ...
-    'DisplayName', sprintf('Left Half-Bar Envelope: Single-Phase Launch (Early Bottleneck Drag \\rightarrow %+.2f%% SS2)', Total_Mir_CE(end)));
-plot(axM, Yr_Mir + dx_half, Total_Kahui_CE, '-o', 'Color', [0.00 0.32 0.12], 'MarkerFaceColor', [0.00 0.58 0.24], ...
+% 3. Overlays: Split Envelopes in Yrs 0..16 Joining into ONE Unified Envelope from Yr 16..60!
+m_sp_inc = Yr_Mir <= t_join; % Include Year 16 knot so the dashed blue line visibly fuses into the green line at x = 16!
+x_1s_env = Yr_Mir(m_sp_inc) - dx_half * (Yr_Mir(m_sp_inc) < t_join);
+x_kh_env = Yr_Mir + dx_half * m_split;
+
+h_ov1 = plot(axM, x_1s_env, Total_Mir_CE(m_sp_inc), '--', 'Color', [0.18 0.38 0.58], 'LineWidth', 2.2, ...
+    'DisplayName', 'Yrs 0-14 Left Half-Bar: Single-Phase Step (4-Yr System Learning \rightarrow Joins Unified Path at Yr 16!)');
+h_ov2 = plot(axM, x_kh_env, Total_Kahui_CE, '-o', 'Color', [0.00 0.32 0.12], 'MarkerFaceColor', [0.00 0.58 0.24], ...
     'LineWidth', 2.6, 'MarkerSize', 4.4, ...
-    'DisplayName', sprintf('Right Half-Bar Envelope: 13-Wave Te Kāhui Waka (Same %+.2f%% SS2 Asymptote!)', Total_Kahui_CE(end)));
+    'DisplayName', sprintf('13-Wave Te Kāhui Waka \\rightarrow Unified Full-Width Trajectory from Yr 16+ (%+.2f%% SS2)', Total_Kahui_CE(end)));
 
 cbax_yr5 = interp1(Yr_Mir, Actuarial_CBAx_Kahui_CE, 5.0, 'linear');
-plot(axM, Yr_Mir + dx_half, Actuarial_CBAx_Kahui_CE, '-.s', 'Color', [0.00 0.72 0.78], 'MarkerFaceColor', [0.15 0.92 0.95], ...
+h_ov3 = plot(axM, x_kh_env, Actuarial_CBAx_Kahui_CE, '-.s', 'Color', [0.00 0.72 0.78], 'MarkerFaceColor', [0.15 0.92 0.95], ...
     'MarkerEdgeColor', [0.00 0.38 0.44], 'LineWidth', 2.4, 'MarkerSize', 4.8, ...
     'DisplayName', sprintf('Te Kāhui Waka ACC / CBAx Actuarial Valuation (0%% Yr 0 \\rightarrow %+.2f%% CE [%+.1fB/yr] at Yr 5)', cbax_yr5, cbax_yr5*NZD_Per_CE));
 
 trough_1s = min(Net_Fiscal_Outlay_Mirror_CE);
 trough_kh = min(Net_Fiscal_Outlay_Kahui_CE);
-plot(axM, Yr_Mir - dx_half, Net_Fiscal_Outlay_Mirror_CE, ':v', 'Color', [0.85 0.48 0.05], 'MarkerFaceColor', [0.95 0.60 0.10], ...
+m_c1s     = Yr_Mir <= 20.0;
+x_1s_cash = Yr_Mir(m_c1s) - dx_half * (Yr_Mir(m_c1s) < t_join);
+h_ov4 = plot(axM, x_1s_cash, Net_Fiscal_Outlay_Mirror_CE(m_c1s), ':v', 'Color', [0.85 0.48 0.05], 'MarkerFaceColor', [0.95 0.60 0.10], ...
     'LineWidth', 2.0, 'MarkerSize', 4.0, ...
     'DisplayName', sprintf('Single-Phase Annual Net Unrecovered Cost (%.2f%% CE [%.1fB/yr] Trough \\rightarrow Breakeven Yr 18.8)', trough_1s, trough_1s*NZD_Per_CE));
-plot(axM, Yr_Mir + dx_half, Net_Fiscal_Outlay_Kahui_CE, '--d', 'Color', [0.95 0.82 0.15], 'MarkerFaceColor', [0.95 0.82 0.15], ...
+h_ov5 = plot(axM, x_kh_env, Net_Fiscal_Outlay_Kahui_CE, '--d', 'Color', [0.95 0.82 0.15], 'MarkerFaceColor', [0.95 0.82 0.15], ...
     'MarkerEdgeColor', [0.25 0.20 0.00], 'LineWidth', 2.4, 'MarkerSize', 4.6, ...
     'DisplayName', sprintf('Te Kāhui Waka Annual Net Unrecovered Cost (%.2f%% CE [%.1fB/yr] Trough \\rightarrow Breakeven Yr 16.8!)', trough_kh, trough_kh*NZD_Per_CE));
 
@@ -717,7 +772,7 @@ y_mir_top = max(37.5, ceil(max([Total_Mir_CE(:); Total_Kahui_CE(:); SS2_Sel_Tota
 y_mir_bot = -8.5;
 
 m_pos_f = Yr_Fine >= 0;
-plot(axM, Yr_Fine(m_pos_f), LTFM_Ann_Deficit_CE(m_pos_f), '-', 'Color', [0.76 0.04 0.12], 'LineWidth', 3.4, ...
+h_ov6 = plot(axM, Yr_Fine(m_pos_f), LTFM_Ann_Deficit_CE(m_pos_f), '-', 'Color', [0.76 0.04 0.12], 'LineWidth', 3.4, ...
     'DisplayName', sprintf('Status Quo LTFM Annual Incremental Debt Sinking (-dDebt/dt: -4.57%% CE [%.1fB/yr] @ Yr 30 \\rightarrow -6.24%% CE [%.1fB/yr] @ Yr 60!)', ...
     -4.57*NZD_Per_CE, -6.24*NZD_Per_CE));
 
@@ -747,14 +802,19 @@ yline(axM, 0, 'k-', 'LineWidth', 1.8, 'HandleVisibility', 'off');
 xline(axM, 0,    'k:',  'LineWidth', 1.4, 'HandleVisibility', 'off');
 xline(axM, 5.0,  ':',   'Color', [0.00 0.55 0.62], 'LineWidth', 1.5, 'HandleVisibility', 'off');
 xline(axM, 7.0,  ':',   'Color', [0.58 0.20 0.62], 'LineWidth', 1.5, 'HandleVisibility', 'off');
+xline(axM, 15.0, ':',   'Color', [0.25 0.25 0.25], 'LineWidth', 1.3, 'HandleVisibility', 'off');
 xline(axM, 16.8, '--',  'Color', [0.00 0.52 0.22], 'LineWidth', 1.5, 'HandleVisibility', 'off');
 xline(axM, 18.8, 'r--', 'LineWidth', 1.5, 'HandleVisibility', 'off');
 xline(axM, 25.0, 'b-.', 'LineWidth', 1.7, 'HandleVisibility', 'off');
 
-text(axM, 0.8, 16.8, sprintf('Split Columns (%s, Both Converge to %+.2f%% SS2!):\n• Left Half-Bar = Single-Phase | Right Half-Bar = 13-Wave Te Kāhui Waka\n• Pale Purple (5a & -Inv 3a) = %.1f%% Existing Tuakana Early Adopters (Yrs 1-6)\n• Vivid Orchid (5b & -Inv 3b) = New Mentored Waves (Launches Yr 7+!)', ...
+% Compact 4-line callout box (exact 3 format specifiers matching 3 arguments!):
+text(axM, 0.6, 19.2, sprintf(['Yrs 0-14 Split (%s) \\rightarrow Yr 16+ Unified (%+.2f%% SS2):\n' ...
+    '• Left = Single-Phase | Right = 13-Wave Te Kāhui Waka (~4-Yr Learning)\n' ...
+    '• Pale Purple (5a/-Inv 3a) = %.1f%% Existing Tuakana Bridge (Folds In Yr 13)\n' ...
+    '• Vivid Orchid (5b/-Inv 3b) = Universal Mentored Waves (Yr 7+ \\rightarrow 100%%)'], ...
     r_sel, Total_Kahui_CE(end), 100*sh_ygr_base0), ...
-    'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle', 'FontSize', 7.2, 'FontWeight', 'bold', 'Color', [0.05 0.28 0.14], ...
-    'BackgroundColor', [0.94 1.00 0.96], 'EdgeColor', [0.00 0.48 0.22], 'LineWidth', 1.2, 'Margin', 2.8);
+    'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle', 'FontSize', 7.0, 'FontWeight', 'bold', 'Color', [0.05 0.28 0.14], ...
+    'BackgroundColor', [0.94 1.00 0.96], 'EdgeColor', [0.00 0.48 0.22], 'LineWidth', 1.2, 'Margin', 2.6);
 
 ylabel(axM, 'Annual Welfare Flow (+CE %/yr) Above 0  |  Annual Public Outlay & LTFM Deficit (-CE %/yr) Below 0', 'FontSize', 10.0, 'FontWeight', 'bold');
 ylim(axM, [y_mir_bot, y_mir_top]);
@@ -767,9 +827,12 @@ yyaxis(axM, 'left');
 
 title(axM, sprintf('Apples-to-Apples Annual Flows (%s): 11-Layer Welfare Gains (+Above 0) vs. Mirror Outlays & LTFM Annual Deficit (-Below 0)', r_sel), ...
     'FontSize', 10.8, 'FontWeight', 'bold');
-xlabel(axM, 'Years Relative to Reform Launch (2-Yr Steps: Left Half-Column = Single-Phase | Right Half-Column = 13-Wave Te Kāhui Waka + Tax Ramps)', 'FontSize', 10.2, 'FontWeight', 'bold');
+xlabel(axM, 'Years Relative to Reform Launch (Yrs 0-14 Split: Single-Phase Left vs. Te Kāhui Waka Right | Yr 16+ Unified Trajectory)', 'FontSize', 10.2, 'FontWeight', 'bold');
 xlim(axM, [-3, 63]); xticks(axM, 0:5:60); grid(axM, 'on'); box(axM, 'on');
-legend(axM, 'Location', 'northwest', 'FontSize', 5.8, 'NumColumns', 2);
+
+% Explicit handle order so 5a sits right between 4 and 5b, and -Inv 3a sits right between -Inv 2 and -Inv 3b:
+leg_handles = [b_pos12(1:4), b_pos_sp(5), b_pos12(6:12), b_neg5(1:2), b_neg_sp(3), b_neg5(4:5), h_ov1, h_ov2, h_ov3, h_ov4, h_ov5, h_ov6];
+legend(axM, leg_handles, 'Location', 'northwest', 'FontSize', 5.8, 'NumColumns', 2);
 
 f_mir_out = fullfile(OutputDir, sprintf('Fig_7Segment_Welfare_And_MirrorInvestments_%s.png', Reg_File_Suffix));
 exportgraphics(fig_mir, f_mir_out, 'Resolution', 300, 'BackgroundColor', 'white');
