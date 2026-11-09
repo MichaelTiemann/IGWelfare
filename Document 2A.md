@@ -258,6 +258,8 @@ $$
 
   This convex combination of pure operators reproduces the exact cross-sectional marginal distribution of the augmented state space (*a*, *h*, θ<sub>c</sub>, *z*, ω) on the existing grid (`n_a = [61, 7, 9]`, `n_z = 7`) at **zero additional GPU memory or Bellman iteration cost**.
 
+* **3. Intertemporal Wave Convolution into Phase 2 (`SS2` Generational Echo):** Because each regional echelon *w* ∈ {1, …, 13} enters treatment at calendar year *t* = *w* with incremental national share Δ*s*<sub>m</sub>(*w*) = *s*<sub>m</sub>(*w*) − *s*<sub>m</sub>(*w* − 1), the second-generation dynastic skill and enterprise-sorting harvest (`Jump 2` in `WelfareDecomposition_4Region.m` and `Traj_11` in `Plot_Counterfactuals_And_MirrorInvestments.m`) is governed not by a single step-function exponential at *t* = 25, but by the discrete convolution of the `SS1` wave increments Δ*s*<sub>m</sub>(*w*) with the cohort maturation kernel *K*<sub>mat</sub>(*t* − *w* − *T*<sub>gen,m</sub>). This preserves exact phase continuity between the `SS1` rollout (`Years 1–13`) and the `SS2` dynastic harvest (`Years 21.5–35`).
+
 ---
 
 ### Navigation to Part B & Companion Tutorial

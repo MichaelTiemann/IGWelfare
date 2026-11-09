@@ -272,6 +272,9 @@ if ~isfield(Params, 'phi_adj_bottleneck'),       Params.phi_adj_bottleneck      
 if ~isfield(Params, 'delta_adopt_ece'),          Params.delta_adopt_ece          = 0.220; end % Local ECE/mentoring cohort ramp-up lag amplitude
 if ~isfield(Params, 'lambda_adopt_ece'),         Params.lambda_adopt_ece         = 0.350; end % Local adoption speed (yr^-1)
 if ~isfield(Params, 'ebar_elec_relief_share'),   Params.ebar_elec_relief_share   = [0.28, 0.25, 0.18, 0.14]; end % Rewiring Aotearoa net ebar_energy compression [Rural, Small, Large, Akl]
+if ~isfield(Params, 'T_ramp_LVT_yrs'),           Params.T_ramp_LVT_yrs           = 10.0;  end % 10-year linear phase-in for 1.5% Land Value / Wealth Tax (+0.15%/yr, Waves 1-10)
+if ~isfield(Params, 'T_ramp_CGT_Est_yrs'),       Params.T_ramp_CGT_Est_yrs       = 3.0;   end % 3-year fast phase-in for Capital Gains & Estate Levy (Waves 1-3)
+if ~isfield(Params, 'T_ramp_CorpCut_yrs'),       Params.T_ramp_CorpCut_yrs       = 10.0;  end % 10-year synchronized corporate tax cut (20% -> 12% at -0.8%/yr alongside LVT)
 
 % Evaluate regime-level effective delivery multiplier eta_delivery_reg [1 x 4] and active coverage s_active_reg [1 x 4]:
 if strcmpi(Params.Rollout_Mode, 'Frictionless_Textbook')

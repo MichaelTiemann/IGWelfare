@@ -106,6 +106,13 @@ plot(ax1, y_all, u1, '--', 'Color', c_cash, 'LineWidth', 2.2, 'DisplayName', 'Ph
 m15 = y_all >= 15.0;
 plot(ax1, y_all(m15), u3(m15), ':', 'Color', c_s3, 'LineWidth', 2.1, 'DisplayName', 'Plan C Early-Launch Transitional Bridge (-5.88B Tail + 8.3B PAYE Deferral, Cleared by Yr 20.8)');
 
+% Apples-to-Apples Status Quo LTFM Annual Incremental Deficit Flow (-dDebt/dt in % CE/yr & BNZD/yr):
+s60_lp          = max(0, y_all) / 60.0;
+ltfm_ann_def_ce = -(143.0 * (1.45 / 60.0) * (s60_lp .^ 0.45)) * (4.30 / NZD_Per_CE);
+ltfm_ann_def_ce(y_all < 0) = 0.0;
+plot(ax1, y_all(y_all >= 0), ltfm_ann_def_ce(y_all >= 0), ':', 'Color', c_ss0, 'LineWidth', 2.3, ...
+    'DisplayName', 'Status Quo LTFM Annual Incremental Deficit Flow (-dDebt/dt: -10.9B/yr @ Yr 30 -> -14.9B/yr @ Yr 60)');
+
 % Launch Circles (Years 15, 20, 25)
 plot(ax1, 15.0, w0_15, 'o', 'MarkerSize', 9.5, 'MarkerFaceColor', c_s3, 'MarkerEdgeColor', 'k', 'LineWidth', 1.3, 'HandleVisibility', 'off');
 plot(ax1, 20.0, w0_20, 'o', 'MarkerSize', 9.5, 'MarkerFaceColor', c_s2, 'MarkerEdgeColor', 'k', 'LineWidth', 1.3, 'HandleVisibility', 'off');
@@ -126,19 +133,19 @@ add_callout(ax1, 40.0, w3_40,  34.0,  27.2, sprintf('Plan C @ Yr 40: +24.30%% CE
 add_callout(ax1, 50.0, w_s1_60, 45.5, 19.0, sprintf('Plan B @ Yr 50: +24.53%% CE (99.3%%)\nCompletes 60-Yr Target 10 Yrs Early!\n(+144B Extra 60-Yr Welfare)'), c_s2, bg_s2);
 add_callout(ax1, 60.0, w_s1_60, 55.8, 14.5, sprintf('Plan A @ Yr 60:\n+24.53%% CE (99.3%%)\nBaseline 60-Yr Target'), c_s1, bg_s1);
 
-xlim(ax1, [-5, 63]); xticks(ax1, 0:10:60);
-ylim(ax1, [-5.5, 30.2]);
-ylabel(ax1, 'Household Welfare Gain & Fiscal Flow (% CE)', 'FontSize', 11, 'FontWeight', 'bold');
+xlim(ax1, [-3, 63]); xticks(ax1, 0:10:60);
+ylim(ax1, [-6.6, 30.2]);
+ylabel(ax1, 'Annual Welfare & Fiscal Flow (% CE/yr)', 'FontSize', 11, 'FontWeight', 'bold');
 
 % Right-hand BNZD/yr axis
 yyaxis(ax1, 'right');
-ylim(ax1, [-5.5 * NZD_Per_CE, 30.2 * NZD_Per_CE]);
+ylim(ax1, [-6.6 * NZD_Per_CE, 30.2 * NZD_Per_CE]);
 ax1.YColor = [0.10, 0.28, 0.16];
 ylabel(ax1, 'Annual Equivalent Flow (Real 2025 BNZD/yr)', 'FontSize', 11, 'FontWeight', 'bold', 'Color', [0.10, 0.28, 0.16]);
 yyaxis(ax1, 'left'); ax1.YColor = 'k';
 
-title(ax1, 'A. Orbital Mechanics of Generational Reform: Three SS2 Launch Windows (Yr 15, Yr 20, Yr 25) vs. Actuarial & Cash Accounting', 'FontSize', 12, 'FontWeight', 'bold');
-legend(ax1, 'Location', 'northwest', 'FontSize', 8.3, 'Color', 'w');
+title(ax1, 'A. Orbital Mechanics of Generational Reform: Three SS2 Launch Windows (Yr 15, Yr 20, Yr 25) vs. Actuarial, Cash & LTFM Annual Flows', 'FontSize', 11.8, 'FontWeight', 'bold');
+legend(ax1, 'Location', 'northwest', 'FontSize', 8.0, 'Color', 'w');
 
 % --- BOTTOM PANEL: CORE CROWN DEBT (% OF GDP) ORBITAL ALIGNMENT ---
 ax2 = nexttile(tl1, 2); hold(ax2, 'on'); grid(ax2, 'on'); box(ax2, 'on');
@@ -163,7 +170,7 @@ plot(ax2, 25.0, 38.00, 'o', 'MarkerSize', 8.5, 'MarkerFaceColor', c_s1, 'MarkerE
 add_callout(ax2, 9.0,  45.49,  5.5, 64.0, sprintf('Yr 9 Debt Peak (45.5%% GDP)\n6 Yrs Before Window C!'), [0.25 0.25 0.25], [0.97 0.97 0.97]);
 add_callout(ax2, 18.7, 42.00, 26.5, 58.0, sprintf('Yr 18.7: Debt Crosses Below\nInitial 42.0%% GDP Baseline'), c_s2, bg_s2);
 
-xlim(ax2, [-5, 63]); xticks(ax2, 0:10:60);
+xlim(ax2, [-3, 63]); xticks(ax2, 0:10:60);
 ylim(ax2, [18, 105]);
 xlabel(ax2, 'Transition Horizon (Years from SS1 Launch at Year 0)', 'FontSize', 11, 'FontWeight', 'bold');
 ylabel(ax2, 'Core Crown Debt (% of GDP)', 'FontSize', 11, 'FontWeight', 'bold');
@@ -231,7 +238,7 @@ for idx_p = 1:3
         'HorizontalAlignment', 'right', 'VerticalAlignment', 'bottom', ...
         'BackgroundColor', p.bg, 'EdgeColor', p.col, 'LineWidth', 1.2, 'Margin', 4);
 
-    xlim(ax, [-5, 63]); xticks(ax, 0:10:60);
+    xlim(ax, [-3, 63]); xticks(ax, 0:10:60);
     ylim(ax, [-5.5, 29.5]);
     ylabel(ax, 'Welfare & Fiscal Flow (% CE)', 'FontSize', 10.5, 'FontWeight', 'bold');
 
@@ -311,7 +318,7 @@ for k = 1:N
         phi_p = min(1.0, max(0.0, y / 15.0));
         y_lk  = linspace(y, min(60.0, y + 25.0), 25);
         w_lk  = interp1(y_all, welf, y_lk, 'pchip');
-        fwd_l = 0.70 * 0.884 * mean(w_lk);
+        fwd_l = min(1.0, max(0.0, (y + 1.2) / 14.0));
         act(k) = min(SS2_Tot, (1.0 - phi_p)*(unrec(k) + fwd_l) + phi_p*welf(k));
     end
 end

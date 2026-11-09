@@ -311,7 +311,7 @@ xlabel(ax2, 'Years Relative to 2026 Reform Launch (SS1 Incubation -> Yr 25 SS2 H
 ylabel(ax2, 'Lifetime Consumption-Equivalent Welfare Change (CE %)', 'FontSize', 10.0, 'FontWeight', 'bold');
 title(ax2, 'B. Standalone Silos, 2-Term Policy Cycling, & The Unified Compact Relative to LTFM Drift', ...
     'FontSize', 10.4, 'FontWeight', 'bold');
-xlim(ax2, [-5, 60]); ylim(ax2, [-25, 29]);
+xlim(ax2, [-8, 63]); ylim(ax2, [-25, 29]);
 grid(ax2, 'on'); box(ax2, 'on');
 legend(ax2, 'Location', 'northwest', 'FontSize', 6.8);
 
