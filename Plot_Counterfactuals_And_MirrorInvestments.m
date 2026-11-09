@@ -30,48 +30,7 @@ if ~isfield(Params, 'Kahui_ECE_13x5')
     Params = Configure_TimeGrid_Params(Params);
 end
 Pop_Weights = Params.Pop_Weights_4; % [0.160, 0.240, 0.259, 0.341]
-Waves_13    = Params.Waves_13;
-yr_w_grid   = [0; Waves_13; 25; 60];
 
-% Re-use canonical Params.Target_Region / Params.Target_Regions selector:
-Reg_List_4     = {'Rural', 'Small', 'Large', 'Auckland'};
-target_reg_str = 'National';
-if isfield(Params, 'Target_Region') && ~isempty(Params.Target_Region)
-    if iscell(Params.Target_Region), target_reg_str = Params.Target_Region{1};
-    else, target_reg_str = char(Params.Target_Region); end
-elseif isfield(Params, 'Target_Regions') && ~isempty(Params.Target_Regions)
-    if iscell(Params.Target_Regions) && numel(Params.Target_Regions) == 1
-        target_reg_str = Params.Target_Regions{1};
-    elseif ischar(Params.Target_Regions) || isstring(Params.Target_Regions)
-        target_reg_str = char(Params.Target_Regions);
-    end
-end
-
-r_sel = find(strcmpi(target_reg_str, Reg_List_4), 1);
-if ~isempty(r_sel)
-    Plot_Reg_Tag   = Reg_List_4{r_sel};
-    Traj_SS1_11    = SS1_11x4(:, r_sel);
-    Traj_SS2_11    = SS2_11x4(:, r_sel);
-    Traj_SS1_Total = SS1_Target_Reg(r_sel);
-    Traj_SS2_Total = SS2_Target_Reg(r_sel);
-    sh_ygr_base0   = Params.sh_ygr_base0_vec(r_sel);
-    ECE_13_Pct     = 100.0 * Params.Kahui_ECE_13x4(:, r_sel);
-    YGr_New_Pct    = 100.0 * Params.Kahui_YGr_New_13x4(:, r_sel);
-    YGr_Tot_Pct    = 100.0 * Params.Kahui_YGr_Tot_13x4(:, r_sel);
-    Elc_13_Pct     = 100.0 * Params.Kahui_Elc_13x4(:, r_sel);
-else
-    r_sel          = 0; % 0 = National Population-Weighted Aggregate (Default)
-    Plot_Reg_Tag   = 'National';
-    Traj_SS1_11    = SS1_Nat_11;
-    Traj_SS2_11    = SS2_Nat_11;
-    Traj_SS1_Total = SS1_Nat_Total;
-    Traj_SS2_Total = SS2_Nat_Total;
-    sh_ygr_base0   = Params.sh_ygr_base0_nat;
-    ECE_13_Pct     = Params.Nat_ECE_13_Pct;
-    YGr_New_Pct    = Params.Nat_YGr_New_13_Pct;
-    YGr_Tot_Pct    = Params.Nat_YGr_Tot_13_Pct;
-    Elc_13_Pct     = Params.Nat_Elc_13_Pct;
-end
 SS1_Target_Reg = [11.945, 13.739, 14.888, 17.515];
 SS2_Target_Reg = [20.628, 22.984, 24.574, 27.913];
 

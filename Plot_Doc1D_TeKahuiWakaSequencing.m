@@ -1,10 +1,24 @@
 function Out = Plot_Doc1D_TeKahuiWakaSequencing(OutputDir, AnchorTag, Params)
 if nargin < 1 || isempty(OutputDir), OutputDir = 'Output_NZ_4Region_Intergen'; end
 if nargin < 2 || isempty(AnchorTag), AnchorTag = 'Dunedin_22'; end
-
+if nargin < 3 || isempty(Params),    Params    = struct(); end
+if ~isfield(Params, 'Kahui_ECE_13x5')
+    Params = Configure_TimeGrid_Params(Params);
+end
 if ~exist(OutputDir, 'dir'), mkdir(OutputDir); end
 
-% ... [Read T19, T20, T21] ...
+f19 = fullfile(OutputDir, sprintf('Table19_Constructive_Synergy_Wedges_%s.csv', AnchorTag));
+f20 = fullfile(OutputDir, sprintf('Table20_Annual_MirrorInvestments_Vs_7SegmentWelfare_%s.csv', AnchorTag));
+f21 = fullfile(OutputDir, sprintf('Table21_Doc3_LTFM_Sinkhole_Defense_Trajectories_%s.csv', AnchorTag));
+
+T19 = readtable(f19);
+T20 = readtable(f20);
+T21 = readtable(f21);
+
+is_wedge = strcmpi(T19.Component_Type, 'SYNERGY_WEDGE');
+Iso_SS2  = sum(T19.SS2_National_CE(~is_wedge));
+Wed_SS2  = sum(T19.SS2_National_CE(is_wedge));
+SS2_Tot  = Iso_SS2 + Wed_SS2;
 
 %% =========================================================================
 %  1. UNPACK CANONICAL 13-WAVE TE KĀHUI WAKA SCHEDULE FROM PARAMS
@@ -49,7 +63,7 @@ LVT_Share       = min(1.0, Waves / Params.T_ramp_LVT_yrs);
 LVT_Rate_Pct    = 1.50 * LVT_Share;
 Corp_Tax_Pct    = 20.0 - 8.0 * LVT_Share;
 
-% Cumulative Armada Learning Stock L(t-1) & Commissioning Friction tau_fric(t)
+% Cumulative Te Kāhui Waka Learning Stock L(t-1) & Commissioning Friction tau_fric(t)
 Cum_Learn_Stock  = [0; cumsum(0.5*(Nat_ECE_Pct(1:12)/100) + 0.5*(Nat_Elc_Pct(1:12)/100))];
 Tau_Fric_Kahui  = 0.042 + (0.280 - 0.042) * exp(-0.42 * Cum_Learn_Stock);
 Tau_Fric_1Shot   = 0.065 + (0.320 - 0.065) * exp(-0.18 * (0:12)');
@@ -138,7 +152,7 @@ remed_raw         = 4.92 ./ (1.0 + exp(-(y_pos - 14.8) / 3.85)) - 4.92 / (1.0 + 
 tax_match_buffer  = 0.28 * sh_tax_ramp .* exp(-max(0.0, y_pos - 5.0) / 5.0) + 0.055 * min(1.0, y_pos / 4.0);
 Unrec_Kahui(m_pos) = min(0.0, ginv_arm + remed_raw + tax_match_buffer);
 
-% Armada Welfare Envelopes (Converging to Exact SS2_Tot at Year 60):
+% Te Kāhui Waka Welfare Envelopes (Converging to Exact SS2_Tot at Year 60):
 phase_ramp_vec = 0.76 + 0.24 ./ (1.0 + exp(-(y_pos - 4.0) / 2.1));
 w_p1_arm_vec   = w_p1_pos .* phase_ramp_vec;
 w15_arm        = w0_15 * (0.76 + 0.24 / (1.0 + exp(-(15.0 - 4.0) / 2.1)));
@@ -267,9 +281,11 @@ for r = 1:11
             if val == 0
                 if r >= 7
                     % Super-Pale Lavender-Purple for the 17.3% Existing Tuakana Early Adopters in Waves 1-8!
-                    fcol = [0.90, 0.80, 0.95]; tcol = [0.32, 0.12, 0.42]; lstr = '17.3% Base';
+                    fcol = [0.90, 0.80, 0.95]; tcol = [0.32, 0.12, 0.42];
+                    lstr = sprintf('%.1f%% Base', 100 * sh_base_3(r - 6));
                 else
-                    fcol = [0.95, 0.96, 0.97]; tcol = [0.55, 0.55, 0.55]; lstr = '0';
+                    fcol = [0.95, 0.96, 0.97]; tcol = [0.55, 0.55, 0.55];
+                    lstr = '0';
                 end
             elseif abs(val - 1/3) < 0.05
                 if r <= 3, fcol = [0.99, 0.86, 0.52]; elseif r <= 6, fcol = [0.68, 0.85, 0.94]; else, fcol = [0.76, 0.52, 0.84]; end
@@ -354,7 +370,7 @@ xlim(axB, [-1.0, 16.0]); xticks(axB, 0:1:15);
 ylim(axB, [0, 108]);
 xlabel(axB, 'Rollout Year / Te Kāhui Waka Wave (Years from Phase 1 Initiation)', 'FontSize', 10.8, 'FontWeight', 'bold');
 ylabel(axB, 'National Active Share, Tax Ramp & Yield (%)', 'FontSize', 10.8, 'FontWeight', 'bold');
-title(axB, 'B. Synchronizing the Expenditure Armada (ECE, Mentoring, 17.3% Early Grants, Electrification) with the 3-Yr CGT & 10-Yr LVT Ramps', ...
+title(axB, 'B. Synchronizing the Te Kāhui Waka Expenditure Rollout (ECE, Mentoring, 17.3% Early Grants, Electrification) with the 3-Yr CGT & 10-Yr LVT Ramps', ...
     'FontSize', 11.0, 'FontWeight', 'bold');
 legend(axB, 'Location', 'southeast', 'FontSize', 7.8, 'Color', 'w');
 
@@ -511,7 +527,7 @@ close(fig2);
 fprintf('  -> Saved Fig_Doc1D_TeKahuiWaka_Vs_SingleShot_JCurve to: %s\n', f_out2);
 
 Out.Table23_TeKahuiWakaSchedule = T23;
-Out.Table24_ArmadaVs1Shot  = T24;
+Out.Table24_TeKahuiWakaVs1Shot  = T24;
 Out.Fig1_TeKahuiWakaSchedule    = f_out1;
 Out.Fig2_TeKahuiWakaJCurve      = f_out2;
 
