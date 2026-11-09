@@ -255,11 +255,13 @@ Track_Mat = [ ...
     ECE_RS';        ... % 4. Rural+Small ECE + Adolescent Mentoring (Waves 1, 4, 7)
     ECE_Lrg';       ... % 5. Large Metros ECE + Adolescent Mentoring (Waves 2, 5, 8)
     ECE_Akl';       ... % 6. Auckland ECE + Adolescent Mentoring (Waves 3, 6, 9)
-    YGr_New_RS';    ... % 7. Rural+Small Youth Grants (17.3% Base W1-6 -> +1/3s in W7, 10, 13)
-    YGr_New_Lrg';   ... % 8. Large Metros Youth Grants (17.3% Base W1-6 -> +1/3s in W8, 11, 13)
-    YGr_New_Akl';   ... % 9. Auckland Youth Grants (17.3% Base W1-6 -> +1/3s in W9, 12, 13)
+    YGr_New_RS';    ... % 7. Rural+Small Youth Grants (18.9% Base W1-6 -> +1/3s in W7, 10, 13)
+    YGr_New_Lrg';   ... % 8. Large Metros Youth Grants (15.8% Base W1-7 -> +1/3s in W8, 11, 13)
+    YGr_New_Akl';   ... % 9. Auckland Youth Grants (16.5% Base W1-8 -> +1/3s in W9, 12, 13)
     CGT_Est_Share'; ... % 10. Capital Gains & Estate Levy 3-Yr Ramp (Waves 1-3: 33% -> 67% -> 100%)
     LVT_Share'];        % 11. Land Value Tax (LVT) 10-Yr Ramp (Waves 1-10: +0.15%/yr -> 1.50%)
+
+YGr_Tot_3x13 = Params.Kahui_YGr_Tot_13x3'; % [3 x 13] exact regional totals for Tracks 7..9
 
 Track_Labels = { ...
     '1. Rural + Small Electrification Grants (Waves 1-3 Consecutive)', ...
@@ -268,9 +270,9 @@ Track_Labels = { ...
     '4. Rural + Small ECE + Adolescent Mentoring (Waves 1, 4, 7)', ...
     '5. Large Metros ECE + Adolescent Mentoring (Waves 2, 5, 8)', ...
     '6. Auckland ECE + Adolescent Mentoring (Waves 3, 6, 9)', ...
-    '7. Rural + Small Youth Grants (17.3% Early Adopters W1-6 -> W7, 10, 13)', ...
-    '8. Large Metros Youth Grants (17.3% Early Adopters W1-6 -> W8, 11, 13)', ...
-    '9. Auckland Youth Grants (17.3% Early Adopters W1-6 -> W9, 12, 13)', ...
+    sprintf('7. Rural + Small Youth Grants (%.1f%% Early Adopters W1-6 -> W7, 10, 13)', 100*sh_base_3(1)), ...
+    sprintf('8. Large Metros Youth Grants (%.1f%% Early Adopters W1-7 -> W8, 11, 13)',  100*sh_base_3(2)), ...
+    sprintf('9. Auckland Youth Grants (%.1f%% Early Adopters W1-8 -> W9, 12, 13)',      100*sh_base_3(3)), ...
     '10. [Tax Ramp A] CGT & Estate Levy (\tau_b: 3-Yr Fast Ramp, Waves 1-3)', ...
     '11. [Tax Ramp B] Land Value Tax (\tau_a: 10-Yr Ramp +0.15%/yr to 1.50%)'};
 
@@ -280,7 +282,7 @@ for r = 1:11
         if r <= 9
             if val == 0
                 if r >= 7
-                    % Super-Pale Lavender-Purple for the 17.3% Existing Tuakana Early Adopters in Waves 1-8!
+                    % Super-Pale Lavender-Purple for Existing Tuakana Early Adopters in Waves 1-8!
                     fcol = [0.90, 0.80, 0.95]; tcol = [0.32, 0.12, 0.42];
                     lstr = sprintf('%.1f%% Base', 100 * sh_base_3(r - 6));
                 else
@@ -290,11 +292,11 @@ for r = 1:11
             elseif abs(val - 1/3) < 0.05
                 if r <= 3, fcol = [0.99, 0.86, 0.52]; elseif r <= 6, fcol = [0.68, 0.85, 0.94]; else, fcol = [0.76, 0.52, 0.84]; end
                 tcol = [0.10, 0.15, 0.20];
-                if r >= 7, lstr = '+1/3 (45%)'; else, lstr = '1/3'; end
+                if r >= 7, lstr = sprintf('+1/3 (%.0f%%)', 100 * YGr_Tot_3x13(r - 6, w)); else, lstr = '1/3'; end
             elseif abs(val - 2/3) < 0.05
                 if r <= 3, fcol = [0.96, 0.64, 0.22]; elseif r <= 6, fcol = [0.32, 0.64, 0.84]; else, fcol = [0.64, 0.30, 0.72]; end
                 tcol = [1.00, 1.00, 1.00];
-                if r >= 7, lstr = '+2/3 (72%)'; else, lstr = '2/3'; end
+                if r >= 7, lstr = sprintf('+2/3 (%.0f%%)', 100 * YGr_Tot_3x13(r - 6, w)); else, lstr = '2/3'; end
             else
                 if r <= 3
                     fcol = [0.82, 0.36, 0.02];
