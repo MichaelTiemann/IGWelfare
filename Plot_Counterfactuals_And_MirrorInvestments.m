@@ -834,7 +834,7 @@ xlim(axM, [-3, 63]); xticks(axM, 0:5:60); grid(axM, 'on'); box(axM, 'on');
 leg_handles = [b_pos12(1:4), b_pos_sp(5), b_pos12(6:12), b_neg5(1:2), b_neg_sp(3), b_neg5(4:5), h_ov1, h_ov2, h_ov3, h_ov4, h_ov5, h_ov6];
 legend(axM, leg_handles, 'Location', 'northwest', 'FontSize', 5.8, 'NumColumns', 2);
 
-f_mir_out = fullfile(OutputDir, sprintf('Fig_7Segment_Welfare_And_MirrorInvestments_%s.png', Reg_File_Suffix));
+f_mir_out = fullfile(OutputDir, sprintf('Fig_11Layer_Welfare_And_MirrorInvestments_%s.png', Reg_File_Suffix));
 exportgraphics(fig_mir, f_mir_out, 'Resolution', 300, 'BackgroundColor', 'white');
 fprintf('  -> Saved Apples-to-Apples Split-Column Mirror-Image Figure (%s) to: %s\n', r_sel, f_mir_out);
 
