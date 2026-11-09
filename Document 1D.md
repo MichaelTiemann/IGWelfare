@@ -1,7 +1,6 @@
 # *Te Kāhui Waka*: Non-Violent Fiscal Resistance, Orbital Launch Mechanics, and Optimal Generational Reform (`SS0 → SS1 → SS2`)
 
 *Companion to Documents 1A, 1B, 1C, and Document 3 | Generational Manifesto & Quantitative Launch-Window Analysis*  
-*Source Data & Scripts:* `Plot_Doc1D_LaunchPlans.m`, `Plot_Doc1D_TeKahuiWakaSequencing.m`, `Plot_Counterfactuals_And_MirrorInvestments.m`, `Table14_FiscalLedger_6Gate_Decomp_National.csv`, `Table15_ChildFates_5Stage_Decomp_National.csv`, `Table19_Constructive_Synergy_Wedges_Dunedin_22.csv`, `Table20_Annual_MirrorInvestments_Vs_7SegmentWelfare_Dunedin_22.csv`, `Table21_Doc3_LTFM_Sinkhole_Defense_Trajectories_Dunedin_22.csv`, `Table22_Doc1D_LaunchPlans_OrbitalComparison_Dunedin_22.csv`, `Table23_Doc1D_13Wave_TeKahuiWaka_Schedule_Dunedin_22.csv`, and `Table24_Doc1D_TeKahuiWaka_Vs_SingleShot_Trajectory_Dunedin_22.csv`.
 
 ---
 
@@ -195,3 +194,5 @@ In *Te Ao Māori*, we walk *ka mua, ka muri*—into the future with our eyes fix
 | **6. Core Crown Debt Peak (*Apogee*) & Year Debt < 42.0% GDP** | Peaks at **`45.49% GDP` (Yr 9)**; `<42%` at **Yr 18.7** | Peaks at **`43.36%–43.42% GDP` (Yr 6)**; `<42%` at **Yr 14.1–15.4** | **Peak debt -2.1% GDP lower; crosses <42% 3.3–4.6 yrs early** |
 | **7. Plan C (`Yr 15 Launch`) Remaining Cash Tail to Bridge** | `-2.47% CE-yrs` (`-5.88 BNZD` tail over Yrs 15–19.2) | **`-0.31% to -0.63% CE-yrs`** (**`-0.74B to -1.49B`** tail over Yrs 15–16.9!) | **96.6% of J-curve paid by Yr 15 — Plan C is virtually self-bridging!** |
 | **8. Post-Learning Trajectory Merge & Lifetime Fiscal ROI** | Merges into unified trajectory at **Year 16** (`28.2x` Plan B ROI) | Merges into unified trajectory at **Year 16** (**`+25.19%–25.21% CE`**, **`~38x–60x` ROI**) | **Identical post-Yr-16 trajectory at dramatically higher fiscal ROI!** |
+
+*Source Data & Scripts:* `Plot_Doc1D_LaunchPlans.m`, `Plot_Doc1D_TeKahuiWakaSequencing.m`, `Plot_Counterfactuals_And_MirrorInvestments.m`, `Table14_FiscalLedger_6Gate_Decomp_National.csv`, `Table15_ChildFates_5Stage_Decomp_National.csv`, `Table19_Constructive_Synergy_Wedges_Dunedin_22.csv`, `Table20_Annual_MirrorInvestments_Vs_7SegmentWelfare_Dunedin_22.csv`, `Table21_Doc3_LTFM_Sinkhole_Defense_Trajectories_Dunedin_22.csv`, `Table22_Doc1D_LaunchPlans_OrbitalComparison_Dunedin_22.csv`, `Table23_Doc1D_13Wave_TeKahuiWaka_Schedule_Dunedin_22.csv`, and `Table24_Doc1D_TeKahuiWaka_Vs_SingleShot_Trajectory_Dunedin_22.csv`.
