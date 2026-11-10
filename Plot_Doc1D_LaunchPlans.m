@@ -176,7 +176,7 @@ c_ss0  = [0.70, 0.09, 0.17];
 %% ====================================================================
 %  FIGURE 1: INTEGRATED 2-PANEL ORBITAL MECHANICS & DEBT ALIGNMENT
 %% ====================================================================
-fig1 = figure('Color', 'w', 'Position', [50, 50, 1500, 1150], 'Visible', 'off');
+fig1 = figure('Color', 'w', 'Position', [50, 50, 1500, 1280], 'Visible', 'off');
 tl1  = tiledlayout(fig1, 2, 1, 'TileSpacing', 'compact', 'Padding', 'compact');
 
 % --- TOP PANEL: WELFARE, ACTUARIAL & CASH OVERLAYS ---
@@ -226,11 +226,11 @@ add_callout(ax1, 50.0, w_s1_60, 45.8, 19.0, sprintf('Plan B @ Yr 50: %+.2f%% CE 
 add_callout(ax1, 60.0, w_s1_60, 55.8, 14.2, sprintf('Plan A @ Yr 60:\n%+.2f%% CE (%.1f%%)\nBaseline 60-Yr Target', w_s1_60, 100*w_s1_60/SS2_Tot), c_s1, bg_s1);
 
 xlim(ax1, [-3, 63]); xticks(ax1, 0:10:60);
-ylim(ax1, [-6.6, 31.0]);
+ylim(ax1, [-6.6, 36.0]);
 ylabel(ax1, 'Annual Welfare & Fiscal Flow (% CE/yr)', 'FontSize', 11, 'FontWeight', 'bold');
 
 yyaxis(ax1, 'right');
-ylim(ax1, [-6.6 * NZD_Per_CE, 31.0 * NZD_Per_CE]);
+ylim(ax1, [-6.6 * NZD_Per_CE, 36.0 * NZD_Per_CE]);
 ax1.YColor = [0.10, 0.28, 0.16];
 ylabel(ax1, sprintf('%s Annual Equivalent Flow (Real 2025 BNZD/yr)', r_sel), 'FontSize', 11, 'FontWeight', 'bold', 'Color', [0.10, 0.28, 0.16]);
 yyaxis(ax1, 'left'); ax1.YColor = 'k';
@@ -268,7 +268,7 @@ add_callout(ax2, yr_debt_pk,  debt_pk_val, 6.2,  61.5, sprintf('Yr %.0f Te Kāhu
 add_callout(ax2, yr_cross_42, 42.00,       25.5, 56.5, sprintf('Yr %.1f: Te Kāhui Waka Crosses Below\nInitial 42.0%% GDP Anchor (Inside Window C!)', yr_cross_42), c_s2, bg_s2);
 
 xlim(ax2, [-3, 63]); xticks(ax2, 0:10:60);
-ylim(ax2, [18, 105]);
+ylim(ax2, [18, 115]);
 xlabel(ax2, 'Transition Horizon (Years from SS1 Te Kāhui Waka Launch at Year 0)', 'FontSize', 11, 'FontWeight', 'bold');
 ylabel(ax2, 'Core Crown Debt (% of GDP)', 'FontSize', 11, 'FontWeight', 'bold');
 title(ax2, 'B. Sovereign Debt-to-GDP Alignment: Why Te Kāhui Waka De-Risks Both Window C (Yr 15) and Window B (Yr 20)', 'FontSize', 11.8, 'FontWeight', 'bold');
