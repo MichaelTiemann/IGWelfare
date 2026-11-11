@@ -29,8 +29,7 @@ if ~exist(OutputDir, 'dir'), mkdir(OutputDir); end
 if ~isfield(Params, 'Kahui_ECE_13x5')
     Params = Configure_TimeGrid_Params(Params);
 end
-Pop_Weights = Params.Pop_Weights_4; % [0.160, 0.240, 0.259, 0.341]
-
+Pop_Weights    = Params.Pop_Weights_4; % [0.160, 0.240, 0.259, 0.341]
 SS1_Target_Reg = [11.945, 13.739, 14.888, 17.515];
 SS2_Target_Reg = [20.628, 22.984, 24.574, 27.913];
 
