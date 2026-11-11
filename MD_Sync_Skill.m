@@ -5,7 +5,7 @@ classdef MD_Sync_Skill
     methods (Static)
         function S = load_metrics(out_dir)
             if nargin < 1 || isempty(out_dir), out_dir = 'Output_NZ_4Region_Intergen'; end
-            S.pop_w = [0.160, 0.240, 0.259, 0.341];
+            S.pop_w = Params.Pop_Weights_4;
 
             % 1. Load Table 1 (Multiphase 4-Region Decomposition)
             t1_f = fullfile(out_dir, 'Table1_4Region_Daruich_LeeSeshadri_Decomposition.csv');

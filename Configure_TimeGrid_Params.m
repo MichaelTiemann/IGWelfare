@@ -71,7 +71,16 @@ Params.T_trans_years = 60;
 Params.T_trans       = round(Params.T_trans_years / dt); % 12 (dt=5), 20 (dt=3), 30 (dt=2)
 Params.zeta_cohort   = 1 - (1 - 0.085)^scale_dt;
 
-%% 5. CANONICAL 4-REGION WHANAU, HARDSHIP, & MIGRATION CALIBRATION (SINGLE SOURCE OF TRUTH)
+%% 5. CANONICAL 4-REGION POPULATION, WHANAU, HARDSHIP, & MIGRATION CALIBRATION (SINGLE SOURCE OF TRUTH)
+Params.Reg_Names_4    = {'Rural', 'Small', 'Large', 'Auckland'};
+Params.Reg_Names_5    = {'Rural', 'Small', 'Large', 'Auckland', 'National'};
+if ~isfield(Params, 'Pop_Weights_4'),  Params.Pop_Weights_4  = [0.160, 0.240, 0.259, 0.341]; end % Stats NZ HH shares [Rural, Small, Large, Auckland]
+if ~isfield(Params, 'Firm_Weights_4'), Params.Firm_Weights_4 = [0.150, 0.230, 0.269, 0.351]; end % Stats NZ Firm shares [Rural, Small, Large, Auckland]
+Params.Pop_Weights_5  = [Params.Pop_Weights_4, 1.000]; % 5th column = National (100% population weight)
+Params.Pop_Weights_3  = [Params.Pop_Weights_4(1) + Params.Pop_Weights_4(2), Params.Pop_Weights_4(3), Params.Pop_Weights_4(4)]; % [Rural+Small, Large, Auckland]
+Params.NZD_Per_CE_Nat = 2.38;  % National 1.0% CE equivalent in Real 2025 BNZD/yr
+Params.GDP_2026_BNZD  = 430.0; % National 2026 GDP anchor in Real 2025 BNZD/yr
+
 Params.K_whanau_base_vec = [0.42, 0.38, 0.32, 0.28]; % [Rural, Small, Large, Auckland]
 if ~isfield(Params, 'K_whanau_base')
     Params.K_whanau_base = struct('HH_Rural', 0.42, 'HH_Small', 0.38, 'HH_Large', 0.32, 'HH_Auckland', 0.28);

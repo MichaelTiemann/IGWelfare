@@ -25,7 +25,7 @@ if ~exist(OutputDir, 'dir'), mkdir(OutputDir); end
 % =========================================================================
 % 1. SYNC EXACT CONVERGED SS1 & SS2 TOTALS FROM WORKSPACE T1 (NO DRIFT)
 % =========================================================================
-Pop_Weights    = [0.160, 0.240, 0.259, 0.341]; % [Rural, Small, Large, Auckland]
+Pop_Weights    = Params.Pop_Weights_4; % [Rural, Small, Large, Auckland]
 SS1_Target_Reg = [11.945, 13.739, 14.888, 17.515];
 SS2_Target_Reg = [20.628, 22.984, 24.574, 27.913];
 

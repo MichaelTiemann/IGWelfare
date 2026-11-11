@@ -33,7 +33,7 @@ if ~exist(OutputDir, 'dir'), mkdir(OutputDir); end
 % =========================================================================
 % 1. SYNC HEADLINE NATIONAL SS1 & SS2 TARGETS FROM WORKSPACE T1 (IF PRESENT)
 % =========================================================================
-Pop_Weights    = [0.160, 0.240, 0.259, 0.341]; % [Rural, Small, Large, Auckland]
+Pop_Weights    = Params.Pop_Weights_4; % [Rural, Small, Large, Auckland]
 % Default 12-Layer NDC + Local Procurement targets (overridden dynamically when T1 is in workspace):
 SS1_Target_Reg = [11.945, 13.739, 14.888, 17.515]; % +15.04% National (or [9.9955, 12.296, 13.997, 17.041] = +13.99% pre-procurement NDC)
 SS2_Target_Reg = [20.628, 22.984, 24.574, 27.913]; % +24.70% National (or [18.847, 21.414, 23.440, 27.450] = +23.59% pre-procurement NDC)
