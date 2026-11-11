@@ -2,3 +2,4 @@
 *.mat
 *.fig
 .DS_Store
+igw_run.log

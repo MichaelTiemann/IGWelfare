@@ -1,0 +1,50 @@
+name: tests
+
+# Runners are pinned to ubuntu-24.04 (not ubuntu-latest) so the apt Octave version does
+# not change when GitHub moves ubuntu-latest to a newer Ubuntu; actions target Node 24.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  octave:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install GNU Octave
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y octave
+
+      - name: Run MATLAB/Octave test suite
+        # run_all_tests exits with status 1 on any failure when started via --eval,
+        # so a failing test fails this step.
+        run: octave --no-gui --eval "cd tests; run_all_tests"
+
+      - name: Check docs consistency (when the tool exists)
+        run: |
+          if [ -f tools/check_docs_consistency.py ]; then
+            python3 tools/check_docs_consistency.py --strict
+          fi
+
+  matlab:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up MATLAB
+        # Public repository: the MathWorks actions license MATLAB automatically
+        # (no MLM_LICENSE_TOKEN needed); a private fork would need a batch token.
+        uses: matlab-actions/setup-matlab@v3
+        with:
+          release: R2025b
+
+      - name: Run MATLAB/Octave test suite
+        # run-command starts MATLAB with -batch, so a nonzero exit fails the step.
+        # 'exit' makes run_all_tests exit 1 on any failure without relying on
+        # batchStartupOptionUsed detection.
+        uses: matlab-actions/run-command@v3
+        with:
+          command: cd tests; run_all_tests('exit')

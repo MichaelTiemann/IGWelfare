@@ -185,12 +185,19 @@ for u_i = 1:n_ug
 end
 
 % Anchor CE_UCurve_SS2 so Age 64 matches T1 National SS2 (+24.54% CE) and Age 65 = +24.37% CE:
-ce_anchor_64 = 24.699335; % Default n_z = 7 Rouwenhorst SS2 National CE% with z_l -> z_h & 85% T_k retirement
+ce_anchor_64  = 24.699335; % Default n_z = 7 Rouwenhorst SS2 National CE% with z_l -> z_h & 85% T_k retirement
+ce_anchor_why = 'T1 not in workspace'; % T1 is created by WelfareDecomposition_4Region.m (Run_All Step 6, after this Step 3)
 if evalin('base', 'exist(''T1'', ''var'')')
     T1_ws = evalin('base', 'T1');
     if istable(T1_ws) && height(T1_ws) >= 6 && abs(super_age_ss2_target - 64.0) < 0.5
-        ce_anchor_64 = sum(table2array(T1_ws(6, 1:4)) .* Reg_HH_Shares(:)');
+        ce_anchor_64  = sum(table2array(T1_ws(6, 1:4)) .* Reg_HH_Shares(:)');
+        ce_anchor_why = '';
+    else
+        ce_anchor_why = 'T1 in workspace but not usable: not a table with >= 6 rows, or SS2 target super age is not 64';
     end
+end
+if ~isempty(ce_anchor_why)
+    IGW_Log('IGW:TypedAnchor', 'Super-age U-curve anchored to typed ce_anchor_64 = %.6f (%s)', ce_anchor_64, ce_anchor_why);
 end
 idx_64_u      = find(SuperAge_Grid == 64, 1);
 tax_65_ss2    = Tax_UCurve_SS2(SuperAge_Grid == 65);

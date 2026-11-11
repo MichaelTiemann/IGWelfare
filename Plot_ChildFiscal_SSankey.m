@@ -1250,7 +1250,8 @@ for p = 1:N_p
         L.S5_Career_kNZD(:); ...
         L.S6_Fiscal_kNZD(:)];
 
-    Cond_29 = Flow_29 ./ max(0.01, Pop_29 / 100);
+    Cond_29 = Flow_29 ./ max(1e-9, Pop_29 / 100);
+    Cond_29(Pop_29 == 0) = 0;   % guard: a zero-population node must not print Flow x 1e9
     Flow_Mat(:, p) = Flow_29;
 
     LaneA = zeros(29, 1); LaneB = zeros(29, 1); LaneC = zeros(29, 1); LaneD = zeros(29, 1);
