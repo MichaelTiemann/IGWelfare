@@ -242,7 +242,7 @@ fprintf('  -> Exported Table 24 (Te Kāhui Waka vs Single-Shot Trajectories) to:
 %% =========================================================================
 %  3. FIGURE 1: THE 13-WAVE ARMADA SCHEDULE & TAX RAMP MATRIX (YEARS 1-13)
 %% =========================================================================
-fig1 = figure('Color', 'w', 'Position', [50, 40, 1540, 1140], 'Visible', 'off');
+fig1 = figure('Color', 'w', 'Position', [50, 40, 1540, 1280], 'Visible', 'off');
 tl1  = tiledlayout(fig1, 2, 1, 'TileSpacing', 'compact', 'Padding', 'compact');
 
 % --- PANEL A: 11-TRACK REGIONAL & TAX-RAMP MATRIX ACROSS WAVES 1..13 ---
@@ -585,11 +585,11 @@ text(ax1, 0.5*(x_box_L + x_box_R), y_z_map(0.36), 'MAGNIFIED J-CURVE INSET (Year
     'HorizontalAlignment', 'center', 'FontSize', 7.8, 'FontWeight', 'bold', 'Color', [0.02 0.35 0.16]);
 
 xlim(ax1, [-3, 63]); xticks(ax1, 0:10:60);
-ylim(ax1, [-6.6, 30.2]);
+ylim(ax1, [-6.6, 35.2]);
 ylabel(ax1, 'Annual Welfare & Fiscal Flow (% CE/yr)', 'FontSize', 10.8, 'FontWeight', 'bold');
 
 yyaxis(ax1, 'right');
-ylim(ax1, [-6.6 * NZD_Per_CE, 30.2 * NZD_Per_CE]);
+ylim(ax1, [-6.6 * NZD_Per_CE, 35.2 * NZD_Per_CE]);
 ax1.YColor = [0.10 0.28 0.16];
 ylabel(ax1, 'Real 2025 BNZD/yr', 'FontSize', 10.8, 'FontWeight', 'bold', 'Color', [0.10 0.28 0.16]);
 yyaxis(ax1, 'left'); ax1.YColor = 'k';
@@ -624,7 +624,7 @@ text(ax2, yr_d42_kh, 32.5, sprintf('Yr %.1f: Te Kāhui Waka Debt Crosses <%.1f%%
     'Color', [0.65 0.25 0.00], 'BackgroundColor', [1.0 0.97 0.92], 'EdgeColor', [0.85 0.37 0.01], 'Margin', 3);
 
 xlim(ax2, [-3, 63]); xticks(ax2, 0:10:60);
-ylim(ax2, [18, 105]);
+ylim(ax2, [18, 115]);
 xlabel(ax2, 'Transition Horizon (Years from SS1 Te Kāhui Waka Launch at Year 0)', 'FontSize', 10.8, 'FontWeight', 'bold');
 ylabel(ax2, 'Core Crown Debt (% of GDP)', 'FontSize', 10.8, 'FontWeight', 'bold');
 title(ax2, 'B. Sovereign Debt-to-GDP Trajectory: How the 13-Wave Te Kāhui Waka & Tax Ramps De-Risk the Year 15 ("We Got This!") Launch Window', ...
