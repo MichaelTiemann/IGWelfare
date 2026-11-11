@@ -135,7 +135,11 @@ inv_logit = @(p) log((p - lb) ./ max(1e-6, ub - p));
 fwd_logit = @(x) lb + (ub - lb) ./ (1 + exp(-x));
 
 x0 = inv_logit(max(lb + 1e-4, min(ub - 1e-4, best_theta)));
-[x_opt, fval_opt] = fminsearch(@(x) obj_fn(fwd_logit(x)), x0, calib_options);
+[x_opt, fval_opt, exitflag_opt, output_opt] = fminsearch(@(x) obj_fn(fwd_logit(x)), x0, calib_options);
+if exitflag_opt ~= 1
+    IGW_Log('IGW:NoConvergence', 'Calibrate_NZ_Moments Stage-2 fminsearch (MaxIter %d, TolX 1e-3, TolFun 1e-4): %d iterations, residual %.3g (final weighted SMM loss; exitflag %d)', ...
+        calib_options.MaxIter, output_opt.iterations, fval_opt, exitflag_opt);
+end
 theta_calibrated  = fwd_logit(x_opt);
 
 % Evaluate final calibrated moments and update Params

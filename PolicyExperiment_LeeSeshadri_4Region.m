@@ -106,6 +106,7 @@ for p_idx = 1:N_pol
     V_LR     = V_SR;
     Pol_LR   = Policy_SR;
 
+    ig_resid = Inf;
     for ig_it = 1:10
         StatDist_LR = StationaryDist_MixHorz_PType(jDist_LR, AgeWeightsParamNames, ...
             PTypeDistParamNames, Pol_LR, n_d_5D, n_a_5D, n_z, N_j, Names_i, ...
@@ -114,11 +115,15 @@ for p_idx = 1:N_pol
         [jDist_LR_new, Diag_LR] = Build_IntergenTransitionMatrix(StatDist_LR, Pol_LR, V_LR, ...
             n_d_5D, n_a_5D, n_z, d_grid_5D, a_grid_5D, z_grid, pi_z, Params_p, Regions);
 
-        if max(abs(jDist_LR_new.HH_Auckland(:) - jDist_LR.HH_Auckland(:))) < 1e-5
+        ig_resid = max(abs(jDist_LR_new.HH_Auckland(:) - jDist_LR.HH_Auckland(:)));
+        if ig_resid < 1e-5
             jDist_LR = jDist_LR_new;
             break;
         end
         jDist_LR = jDist_LR_new;
+    end
+    if ~(ig_resid < 1e-5)
+        IGW_Log('IGW:NoConvergence', 'PolicyExperiment_LeeSeshadri_4Region LR intergenerational fixed point (%s): %d iterations, residual %.3g', pol_name, ig_it, double(gather(ig_resid)));
     end
 
     % --- 3. COMPUTE REGIONAL IGE, VARIANCE EXPLAINED, LIFETIME EARNINGS & CE WELFARE ---

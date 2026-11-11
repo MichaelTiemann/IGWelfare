@@ -1,8 +1,11 @@
 function F_clean = pruneAndBalanceFlowMatrix(F, minRibbonVal)
 % pruneAndBalanceFlowMatrix Drops sub-threshold phantom ribbons (< minRibbonVal)
-% and redistributes their mass pro-rata via bi-proportional (RAS) scaling so
-% BOTH source-block row sums and target-block column sums remain 100% exact
-% (guaranteeing zero pixel gaps where ribbons meet blocks!).
+% and redistributes their mass pro-rata via bi-proportional (RAS) scaling.
+% RAS sweeps are repeated until max(row-sum error, column-sum error) < 1e-9 x (matrix total), up to 500 sweeps;
+% every sweep ends on a column scaling, so column sums match the input to rounding error at all times.
+% GUARANTEED: when the pruned support admits a balanced matrix, row sums AND column sums equal the input's to
+% within 1e-9 of the matrix total. If the pruned support cannot satisfy both margins (or the cap is reached) the
+% function warns (IGW:NoConvergence) and returns the last iterate, whose row sums are NOT exact.
 
 F_clean = max(0, double(F));
 rowTarget = sum(F_clean, 2);
@@ -29,8 +32,12 @@ end
 % Zero out the sub-threshold phantom connections
 F_clean(~keepMask) = 0;
 
-% Bi-proportional (RAS) pro-rata redistribution (preserves BOTH row & col sums)
-for iter = 1:6
+% Bi-proportional (RAS) pro-rata redistribution (preserves BOTH row & col sums), iterated to a tolerance
+ras_tol    = 1e-9;                          % x matrix total
+ras_cap    = 500;                           % sweep cap
+ras_scale  = max(sum(rowTarget), eps);
+resid_ras  = Inf;
+for iter = 1:ras_cap
     % 1. Pro-rata row scaling (matches source block heights)
     rSum = sum(F_clean, 2);
     rScale = ones(size(rSum));
@@ -44,7 +51,15 @@ for iter = 1:6
     validC = (cSum > 0);
     cScale(validC) = colTarget(validC) ./ cSum(validC);
     F_clean = bsxfun(@times, F_clean, cScale);
-end
 
+    % Convergence: worst row / column margin error, relative to the matrix total
+    resid_ras = max([0, max(abs(sum(F_clean, 2) - rowTarget)), max(abs(sum(F_clean, 1)' - colTarget'))]) / ras_scale;
+    if resid_ras < ras_tol
+        break;
+    end
+end
+if ~(resid_ras < ras_tol)
+    IGW_Log('IGW:NoConvergence', 'pruneAndBalanceFlowMatrix RAS rescaling: %d iterations, residual %.3g (max row/column-sum error as a share of the matrix total; pruned support cannot satisfy both margins)', iter, resid_ras);
+end
 
 end

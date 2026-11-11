@@ -240,6 +240,9 @@ for ig_iter = 1:12
     jequaloneDist = jequaloneDist_new;
     if diff_ig < 1e-5; break; end
 end
+if ~(diff_ig < 1e-5)
+    IGW_Log('IGW:NoConvergence', 'NZ_4Region_Master intergenerational newborn-distribution fixed point: %d iterations, residual %.3g', ig_iter, double(gather(diff_ig)));
+end
 
 fprintf('\n=== 4-REGION + ABROAD STEADY-STATE DIAGNOSTICS (dt = %d yr, J = %d) ===\n', Params.dt, Params.J);
 for r_idx = 1:N_reg
