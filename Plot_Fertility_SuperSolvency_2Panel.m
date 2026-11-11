@@ -32,7 +32,7 @@ else
 end
 
 w_pop   = Params.Pop_Weights_4;
-cellfun(@(n, w) sprintf('%s (%.1f%%)', n, 100*w), Params.Reg_Names_5, num2cell(Params.Pop_Weights_5), 'UniformOutput', false);
+regions = cellfun(@(n, w) sprintf('%s (%.1f%%)', n, 100*w), Params.Reg_Names_5, num2cell(Params.Pop_Weights_5), 'UniformOutput', false);
 x_cats  = categorical(regions, regions);
 
 % 1. Extract Table 7 (TFR & Differential Fertility Gap) dynamically if provided
