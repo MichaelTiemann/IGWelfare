@@ -68,6 +68,11 @@ try
         md = java.security.MessageDigest.getInstance('MD5');
         md.update(typecast(uint8(unicode2native(str, 'UTF-8')), 'int8'));
         hash_hex = lower(reshape(dec2hex(typecast(md.digest(), 'uint8'), 2)', 1, []));
+    else
+        % Use MATLAB add-on from Steven Huang (2026). MD5 in MATLAB (https://www.mathworks.com/matlabcentral/fileexchange/7919-md5-in-matlab), MATLAB Central File Exchange. Retrieved November 11, 2026.
+        % Compile mMD5 using mex compiler, ensure result is on your path, and you are good to go.
+        md5_fun = @() mMD5(str);
+        [~, hash_hex] = evalc('md5_fun()');
     end
 catch err
     hash_hex = '';
