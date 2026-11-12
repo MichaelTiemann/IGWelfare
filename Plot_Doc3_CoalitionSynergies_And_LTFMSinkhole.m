@@ -33,7 +33,7 @@ if ~exist(OutputDir, 'dir'), mkdir(OutputDir); end
 % =========================================================================
 % 1. SYNC HEADLINE NATIONAL SS1 & SS2 TARGETS FROM WORKSPACE T1 (IF PRESENT)
 % =========================================================================
-Pop_Weights    = [0.160, 0.240, 0.259, 0.341]; % [Rural, Small, Large, Auckland]
+Pop_Weights    = Params.Pop_Weights_4; % [Rural, Small, Large, Auckland]
 SS1_Target_Reg = [11.945, 13.739, 14.888, 17.515]; % Matches +15.04% National (n_z = 7)
 SS2_Target_Reg = [20.628, 22.984, 24.574, 27.913]; % Matches +24.70% National (n_z = 7)
 

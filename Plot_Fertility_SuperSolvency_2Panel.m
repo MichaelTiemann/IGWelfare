@@ -31,8 +31,8 @@ else
     super_age_ss2_target = 64.0;
 end
 
-w_pop   = [0.160, 0.240, 0.259, 0.341];
-regions = {'Rural (16.0%)', 'Small (24.0%)', 'Large (25.9%)', 'Auckland (34.1%)', 'National (100%)'};
+w_pop   = Params.Pop_Weights_4;
+regions = cellfun(@(n, w) sprintf('%s (%.1f%%)', n, 100*w), Params.Reg_Names_5, num2cell(Params.Pop_Weights_5), 'UniformOutput', false);
 x_cats  = categorical(regions, regions);
 
 % 1. Extract Table 7 (TFR & Differential Fertility Gap) dynamically if provided

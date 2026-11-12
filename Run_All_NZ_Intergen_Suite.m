@@ -61,6 +61,14 @@ Force_Recompute_All = false; % Auto-consume one-shot flag so subsequent/resumed 
 
 fprintf('=========================================================================================\n');
 
+% Cache validity key: content hash of the configured Params (Get_ModelConfigHash; grid sizes are not known before
+% Step 1, so they are passed as []). Every checkpoint below stores it as Cache_CfgHash; on load a missing or
+% different value raises warning IGW:StaleCache (Validate_CacheConfig.m) and the step is recomputed.
+Cache_CfgHash = '';
+if Use_Saved_Cache
+    Cache_CfgHash = regexp(Get_ModelConfigHash('RunAll_Params', Params, [], [], [], []), '[0-9a-f]{32}(?=\.mat$)', 'match', 'once');
+end
+
 fprintf('=========================================================================================\n');
 fprintf('  STARTING NEW ZEALAND 4-REGION INTERGENERATIONAL WELFARE SUITE (VFI TOOLKIT 5D)\n');
 fprintf('  Regions: Rural (16.0%%) | Small (24.0%%) | Large (25.9%%) | Auckland (34.1%%) + Abroad\n');
@@ -80,7 +88,7 @@ fprintf('>>> [STEP 1/7] Solving Baseline 4-Region Steady State (NZ_4Region_Maste
 step1_timer = tic;
 Cache_Step1 = fullfile(CacheDir, sprintf('Cache_Step1_Baseline5D_dt%d_nz%d.mat', Params.dt, Params.n_z_pts));
 
-if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step1, 'file')
+if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step1, 'file') && Validate_CacheConfig(Cache_Step1, Cache_CfgHash)
     fprintf('    [CACHE HIT] Loading Step 1 Baseline 5D Steady State from %s...\n', Cache_Step1);
     load(Cache_Step1);
 else
@@ -89,7 +97,7 @@ else
         'AgeWeightsParamNames', 'DiscountFactorParamNames', 'Reg_HH_Shares', 'Reg_Firm_Shares', ...
         'Reg_Pop_Shares', 'Params', 'V', 'Policy', 'StationaryDist', 'jequaloneDist', ...
         'n_d', 'n_a', 'n_z', 'd_grid', 'a_grid', 'z_grid', 'pi_z', 'ReturnFn', ...
-        'vfoptions', 'simoptions', 'IG_Diagnostics');
+        'vfoptions', 'simoptions', 'IG_Diagnostics', 'Cache_CfgHash');
     fprintf('    [CACHE SAVED] Saved Step 1 checkpoint to %s\n', Cache_Step1);
 end
 
@@ -124,13 +132,13 @@ if Use_ExpAsset_Pipeline && Run_LeeSeshadri_Exp && exist('PolicyExperiment_LeeSe
     fprintf('>>> [STEP 2/7] Running PolicyExperiment_LeeSeshadri_4Region.m across 4 Regions...\n');
     step2_timer = tic;
     Cache_Step2 = fullfile(CacheDir, sprintf('Cache_Step2_LeeSeshadri_dt%d.mat', Params.dt));
-    if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step2, 'file')
+    if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step2, 'file') && Validate_CacheConfig(Cache_Step2, Cache_CfgHash)
         fprintf('    [CACHE HIT] Loading Step 2 Counterfactual Results from %s...\n', Cache_Step2);
         load(Cache_Step2);
     else
         run('PolicyExperiment_LeeSeshadri_4Region.m');
         save(Cache_Step2, 'T_IGE', 'T_VarExpl', 'T_Out', 'IGE_SR', 'IGE_LR', ...
-            'VarExpl_h1', 'VarExpl_LFE', 'VarLogE', 'Ebar_SR', 'Ebar_LR', 'CE_LR', 'PolicyNames');
+            'VarExpl_h1', 'VarExpl_LFE', 'VarLogE', 'Ebar_SR', 'Ebar_LR', 'CE_LR', 'PolicyNames', 'Cache_CfgHash');
         fprintf('    [CACHE SAVED] Saved Step 2 checkpoint to %s\n', Cache_Step2);
     end
     fprintf('    Step 2 completed in %.2f seconds.\n\n', toc(step2_timer));
@@ -141,7 +149,7 @@ if Use_ExpAsset_Pipeline && Run_Fertility_Module && exist('FertilityBargaining_M
     fprintf('>>> [STEP 3/7] Running FertilityBargaining_Module.m across 4 Regions...\n');
     step3_timer = tic;
     Cache_Step3 = fullfile(CacheDir, sprintf('Cache_Step3_Fertility_dt%d.mat', Params.dt));
-    if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step3, 'file')
+    if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step3, 'file') && Validate_CacheConfig(Cache_Step3, Cache_CfgHash)
         fprintf('    [CACHE HIT] Loading Step 3 Fertility Results from %s...\n', Cache_Step3);
         load(Cache_Step3);
     else
@@ -150,7 +158,7 @@ if Use_ExpAsset_Pipeline && Run_Fertility_Module && exist('FertilityBargaining_M
         StationaryDist = StationaryDist_5D_BM;
         jequaloneDist  = jequaloneDist_5D_BM;
         run('FertilityBargaining_Module.m');
-        save(Cache_Step3, 'T_Fert1', 'T_Fert2', 'TFR_mat', 'DiffFert_mat', 'Struggling_mat', 'DepRatio_vec', 'ReqTax_vec');
+        save(Cache_Step3, 'T_Fert1', 'T_Fert2', 'TFR_mat', 'DiffFert_mat', 'Struggling_mat', 'DepRatio_vec', 'ReqTax_vec', 'Cache_CfgHash');
         fprintf('    [CACHE SAVED] Saved Step 3 checkpoint to %s\n', Cache_Step3);
     end
     fprintf('    Step 3 completed in %.2f seconds.\n\n', toc(step3_timer));
@@ -199,7 +207,7 @@ if Use_ExpAsset_Pipeline && exist('ReturnFn_SpatialHH_Compact4D.m', 'file')
     simoptions.d_grid = d_grid;
     simoptions.a_grid = a_grid;
 
-    if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step4, 'file')
+    if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step4, 'file') && Validate_CacheConfig(Cache_Step4, Cache_CfgHash)
         fprintf('    [CACHE HIT] Loading Step 4 Compact 4D Baseline from %s...\n', Cache_Step4);
         load(Cache_Step4, 'V', 'Policy', 'StationaryDist', 'jequaloneDist', 'IG_Diagnostics');
     else
@@ -210,7 +218,7 @@ if Use_ExpAsset_Pipeline && exist('ReturnFn_SpatialHH_Compact4D.m', 'file')
             pi_z, Params, simoptions);
         [jequaloneDist, IG_Diagnostics] = Build_IntergenTransitionMatrix( ...
             StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions);
-        save(Cache_Step4, 'V', 'Policy', 'StationaryDist', 'jequaloneDist', 'IG_Diagnostics');
+        save(Cache_Step4, 'V', 'Policy', 'StationaryDist', 'jequaloneDist', 'IG_Diagnostics', 'Cache_CfgHash');
         fprintf('    [CACHE SAVED] Saved Step 4 checkpoint to %s\n', Cache_Step4);
     end
     fprintf('    Step 4 completed in %.2f seconds.\n\n', toc(step4_timer));
@@ -232,14 +240,14 @@ if exist('WelfareDecomposition_4Region.m', 'file')
     fprintf('>>> [STEP 6/7] Running WelfareDecomposition_4Region.m...\n');
     step6_timer = tic;
     Cache_Step6 = fullfile(CacheDir, sprintf('Cache_Step6_Decomposition_dt%d.mat', Params.dt));
-    if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step6, 'file')
+    if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step6, 'file') && Validate_CacheConfig(Cache_Step6, Cache_CfgHash)
         fprintf('    [CACHE HIT] Loading Step 6 Welfare Decomposition from %s...\n', Cache_Step6);
         load(Cache_Step6);
     else
         run('WelfareDecomposition_4Region.m');
         vars_step6 = {'T1', 'T2', 'T3', 'CE_Stage', 'CE_Quint', 'CE_Ten', ...
             'V_SS1', 'Policy_SS1', 'StatDist_SS1', 'jDist_SS1', 'Params_SS1', 'IG_Diag_SS1', ...
-            'Phases', 'WelfareResults', 'Reform_Phase_Specs', 'Active_Phases'};
+            'Phases', 'WelfareResults', 'Reform_Phase_Specs', 'Active_Phases', 'Cache_CfgHash'};
         if exist('V_SS2', 'var')
             vars_step6 = [vars_step6, {'V_SS2', 'Policy_SS2', 'StatDist_SS2', 'jDist_SS2', 'Params_SS2', 'IG_Diag_SS2'}];
         end

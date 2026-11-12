@@ -24,7 +24,11 @@ for ig0_it = 1:6
         pi_z, Params_SS0, simoptions);
     [jDist_SS0_new, IG_Diag_SS0] = Build_IntergenTransitionMatrix(StatDist_SS0, Policy_SS0, V_SS0, ...
         n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params_SS0, Regions);
+    ig0_resid = max(abs(jDist_SS0_new.HH_Auckland(:) - jDist_SS0.HH_Auckland(:)));
     jDist_SS0 = jDist_SS0_new;
+end
+if ~(ig0_resid < 1e-5)
+    IGW_Log('IGW:NoConvergence', 'WelfareDecomposition_4Region SS0 intergenerational fixed point: %d iterations, residual %.3g', ig0_it, double(gather(ig0_resid)));
 end
 Params_SS0   = Params;
 if exist('IG_Diagnostics', 'var'), IG_Diag_SS0 = IG_Diagnostics; else, IG_Diag_SS0 = struct(); end
@@ -242,17 +246,22 @@ for m = 1:M_reforms
 
     % 3C. Stage C: Long-Run GE with Endogenous 4x5 Intergenerational Matrix (jDist_SSm)
     jDist_m = jDist_prev;
+    ig_resid = Inf;
     for ig_it = 1:12
         StatDist_m = StationaryDist_MixHorz_PType(jDist_m, AgeWeightsParamNames, ...
             PTypeDistParamNames, Policy_GE_Exo_m, n_d, n_a, n_z, N_j, Names_i, ...
             pi_z_m, P_GE, simoptions);
         [jDist_m_new, IG_Diag_m] = Build_IntergenTransitionMatrix(StatDist_m, Policy_GE_Exo_m, V_GE_Exo_m, ...
             n_d, n_a, n_z, d_grid, a_grid, z_grid_m, pi_z_m, P_GE, Regions);
-        if max(abs(jDist_m_new.HH_Auckland(:) - jDist_m.HH_Auckland(:))) < 1e-5
+        ig_resid = max(abs(jDist_m_new.HH_Auckland(:) - jDist_m.HH_Auckland(:)));
+        if ig_resid < 1e-5
             jDist_m = jDist_m_new;
             break;
         end
         jDist_m = jDist_m_new;
+    end
+    if ~(ig_resid < 1e-5)
+        IGW_Log('IGW:NoConvergence', 'WelfareDecomposition_4Region phase %s intergenerational fixed point: %d iterations, residual %.3g', p_code, ig_it, double(gather(ig_resid)));
     end
     V_m = V_GE_Exo_m;
 
