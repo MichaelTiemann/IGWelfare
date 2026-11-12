@@ -1,5 +1,5 @@
 Gate,Node_Name,SS0_Pop_Pct,SS0_CohortFlow_kNZD,SS0_CondPerChild_kNZD,SS0_LaneA_PrivCash_kNZD,SS0_LaneB_WhanauTime_kNZD,SS0_LaneC_PubDev_kNZD,SS0_LaneD_RemedRent_kNZD,SS1_Pop_Pct,SS1_CohortFlow_kNZD,SS1_CondPerChild_kNZD,SS1_LaneA_PrivCash_kNZD,SS1_LaneB_WhanauTime_kNZD,SS1_LaneC_PubDev_kNZD,SS1_LaneD_RemedRent_kNZD,SS2_Pop_Pct,SS2_CohortFlow_kNZD,SS2_CondPerChild_kNZD,SS2_LaneA_PrivCash_kNZD,SS2_LaneB_WhanauTime_kNZD,SS2_LaneC_PubDev_kNZD,SS2_LaneD_RemedRent_kNZD,Delta_SS1_vs_SS0_kNZD,Delta_SS2_vs_SS1_kNZD,Cumul_SS2_vs_SS0_kNZD
-Gate1_J1_Birth_Age0,1_Material_And_Severe_Hardship,10.14,1.26,12.43,0,0,0,1.26,2.14,0.41,19.17,0,0,0,0.41,0.92,0.2,20.13,0,0,0,0.2,-0.85,-0.21,-1.06
+Gate1_J1_Birth_Age0,1_Material_And_Severe_Hardship,10.14,1.26,12.43,0,0,0,1.26,2.14,0.41,19.17,0,0,0,0.41,0.92,0.2,21.88,0,0,0,0.2,-0.85,-0.21,-1.06
 Gate1_J1_Birth_Age0,2_Residual_AHC_Paper_And_Whanau,19.07,0.98,5.12,0,0.53,0,0.98,4.77,0.37,7.73,0,0.15,0,0.37,2.86,0.25,8.82,0,0.11,0,0.25,-0.61,-0.12,-0.72
 Gate1_J1_Birth_Age0,3_Universal_Birth_Benefit,100,8.54,8.54,0,0,8.54,0,100,17.5,17.5,0,0,17.5,0,100,20.53,20.53,0,0,20.53,0,8.96,3.03,11.99
 Gate1_J1_Birth_Age0,4_Private_Birth_OutOfPocket,70.79,13.61,19.23,8.58,5.04,0,0,93.09,17.91,19.24,11.28,6.63,0,0,96.22,18.45,19.18,11.62,6.83,0,0,4.29,0.55,4.84
@@ -12,7 +12,7 @@ Gate3_J5_Adolescent_12to14,10_Psychosocial_CAMHS_ACC_ISSC,7.88,1.07,13.61,0,0,0,
 Gate3_J5_Adolescent_12to14,11_Public_Secondary_Schooling,60.16,6.22,10.34,0,0,6.22,0,34.36,3.76,10.94,0,0,3.76,0,33.66,3.79,11.26,0,0,3.79,0,-2.46,0.03,-2.43
 Gate3_J5_Adolescent_12to14,12_Montessori_Tuakana_Public,17.07,2.43,14.22,0,0,2.43,0,60.36,9.07,15.02,0,0,9.07,0,61.65,9.51,15.42,0,0,9.51,0,6.64,0.44,7.08
 Gate3_J5_Adolescent_12to14,13_Private_Adol_Commit_CashTime,77.23,14.67,19,9.1,5.58,0,0,94.72,18.75,19.8,11.63,7.13,0,0,95.31,18.87,19.8,11.7,7.17,0,0,4.08,0.12,4.2
-Gate4_J6_7_AdultLaunch_Age20,14_Struggling_Tier_h1_h2_Launch,24.81,13.99,56.38,0,0,2.52,11.47,0.81,0.46,45.73,0,0,0.08,0.37,0.38,0.21,20.89,0,0,0.04,0.17,-13.53,-0.25,-13.78
+Gate4_J6_7_AdultLaunch_Age20,14_Struggling_Tier_h1_h2_Launch,24.81,13.99,56.38,0,0,2.52,11.47,0.81,0.46,56.46,0,0,0.08,0.37,0.38,0.21,54.97,0,0,0.04,0.17,-13.53,-0.25,-13.78
 Gate4_J6_7_AdultLaunch_Age20,15_Core_Skill_Tier_h3_h5_Launch,68.89,26.29,38.16,7.62,3.15,13.93,1.58,60.09,26.08,43.41,7.56,3.13,13.82,1.56,50.62,21.7,42.87,6.29,2.6,11.5,1.3,-0.21,-4.38,-4.59
 Gate4_J6_7_AdultLaunch_Age20,16_Thriving_Tier_h6_h7_Launch,6.3,2.28,36.18,0.84,0.3,1.14,0,39.1,18.94,48.43,7.01,2.46,9.47,0,48.99,24.22,49.44,8.96,3.15,12.11,0,16.66,5.29,21.94
 Gate5_J8_11_CareerSorting,17_Career_Chronic_Adversity_Trap,24.13,15.38,63.74,0,0,0,15.38,2.8,1.8,64.37,0,0,0,1.8,1.69,1.08,64.08,0,0,0,1.08,-13.57,-0.72,-14.3

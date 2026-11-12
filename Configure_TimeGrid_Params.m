@@ -98,8 +98,8 @@ Params.reg_skill_drift = [-0.083, -0.059, -0.024, -0.020];
 
 % Canonical 4x5 Gumbel migration utility matrix [Rural, Small, Large, Auckland, Abroad]
 Params.u_target_4x5 = [ ...
-    2.85,  1.15,  0.65,  0.15, -0.82;   % From Rural    (1.8% Emig)
-    0.55,  2.45,  1.05,  0.45,  0.65;   % From Small    (9.1% Emig)
+     2.85,  1.15,  0.65,  0.15, -0.82;   % From Rural    (1.8% Emig)
+     0.55,  2.45,  1.05,  0.45,  0.65;   % From Small    (9.1% Emig)
     -0.25,  0.45,  2.15,  1.05,  1.45;   % From Large    (23.4% Emig)
     -0.45,  0.15,  0.65,  2.55,  0.16];  % From Auckland (7.0% Net / 19.3% Gross Emig)
 
