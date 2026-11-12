@@ -168,10 +168,24 @@ else
     PK    = PrevPhase.Params;
     G0 = getfield_def(PK, 'G_ece', 0.19);
     t0 = getfield_def(PK, 'tau_l', 0.22);
-    PK.G_ece = G0 + 0.03;
-    PK.tau_l = max(0.10, t0 - 0.025); % 2050 Debt-Sinking tax relief
-    IGW_Log('IGW:PhaseStandIn', 'Build_Phase_Registry phase %s: stand-in G_ece = %.4f (previous phase G_ece %.4f%s + 0.03)', code, PK.G_ece, G0, absent_note(PrevPhase.Params, 'G_ece', '0.19 assumed'));
-    IGW_Log('IGW:PhaseStandIn', 'Build_Phase_Registry phase %s: stand-in tau_l = %.4f (previous phase tau_l %.4f%s - 0.025, floor 0.10)', code, PK.tau_l, t0, absent_note(PrevPhase.Params, 'tau_l', '0.22 assumed'));
+    if isstruct(G0)
+        PK.G_ece = structfun(@(x) x + 0.03, G0, 'UniformOutput', false);
+        g0_fn = fieldnames(G0);
+        IGW_Log('IGW:PhaseStandIn', 'Build_Phase_Registry phase %s: stand-in G_ece.(%s) = %.4f (previous phase G_ece %.4f + 0.03 across %d regions)', ...
+            code, g0_fn{1}, PK.G_ece.(g0_fn{1}), G0.(g0_fn{1}), numel(g0_fn));
+    else
+        PK.G_ece = G0 + 0.03;
+        IGW_Log('IGW:PhaseStandIn', 'Build_Phase_Registry phase %s: stand-in G_ece = %.4f (previous phase G_ece %.4f%s + 0.03)', code, PK.G_ece, G0, absent_note(PrevPhase.Params, 'G_ece', '0.19 assumed'));
+    end
+    if isstruct(t0)
+        PK.tau_l = structfun(@(x) max(0.10, x - 0.025), t0, 'UniformOutput', false);
+        t0_fn = fieldnames(t0);
+        IGW_Log('IGW:PhaseStandIn', 'Build_Phase_Registry phase %s: stand-in tau_l.(%s) = %.4f (previous phase tau_l %.4f - 0.025, floor 0.10 across %d regions)', ...
+            code, t0_fn{1}, PK.tau_l.(t0_fn{1}), t0.(t0_fn{1}), numel(t0_fn));
+    else
+        PK.tau_l = max(0.10, t0 - 0.025); % 2050 Debt-Sinking tax relief
+        IGW_Log('IGW:PhaseStandIn', 'Build_Phase_Registry phase %s: stand-in tau_l = %.4f (previous phase tau_l %.4f%s - 0.025, floor 0.10)', code, PK.tau_l, t0, absent_note(PrevPhase.Params, 'tau_l', '0.22 assumed'));
+    end
     for r_i = 1:length(Regions)
         reg = Regions{r_i}; hk = ['HH_', reg];
         if isfield(PK, 'w_reg') && isfield(PK.w_reg, hk)
