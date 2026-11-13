@@ -4,13 +4,20 @@ function Out = Plot_Counterfactuals_And_MirrorInvestments(Params)
 %   Builds from Isolated Standalone Policy Factors + Interleaved Dynamic
 %   Complementarity Wedges (ordered from largest intra-cluster synergy to
 %   cross-stack and general-equilibrium closure) up to the exact converged T1
-%   SS1 and SS2 totals.
+%   SS1 and SS2 totals, plus the Document 1E Arts & Civic Mycelium cap (+Delta W1..W4)
+%   above a clean Default vs. Arts-Enabled threshold bar (reusing Wedge 1-4 colors).
 
 if nargin < 1 || isempty(Params), Params = struct(); end
 if isfield(Params, 'Calibration_Anchor') && ~isempty(Params.Calibration_Anchor)
     AnchorTag = Params.Calibration_Anchor;
 else
     AnchorTag = 'Dunedin_22';
+end
+
+if isfield(Params, 'Enable_Arts_Civic') && ~isempty(Params.Enable_Arts_Civic)
+    enable_arts = logical(Params.Enable_Arts_Civic);
+else
+    enable_arts = true; % Default ON in community-groups branch (Document 1E)
 end
 
 if evalin('base', 'exist(''OutputDir'', ''var'')')
@@ -25,7 +32,11 @@ if ~exist(OutputDir, 'dir'), mkdir(OutputDir); end
 % =========================================================================
 % 1. SYNC EXACT CONVERGED SS1 & SS2 TOTALS FROM WORKSPACE T1 (NO DRIFT)
 % =========================================================================
-Pop_Weights    = Params.Pop_Weights_4; % [Rural, Small, Large, Auckland]
+if isfield(Params, 'Pop_Weights_4') && ~isempty(Params.Pop_Weights_4)
+    Pop_Weights = Params.Pop_Weights_4(:)'; % [Rural, Small, Large, Auckland]
+else
+    Pop_Weights = [0.160, 0.240, 0.259, 0.341];
+end
 SS1_Target_Reg = [11.945, 13.739, 14.888, 17.515];
 SS2_Target_Reg = [20.628, 22.984, 24.574, 27.913];
 
@@ -218,7 +229,7 @@ SS2_11x4(Wed_Idx, :) = Raw_Adj(Wed_Idx, :) .* (max(0.1, SS2_Pos_Reg - iso_sum_ss
 SS2_Nat_11  = SS2_11x4 * Pop_Weights';
 SS2_11x5    = [SS2_11x4, SS2_Nat_11];
 
-% Export Constructive Synergy Table (Table 19)
+% Export Constructive Synergy Table (Table 19 — Default 11-Layer Contract Preserved for CI)
 Cumulative_Nat_SS2 = cumsum(SS2_Nat_11);
 Share_Of_Total_Pct = 100 * SS2_Nat_11 / max(1e-6, sum(SS2_Nat_11));
 Layer_Type = repmat({'Isolated_Factor'}, 11, 1);
@@ -232,16 +243,86 @@ T19 = table(Layer_Codes, Layer_Type, ...
     'SS1_Rural_CE', 'SS1_Small_CE', 'SS1_Large_CE', 'SS1_Auckland_CE', 'SS1_National_CE', ...
     'SS2_Rural_CE', 'SS2_Small_CE', 'SS2_Large_CE', 'SS2_Auckland_CE', 'SS2_National_CE', ...
     'Cumulative_National_SS2_CE', 'Share_Of_SS2_Total_Pct'});
+
 csv19 = fullfile(OutputDir, sprintf('Table19_Constructive_Synergy_Wedges_%s.csv', AnchorTag));
 writetable(T19, csv19);
 fprintf('  -> Exported Table 19 (11-Layer Constructive Synergy Attribution) to: %s\n', csv19);
 
 % =========================================================================
-% 3. BUILD COHORT TIME TRAJECTORY (YEARS -10 TO +60) FOR THE 11 LAYERS
+% 2B. DOCUMENT 1E ARTS & CIVIC MYCELIUM ADDITIONALITY (+DELTA WEDGES 1..4)
 % =========================================================================
-Yr_Grid = (-10:1:60)';
-n_yr    = numel(Yr_Grid);
-Traj_11 = zeros(n_yr, 11);
+% Stacked cleanly ABOVE the Default Model divider bar reusing Wedge 1-4 colors
+% (L03, L07, L08, L11) with diagonal hatch so zero new palette colors are needed:
+%   +Delta W1 (L03E): Sistema/Kapa Haka EF + Price-of-Privilege lambda_psy reduction
+%   +Delta W2 (L07E): Join-or-Die 50% club mortality-hazard drop + Civic Space leases
+%   +Delta W3 (L08E): Creative z_h IP co-ops + ~1,150/yr young creatives retained
+%   +Delta W4 (L11E): Cross-decile Bridging Cohesion (126 -> 134.5) + TFR/2nd-Gen
+Arts_Codes = { ...
+    'L03E_WEDGE1_Arts_Psychosocial'; ...
+    'L07E_WEDGE2_JoinOrDie_CivicSpace'; ...
+    'L08E_WEDGE3_CreativeZH_Retention'; ...
+    'L11E_WEDGE4_Bridging_Cohesion_2ndGen'};
+
+Arts_SS1_4x4 = [ ...
+    0.54,  0.60,  0.63,  0.66; ... % +Delta W1 (SS1 Nat = +0.62% CE)
+    0.53,  0.51,  0.47,  0.44; ... % +Delta W2 (SS1 Nat = +0.48% CE; highest in Rural/Small)
+    0.45,  0.50,  0.59,  0.60; ... % +Delta W3 (SS1 Nat = +0.55% CE; highest in Large/Auckland)
+    0.19,  0.20,  0.22,  0.22];    % +Delta W4 (SS1 Nat = +0.21% CE; Total SS1 Cap = +1.86% CE)
+
+Arts_SS2_4x4 = [ ...
+    0.76,  0.85,  0.90,  0.94; ... % +Delta W1 (SS2 Nat = +0.88% CE)
+    0.82,  0.80,  0.74,  0.72; ... % +Delta W2 (SS2 Nat = +0.76% CE; Rural/Small club lifeline)
+    0.95,  1.05,  1.22,  1.23; ... % +Delta W3 (SS2 Nat = +1.14% CE; Metro creative retention)
+    0.57,  0.61,  0.64,  0.64];    % +Delta W4 (SS2 Nat = +0.62% CE; Total SS2 Cap = +3.40% CE)
+
+if ~enable_arts
+    Arts_SS1_4x4 = zeros(4, 4);
+    Arts_SS2_4x4 = zeros(4, 4);
+elseif sa_ss2 > 65
+    % If Super age rises above 65, active Kaumatua club volunteering erodes slightly on W2 & W4:
+    kaumatua_eros = max(0.55, 1.0 - 0.10 * (sa_ss2 - 65));
+    Arts_SS2_4x4(2, :) = Arts_SS2_4x4(2, :) * kaumatua_eros;
+    Arts_SS2_4x4(4, :) = Arts_SS2_4x4(4, :) * kaumatua_eros;
+end
+
+Arts_SS1_Nat_4  = Arts_SS1_4x4 * Pop_Weights';
+Arts_SS2_Nat_4  = Arts_SS2_4x4 * Pop_Weights';
+Arts_SS2_4x5    = [Arts_SS2_4x4, Arts_SS2_Nat_4];
+Arts_SS1_Total  = sum(Arts_SS1_Nat_4);
+Arts_SS2_Total  = sum(Arts_SS2_Nat_4);
+T1E_SS1_Nat_Tot = SS1_Nat_Total + Arts_SS1_Total;
+T1E_SS2_Nat_Tot = SS2_Nat_Total + Arts_SS2_Total;
+
+% Export Extended Table 19E (11 Default Layers + 4 Arts-Enabled Wedge Caps = 15 Rows)
+Ext15_Codes    = [Layer_Codes; Arts_Codes];
+Ext15_Types    = [Layer_Type; repmat({'ARTS_CIVIC_WEDGE_CAP'}, 4, 1)];
+Ext15_SS1_4    = [SS1_11x4; Arts_SS1_4x4];
+Ext15_SS1_Nat  = [SS1_Nat_11; Arts_SS1_Nat_4];
+Ext15_SS2_4    = [SS2_11x4; Arts_SS2_4x4];
+Ext15_SS2_Nat  = [SS2_Nat_11; Arts_SS2_Nat_4];
+Ext15_Cum_SS2  = cumsum(Ext15_SS2_Nat);
+Ext15_Share    = 100 * Ext15_SS2_Nat / max(1e-6, sum(Ext15_SS2_Nat));
+
+T19E = table(Ext15_Codes, Ext15_Types, ...
+    Ext15_SS1_4(:,1), Ext15_SS1_4(:,2), Ext15_SS1_4(:,3), Ext15_SS1_4(:,4), Ext15_SS1_Nat, ...
+    Ext15_SS2_4(:,1), Ext15_SS2_4(:,2), Ext15_SS2_4(:,3), Ext15_SS2_4(:,4), Ext15_SS2_Nat, ...
+    Ext15_Cum_SS2, Ext15_Share, ...
+    'VariableNames', {'Layer_Code', 'Component_Type', ...
+    'SS1_Rural_CE', 'SS1_Small_CE', 'SS1_Large_CE', 'SS1_Auckland_CE', 'SS1_National_CE', ...
+    'SS2_Rural_CE', 'SS2_Small_CE', 'SS2_Large_CE', 'SS2_Auckland_CE', 'SS2_National_CE', ...
+    'Cumulative_National_SS2_CE', 'Share_Of_T1E_Total_Pct'});
+
+csv19E = fullfile(OutputDir, sprintf('Table19E_ArtsEnabled_Synergy_Wedges_%s.csv', AnchorTag));
+writetable(T19E, csv19E);
+fprintf('  -> Exported Table 19E (Default + Document 1E Arts-Enabled Attribution) to: %s\n', csv19E);
+
+% =========================================================================
+% 3. BUILD COHORT TIME TRAJECTORY (YEARS -10 TO +60) FOR DEFAULT + ARTS CAP
+% =========================================================================
+Yr_Grid   = (-10:1:60)';
+n_yr      = numel(Yr_Grid);
+Traj_11   = zeros(n_yr, 11);
+Traj_Arts = zeros(n_yr, 4);
 
 for i = 1:n_yr
     y = Yr_Grid(i);
@@ -251,7 +332,11 @@ for i = 1:n_yr
         % on adult isolated channels (L1 parenting ECE relief, L4 tax rebal, L6 geo transfer, L9 r):
         w_pre     = 0.12 * exp(y / 5.0);
         w_pre_vec = [0.5*w_pre, 0.0, 0.0, w_pre, 0.0, w_pre, 0.0, 0.0, 0.5*w_pre, 0.0, 0.0];
-        Traj_11(i, :) = (SS1_Nat_11') .* w_pre_vec;
+        Traj_11(i, :)   = (SS1_Nat_11') .* w_pre_vec;
+        % Adult/Kaumatua cohorts (y < 0) still gain partial Join-or-Die club survival (+Delta W2)
+        % & neighborhood bridging (+Delta W4) once clubs open at Year 0:
+        w_pre_art       = 0.18 * exp(y / 6.0);
+        Traj_Arts(i, :) = (Arts_SS1_Nat_4') .* [0.0, w_pre_art, 0.25*w_pre_art, 0.40*w_pre_art];
     else
         y1        = min(y, 25.0);
         w_iso     = 0.22 + 0.78 * (1 - exp(-y1 / 8.0));
@@ -263,9 +348,18 @@ for i = 1:n_yr
         w_wed1    = 1 ./ (1 + exp(-(y1 - 11.0) / 4.2));
         w_wed2    = 1 ./ (1 + exp(-(y1 - 9.0)  / 4.0));
         w_wed3    = 1 ./ (1 + exp(-(y1 - 16.0) / 4.0));
+
         row_i     = (SS1_Nat_11') .* [w_iso, w_iso, w_wed1, w_iso, w_iso, w_geo, w_wed2, w_wed3, 0.5*w_iso, 0.0, w_wed3];
         % As L6 (Geo Transfer) retires between Yr 10 and Yr 24, L8 (z_l -> z_h regional jobs) replaces it:
         row_i(8)  = row_i(8) + max(0.0, w_iso - w_geo) * SS1_Nat_11(6);
+
+        % Arts & Civic wedges ignite faster than infant labor supply (Joiner Fairs, Meanwhile Leases,
+        % Join-or-Die adult/elder club participation & Years 8-10 truancy/anxiety buffering):
+        w_art1    = 1 ./ (1 + exp(-(y1 - 6.5)  / 3.4));
+        w_art2    = 0.28 + 0.72 * (1 - exp(-y1 / 4.5));
+        w_art3    = 1 ./ (1 + exp(-(y1 - 9.5)  / 3.8));
+        w_art4    = 1 ./ (1 + exp(-(y1 - 12.0) / 4.2));
+        art_i     = (Arts_SS1_Nat_4') .* [w_art1, w_art2, w_art3, w_art4];
 
         if y >= 25
             w_ss2    = 1 - exp(-(y - 25.0) / 8.5);
@@ -275,12 +369,16 @@ for i = 1:n_yr
             % Layer 6 finishes retiring to SS2_Nat_11(6) on the exact 5-yr clock of -Inv 4:
             row_i(6) = row_i(6) + (w_inv2 - w_ss2) * d_ss2(6);
             row_i(8) = row_i(8) - (w_inv2 - w_ss2) * d_ss2(6);
+
+            art_i    = art_i + w_ss2 * (Arts_SS2_Nat_4' - art_i);
         end
-        Traj_11(i, :) = row_i;
+        Traj_11(i, :)   = row_i;
+        Traj_Arts(i, :) = art_i;
     end
 end
-
 Total_Traj_CE      = sum(Traj_11, 2);
+Arts_Cap_Traj_CE   = sum(Traj_Arts, 2);
+Total_Arts_Traj_CE = Total_Traj_CE + Arts_Cap_Traj_CE;
 Iso_Only_Traj_CE   = sum(Traj_11(:, ~Is_Wedge), 2);
 
 % Distinct Color Palette: Cool Slate/Teal/Blue for Isolated Factors vs. Vivid Gold/Orange/Crimson/Emerald for Synergy Wedges
@@ -297,21 +395,26 @@ layer_colors = [ ...
     0.62, 0.58, 0.78; ... % L10 [Iso]: PAYE & Super Age SS2 Alone (Lavender Slate)
     0.05, 0.56, 0.32];    % L11 [★ WEDGE 4]: Fiscal/TFR/2nd-Gen Compounding Closure (Deep Emerald)
 
+% Reuse the EXACT 4 Synergy Wedge colors for the Arts & Civic Cap (+Delta W1..W4):
+wedge_colors_4 = layer_colors(Wed_Idx, :);
+
 % =========================================================================
-% 4. RENDER FIGURE A: 2-PANEL CONSTRUCTIVE SYNERGY ATTRIBUTION (MATCHING 7-FACTOR LAYOUT)
+% 4. RENDER FIGURE A: 2-PANEL CONSTRUCTIVE SYNERGY ATTRIBUTION (DEFAULT + ARTS BAR)
 % =========================================================================
 fig_cf = figure('Name', sprintf('Fig_Constructive_Synergy_Attribution_%s', AnchorTag), ...
-    'Color', 'w', 'Position', [35, 45, 1660, 820]);
+    'Color', 'w', 'Position', [35, 45, 1680, 840]);
 tiledlayout(1, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
 
-max_y_val = max([max(sum(SS2_11x5, 1)), max(Total_Traj_CE), 29.5]);
+SS2_15x5  = [SS2_11x5; Arts_SS2_4x5];
+max_y_val = max([max(sum(SS2_15x5, 1)), max(Total_Arts_Traj_CE), 31.5]);
 y_top_lim = ceil(max_y_val * 1.16);
 min_y_val = min([0, min(sum(SS2_11x5, 1)), min(Total_Traj_CE)]);
 y_bot_lim = floor(min_y_val * 1.15);
 
-% --- PANEL A: COHORT TRAJECTORY WITH INTERLEAVED ISOLATED FACTORS & SYNERGY WEDGES ---
+% --- PANEL A: COHORT TRAJECTORY WITH DEFAULT BAR & HATCHED ARTS-ENABLED CAP ---
 axA = nexttile(1); hold(axA, 'on');
-h_area = area(axA, Yr_Grid, Traj_11, 'LineWidth', 0.6, 'EdgeColor', [0.18 0.18 0.18]);
+Traj_15 = [Traj_11, Traj_Arts];
+h_area  = area(axA, Yr_Grid, Traj_15, 'LineWidth', 0.6, 'EdgeColor', [0.18 0.18 0.18]);
 for k = 1:11
     h_area(k).FaceColor = layer_colors(k, :);
     if Is_Wedge(k)
@@ -323,44 +426,72 @@ for k = 1:11
     end
     h_area(k).DisplayName = Layer_Legend_Labels{k};
 end
+for j = 1:4
+    k15 = 11 + j;
+    % Lightened tint of the exact Wedge j color + crisp diagonal hatch overlay:
+    h_area(k15).FaceColor        = 0.68 * wedge_colors_4(j, :) + 0.32 * [1 1 1];
+    h_area(k15).FaceAlpha        = 0.88;
+    h_area(k15).EdgeColor        = [0.15 0.15 0.15];
+    h_area(k15).LineWidth        = 0.75;
+    h_area(k15).HandleVisibility = 'off';
+end
 
-% Plot Total Integrated Trajectory vs. Additive Sum of Isolated Factors Alone
-h_tot = plot(axA, Yr_Grid, Total_Traj_CE, 'k-', 'LineWidth', 2.8, ...
-    'DisplayName', sprintf('Fully Integrated Plan: Isolated + All 4 Synergy Wedges (%+.2f%% in SS2)', SS2_Nat_Total));
+if enable_arts
+    % Clip diagonal charcoal/white hatch lines across the Arts & Civic band [Total_Traj_CE -> Total_Arts_Traj_CE]:
+    local_hatch_band(axA, Yr_Grid, Total_Traj_CE, Total_Arts_Traj_CE, 2.2, 0.42, [0.14 0.14 0.14]);
+end
+
+% Plot Divider Bar (Default Integrated Plan) + Arts-Enabled Top Envelope + Isolated Sum
+h_tot = plot(axA, Yr_Grid, Total_Traj_CE, 'k-', 'LineWidth', 3.0, ...
+    'DisplayName', sprintf('DEFAULT DIVIDER BAR: 7 Iso + 4 Base Wedges (%+.2f%% in SS2)', SS2_Nat_Total));
+if enable_arts
+    h_arts = plot(axA, Yr_Grid, Total_Arts_Traj_CE, '-', 'Color', [0.42 0.06 0.52], 'LineWidth', 2.5, ...
+        'DisplayName', sprintf('ARTS & CIVIC ENABLED (Doc 1E Hatched Cap: %+.2f%% -> %+.2f%% in SS2)', Arts_SS2_Total, T1E_SS2_Nat_Tot));
+end
 h_iso = plot(axA, Yr_Grid, Iso_Only_Traj_CE, '--', 'Color', [0.15 0.15 0.15], 'LineWidth', 2.2, ...
     'DisplayName', sprintf('Additive Sum of 7 Isolated Factors Without Synergy (%+.2f%% in SS2)', sum(SS2_Nat_11(~Is_Wedge))));
 
-xline(axA, 0,    'k--', 'LineWidth', 1.3, 'HandleVisibility', 'off');
-xline(axA, 18.8, ':',   'Color', [0.40 0.15 0.60], 'LineWidth', 1.6, 'HandleVisibility', 'off');
-xline(axA, 25.0, '--',  'Color', [0.05 0.50 0.20], 'LineWidth', 1.6, 'HandleVisibility', 'off');
+cash_be_yr = 18.8;
+if enable_arts, cash_be_yr = 17.4; end
+xline(axA, 0,          'k--', 'LineWidth', 1.3, 'HandleVisibility', 'off');
+xline(axA, cash_be_yr, ':',   'Color', [0.40 0.15 0.60], 'LineWidth', 1.6, 'HandleVisibility', 'off');
+xline(axA, 25.0,       '--',  'Color', [0.05 0.50 0.20], 'LineWidth', 1.6, 'HandleVisibility', 'off');
 
-% Annotate the Synergy Gap on Panel A at Year 52
-y_iso_52 = interp1(Yr_Grid, Iso_Only_Traj_CE, 52);
-y_tot_52 = interp1(Yr_Grid, Total_Traj_CE, 52);
-syn_pct_share = 100 * sum(SS2_Nat_11(Is_Wedge)) / max(1e-6, sum(SS2_Nat_11));
-plot(axA, [52, 52], [y_iso_52, y_tot_52], 'r-', 'LineWidth', 2.2, 'HandleVisibility', 'off');
+% Annotate Base Synergy Gap + Arts-Enabled Cap on Panel A at Year 52
+y_iso_52  = interp1(Yr_Grid, Iso_Only_Traj_CE, 52);
+y_tot_52  = interp1(Yr_Grid, Total_Traj_CE, 52);
+y_arts_52 = interp1(Yr_Grid, Total_Arts_Traj_CE, 52);
+syn_pct_share = 100 * (sum(SS2_Nat_11(Is_Wedge)) + Arts_SS2_Total) / max(1e-6, T1E_SS2_Nat_Tot);
+
+plot(axA, [52, 52], [y_iso_52, y_arts_52], 'r-', 'LineWidth', 2.2, 'HandleVisibility', 'off');
 text(axA, 50.5, 0.5*(y_iso_52 + y_tot_52), ...
-    sprintf('Total Supermodular\nSynergy Wedges:\n%+.2f%% CE\n(%.1f%% of Total!)', sum(SS2_Nat_11(Is_Wedge)), syn_pct_share), ...
-    'HorizontalAlignment', 'right', 'FontSize', 8.2, 'FontWeight', 'bold', ...
-    'Color', [0.65 0.05 0.10], 'BackgroundColor', [1.0 0.96 0.94], 'EdgeColor', [0.75 0.15 0.20], 'Margin', 4);
+    sprintf('Default Wedges: %+.2f%%\n+ Arts Cap: %+.2f%%\n= %.1f%% Total Synergy!', ...
+    sum(SS2_Nat_11(Is_Wedge)), Arts_SS2_Total, syn_pct_share), ...
+    'HorizontalAlignment', 'right', 'FontSize', 8.0, 'FontWeight', 'bold', ...
+    'Color', [0.65 0.05 0.10], 'BackgroundColor', [1.0 0.96 0.94], 'EdgeColor', [0.75 0.15 0.20], 'Margin', 3.5);
 
 text(axA, 1.0, 5.8, sprintf('Yr 0: Phase 1 (SS1)\nLaunch'), 'FontSize', 8.0, 'FontWeight', 'bold', ...
     'BackgroundColor', 'w', 'EdgeColor', [0.3 0.3 0.3], 'Margin', 3);
-text(axA, 25.8, 16.5, box25_label, 'FontSize', 8.0, 'FontWeight', 'bold', ...
+text(axA, 25.8, 15.8, box25_label, 'FontSize', 8.0, 'FontWeight', 'bold', ...
     'Color', [0.00 0.42 0.18], 'BackgroundColor', 'w', 'EdgeColor', [0.00 0.45 0.20], 'Margin', 3);
 
-title(axA, 'A. Constructive Attribution: Isolated Factors + Dynamic Complementarity Wedges', ...
-    'FontSize', 10.8, 'FontWeight', 'bold');
+title(axA, 'A. Cohort Attribution: Default 11-Layer Stack + Hatched Arts & Civic Cap (Doc 1E)', ...
+    'FontSize', 10.6, 'FontWeight', 'bold');
 xlabel(axA, 'Cohort Entry Year Relative to 2026 Reform Introduction', 'FontSize', 10.2, 'FontWeight', 'bold');
 ylabel(axA, 'Lifetime Consumption-Equivalent Welfare Gain (CE %)', 'FontSize', 10.2, 'FontWeight', 'bold');
 xlim(axA, [-10, 60]); ylim(axA, [y_bot_lim, y_top_lim]);
 grid(axA, 'on'); box(axA, 'on');
-legend(axA, [h_area, h_tot, h_iso], 'Location', 'northwest', 'FontSize', 6.8);
+if enable_arts
+    legend(axA, [h_area(1:11), h_tot, h_arts, h_iso], 'Location', 'northwest', 'FontSize', 6.5);
+else
+    legend(axA, [h_area(1:11), h_tot, h_iso], 'Location', 'northwest', 'FontSize', 6.8);
+end
 
-% --- PANEL B: REGIONAL & NATIONAL SS2 STACKED BUILD-UP WITH WEDGE CALLOUTS ---
+% --- PANEL B: REGIONAL & NATIONAL SS2 STACKED BUILD-UP WITH DIVIDER BAR & ARTS CAP ---
 axB = nexttile(2); hold(axB, 'on');
-x_5 = 1:5;
-b_reg = bar(axB, x_5, SS2_11x5', 'stacked', 'BarWidth', 0.58, 'EdgeColor', [0.15 0.15 0.15], 'LineWidth', 0.6);
+x_5   = 1:5;
+bar_w = 0.58;
+b_reg = bar(axB, x_5, SS2_15x5', 'stacked', 'BarWidth', bar_w, 'EdgeColor', [0.15 0.15 0.15], 'LineWidth', 0.6);
 for k = 1:11
     b_reg(k).FaceColor = layer_colors(k, :);
     if Is_Wedge(k)
@@ -370,16 +501,37 @@ for k = 1:11
         b_reg(k).FaceAlpha = 0.80;
     end
 end
+for j = 1:4
+    k15 = 11 + j;
+    b_reg(k15).FaceColor = 0.68 * wedge_colors_4(j, :) + 0.32 * [1 1 1];
+    b_reg(k15).FaceAlpha = 0.90;
+    b_reg(k15).LineWidth = 0.9;
+end
 
-% Add Segment Labels Inside Bars & Total Labels cleanly above each bar
-Reg_Totals_5 = sum(SS2_11x5, 1);
+Reg_Default_5 = sum(SS2_11x5, 1);
+Reg_ArtsCap_5 = sum(Arts_SS2_4x5, 1);
+Reg_Totals_5  = Reg_Default_5 + Reg_ArtsCap_5;
+
+if enable_arts
+    % Hatch each of the 4 Arts-Enabled Wedge caps & draw a crisp matte-charcoal DIVIDER BAR on every column:
+    local_hatch_stacked_caps(axB, x_5, bar_w, Reg_Default_5, Arts_SS2_4x5, 0.22, 0.55, [0.14 0.14 0.14]);
+    for c = 1:5
+        y_div = Reg_Default_5(c);
+        plot(axB, [c - 0.54*bar_w, c + 0.54*bar_w], [y_div, y_div], '-', ...
+            'Color', [0.08 0.08 0.08], 'LineWidth', 3.4, 'HandleVisibility', 'off');
+        plot(axB, [c - 0.54*bar_w, c + 0.54*bar_w], [y_div, y_div], '--', ...
+            'Color', [1.00 0.96 0.70], 'LineWidth', 1.1, 'HandleVisibility', 'off');
+    end
+end
+
+% Add Segment Labels Inside Default Bars & Dual Default/Arts Totals Cleanly Above Each Column
 for c = 1:5
     cum_bot = 0;
     for k = 1:11
         val_kc = SS2_11x5(k, c);
         if val_kc >= 0.95
             y_mid = cum_bot + 0.5 * val_kc;
-            pct_sh = round(100 * val_kc / max(1e-6, Reg_Totals_5(c)));
+            pct_sh = round(100 * val_kc / max(1e-6, Reg_Default_5(c)));
             if Is_Wedge(k)
                 lbl_str = sprintf('★%+.2f%%\n(%d%%)', val_kc, pct_sh);
                 txt_col = [0.10 0.05 0.00];
@@ -390,18 +542,29 @@ for c = 1:5
                 if k == 5 || k == 6 || k == 10, txt_col = [0.12 0.12 0.12]; end
             end
             text(axB, c, y_mid, lbl_str, 'HorizontalAlignment', 'center', ...
-                'FontSize', 6.7, 'FontWeight', 'bold', 'Color', txt_col);
+                'FontSize', 6.5, 'FontWeight', 'bold', 'Color', txt_col);
         end
         cum_bot = cum_bot + val_kc;
     end
-    iso_sum_c = sum(SS2_11x5(~Is_Wedge, c));
-    wed_sum_c = sum(SS2_11x5(Is_Wedge, c));
-    text(axB, c, Reg_Totals_5(c) + 0.85, ...
-        sprintf('Total: %+.2f%%\n(Iso %+.1f%% | ★Syn %+.1f%%)', Reg_Totals_5(c), iso_sum_c, wed_sum_c), ...
-        'HorizontalAlignment', 'center', 'FontSize', 7.5, 'FontWeight', 'bold', 'Color', [0.05 0.15 0.05]);
+    if enable_arts
+        % Compact pill inside the Arts-Enabled Cap + full summary above bar:
+        y_cap_mid = Reg_Default_5(c) + 0.5 * Reg_ArtsCap_5(c);
+        text(axB, c, y_cap_mid, sprintf('+%0.2f%% Arts', Reg_ArtsCap_5(c)), ...
+            'HorizontalAlignment', 'center', 'FontSize', 6.3, 'FontWeight', 'bold', ...
+            'Color', [0.12 0.04 0.18], 'BackgroundColor', [1 1 1 0.78], 'Margin', 1.0);
+        text(axB, c, Reg_Totals_5(c) + 0.95, ...
+            sprintf('Arts Total: %+.2f%%\n(Base %+.2f%% | +%0.2f%%)', Reg_Totals_5(c), Reg_Default_5(c), Reg_ArtsCap_5(c)), ...
+            'HorizontalAlignment', 'center', 'FontSize', 7.2, 'FontWeight', 'bold', 'Color', [0.18 0.04 0.28]);
+    else
+        iso_sum_c = sum(SS2_11x5(~Is_Wedge, c));
+        wed_sum_c = sum(SS2_11x5(Is_Wedge, c));
+        text(axB, c, Reg_Totals_5(c) + 0.85, ...
+            sprintf('Total: %+.2f%%\n(Iso %+.1f%% | ★Syn %+.1f%%)', Reg_Totals_5(c), iso_sum_c, wed_sum_c), ...
+            'HorizontalAlignment', 'center', 'FontSize', 7.5, 'FontWeight', 'bold', 'Color', [0.05 0.15 0.05]);
+    end
 end
 
-% Add Tier Bracket Callouts on the Right of the National Bar (x = 5.34)
+% Add Tier Bracket Callouts + 5th Arts-Enabled Cap Bracket on the Right of the National Bar (x = 5.34)
 c_nat_cum = cumsum(SS2_Nat_11);
 tier_tops = [c_nat_cum(3), c_nat_cum(7), c_nat_cum(8), c_nat_cum(11)];
 tier_bots = [0,            c_nat_cum(3), c_nat_cum(7), c_nat_cum(8)];
@@ -410,11 +573,25 @@ tier_lbls = { ...
     sprintf('Tier 2: Spatial/LVR Stack\n(%+.2f%%: %+.1f%% Iso, ★%+.1f%% Wedge)', tier_tops(2) - tier_bots(2), sum(SS2_Nat_11(4:6)), SS2_Nat_11(7)), ...
     sprintf('★ Wedge 3: Stack 1 \\times Stack 2\n(%+.2f%% Cross-Stack Synergy)', tier_tops(3) - tier_bots(3)), ...
     sprintf('%s\n(%+.2f%%: %+.1f%% Iso, ★%+.1f%% Wedge)', tier4_hdr, tier_tops(4) - tier_bots(4), SS2_Nat_11(9)+SS2_Nat_11(10), SS2_Nat_11(11))};
+
 for t_i = 1:4
     ym = 0.5 * (tier_bots(t_i) + tier_tops(t_i));
     plot(axB, [5.32, 5.38, 5.38, 5.32], [tier_bots(t_i)+0.15, tier_bots(t_i)+0.15, tier_tops(t_i)-0.15, tier_tops(t_i)-0.15], ...
         'k-', 'LineWidth', 1.1, 'HandleVisibility', 'off');
-    text(axB, 5.42, ym, tier_lbls{t_i}, 'FontSize', 7.1, 'FontWeight', 'bold', 'Color', [0.15 0.15 0.15]);
+    text(axB, 5.42, ym, tier_lbls{t_i}, 'FontSize', 7.0, 'FontWeight', 'bold', 'Color', [0.15 0.15 0.15]);
+end
+
+if enable_arts
+    % Callout for the Divider Bar & Hatched Arts-Enabled Cap on National Bar:
+    y_div_nat = c_nat_cum(11);
+    y_top_nat = y_div_nat + Arts_SS2_Total;
+    plot(axB, [5.32, 5.40], [y_div_nat, y_div_nat], '-', 'Color', [0.08 0.08 0.08], 'LineWidth', 2.4, 'HandleVisibility', 'off');
+    plot(axB, [5.32, 5.38, 5.38, 5.32], [y_div_nat+0.12, y_div_nat+0.12, y_top_nat-0.12, y_top_nat-0.12], ...
+        '-', 'Color', [0.42 0.06 0.52], 'LineWidth', 1.3, 'HandleVisibility', 'off');
+    text(axB, 5.42, 0.5*(y_div_nat + y_top_nat) + 0.25, ...
+        sprintf('ARTS & CIVIC CAP (Doc 1E)\n★%+.2f%% (+\\DeltaW1..W4 Hatched)\n── Default Bar: %+.2f%% ──', ...
+        Arts_SS2_Total, y_div_nat), ...
+        'FontSize', 7.0, 'FontWeight', 'bold', 'Color', [0.35 0.05 0.45]);
 end
 
 x_lbls_5 = { ...
@@ -425,9 +602,9 @@ x_lbls_5 = { ...
     sprintf('National (%+.2f%%)', Reg_Totals_5(5))};
 set(axB, 'XTick', x_5, 'XTickLabel', x_lbls_5, 'XTickLabelRotation', 20, 'FontSize', 9.0, 'FontWeight', 'bold');
 ylabel(axB, 'Phase 2 (SS2) Long-Run Welfare Gain (CE %)', 'FontSize', 10.2, 'FontWeight', 'bold');
-title(axB, 'B. Regional SS2 Build-Up: 7 Isolated Factors + 4 Named Complementarity Wedges (★)', ...
-    'FontSize', 10.8, 'FontWeight', 'bold');
-xlim(axB, [0.4, 6.45]); ylim(axB, [y_bot_lim, y_top_lim]);
+title(axB, 'B. Regional SS2 Build-Up: Default Bar (──) + Hatched Arts & Civic Wedge Caps', ...
+    'FontSize', 10.6, 'FontWeight', 'bold');
+xlim(axB, [0.4, 6.55]); ylim(axB, [y_bot_lim, y_top_lim]);
 grid(axB, 'on'); box(axB, 'on');
 
 f_cf_out = fullfile(OutputDir, sprintf('Fig_Counterfactual_8Scenarios_SS1_SS2_%s.png', AnchorTag));
@@ -435,28 +612,37 @@ exportgraphics(fig_cf, f_cf_out, 'Resolution', 300, 'BackgroundColor', 'white');
 fprintf('  -> Saved 2-Panel Constructive Synergy Attribution Figure to: %s\n', f_cf_out);
 
 % =========================================================================
-% 5. PART 2: MIRROR-IMAGE 11-LAYER WELFARE GAINS VS. ANNUAL SS1/SS2 INVESTMENTS
+% 5. PART 2: MIRROR-IMAGE 11-LAYER + ARTS CAP WELFARE VS. ANNUAL INVESTMENTS
 % =========================================================================
 Yr_Mir = (-10:2.5:60)';
 n_ym   = numel(Yr_Mir);
 NZD_Billion_Per_CE_Pct = 2.38;
 
-Pos_11_Mir                = interp1(Yr_Grid, Traj_11, Yr_Mir, 'pchip');
+Pos_11_Mir   = interp1(Yr_Grid, Traj_11,   Yr_Mir, 'pchip');
+Pos_Arts_Mir = interp1(Yr_Grid, Traj_Arts, Yr_Mir, 'pchip');
 % On the calendar-year Mirror-Image ledger, zero out pre-reform years (Yr_Mir < 0)
 % so both public outlays (below 0) and realized reform welfare (above 0) start at Year 0:
-Pos_11_Mir(Yr_Mir < 0, :) = 0.0;
-Total_Mir_CE              = sum(Pos_11_Mir, 2);
+Pos_11_Mir(Yr_Mir < 0, :)   = 0.0;
+Pos_Arts_Mir(Yr_Mir < 0, :) = 0.0;
+Total_Mir_CE                = sum(Pos_11_Mir, 2);
+Arts_Cap_Mir_CE             = sum(Pos_Arts_Mir, 2);
+Total_Arts_Mir_CE           = Total_Mir_CE + Arts_Cap_Mir_CE;
 
-Neg_4Investments_CE    = zeros(n_ym, 4);
-Remediation_Savings_CE = zeros(n_ym, 1);
+Neg_4Investments_CE      = zeros(n_ym, 4);
+Neg_JoinerPassport_CE    = zeros(n_ym, 1);
+Remediation_Savings_CE   = zeros(n_ym, 1);
+Remediation_ArtsBonus_CE = zeros(n_ym, 1);
 
 % Annual Public Outlays across [-Inv1 ECE1, -Inv2 Tuakana, -Inv3 YouthGrant, -Inv4 GeoTransfer]:
 % In SS1 (Peak Incubation): -3.30% CE (-NZD 7.86B/yr total; GeoTransfer = -0.65% CE = -NZD 1.55B/yr).
 % As Rural/Small z_l -> z_h entrepreneurship & competition reform mature (psi_retire_T = 0.85),
 % -Inv 4 (Geographic Transfer) retires by 82% down to the remote floor (-0.12% CE = -NZD 0.29B/yr),
 % reducing total ongoing SS2 fiscal outlay to -2.62% CE (-NZD 6.24B/yr) instead of escalating to -10.1B!
-SS1_Inv_CE = -[1.45, 0.52, 0.68, 0.65]; % -3.30% (-NZD 7.86B/yr at SS1 peak)
-SS2_Inv_CE = -[1.35, 0.55, 0.60, 0.12]; % -2.62% (-NZD 6.24B/yr in SS2 after 82% GeoTransfer retirement)
+% Below the default outlay boundary sits -Delta Inv 2E (Joiner Passport & Residencies: -0.15% -> -0.14% CE).
+SS1_Inv_CE  = -[1.45, 0.52, 0.68, 0.65]; % -3.30% (-NZD 7.86B/yr at SS1 peak)
+SS2_Inv_CE  = -[1.35, 0.55, 0.60, 0.12]; % -2.62% (-NZD 6.24B/yr in SS2 after 82% GeoTransfer retirement)
+SS1_ArtsInv = -0.15 * double(enable_arts); % -NZD 0.36B/yr net seed in SS1
+SS2_ArtsInv = -0.14 * double(enable_arts); % -NZD 0.33B/yr net seed in SS2 (24.3x marginal payoff!)
 
 for i = 1:n_ym
     y = Yr_Mir(i);
@@ -467,21 +653,29 @@ for i = 1:n_ym
         retire_w1 = 1 ./ (1 + exp(-(y1 - 15.0) / 4.0));
         inv_t     = ramp_in * SS1_Inv_CE;
         inv_t(4)  = inv_t(4) * (1 - 0.55 * retire_w1); % Retires 55% by Year 25
+        inv_arts  = ramp_in * SS1_ArtsInv;
         rem_t     = 4.65 * (1 ./ (1 + exp(-(y1 - 16.5) / 4.2)));
-
+        % Early cash savings from Putnam 50% adult/elder mortality-hospitalisation drop & CAMHS/truancy diversion:
+        rem_arts  = double(enable_arts) * 0.62 * (1 ./ (1 + exp(-(y1 - 8.5) / 3.2)));
         if y >= 25
-            w_inv2 = 1 - exp(-(y - 25.0) / 5.0);
-            inv_t  = inv_t + w_inv2 * (SS2_Inv_CE - inv_t);
-            rem_t  = rem_t + 1.45 * (1 - exp(-(y - 25.0) / 9.0));
+            w_inv2   = 1 - exp(-(y - 25.0) / 5.0);
+            inv_t    = inv_t + w_inv2 * (SS2_Inv_CE - inv_t);
+            inv_arts = inv_arts + w_inv2 * (SS2_ArtsInv - inv_arts);
+            rem_t    = rem_t + 1.45 * (1 - exp(-(y - 25.0) / 9.0));
+            rem_arts = rem_arts + double(enable_arts) * 0.25 * (1 - exp(-(y - 25.0) / 8.0));
         end
-        Neg_4Investments_CE(i, :) = inv_t;
-        Remediation_Savings_CE(i) = rem_t;
+        Neg_4Investments_CE(i, :)   = inv_t;
+        Neg_JoinerPassport_CE(i)    = inv_arts;
+        Remediation_Savings_CE(i)   = rem_t;
+        Remediation_ArtsBonus_CE(i) = rem_arts;
     end
 end
 
-Gross_Investment_Mirror_CE   = sum(Neg_4Investments_CE, 2);
-Gross_Investment_Mirror_BNZD = Gross_Investment_Mirror_CE * NZD_Billion_Per_CE_Pct;
-Net_Fiscal_Outlay_Mirror_CE  = min(0, Gross_Investment_Mirror_CE + Remediation_Savings_CE);
+Gross_Investment_Mirror_CE     = sum(Neg_4Investments_CE, 2);
+Gross_Investment_Mirror_BNZD   = Gross_Investment_Mirror_CE * NZD_Billion_Per_CE_Pct;
+Gross_Total_ArtsInv_CE         = Gross_Investment_Mirror_CE + Neg_JoinerPassport_CE;
+Net_Fiscal_Outlay_Mirror_CE    = min(0, Gross_Investment_Mirror_CE + Remediation_Savings_CE);
+Net_Fiscal_Outlay_Arts_CE      = min(0, Gross_Total_ArtsInv_CE + Remediation_Savings_CE + Remediation_ArtsBonus_CE);
 
 % Overlay 3: ACC / Treasury CBAx Actuarial Continuation Valuation Curve
 % (2.0% real SRTP discount rate, 1.5% real escalation, 30% attribution haircut, 98.6% Markov retention):
@@ -494,48 +688,64 @@ q_step       = ((1 + g_cost_real) / (1 + r_disc_SRTP)) * psi_persist;
 pv_mult_25yr = sum(q_step .^ (1:H_window)) / H_window; % ~0.884 discounted retention factor
 
 Actuarial_CBAx_Mirror_CE = zeros(n_ym, 1);
+Actuarial_CBAx_Arts_CE   = zeros(n_ym, 1);
 for i = 1:n_ym
     y = Yr_Mir(i);
-    if y < 0
-        Actuarial_CBAx_Mirror_CE(i) = 0.0;
-    else
-        phi_pipe  = min(1.0, max(0.0, y / 15.0)); % Childhood-to-launch pipeline maturity (0 -> 15 yrs)
-        y_look    = linspace(y, min(max(Yr_Grid), y + H_window), H_window);
-        welf_look = interp1(Yr_Grid, Total_Traj_CE, y_look, 'pchip');
-        fwd_lock  = (1 - alpha_attr) * pv_mult_25yr * mean(welf_look);
+    if y >= 0
+        phi_pipe   = min(1.0, max(0.0, y / 15.0)); % Childhood-to-launch pipeline maturity (0 -> 15 yrs)
+        y_look     = linspace(y, min(max(Yr_Grid), y + H_window), H_window);
+        welf_look  = interp1(Yr_Grid, Total_Traj_CE,      y_look, 'pchip');
+        welf_lookE = interp1(Yr_Grid, Total_Arts_Traj_CE, y_look, 'pchip');
+        fwd_lock   = (1 - alpha_attr) * pv_mult_25yr * mean(welf_look);
+        fwd_lockE  = (1 - alpha_attr) * pv_mult_25yr * mean(welf_lookE);
         % Bookings of 25-yr forward avoided Exits 1,2,4 & tax/productivity lock-in net of current unrecovered outlay:
         Actuarial_CBAx_Mirror_CE(i) = min(Total_Mir_CE(end), ...
             (1 - phi_pipe) * (Net_Fiscal_Outlay_Mirror_CE(i) + fwd_lock) + phi_pipe * Total_Mir_CE(i));
+        Actuarial_CBAx_Arts_CE(i)   = min(Total_Arts_Mir_CE(end), ...
+            (1 - phi_pipe) * (Net_Fiscal_Outlay_Arts_CE(i)   + fwd_lockE) + phi_pipe * Total_Arts_Mir_CE(i));
     end
 end
 Actuarial_CBAx_Mirror_BNZD = Actuarial_CBAx_Mirror_CE * NZD_Billion_Per_CE_Pct;
 
+% Preserve all 14 existing Table 20 column names first, then append Arts-Enabled columns cleanly:
 T20 = table(Yr_Mir, Total_Mir_CE, Total_Mir_CE * NZD_Billion_Per_CE_Pct, ...
     sum(Pos_11_Mir(:, ~Is_Wedge), 2), sum(Pos_11_Mir(:, Is_Wedge), 2), ...
     Neg_4Investments_CE(:,1), Neg_4Investments_CE(:,2), Neg_4Investments_CE(:,3), Neg_4Investments_CE(:,4), ...
     Gross_Investment_Mirror_CE, Gross_Investment_Mirror_BNZD, ...
     Net_Fiscal_Outlay_Mirror_CE, Actuarial_CBAx_Mirror_CE, Actuarial_CBAx_Mirror_BNZD, ...
+    Arts_Cap_Mir_CE, Total_Arts_Mir_CE, Neg_JoinerPassport_CE, Net_Fiscal_Outlay_Arts_CE, Actuarial_CBAx_Arts_CE, ...
     'VariableNames', {'Year', 'Total_Welfare_Gain_CE_Pct', 'Total_Welfare_Equiv_BNZD_Yr', ...
     'Isolated_Factors_Sum_CE', 'Synergy_Wedges_Sum_CE', ...
     'MirrorInv1_Universal_ECE_CE', 'MirrorInv2_Tuakana_Mentoring_CE', ...
     'MirrorInv3_YouthGrant_CE', 'MirrorInv4_GeoTransfer_CE', ...
     'Total_Gross_Inv_Mirror_CE_Pct', 'Total_Gross_Inv_Mirror_BNZD_Yr', ...
-    'Net_Unrecovered_Outlay_Mirror_CE', 'Actuarial_CBAx_Net_CE_Pct', 'Actuarial_CBAx_Net_BNZD_Yr'});
+    'Net_Unrecovered_Outlay_Mirror_CE', 'Actuarial_CBAx_Net_CE_Pct', 'Actuarial_CBAx_Net_BNZD_Yr', ...
+    'ArtsCivic_Cap_CE_Pct', 'ArtsEnabled_Total_Welfare_CE_Pct', ...
+    'MirrorInv2E_JoinerPassport_CE', 'Net_Unrecovered_Outlay_Arts_CE', 'Actuarial_CBAx_Arts_CE_Pct'});
 csv20 = fullfile(OutputDir, sprintf('Table20_Annual_MirrorInvestments_Vs_7SegmentWelfare_%s.csv', AnchorTag));
 writetable(T20, csv20);
 
 fig_mir = figure('Name', sprintf('Fig_11Layer_Welfare_And_MirrorInvestments_%s', AnchorTag), ...
-    'Color', 'w', 'Position', [60, 60, 1520, 790]);
+    'Color', 'w', 'Position', [60, 60, 1540, 810]);
 axM = axes(fig_mir); hold(axM, 'on');
 
-b_pos11 = bar(axM, Yr_Mir, Pos_11_Mir, 'stacked', 'BarWidth', 0.82, 'EdgeColor', [0.18 0.18 0.18], 'LineWidth', 0.45);
+mir_bw  = 0.82 * 2.5; % Exact bar width in calendar-year coordinates (step = 2.5 yrs)
+Pos_15_Mir = [Pos_11_Mir, Pos_Arts_Mir];
+b_pos15 = bar(axM, Yr_Mir, Pos_15_Mir, 'stacked', 'BarWidth', 0.82, 'EdgeColor', [0.18 0.18 0.18], 'LineWidth', 0.45);
 for k = 1:11
-    b_pos11(k).FaceColor   = layer_colors(k, :);
-    b_pos11(k).FaceAlpha   = 0.88;
-    b_pos11(k).DisplayName = Layer_Legend_Labels{k};
+    b_pos15(k).FaceColor   = layer_colors(k, :);
+    b_pos15(k).FaceAlpha   = 0.88;
+    b_pos15(k).DisplayName = Layer_Legend_Labels{k};
+end
+for j = 1:4
+    k15 = 11 + j;
+    b_pos15(k15).FaceColor        = 0.68 * wedge_colors_4(j, :) + 0.32 * [1 1 1];
+    b_pos15(k15).FaceAlpha        = 0.90;
+    b_pos15(k15).HandleVisibility = 'off';
 end
 
-b_neg4 = bar(axM, Yr_Mir, Neg_4Investments_CE, 'stacked', 'BarWidth', 0.82, 'EdgeColor', [0.18 0.18 0.18], 'LineWidth', 0.45);
+Neg_5Investments_CE = [Neg_4Investments_CE, Neg_JoinerPassport_CE];
+b_neg5 = bar(axM, Yr_Mir, Neg_5Investments_CE, 'stacked', 'BarWidth', 0.82, 'EdgeColor', [0.18 0.18 0.18], 'LineWidth', 0.45);
 inv_colors = [0.78, 0.12, 0.18; 0.92, 0.38, 0.22; 0.58, 0.20, 0.62; 0.32, 0.32, 0.48];
 inv_names  = { ...
     '-Inv 1: Universal First-2000-Days Wraparound (\DeltaG_{ECE,1}: -3.5B \rightarrow -3.2B/yr)', ...
@@ -543,66 +753,178 @@ inv_names  = { ...
     '-Inv 3: Universal Age-20 Youth Capital Grant (\DeltaE: -1.6B \rightarrow -1.4B/yr)', ...
     '-Inv 4: Geographic Transfer (\DeltaT_k: -1.6B/yr Peak \rightarrow -0.3B/yr as z_l\rightarrowz_h Retires 82%!)'};
 for k = 1:4
-    b_neg4(k).FaceColor   = inv_colors(k, :);
-    b_neg4(k).FaceAlpha   = 0.88;
-    b_neg4(k).DisplayName = inv_names{k};
+    b_neg5(k).FaceColor   = inv_colors(k, :);
+    b_neg5(k).FaceAlpha   = 0.88;
+    b_neg5(k).DisplayName = inv_names{k};
+end
+% Reuse -Inv 2 (Tuakana) color lightened + hatched below the Default Outlay Divider for Joiner Passport:
+b_neg5(5).FaceColor = 0.65 * inv_colors(2, :) + 0.35 * [1 1 1];
+b_neg5(5).FaceAlpha = 0.90;
+if enable_arts
+    b_neg5(5).DisplayName = '-\DeltaInv 2E: Universal NZD 500/yr Joiner Passport & Residencies (-0.33B/yr -> 24.3x Marginal!)';
+else
+    b_neg5(5).HandleVisibility = 'off';
 end
 
-plot(axM, Yr_Mir, Total_Mir_CE, '-o', 'Color', [0.00 0.32 0.12], 'MarkerFaceColor', [0.00 0.58 0.24], ...
-    'LineWidth', 2.6, 'MarkerSize', 4.8, 'DisplayName', sprintf('Overlay 1: Total Integrated Welfare Trajectory (%+.2f%% SS1 \\rightarrow %+.2f%% SS2)', SS1_Nat_Total, SS2_Nat_Total));
-plot(axM, Yr_Mir, Actuarial_CBAx_Mirror_CE, '-.s', 'Color', [0.00 0.72 0.78], 'MarkerFaceColor', [0.15 0.92 0.95], ...
+if enable_arts
+    idx_pos = find(Yr_Mir >= 0);
+    local_hatch_stacked_caps(axM, Yr_Mir(idx_pos)', mir_bw, Total_Mir_CE(idx_pos)', Pos_Arts_Mir(idx_pos, :)', 1.15, 0.62, [0.15 0.15 0.15]);
+    % Draw per-bar matte-charcoal Divider Caps separating Default Stack from Arts-Enabled Cap (+ and -):
+    for ii = idx_pos'
+        xc = Yr_Mir(ii);
+        yd = Total_Mir_CE(ii);
+        plot(axM, [xc - 0.52*mir_bw, xc + 0.52*mir_bw], [yd, yd], '-', ...
+            'Color', [0.08 0.08 0.08], 'LineWidth', 2.4, 'HandleVisibility', 'off');
+        yi = Gross_Investment_Mirror_CE(ii);
+        plot(axM, [xc - 0.52*mir_bw, xc + 0.52*mir_bw], [yi, yi], '--', ...
+            'Color', [0.12 0.12 0.12], 'LineWidth', 1.5, 'HandleVisibility', 'off');
+    end
+end
+
+plot(axM, Yr_Mir, Total_Mir_CE, '-o', 'Color', [0.08 0.08 0.08], 'MarkerFaceColor', [0.22 0.22 0.22], ...
+    'LineWidth', 2.5, 'MarkerSize', 4.4, ...
+    'DisplayName', sprintf('DEFAULT DIVIDER BAR: 11-Layer Baseline (%+.2f%% SS1 \\rightarrow %+.2f%% SS2)', SS1_Nat_Total, SS2_Nat_Total));
+
+if enable_arts
+    plot(axM, Yr_Mir, Total_Arts_Mir_CE, '-^', 'Color', [0.00 0.36 0.14], 'MarkerFaceColor', [0.00 0.64 0.26], ...
+        'LineWidth', 2.6, 'MarkerSize', 5.0, ...
+        'DisplayName', sprintf('Overlay 1E: Arts & Civic Enabled Total (%+.2f%% SS1 \\rightarrow %+.2f%% SS2 | 10.18x)', T1E_SS1_Nat_Tot, T1E_SS2_Nat_Tot));
+    act_curve  = Actuarial_CBAx_Arts_CE;
+    cash_curve = Net_Fiscal_Outlay_Arts_CE;
+    cash_lbl   = 'Overlay 3: Cash Net Unrecovered Cost (Hits 0 at Yr 17.4 w/ Join-or-Die Savings vs Yr 18.8 Base!)';
+else
+    act_curve  = Actuarial_CBAx_Mirror_CE;
+    cash_curve = Net_Fiscal_Outlay_Mirror_CE;
+    cash_lbl   = 'Overlay 3: Cash Accounting Net Unrecovered Cost (Hits 0 at Yr 18.8 Cash Breakeven!)';
+end
+
+plot(axM, Yr_Mir, act_curve, '-.s', 'Color', [0.00 0.72 0.78], 'MarkerFaceColor', [0.15 0.92 0.95], ...
     'MarkerEdgeColor', [0.00 0.38 0.44], 'LineWidth', 2.5, 'MarkerSize', 5.2, ...
-    'DisplayName', 'Overlay 2: ACC / Treasury CBAx Actuarial Continuation Valuation (2.0% SRTP, 3.84x at Yr 5)');
-plot(axM, Yr_Mir, Net_Fiscal_Outlay_Mirror_CE, '--d', 'Color', [0.95 0.82 0.15], 'MarkerFaceColor', [0.95 0.82 0.15], ...
-    'LineWidth', 2.4, 'MarkerSize', 4.8, 'DisplayName', 'Overlay 3: Cash Accounting Net Unrecovered Cost (Hits 0 at Yr 18.8 Cash Breakeven!)');
+    'DisplayName', 'Overlay 2: ACC / Treasury CBAx Actuarial Continuation Valuation (2.0% SRTP)');
+plot(axM, Yr_Mir, cash_curve, '--d', 'Color', [0.95 0.82 0.15], 'MarkerFaceColor', [0.95 0.82 0.15], ...
+    'LineWidth', 2.4, 'MarkerSize', 4.8, 'DisplayName', cash_lbl);
 
 yline(axM, 0, 'k-', 'LineWidth', 1.8, 'HandleVisibility', 'off');
-xline(axM, 0,    'k:',  'LineWidth', 1.4, 'HandleVisibility', 'off');
-xline(axM, 5.0,  ':',   'Color', [0.00 0.55 0.62], 'LineWidth', 1.5, 'HandleVisibility', 'off');
-xline(axM, 18.8, 'r--', 'LineWidth', 1.6, 'HandleVisibility', 'off');
-xline(axM, 25.0, 'b-.', 'LineWidth', 1.7, 'HandleVisibility', 'off');
+xline(axM, 0,          'k:',  'LineWidth', 1.4, 'HandleVisibility', 'off');
+xline(axM, 5.0,        ':',   'Color', [0.00 0.55 0.62], 'LineWidth', 1.5, 'HandleVisibility', 'off');
+xline(axM, cash_be_yr, 'r--', 'LineWidth', 1.6, 'HandleVisibility', 'off');
+xline(axM, 25.0,       'b-.', 'LineWidth', 1.7, 'HandleVisibility', 'off');
 
-y_mir_top = max(22.0, ceil(max([Total_Mir_CE(:); SS1_Nat_Total; SS2_Nat_Total]) * 1.22));
-y_mir_bot = -6.5;
+y_mir_top = max(24.0, ceil(max([Total_Arts_Mir_CE(:); T1E_SS2_Nat_Tot]) * 1.24));
+y_mir_bot = -6.8;
 
 % Boxed milestone callouts placed cleanly below the legend box
-y_at_25  = interp1(Yr_Mir, Total_Mir_CE, 25.0);
-y_box25  = min(0.68 * y_mir_top, y_at_25 + 2.2);
-y_act_5  = interp1(Yr_Mir, Actuarial_CBAx_Mirror_CE, 5.0);
+y_act_5 = interp1(Yr_Mir, act_curve, 5.0);
 plot(axM, 5.0, y_act_5, 'p', 'MarkerSize', 10.5, 'MarkerFaceColor', [0.15 0.92 0.95], ...
     'MarkerEdgeColor', [0.00 0.35 0.42], 'LineWidth', 1.4, 'HandleVisibility', 'off');
 
 text(axM, 0.6, 8.8, sprintf('Yr 0: Phase 1 (SS1)\nReform Launch'), ...
     'FontSize', 7.6, 'FontWeight', 'bold', 'Color', [0.15 0.15 0.15], ...
     'BackgroundColor', [0.98 0.98 0.98], 'EdgeColor', [0.40 0.40 0.40], 'Margin', 2.5);
-text(axM, 5.5, max(2.2, y_act_5 - 2.6), ...
-    sprintf('Yr 5 ACC / CBAx Audit: %+.1f%% CE\n(3.84x Breakeven vs -2.9%% Cash)', y_act_5), ...
+text(axM, 5.5, max(2.2, y_act_5 - 2.8), ...
+    sprintf('Yr 5 ACC / CBAx Audit: %+.1f%% CE\n(Cash Breakeven Accelerated -> Yr %.1f)', y_act_5, cash_be_yr), ...
     'HorizontalAlignment', 'left', 'FontSize', 7.6, 'FontWeight', 'bold', 'Color', [0.00 0.36 0.42], ...
     'BackgroundColor', [0.93 1.00 1.00], 'EdgeColor', [0.00 0.55 0.62], 'Margin', 2.5);
 
+if enable_arts
+    y_def_55 = interp1(Yr_Mir, Total_Mir_CE, 55.0);
+    y_top_55 = interp1(Yr_Mir, Total_Arts_Mir_CE, 55.0);
+    text(axM, 58.8, 0.5*(y_def_55 + y_top_55) + 0.4, ...
+        sprintf('Hatched Cap (Doc 1E): %+.2f%% CE\n── Default Bar: %+.2f%% ──', Arts_SS2_Total, SS2_Nat_Total), ...
+        'HorizontalAlignment', 'right', 'FontSize', 7.6, 'FontWeight', 'bold', 'Color', [0.28 0.05 0.38], ...
+        'BackgroundColor', [1.00 0.98 1.00], 'EdgeColor', [0.42 0.06 0.52], 'Margin', 2.5);
+end
+
 ylabel(axM, 'Welfare Gain (+CE %) Above 0  |  Annual Public Investment (-% Cons. Equiv.) Below 0', 'FontSize', 10.2, 'FontWeight', 'bold');
 ylim(axM, [y_mir_bot, y_mir_top]);
-
 yyaxis(axM, 'right');
 ylim(axM, [y_mir_bot * NZD_Billion_Per_CE_Pct, y_mir_top * NZD_Billion_Per_CE_Pct]);
 ylabel(axM, 'Annual Consumption-Equiv. Gain (+NZD B/yr) vs. Annual Public Investment (-NZD B/yr)', 'FontSize', 10.2, 'FontWeight', 'bold');
 axM.YColor = [0.15 0.15 0.15];
 yyaxis(axM, 'left');
 
-title(axM, 'Constructive 11-Layer Welfare Gains (+Above 0) vs. Mirror Annual SS1/SS2 Public Investments (-Below 0)', ...
-    'FontSize', 11.2, 'FontWeight', 'bold');
+title(axM, 'Constructive 11-Layer + Hatched Arts & Civic Cap (+Above 0) vs. Mirror Public Outlays (-Below 0)', ...
+    'FontSize', 11.0, 'FontWeight', 'bold');
 xlabel(axM, 'Years Relative to Reform Launch (SS1 Incubation Years 0-24 -> SS2 2050 Harvest Years 25-60)', 'FontSize', 10.2, 'FontWeight', 'bold');
 xlim(axM, [-11, 61.5]); grid(axM, 'on'); box(axM, 'on');
-legend(axM, 'Location', 'northwest', 'FontSize', 6.6, 'NumColumns', 2);
+legend(axM, 'Location', 'northwest', 'FontSize', 6.4, 'NumColumns', 2);
 
 f_mir_out = fullfile(OutputDir, sprintf('Fig_7Segment_Welfare_And_MirrorInvestments_%s.png', AnchorTag));
 exportgraphics(fig_mir, f_mir_out, 'Resolution', 300, 'BackgroundColor', 'white');
-fprintf('  -> Saved Mirror-Image 11-Layer Welfare vs. Annual Investments Figure to: %s\n', f_mir_out);
+fprintf('  -> Saved Mirror-Image 11-Layer + Arts Cap Welfare vs. Annual Investments Figure to: %s\n', f_mir_out);
 
-Out.Table19_Counterfactuals   = T19;
-Out.Table20_MirrorInvestments = T20;
-Out.Fig_Counterfactuals       = f_cf_out;
-Out.Fig_MirrorInvestments     = f_mir_out;
+Out.Table19_Counterfactuals    = T19;
+Out.Table19E_ArtsEnabled       = T19E;
+Out.Table20_MirrorInvestments  = T20;
+Out.Fig_Counterfactuals        = f_cf_out;
+Out.Fig_MirrorInvestments      = f_mir_out;
+end
+
+% =========================================================================
+% LOCAL VECTORIZED HATCH HELPERS (ZERO TOOLBOX DEPENDENCIES, OCTAVE/MATLAB SAFE)
+% =========================================================================
+function local_hatch_stacked_caps(ax, x_centers, bar_w, y_base_vec, cap_mat_4xN, dx_step, slope_yx, line_col)
+% Clips crisp diagonal hatch segments inside each stacked Arts-Enabled bar cap [y_base -> y_base + sum(cap)]
+n_bars = numel(x_centers);
+half_w = 0.5 * bar_w;
+xs_all = [];
+ys_all = [];
+for b = 1:n_bars
+    yb = y_base_vec(b);
+    yt = yb + sum(cap_mat_4xN(:, b));
+    if yt - yb <= 0.05, continue; end
+    xl = x_centers(b) - half_w;
+    xr = x_centers(b) + half_w;
+    % Sweep intercept c for line y = slope_yx * (x - xl) + c across rectangle [xl, xr] x [yb, yt]:
+    c_min = yb - slope_yx * bar_w;
+    c_max = yt;
+    c_vec = c_min : (dx_step * slope_yx) : c_max;
+    for c0 = c_vec
+        x0 = xl; y0 = c0;
+        x1 = xr; y1 = c0 + slope_yx * bar_w;
+        if y0 < yb
+            x0 = xl + (yb - c0) / slope_yx;
+            y0 = yb;
+        end
+        if y1 > yt
+            x1 = xl + (yt - c0) / slope_yx;
+            y1 = yt;
+        end
+        if x1 > x0 && y1 >= yb && y0 <= yt
+            xs_all = [xs_all, x0, x1, NaN]; %#ok<AGROW>
+            ys_all = [ys_all, y0, y1, NaN]; %#ok<AGROW>
+        end
+    end
+end
+if ~isempty(xs_all)
+    plot(ax, xs_all, ys_all, '-', 'Color', line_col, 'LineWidth', 0.65, 'HandleVisibility', 'off');
+end
+end
+
+function local_hatch_band(ax, x_grid, y_low, y_high, x_spacing, slope_yx, line_col)
+% Draws diagonal hatch lines clipped vertically between continuous curves y_low(x) and y_high(x)
+x_min  = min(x_grid);
+x_max  = max(x_grid);
+c_min  = min(y_low)  - slope_yx * (x_max - x_min);
+c_max  = max(y_high);
+x_fine = linspace(x_min, x_max, 280)';
+yl_f   = interp1(x_grid, y_low,  x_fine, 'linear');
+yh_f   = interp1(x_grid, y_high, x_fine, 'linear');
+xs_all = [];
+ys_all = [];
+for c0 = c_min : (x_spacing * slope_yx) : c_max
+    y_line = c0 + slope_yx * (x_fine - x_min);
+    in_msk = (y_line >= yl_f) & (y_line <= yh_f) & ((yh_f - yl_f) > 0.08);
+    if any(in_msk)
+        x_seg = x_fine; y_seg = y_line;
+        x_seg(~in_msk) = NaN; y_seg(~in_msk) = NaN;
+        xs_all = [xs_all; x_seg; NaN]; %#ok<AGROW>
+        ys_all = [ys_all; y_seg; NaN]; %#ok<AGROW>
+    end
+end
+if ~isempty(xs_all)
+    plot(ax, xs_all, ys_all, '-', 'Color', line_col, 'LineWidth', 0.55, 'HandleVisibility', 'off');
+end
 
 
 end
