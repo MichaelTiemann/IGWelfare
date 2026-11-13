@@ -106,17 +106,17 @@ When we apply the exact same actuarial lens to community and creative clubs, the
 
 ### Table 1E.1A: Micro-Unit Cost & Actuarial Social ROI Across the Six Civic Pillars
 
-*All figures in 2026 NZD, evaluated per active participant-year net of a 30% attribution haircut and deadweight loss adjustment, consistent with `Plot_ChildFiscal_SSankey.m` and NZ Treasury CBAx [Ref 9].*
+*All figures in 2026 NZD per active participant-year, net of a 30% attribution haircut and deadweight loss adjustment (`Plot_ChildFiscal_SSankey.m` and NZ Treasury CBAx [Ref 9]).*
 
-| Pro-Social Civic Pillar | Annual Public / Philanthropic Seed Cost (NZD / yr) | Volunteer & In-Kind Leverage Ratio | Lifecycle Gates & Sankey Exits Addressed | Net Actuarial ROI (2.0% SRTP) | Hurdle Stress ROI (8.0% Rate) | Primary Macroeconomic & Regional Co-Benefits |
+| Pro-Social Civic Pillar | Annual Seed Cost (NZD / yr) | Vol. Leverage | Gates & Sankey Exits Closed | Net ROI (2% SRTP) | Stress ROI (8% Rate) | Primary Regional Co-Benefit |
 | :--- | :---: | :---: | :--- | :---: | :---: | :--- |
-| **1. Community Food & *Māra Kai*** | $450 – $900 / *whānau* | 2.8x | Gate 1 (`Node 4`) & `Exit 2` (Metabolic / Paediatric Hosp.) | **6.4x** | **3.4x** | **1.60x–2.16x** regional food multiplier in `Rural` & `Small` |
-| **2. Service & Intergenerational Clubs** | $180 – $400 / member | 5.4x | Adult/Kaumātua 50% mortality drop + `Gate 2` trade mentoring | **8.2x** | **4.9x** | Delays aged-care entry; anchors provincial emergency resilience |
-| **3. Rewilding & *Taiao* Sanctuaries** | $600 – $1,200 / youth | 3.5x | `Gate 2` (*Erdkinder*) + `Gate 3` ($\lambda_{\text{psy}}$ anxiety buffer) | **5.5x** | **2.9x** | Flood/catchment protection + biodiversity capital (`SS2`) |
-| **4. Outdoor, *Waka* & Boxing/Sport Clubs** | $1,100 – $2,400 / *rangatahi* | 3.1x | `Exit 1` (State Care) & `Exit 4` (Youth Justice; 90%+ non-recidivism) | **9.1x** | **5.2x** | High-hazard Years 8–10 diversion; builds physical grit & *mana* |
-| **5. Community Theater & *Kapa Haka*** | $800 – $1,600 / participant | 3.2x | `Node 9` Truancy reversal + `Gate 3` urban youth retention | **5.9x** | **3.1x** | Curbs Australia brain drain; revitalizes urban/town-center nights |
-| **6. Youth Orchestras, Choirs & Bands** | $1,400 – $2,800 / child | 2.4x | `Gate 1 -> Gate 2` CES dynamic complementarity ($\phi_1 = +0.35$) | **7.3x** | **3.8x** | Multi-year prefrontal EF scaffolding + cross-decile bridging |
-| **Portfolio Blended Civic Envelope** | **~$890 weighted avg.** | **3.4x** | **Lifts Social Cohesion `126.0 -> 134.5`; cuts $\lambda_{\text{psy}}$ hazard -42%** | **7.1x** | **3.9x** | **Self-finances inside single 3-yr term via ACC-style booking** |
+| **1. Community Food & *Māra Kai*** | NZD 450 to 900 / *whānau* | 2.8x | Gate 1 (`Node 4`) & `Exit 2` Hosp. | **6.4x** | **3.4x** | **1.60x–2.16x** food mult. (`Rural`/`Small`) |
+| **2. Service & Civic Clubs** | NZD 180 to 400 / member | 5.4x | 50% adult mortality drop + `Gate 2` | **8.2x** | **4.9x** | Delays aged-care; rural resilience |
+| **3. Rewilding & *Taiao* Hubs** | NZD 600 to 1,200 / youth | 3.5x | `Gate 2` + `Gate 3` ($\lambda_{\text{psy}}$ buffer) | **5.5x** | **2.9x** | Flood protection + natural capital |
+| **4. Outdoor, *Waka* & Boxing** | NZD 1,100 to 2,400 / *rangatahi* | 3.1x | `Exit 1` Care & `Exit 4` Youth Justice | **9.1x** | **5.2x** | 90%+ non-recidivism; Years 8–10 grit |
+| **5. Theater & *Kapa Haka*** | NZD 800 to 1,600 / youth | 3.2x | `Node 9` Truancy + `Gate 3` retention | **5.9x** | **3.1x** | Curbs Australia youth brain drain |
+| **6. Youth Orchestras & Choirs** | NZD 1,400 to 2,800 / child | 2.4x | `Gate 1->2` CES ($\phi_1 = +0.35$) | **7.3x** | **3.8x** | Prefrontal EF + cross-decile bridging |
+| **Portfolio Blended Envelope** | **~NZD 890 weighted avg.** | **3.4x** | **Cohesion `126->134.5`; $\lambda_{\text{psy}}$ -42%** | **7.1x** | **3.9x** | **3-yr term breakeven via ACC booking** |
 
 ### 3.1 Three Non-Bureaucratic Mechanisms to Scale Grassroots Capacity (`SS0 -> SS1 -> SS2`)
 
@@ -126,7 +126,7 @@ Top-down contracting routinely crushes volunteer clubs under audit compliance wh
    * *Time:* Lowering urban rents (**-7.5% to -10.5%**), cutting working PAYE rates to **18.25%**, and restoring NZ Super eligibility to **Age 64** liberates millions of unhurried evening and weekend hours for parents and active *kaumātua* to coach, conduct, referee, and govern local clubs.
    * *Space:* Our **1.5% Use-It-Or-Lose-It levy on passive/vacant land banking** (`z_l -> z_h` in [Document 3](./Document%203.md)) includes a **Civic Stewardship Offset**: commercial and industrial property owners who grant 5-to-10-year peppercorn leases of underutilized halls, warehouses, or retail frontages to registered youth clubs, theaters, orchestras, or maker-spaces receive a direct credit against vacant-holding charges.
 2. **The Universal "Joiner Passport" (`-ΔInv 2E` Demand-Side Micro-Capitation):**
-   * Modeled directly on Iceland's celebrated *Planet Youth* Leisure Card [Ref 10] (analyzed in [Document 1B](./Document%201B.md), which slashed Icelandic teen substance abuse from ~42% to under 6%), **NZD 0.33B–0.36B/yr** (`-0.15% CE` in `SS1` -> `-0.14% CE` in `SS2`, co-funded alongside philanthropic and municipal rates-relief covenants) funds a **Universal NZD 500/yr Joiner Passport** for every child and teenager aged 6 to 18 (~700,000 *tamariki* and *rangatahi*).
+   * Modeled directly on Iceland's celebrated *Planet Youth* Leisure Card [Ref 10] (analyzed in [Document 1B](./Document%201B.md), which slashed Icelandic teen substance abuse from ~42% to under 6%), **NZD 0.33B to 0.36B/yr** (`-0.15% CE` in `SS1` -> `-0.14% CE` in `SS2`, co-funded alongside philanthropic and municipal rates-relief covenants) funds a **Universal NZD 500/yr Joiner Passport** for every child and teenager aged 6 to 18 (~700,000 *tamariki* and *rangatahi*).
    * Families redeem the digital voucher directly with any accredited club, *kapa haka* *rōpū*, community choir, boxing academy, scouting troop, or conservation hub. Money follows authentic grassroots magnetism rather than grant-writing consultants, automatically solving cost barriers for `Q1–Q2` families while normalizing universal club membership across `Q3–Q5`.
 3. **Tuakana Creative & Civic Fellowships (`-Inv 3` Age-20 Capital Grant Option):**
    * At **Gate 3 (Age 20)**, young New Zealanders receiving their **Youth Capital Grant** (~NZD 62,000+ in `SS2`) may elect a **2-Year Creative / Civic Founder Track**, pairing seed capital with regional studio/housing stipends to establish or staff community theaters, ensembles, *māra kai*, and adventure clubs—especially in **Rural** and **Small** provincial centers (`k = 1, 2`).
@@ -137,40 +137,42 @@ Rather than inventing an artificial fifth silo wedge—or introducing color bloa
 
 On both our regional constructive attribution chart and our mirror-investment ledger below, we preserve 100% backward compatibility with the **`+24.68% CE` (`SS2`) / `+15.04% CE` (`SS1`) Default Fiscal-Structural Model** (`Table 19`) by drawing a bold matte-charcoal threshold bar across the top of the 11-layer stack—separating the **`DEFAULT MODEL (+24.68% CE)`** below the bar from the **`ARTS & CIVIC ENABLED CAP (+3.40% CE -> +28.08% CE Total)`** stacked immediately above it using the exact same four Wedge colors (`L03`, `L07`, `L08`, `L11`) with crisp diagonal hatching:
 
+![Constructive 11-Layer + Hatched Arts & Civic Cap Attribution](./Output_NZ_4Region_Intergen/Fig_Counterfactual_8Scenarios_SS1_SS2_Dunedin_22.png)
+
 ![Mirror-Image 11-Layer + Hatched Arts & Civic Cap vs. Annual Public Outlays](./Output_NZ_4Region_Intergen/Fig_7Segment_Welfare_And_MirrorInvestments_Dunedin_22.png)
 
-#### Table 1E.1B: Full 15-Row Constructive & Arts-Enabled Attribution (`Table 19E` Exact Output)
+#### Table 1E.1B: Portrait Summary of 15-Row Constructive & Arts-Enabled Attribution (`Table 19E`)
 
-*Generated directly by [`Plot_Counterfactuals_And_MirrorInvestments.m`](./Plot_Counterfactuals_And_MirrorInvestments.m) -> [`Table19E_ArtsEnabled_Synergy_Wedges_Dunedin_22.csv`](./Output_NZ_4Region_Intergen/Table19E_ArtsEnabled_Synergy_Wedges_Dunedin_22.csv). Population weights: `Rural` 16.0%, `Small` 24.0%, `Large` 25.9%, `Auckland` 34.1% (`1.0% CE = NZD 2.38B/yr`).*
+*Highlights regional endpoints (`Rural` 16.0%, `Auckland` 34.1%) and the `National` weighted total (`1.0% CE = NZD 2.38B/yr`). Intermediate regional columns (`Small` `+26.29%` and `Large` `+28.07%` in `T1E`) are exported in [`Table19E_ArtsEnabled_Synergy_Wedges_Dunedin_22.csv`](./Output_NZ_4Region_Intergen/Table19E_ArtsEnabled_Synergy_Wedges_Dunedin_22.csv).*
 
-| Layer Code (`Table 19E`) | Component Type / Palette Channel | `SS1` Nat. CE % | `SS2` Rural | `SS2` Small | `SS2` Large | `SS2` Auckland | `SS2` National | Cumulative `SS2` Nat. | Share of `T1E` Total |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| `L01_Iso_ECE1_First2000d` | `Isolated_Factor` (Steel Blue) | +2.56% | +2.05% | +2.25% | +2.45% | +2.80% | **+2.46%** | +2.46% | 8.75% |
-| `L02_Iso_Tuakana_Mentoring` | `Isolated_Factor` (Sky Teal) | +1.51% | +1.35% | +1.45% | +1.55% | +1.75% | **+1.56%** | +4.02% | 5.56% |
-| `L03_WEDGE1_DualGate_HC_Synergy` | `SYNERGY_WEDGE` (Vivid Amber) | +2.49% | +2.74% | +3.09% | +3.32% | +3.72% | **+3.31%** | +7.33% | 11.79% |
-| `L04_Iso_EstateProperty_Rebal` | `Isolated_Factor` (Sage Slate) | +1.75% | +1.65% | +1.95% | +2.25% | +2.70% | **+2.24%** | +9.57% | 7.96% |
-| `L05_Iso_YouthGrant_Age20` | `Isolated_Factor` (Mint Slate) | +0.96% | +0.72% | +0.82% | +0.90% | +1.02% | **+0.89%** | +10.46% | 3.18% |
-| `L06_Iso_GeoTransfer_Income` | `Isolated_Factor` (Pale Moss) | +0.81% | +0.17% | +0.16% | +0.14% | +0.13% | **+0.15%** | +10.60% | 0.52% |
-| `L07_WEDGE2_LVR_Whanau_Synergy` | `SYNERGY_WEDGE` (Tangerine) | +1.51% | +1.81% | +2.11% | +2.35% | +2.69% | **+2.33%** | +12.93% | 8.28% |
-| `L08_WEDGE3_CrossStack_HC_x_Spatial` | `SYNERGY_WEDGE` (Crimson) | +2.60% | +5.01% | +5.10% | +5.10% | +5.44% | **+5.19%** | +18.13% | 18.50% |
-| `L09_Iso_DebtSinking_Interest` | `Isolated_Factor` (Muted Indigo) | +0.26% | +1.05% | +1.15% | +1.25% | +1.40% | **+1.25%** | +19.37% | 4.43% |
-| `L10_Iso_PAYE_SuperAge_64` | `Isolated_Factor` (Lavender Slate) | +0.00% | +2.35% | +2.55% | +2.70% | +2.95% | **+2.69%** | +22.06% | 9.59% |
-| `L11_WEDGE4_Fiscal_TFR_2ndGen_Closure` | `SYNERGY_WEDGE` (Deep Emerald) | +0.58% | +2.17% | +2.63% | +2.65% | +2.79% | **+2.62%** | **+24.68%** | 9.32% |
-| **══ DEFAULT MODEL BAR (`T1`) ══** | **7 Iso (`+11.23%`) + 4 Wedges (`+13.45%`)** | **+15.04%** | **+20.63%** | **+22.98%** | **+24.57%** | **+27.91%** | **+24.68%** | **+24.68%** | **87.89%** |
-| `+L03E_WEDGE1_Arts_Psychosocial` | `ARTS_CIVIC_WEDGE_CAP` (`L03` Hatch) | +0.62% | +0.76% | +0.85% | +0.90% | +0.94% | **+0.88%** | +25.56% | 3.13% |
-| `+L07E_WEDGE2_JoinOrDie_CivicSpace` | `ARTS_CIVIC_WEDGE_CAP` (`L07` Hatch) | +0.48% | +0.82% | +0.80% | +0.74% | +0.72% | **+0.76%** | +26.32% | 2.71% |
-| `+L08E_WEDGE3_CreativeZH_Retention` | `ARTS_CIVIC_WEDGE_CAP` (`L08` Hatch) | +0.55% | +0.95% | +1.05% | +1.22% | +1.23% | **+1.14%** | +27.46% | 4.06% |
-| `+L11E_WEDGE4_Bridging_Cohesion_2ndGen` | `ARTS_CIVIC_WEDGE_CAP` (`L11` Hatch) | +0.21% | +0.57% | +0.61% | +0.64% | +0.64% | **+0.62%** | **+28.08%** | 2.21% |
-| **ARTS & CIVIC ADDITIONALITY (`ΔT1E`)** | **4 Hatched Wedge Caps (Zero New Colors)** | **+1.86%** | **+3.10%** | **+3.31%** | **+3.50%** | **+3.53%** | **+3.40%** | — | **12.11%** |
-| **══ ARTS-ENABLED TOTAL (`T1E`) ══** | **7 Iso (`40.00%`) + Synergy (`60.00%`)** | **+16.90%** | **+23.73%** | **+26.29%** | **+28.07%** | **+31.44%** | **+28.08%** | **+28.08%** | **100.00%** |
-| *Mirror Outlay: Default (`-Inv 1..4`)* | *Below Zero (Above Dashed Boundary)* | *-3.30%* | — | — | — | — | *-2.62%* | *-NZD 6.24B/yr* | *9.42x Base* |
-| *Mirror Outlay: Joiner Passport (`-ΔInv 2E`)* | *Below Dashed Boundary (`-Inv 2` Tint)* | *-0.15%* | — | — | — | — | *-0.14%* | *-NZD 0.33B/yr* | *24.29x Marginal* |
-| **Combined Mirror Outlay & Breakeven** | **Full `T1E` Mirror Ledger (`Table 20`)** | **-3.45%** | — | — | — | — | **-2.76%** | **-NZD 6.57B/yr** | **10.17x (Yr 17.4)** |
+| Layer Code (`Table 19E`) | Palette / Wedge Role | `SS2` Rural | `SS2` Auckland | `SS2` National | Cum. `SS2` | Share |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| `L01_Iso_ECE1_First2000d` | `Iso 1` (Steel Blue) | +2.05% | +2.80% | **+2.46%** | +2.46% | 8.75% |
+| `L02_Iso_Tuakana_Mentoring` | `Iso 2` (Sky Teal) | +1.35% | +1.75% | **+1.56%** | +4.02% | 5.56% |
+| `L03_WEDGE1_DualGate_HC` | `Wedge 1` (Amber) | +2.74% | +3.72% | **+3.31%** | +7.33% | 11.79% |
+| `L04_Iso_EstateProperty_Rebal` | `Iso 3` (Sage Slate) | +1.65% | +2.70% | **+2.24%** | +9.57% | 7.96% |
+| `L05_Iso_YouthGrant_Age20` | `Iso 4` (Mint Slate) | +0.72% | +1.02% | **+0.89%** | +10.46% | 3.18% |
+| `L06_Iso_GeoTransfer_Income` | `Iso 5` (Pale Moss) | +0.17% | +0.13% | **+0.15%** | +10.60% | 0.52% |
+| `L07_WEDGE2_LVR_Whanau` | `Wedge 2` (Tangerine) | +1.81% | +2.69% | **+2.33%** | +12.93% | 8.28% |
+| `L08_WEDGE3_CrossStack` | `Wedge 3` (Crimson) | +5.01% | +5.44% | **+5.19%** | +18.13% | 18.50% |
+| `L09_Iso_DebtSinking_Interest` | `Iso 6` (Muted Indigo) | +1.05% | +1.40% | **+1.25%** | +19.37% | 4.43% |
+| `L10_Iso_PAYE_SuperAge_64` | `Iso 7` (Lavender) | +2.35% | +2.95% | **+2.69%** | +22.06% | 9.59% |
+| `L11_WEDGE4_Fiscal_TFR_2ndGen` | `Wedge 4` (Emerald) | +2.17% | +2.79% | **+2.62%** | **+24.68%** | 9.32% |
+| **══ DEFAULT MODEL BAR (`T1`) ══** | **7 Iso + 4 Base Wedges** | **+20.63%** | **+27.91%** | **+24.68%** | **+24.68%** | **87.89%** |
+| `+L03E_WEDGE1_Arts_Psychosocial` | `L03` Hatched Cap | +0.76% | +0.94% | **+0.88%** | +25.56% | 3.13% |
+| `+L07E_WEDGE2_JoinOrDie_Space` | `L07` Hatched Cap | +0.82% | +0.72% | **+0.76%** | +26.32% | 2.71% |
+| `+L08E_WEDGE3_CreativeZH_Keep` | `L08` Hatched Cap | +0.95% | +1.23% | **+1.14%** | +27.46% | 4.06% |
+| `+L11E_WEDGE4_Bridging_Cohesion` | `L11` Hatched Cap | +0.57% | +0.64% | **+0.62%** | **+28.08%** | 2.21% |
+| **ARTS & CIVIC CAP (`ΔT1E`)** | **4 Hatched Wedge Caps** | **+3.10%** | **+3.53%** | **+3.40%** | — | **12.11%** |
+| **══ ARTS-ENABLED TOTAL (`T1E`) ══** | **40% Iso / 60% Synergy** | **+23.73%** | **+31.44%** | **+28.08%** | **+28.08%** | **100.00%** |
+| *Mirror Outlay: Default (`-Inv 1..4`)* | *Above Dashed Line* | — | — | *-2.62%* | *-NZD 6.24B/yr* | *9.42x Base* |
+| *Mirror Outlay: Joiner (`-ΔInv 2E`)* | *Below Dashed Line* | — | — | *-0.14%* | *-NZD 0.33B/yr* | *24.29x Marg.* |
+| **Combined Outlay & Breakeven** | **Full `Table 20` Ledger** | — | — | **-2.76%** | **-NZD 6.57B/yr** | **10.17x (Yr 17.4)** |
 
 #### Four Structural Takeaways from `Table 19E` & `Table 20`:
 
 1. **Exact 40.00% / 60.00% Isolated-to-Synergy Split:** Isolated standalone policy effects remain pinned at **`+11.23% CE`** (`40.00%` of `+28.08% CE`), while combined Dynamic Complementarity Wedges expand from **`+13.45% CE` (`54.5%` of Default)** to **`+16.85% CE` (`60.00%` of `T1E`)**—confirming that community and creative clubs act purely as supermodular interaction multipliers across macro gates.
-2. **Complementary Regional Incidence Across Provincial Towns and Urban Creative Hubs:** `+L07E_WEDGE2_JoinOrDie_CivicSpace` delivers its largest gains in **Rural (`+0.82%`)** and **Small towns (`+0.80%`)**, where Volunteer Fire Brigades, Surf Life Saving, MenzSheds, and *marae* clubs provide life-saving social infrastructure (*Join or Die*). Conversely, `+L08E_WEDGE3_CreativeZH_Retention` peaks in **Large regional cities (`+1.22%`)** and **Auckland (`+1.23%`)**, where affordable performance/studio venues and Youth Capital Grants retain ~1,150 young creatives and $z_h$ founders per year onshore.
+2. **Rural vs. Auckland Spatial Mirror (`+L07E` vs. `+L08E`):** Notice in `Table 1E.1B` how `+L07E_WEDGE2_JoinOrDie_Space` peaks in **Rural (`+0.82%` vs. `+0.72%` in Auckland)**, where Volunteer Fire Brigades, Surf Life Saving, MenzSheds, and *marae* clubs provide life-saving social infrastructure (*Join or Die*). Conversely, `+L08E_WEDGE3_CreativeZH_Keep` peaks in **Auckland (`+1.23%` vs. `+0.95%` in Rural)** and **Large regional cities (`+1.22%`)**, where affordable performance/studio venues and Youth Capital Grants retain ~1,150 young creatives and $z_h$ founders per year onshore.
 3. **Cash Breakeven Accelerates by 1.4 Years (`Year 18.8 -> Year 17.4`):** Unlike infant skill investments that require twenty years before entering the adult PAYE base, Putnam's 50% adult/elder mortality-and-hospitalisation hazard drop and Years 8–10 truancy/CAMHS diversion reduce acute Crown outlays within **24 to 48 months**, pulling the yellow Cash Net Unrecovered Cost curve in `Fig_7Segment_Welfare_And_MirrorInvestments_Dunedin_22.png` across zero at **Year 17.4**.
 4. **100% Active-Builder Win Rate Through `P99.99`:** Incorporating Madeline Levine's *Price of Privilege* adolescent psychosocial dividend (`+L03E` and `+L11E`) adds **+0.9% CE** in household relational well-being to top-vigintile families—lifting active $z_h$ enterprise builders at the **NBR Rich List Median (`P99.99`: `6.5M + 140M`)** from `-0.1% CE` breakeven in Document 1A to strictly positive **`+0.8% CE`**.
 
@@ -183,34 +185,37 @@ Macroeconomists design incentive-compatible balance sheets, but **artists, story
 2. **Ritual & Narrative (*Pūrākau*):** Replacing shame and isolation with shared uniform, song, seasonal harvest, and public performance.
 3. **High-Expectation *Aroha*:** Demanding real excellence—whether tuning an A-minor chord, executing a *haka*, or sparring three rounds—so young people experience earned mastery rather than patronizing pity.
 
-### Table 1E.2: Twelve Aotearoa & International Exemplars Anchoring the Six Pillars
+### Table 1E.2: Thirteen Aotearoa & International Exemplars Anchoring the Six Pillars
 
-| Exemplar Leader(s) & Institution | Primary Civic Pillar | Regional Footprint (`N_reg`) | Core Creative Innovation & Pro-Social Mechanism | IGWelfare Suite & Wedge Link |
+| Exemplar Leader(s) & Institution | Civic Pillar | Region (`N_reg`) | Core Creative Innovation & Pro-Social Mechanism | Suite & Wedge Link |
 | :--- | :--- | :--- | :--- | :--- |
-| **1. Valerie Teraitua & Lionel Hotene**<br>*Papatūānuku Kōkiri Marae* (Māngere) | Food Systems & *Māra Kai* | `Auckland` (`k=4`) | Urban *marae* *kūmara* & organic food sovereignty + `Te Pū-ā-ngā Maara` paid *rangatahi* apprenticeships feeding families & elders. | `Gate 1–2` + `+L08E` (`1.85x` food mult.) |
-| **2. Nick Loosley**<br>*Everybody Eats* | Shared Commons Tables | `Auckland` & `Large` (`k=3,4`) | Chef-led pay-as-you-can 3-course restaurants rescuing surplus food while seating isolated retirees, unhoused citizens, & tech workers together. | `+L11E` Bridging Cohesion (`126 -> 134.5`) |
-| **3. Noran Sanford**<br>*GrowingChange* (Scotland County, NC) | Reclaiming Space / Ag-Justice | `Rural` (`k=1` analog) | Partnered with youth to flip a decommissioned chain-gang prison into a regenerative farm, recording studio, & climbing tower (**90%+ non-recidivism**). | Cited in [Doc 1A Aspect 1](./Document%201A.md); closes `Exit 4` |
-| **4. Maestro José Antonio Abreu & Gustavo Dudamel**<br>*El Sistema* (Venezuela / Global) | Ensemble Music & Orchestras | Global Urban & Provincial | Economist-musician launched free, intensive youth orchestras in a 1975 parking garage, scaling to 350,000+ youth as human-development infrastructure. | `+L03E` Dynamic Complementarity ($\phi_1 = +0.35$) |
-| **5. Dr. Joe Harrop & Teaching Artists**<br>*Sistema Aotearoa* (Ōtara) | Ensemble Music & Orchestras | `Auckland` (`k=4`) | Anchored at Ōtara Music Arts Centre; weaves Māori & Pasifika *whānau* belonging with early-years strings/winds & *tuakana–teina* sectionals. | `Gate 1 -> Gate 2` (`+L03E` `+0.88% CE`) |
-| **6. Hone Kouka MNZM & Tanea Heke MNZM**<br>*Tawata Productions / Taki Rua* | Theater & Indigenous *Pūrākau* | `Large` (`k=3`, Wellington) & National | Three decades cultivating Māori & Pasifika playwrights, stage crews, & *te reo* civic theater (*Waiora*) as an intergenerational cultural hearth. | `+L08E` Voice & Domestic Retention |
-| **7. Bret McKenzie, Jemaine Clement, Taika Waititi & *BATS Theatre*** | Grassroots Comedy, Film & DIY Venues | `Large` (`k=3`, Wellington) | Proved that low-rent urban performance rooms (80-seat *BATS*), student radio, & peer creative co-ops incubate world-leading cultural exports. | `+L08E` Creative $z_h$ IP ([Doc 1A §5](./Document%201A.md)) |
-| **8. Jim Lynch QSM & Dr. Danielle Shanahan**<br>*Zealandia Te Māra a Tāne* | Rewilding & Predator-Free Halos | `Large` (`k=3`) & Suburban Halos | Cartoonist-conservationist's 500-year fenced urban valley vision + Taranaki Whānui partnership; sparked backyard trapping clubs citywide. | `+L07E` & `SS2` Natural Capital |
-| **9. Sam Johnson**<br>*Student Volunteer Army (SVA)* | Youth Service Brigades | `Large` (`k=3`, Christchurch) -> National | Mobilized 11,000+ students after Canterbury quakes; institutionalized primary-to-tertiary service badges across hundreds of NZ schools. | `+L03E` & `+L11E` Service Scaling |
-| **10. Sir Graeme Dingle & Jo-anne Wilkinson**<br>*Graeme Dingle Foundation* | Outdoor Adventure & Mentoring | All 4 Regions (`k=1..4`) | *Stars / Te Kāhui Whetū* (Yr 12–13 mentoring Yr 9) & *Project K* wilderness challenge—already reaching ~10% of our national adolescent target. | Empirical `Gate 2` Benchmark (`Plot_Doc1D_TeKahuiWakaSequencing.m`) |
-| **11. Billy Graham MNZM & David Graham**<br>*Naenae Boxing Academy* | Physical Craft & *Rangatahi* Dignity | `Large` (`k=3`, Lower Hutt) & Provincial | Zero-barrier boxing gym built on eye contact, handshakes, & *aroha*; Police recruits train alongside local youth to build mutual neighborhood trust. | Closes `Exit 1` & `Exit 4`; `+L03E` Buffer |
-| **12. Marcus Akuhata-Brown & *Tuakana* Navigators**<br>*Whānau Ora / Marae Youth Hubs* | Holistic *Whakapapa* Mentoring | `Rural` & `Small` (`k=1,2`) | Connects provincial & East Coast *rangatahi* to ancestral *marae*, voyaging navigation, and global civic leadership pathways. | `+L07E` Spatial Equity (`WelfareDecomposition_4Region.m`) |
+| **1. Valerie Teraitua & Lionel Hotene**<br>*Papatūānuku Kōkiri Marae* (Māngere) | Food & *Māra Kai* | `Auckland` (`k=4`) | Urban *marae* *kūmara* food sovereignty + `Te Pū-ā-ngā Maara` paid *rangatahi* apprenticeships feeding elders. | `Gate 1–2` + `+L08E` (`1.85x` mult.) |
+| **2. Nick Loosley**<br>*Everybody Eats* | Shared Tables | `Auckland` & `Large` | Chef-led pay-as-you-can 3-course dining rescuing surplus food while seating retirees, unhoused citizens, & tech workers together. | `+L11E` Cohesion (`126 -> 134.5`) |
+| **3. Noran Sanford**<br>*GrowingChange* (North Carolina) | Ag-Justice Flip | `Rural` (`k=1` analog) | Partnered with youth to flip a closed chain-gang prison into a regenerative farm, studio, & climbing tower (**90%+ non-recidivism**). | [Doc 1A §1](./Document%201A.md); closes `Exit 4` |
+| **4. José Antonio Abreu & G. Dudamel**<br>*El Sistema* (Venezuela / Global) | Youth Orchestras | Global Urban & Prov. | Economist-musician launched free youth orchestras in a 1975 parking garage, scaling to 350,000+ youth as anti-poverty infrastructure. | `+L03E` CES ($\phi_1 = +0.35$) |
+| **5. Dr. Joe Harrop & Teaching Artists**<br>*Sistema Aotearoa* (Ōtara) | Ensemble Music | `Auckland` (`k=4`) | Ōtara Music Arts Centre anchor; weaves Māori & Pasifika *whānau* belonging with early strings/winds & *tuakana–teina* sectionals. | `Gate 1->2` (`+L03E` `+0.88%`) |
+| **6. Hone Kouka & Tanea Heke**<br>*Tawata Productions / Taki Rua* | Indigenous Theater | `Large` (Wellington) | Three decades cultivating Māori & Pasifika playwrights, crews, & *te reo* civic theater (*Waiora*) as an intergenerational cultural hearth. | `+L08E` Domestic Retention |
+| **7. Bret McKenzie, J. Clement, T. Waititi & *BATS Theatre*** | DIY Comedy & Film Venues | `Large` (Wellington) | Proved that low-rent urban performance rooms (80-seat *BATS*), student radio, & peer co-ops incubate world-leading cultural exports. | `+L08E` Creative $z_h$ ([Doc 1A §5](./Document%201A.md)) |
+| **8. Jim Lynch & Dr. Danielle Shanahan**<br>*Zealandia Te Māra a Tāne* | Rewilding Halos | `Large` & Suburbs | Cartoonist-conservationist's 500-year fenced urban valley vision + Taranaki Whānui partnership; sparked backyard trapping clubs citywide. | `+L07E` & `SS2` Natural Capital |
+| **9. Sam Johnson**<br>*Student Volunteer Army (SVA)* | Youth Service | `Large` -> National | Mobilized 11,000+ students after Canterbury quakes; institutionalized primary-to-tertiary service badges across hundreds of NZ schools. | `+L03E` & `+L11E` Service |
+| **10. Sir Graeme Dingle & J. Wilkinson**<br>*Graeme Dingle Foundation* | Wilderness & Mentoring | All 4 Regions (`k=1..4`) | *Stars / Te Kāhui Whetū* (Yr 12–13 mentoring Yr 9) & *Project K* wilderness challenge—already reaching ~10% of our adolescent target. | `Gate 2` Benchmark ([Doc 1D](./Document%201D.md)) |
+| **11. Billy Graham & David Graham**<br>*Naenae Boxing Academy* | Physical Craft & Dignity | `Large` (Lower Hutt) | Zero-barrier boxing gym built on eye contact, handshakes, & *aroha*; Police recruits train alongside youth to build neighborhood trust. | Closes `Exit 1 & 4`; `+L03E` |
+| **12. Marcus Akuhata-Brown & *Tuakana***<br>*Whānau Ora / Marae Youth Hubs* | *Whakapapa* Navigation | `Rural` & `Small` | Connects provincial & East Coast *rangatahi* to ancestral *marae*, voyaging navigation, and global civic leadership pathways. | `+L07E` Spatial Equity |
+| **13. Jamie Wise & Charlie Scott**<br>*One Million Small Things / Mad Like Me* | Everyday Kindness & Mental Health | `Auckland` (`k=4`) -> National | Crowdsourced archive of 1M everyday acts of *manaakitanga* + *Nōku te Ao*-backed live storytelling roadshows (*BIG FAN*, *BATS*) destigmatizing youth distress. | `+L03E` ($\lambda_{\text{psy}}$ buffer) & `+L11E` Cohesion |
 
 ### 4.1 Narrative Vignettes: Painting the `SS2` Creative Economy in Motion
 
 To see how these exemplars interlock once our plan reaches full stride (`SS1 -> SS2`), step inside three everyday Tuesday evenings in **2034 Aotearoa**:
 
-* **5:30 PM in Naenae & Provincial Horowhenua (`Small` & `Large` Regions):** Inside a converted main-street postal warehouse leased at $1/year under the **Civic Stewardship Land-Tax Offset**, 45 Year-9 students—half from working-class state rentals, half from hillside professional homes—wrap up a two-hour rehearsal of Hone Kouka's *Waiora* alongside a youth brass-and-strings pit ensemble funded by their **NZD 500 Joiner Passports**. The 21-year-old lighting director stayed in New Zealand instead of moving to Melbourne because her **Age-20 Youth Capital Grant** seeded a regional touring sound-and-lighting co-op (`z_h`). Next door, retirees who stepped back from full-time shifts at **Age 64** prep a long-table *māra kai* pumpkin-and-*rewena* supper for the cast and parents.
+* **5:30 PM in Naenae & Provincial Horowhenua (`Small` & `Large` Regions):** Inside a converted main-street postal warehouse leased at NZD 1/year under the **Civic Stewardship Land-Tax Offset**, 45 Year-9 students—half from working-class state rentals, half from hillside professional homes—wrap up a two-hour rehearsal of Hone Kouka's *Waiora* alongside a youth brass-and-strings pit ensemble funded by their **NZD 500 Joiner Passports**. The 21-year-old lighting director stayed in New Zealand instead of moving to Melbourne because her **Age-20 Youth Capital Grant** seeded a regional touring sound-and-lighting co-op (`z_h`). Next door, retirees who stepped back from full-time shifts at **Age 64** prep a long-table *māra kai* pumpkin-and-*rewena* supper for the cast and parents.
 * **4:00 PM in Māngere & Ōtara (`Auckland` Region):** Four-year-olds transitioning out of universal **First-2000-Days** hubs pick up quarter-size violins at *Sistema Aotearoa*, coached by 15-year-old *tuakana* mentors earning NCEA leadership credits. Across town at *Papatūānuku Kōkiri Marae*, 18-year-old urban agro-ecology apprentices pack fresh *kūmara* crates contracted directly to twenty local early childhood centers (`1.85x` regional procurement multiplier).
 * **Saturday Morning in Remuera & Queenstown (`P95+` High-Wealth Catchments):** Rather than spending Saturday isolated in private exam-prep tutoring or scrolling alone behind security gates, teenagers from top-vigintile households (`20:01–20:19`) haul wet native *kahikatea* seedlings up a steep gully alongside rural farming cadets and local *kaitiaki*. Madeline Levine's *Price of Privilege* trap breaks open the moment an anxious 14-year-old realizes sixteen teammates need them on the shovel line.
 
 ---
 
 ## Part V: Five-Step Pre-Legislative Ignition Playbook (Starting Tomorrow)
+
+In Tāmaki Makaurau Auckland, creatives Jamie Wise and Charlie Scott's *One Million Small Things* (paired with live community storytelling at Morningside's non-profit music hub *BIG FAN*) demonstrates how cataloging everyday micro-acts of neighborhood kindness rewires public attention away from algorithmic outrage toward mutual care.  These small actions, amplified by personal, community, and cultural resonance, help to cultivate communities of participation and self-sustaining success.
 
 In [Document 1D](./Document%201D.md) (*Te Kāhui Waka Sequencing*), we show why sequencing coalitions before parliamentary bottlenecks avoids policy reversal. Crucially, **grassroots civic capacity does not require waiting for Crown legislation to begin compounding**:
 
