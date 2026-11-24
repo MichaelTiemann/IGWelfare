@@ -1,0 +1,7 @@
+Column_Index,Column_ID,Seed_Outlay_BNZD,Avoided_Remediation_BNZD,Standalone_Gain_BNZD,Synergy_Wedge_BNZD,LTFM_Sinkhole_Drag_BNZD,Gross_Gain_BNZD,Gross_Gain_CE_Pct,Net_Headline_BNZD,Net_Headline_CE_Pct
+1,Foil1_Energy_Networks,-2.300,0.000,10.996,0.000,0.000,10.996,4.620,10.996,4.620
+2,Foil2_Human_Belonging,-4.850,0.000,11.376,0.000,0.000,11.376,4.780,11.376,4.780
+3,Foil3_Capital_Enterprise,-1.720,0.000,7.806,0.000,0.000,7.806,3.280,7.806,3.280
+4,Foil4_Actuarial_Compact,-0.250,0.000,9.377,0.000,0.000,9.377,3.940,9.377,3.940
+5,Sum_Uncoupled_Vs_Sinkhole,-9.120,0.000,39.556,0.000,-38.580,39.556,16.620,0.976,0.410
+6,All4_Coupled_SS2_Harvest,-6.570,13.500,39.556,35.700,0.000,75.256,31.620,75.256,31.620
