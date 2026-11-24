@@ -1,7 +1,7 @@
 function test_thick_vs_thin_auction_abm()
 % TEST_THICK_VS_THIN_AUCTION_ABM
 % Verifies 1972->2026 Backlog Homotopy, 30%/50% Epistemic Synergy-Haircut
-% resilience, 8-Spoke Radar symmetry, 2024->2026 Unraveling invariants, and zero figure leaks.
+% resilience, 12-Spoke 6-Persona Radar symmetry, 2024->2026 Unraveling invariants, and zero figure leaks.
 
 Params = Ensure_Workbench_Initialized();
 figs_before = numel(findall(0, 'Type', 'figure'));
@@ -22,18 +22,24 @@ assert(H.Thick_Haircut30_Pct(end) > 68.0 && H.Thick_Haircut30_Pct(end) < H.Thick
 assert(H.Thick_Haircut50_Pct(end) > 25.0 && H.Thick_Haircut50_Pct(end) < H.Thick_Haircut30_Pct(end), ...
     sprintf('Expected 50%% severe haircut Thick closure in (25%%, 30%%-Haircut), got %.1f%%.', H.Thick_Haircut50_Pct(end)));
 
-% 3. Symmetric 8-Spoke Radar Dimension Invariant (Zero dimension/unit mismatch)
-assert(isequal(size(ABM.Radar.Poly_Thin_Reality), [1, 8]) && ...
-       isequal(size(ABM.Radar.Poly_Thin_Mirage),  [1, 8]) && ...
-       isequal(size(ABM.Radar.Poly_Thick_Canon),  [1, 8]), ...
-       'Expected all Radar polygons to share identical [1 x 8] spoke dimensions.');
+% 3. Twin 6-Spoke Hexagonal Radar Dimension Invariant (Left: Closure % [1x6] | Right: CE pp [1x6])
+assert(size(ABM.Arch_Stats, 1) == 6, 'Expected 6 institutional personas in Arch_Stats.');
+assert(isequal(size(ABM.Radar.Closure_Thin_Reality), [1, 6]) && ...
+       isequal(size(ABM.Radar.Closure_Thin_Mirage),  [1, 6]) && ...
+       isequal(size(ABM.Radar.Closure_Thick_Canon),  [1, 6]) && ...
+       isequal(size(ABM.Radar.CE_Thick_Canon_pp),    [1, 6]), ...
+       'Expected both C1 (Closure) and C2 (CE pp) hexagons to share clean [1 x 6] dimensions.');
 
 % 4. Day-1 Ambition vs 2026 Unraveling Invariant
 assert(ABM.Unravel.Yr2_CashBias < -20.0 && ABM.Unravel.Yr2_Thick30 > 65.0, ...
     'Expected Cash-Basis Omitted-Liability Ledger to be negative by Yr 2 while 30%%-Haircut Thick stays > +65.');
 
-% 5. Smoke-test full plot & CSV export with zero figure leaks
-PlotOut = Plot_ThickVsThin_Assembly_Auction(Params, Opts);
+% 5. Smoke-test full plot & CSV export in isolated tempdir so N_mc=1500 never overwrites canonical N_mc=4000 PNG
+tmp_dir = fullfile(tempdir(), 'igw_test_thickvsthin');
+if ~exist(tmp_dir, 'dir'), mkdir(tmp_dir); end
+OptsPlot = Opts;
+OptsPlot.OutputDir = tmp_dir;
+PlotOut = Plot_ThickVsThin_Assembly_Auction(Params, OptsPlot);
 figs_after = numel(findall(0, 'Type', 'figure'));
 assert(figs_after == figs_before, 'Figure leak detected in Plot_ThickVsThin_Assembly_Auction.');
 assert(exist(PlotOut.FigurePNG, 'file') == 2, 'Expected PNG artifact missing.');

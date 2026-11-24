@@ -5,7 +5,7 @@ function Out = Compute_ThickVsThin_Auction_ABM(Params, Opts)
 % "Thick" 26,901-state supermodular combinatorial package auctions across:
 %   1) 1972 (1/16x) -> 2026 (1.0x) Structural Backlog Homotopy + 30%/50% Synergy Haircuts
 %   2) 5-Shock Small-Open-Economy (SOE) Green / Amber / Red Survival Frontiers
-%   3) 8-Spoke Symmetric Persona Radar (Viable Closure % & Welfare Attainment %)
+%   3) Dual 6-Spoke Hexagonal Persona Radars (Left: Closure % | Right: Realized CE pp)
 %   4) Years 0..6 Ambition-vs.-Attainment Unraveling Clock (Omitted-Liability Cash Bias vs Fragile Silo Deal)
 
 if nargin < 2 || isempty(Opts)
@@ -47,27 +47,34 @@ C_help = [ ...
 
 u_crit_2026 = [0.56, 0.52, 0.48, 0.55, 0.53];
 
-%% 2. Heterogeneous Agent Population Draw ([N_mc x 5] Matrices)
+%% 2. Heterogeneous Agent Population Draw ([N_mc x 5] Matrices across 5 Behavioral Channels)
 Alpha_Mat = -0.15 + 1.15 * rand(N_mc, 5);
 
-G1 = -log(max(1e-12, rand(N_mc, 5)));
-G2 = -log(max(1e-12, rand(N_mc, 5)));
-G3 = -log(max(1e-12, rand(N_mc, 5)));
-G_sum   = G1 + G2 + G3;
+G1 = -log(max(1e-12, rand(N_mc, 5))); % Sectoral Mandate / Silo Outlay Drive
+G2 = -log(max(1e-12, rand(N_mc, 5))); % Cash-Rule / Fiscal Liability Discipline
+G3 = -log(max(1e-12, rand(N_mc, 5))); % Supply-Side Deregulation & Asset-Recycling Drive
+G4 = -log(max(1e-12, rand(N_mc, 5))); % Present-Biased Cost-of-Living / Subsistence Floor Drive
+G5 = -log(max(1e-12, rand(N_mc, 5))); % Polycentric Intergenerational Stewardship Drive
+G_sum   = G1 + G2 + G3 + G4 + G5;
 W_silo  = G1 ./ G_sum;
 W_cheap = G2 ./ G_sum;
-W_coop  = G3 ./ G_sum;
+W_dereg = G3 ./ G_sum;
+W_pop   = G4 ./ G_sum;
+W_coop  = G5 ./ G_sum;
 
 mean_alpha = mean(Alpha_Mat, 2);
-mean_silo  = mean(W_silo, 2);
-mean_cheap = mean(W_cheap, 2);
-mean_coop  = mean(W_coop, 2);
+W_means    = [mean(W_silo, 2), mean(W_cheap, 2), mean(W_dereg, 2), mean(W_pop, 2), mean(W_coop, 2)];
+[~, dom_c] = max(W_means, [], 2);
 
-% Archetype IDs: 1 = Laggards, 2 = Silo-Maximizers, 3 = Cost-Hawks, 4 = Coop Stewards
-Arch_ID = 4 * ones(N_mc, 1);
-Arch_ID(mean_silo >= mean_cheap & mean_silo >= mean_coop)  = 2;
-Arch_ID(mean_cheap > mean_silo  & mean_cheap >= mean_coop) = 3;
-Arch_ID(mean_alpha < 0.24)                                 = 1;
+% Institutional Persona IDs (1..6):
+%   1 = Incrementalist Custodians (low-alpha status-quo drift)
+%   2 = Sectoral Mandate Advocates
+%   3 = Cash-Rule Fiscal Hawks
+%   4 = Supply-Side Deregulators (asset-monetizers -> tax-rotation converts)
+%   5 = Cost-of-Living Populists (short-horizon rebates -> exergy/Super-64 converts)
+%   6 = Polycentric Stewards
+Arch_ID = dom_c + 1;
+Arch_ID(mean_alpha < 0.16) = 1;
 
 %% 3. Historical Backlog Homotopy (1972 -> 2026) + Epistemic Synergy-Haircut Stress-Tests (Panel A)
 psi_grid = [0.0625, 0.10, 0.125, 0.18, 0.25, 0.35, 0.50, 0.65, 0.80, 1.00]';
@@ -87,13 +94,13 @@ Homotopy.Thick_Haircut30_CE     = zeros(n_psi, 1);
 
 for idx_p = 1:n_psi
     psi_val = psi_grid(idx_p);
-    S_th   = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+    S_th   = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
         w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, false, false, psi_val, 0.00);
-    S_tk0  = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+    S_tk0  = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
         w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, true,  false, psi_val, 0.00);
-    S_tk30 = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+    S_tk30 = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
         w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, true,  false, psi_val, 0.30);
-    S_tk50 = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+    S_tk50 = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
         w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, true,  false, psi_val, 0.50);
 
     Homotopy.Thin_Viable_Pct(idx_p)     = 100.0 * mean(S_th.Viable_Closed);
@@ -120,31 +127,34 @@ Homotopy.Bench_Labels = bench_lbls;
 Homotopy.Bench_Idx    = bench_idx;
 
 %% 4. Baseline & Haircut Stress-Test Runs at psi_default = 1.00 (plus Quarter-Backlog 0.25)
-Sim_Thin_Sim      = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+Sim_Thin_Sim      = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
                         w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, false, false, psi_default, 0.00);
-Sim_Thin_Seq      = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+Sim_Thin_Seq      = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
                         w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, false, true,  psi_default, 0.00);
-Sim_Thick_Seq     = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+Sim_Thick_Seq     = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
                         w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, true,  true,  psi_default, 0.00);
-Sim_Thick_Sim     = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+Sim_Thick_Sim     = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
                         w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, true,  false, psi_default, 0.00);
-Sim_Thick_Hair30  = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+Sim_Thick_Hair30  = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
                         w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, true,  false, psi_default, 0.30);
-Sim_Thick_Hair50  = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+Sim_Thick_Hair50  = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
                         w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, true,  false, psi_default, 0.50);
-Sim_Thin_Quarter  = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+Sim_Thin_Quarter  = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
                         w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, false, false, 0.25,        0.00);
 
-%% 5. Symmetric 8-Spoke Persona Radar Matrix (Panel C: 4 Personas x [Closure %, Welfare Attainment %])
+%% 5. Symmetric 12-Spoke Persona Radar Matrix (Panel C: 6 Institutional Personas x [Closure %, Welfare %])
 Archetype_Names = { ...
-    'Status-Quo Laggards', ...
-    'Silo-Volume Maximizers', ...
-    'Fiscal Cost-Minimizers', ...
-    'Cooperative Innovators'};
+    'Incrementalist Custodians', ...
+    'Sectoral Mandate Advocates', ...
+    'Cash-Rule Fiscal Hawks', ...
+    'Supply-Side Deregulators', ...
+    'Cost-of-Living Populists', ...
+    'Polycentric Stewards'};
 
+n_arch = numel(Archetype_Names);
 CE_Frontier_SS2 = 24.70; % Canonical SS2 National CE% benchmark (Doc 2B Table 19)
-Arch_Stats = zeros(4, 10);
-for k = 1:4
+Arch_Stats = zeros(n_arch, 10);
+for k = 1:n_arch
     mk = (Arch_ID == k);
     Arch_Stats(k, 1)  = 100.0 * mean(Sim_Thin_Sim.Nominal_Closed(mk));
     Arch_Stats(k, 2)  = 100.0 * mean(Sim_Thin_Sim.Viable_Closed(mk));
@@ -158,24 +168,22 @@ for k = 1:4
     Arch_Stats(k, 10) = mean(Sim_Thick_Hair30.True_CE_pp(mk));
 end
 
-% Interleave 8 symmetric radar spokes [1..8] all normalized cleanly onto [0, 100]:
-% Odd spokes (1,3,5,7)  = Viable (or Paper) Closure Rate (%) for Persona k = 1..4
-% Even spokes (2,4,6,8) = Realized Welfare Attainment (% of +24.70 pp SS2 Frontier, clamped >= 0)
+% Dual 6-Spoke Hexagonal Persona Radars (Left = Closure % [0..100], Right = Realized CE pp [0..24.70]):
 Radar = struct();
-Radar.Spoke_Labels = { ...
-    'Laggards: Closure %',   'Laggards: Welfare %', ...
-    'Silo-Max: Closure %',   'Silo-Max: Welfare %', ...
-    'Cost-Hawks: Closure %', 'Cost-Hawks: Welfare %', ...
-    'Coop: Closure %',       'Coop: Welfare %'};
+Radar.CE_Frontier_SS2 = CE_Frontier_SS2;
+Radar.Short_Names     = {'Custodians', 'Mandate-Adv.', 'Fiscal-Hawks', 'Deregulators', 'CoL-Populists', 'Stewards'};
 
-th_ce_norm   = max(0.0, min(100.0, 100.0 * Arch_Stats(:, 5)  / CE_Frontier_SS2));
-tk_ce_norm   = max(0.0, min(100.0, 100.0 * Arch_Stats(:, 6)  / CE_Frontier_SS2));
-tk30_ce_norm = max(0.0, min(100.0, 100.0 * Arch_Stats(:, 10) / CE_Frontier_SS2));
+% Left Hexagon [1 x 6]: Closure Rate (%)
+Radar.Closure_Thin_Reality = Arch_Stats(:, 2)';
+Radar.Closure_Thin_Mirage  = Arch_Stats(:, 1)'; % Nominal cash closure ("Fool's Gold")
+Radar.Closure_Thick_Hair30 = Arch_Stats(:, 9)';
+Radar.Closure_Thick_Canon  = Arch_Stats(:, 4)';
 
-Radar.Poly_Thin_Reality  = reshape([Arch_Stats(:, 2)'; th_ce_norm'],   1, 8);
-Radar.Poly_Thin_Mirage   = reshape([Arch_Stats(:, 1)'; th_ce_norm'],   1, 8); % High paper closure, tiny real CE!
-Radar.Poly_Thick_Hair30  = reshape([Arch_Stats(:, 9)'; tk30_ce_norm'], 1, 8);
-Radar.Poly_Thick_Canon   = reshape([Arch_Stats(:, 4)'; tk_ce_norm'],   1, 8);
+% Right Hexagon [1 x 6]: Realized Welfare Gain (pp CE, clamped >= 0 for radial web; raw in Arch_Stats)
+Radar.CE_Thin_Raw_pp       = Arch_Stats(:, 5)';
+Radar.CE_Thick_Hair30_pp   = max(0.0, Arch_Stats(:, 10)');
+Radar.CE_Thick_Canon_pp    = max(0.0, Arch_Stats(:, 6)');
+Radar.CE_Thin_Clamped_pp   = max(0.0, Arch_Stats(:, 5)');
 
 %% 6. Comonotonic SOE Shock Suite & Green / Amber / Red Survival Frontiers (Panel B)
 n_lam = 41;
@@ -218,7 +226,7 @@ end
 %% ========================================================================
 %  LOCAL VECTORIZED HELPER 1: MULTI-ROUND ASSEMBLY AUCTION ENGINE
 %  ========================================================================
-function S = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_coop, ...
+function S = local_run_auction_abm(Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
     w_iso, H_syn, c_cash_yr3, v_actuarial, C_help, u_crit_2026, R_max, is_thick, is_seq, psi_b, syn_haircut)
 
 N = size(Alpha_Mat, 1);
@@ -232,14 +240,16 @@ cash_cap_th = -3.90 + 2.35 * psi_b;
 solv_req_B  = -0.20 + 4.20 * psi_b;
 ce_req_pp   = 1.20  + 8.80 * psi_b;
 
-U = min(1.0, max(-0.30, 0.55 * Alpha_Mat + 0.10 * (W_silo - W_cheap)));
+U = min(1.0, max(-0.30, 0.55 * Alpha_Mat + 0.10 * (W_silo + 0.5 * W_pop - W_cheap - 0.6 * W_dereg)));
 
 if is_thick
-    Use_Wave_Bridge  = double((mean(W_coop + 0.65 * W_cheap, 2) >= 0.30) & (mean(Alpha_Mat, 2) > 0.02));
-    Fire_Sale_Assets = zeros(N, 1);
+    % Thick clearinghouse unlocks 13-wave bridge across Stewards, Hawks, LVT-Enterprise Deregulators & Exergy Populists
+    Use_Wave_Bridge  = double((mean(W_coop + 0.70 * W_cheap + 0.55 * W_dereg + 0.55 * W_pop, 2) >= 0.28) & (mean(Alpha_Mat, 2) > -0.02));
+    Fire_Sale_Assets = zeros(N, 1); % Blocked by PBE IFRS 17 Comprehensive Solvency gate (-NZD 176.4B PV loss exposed)
 else
-    Use_Wave_Bridge  = double((mean(W_coop, 2) > 0.70) & (mean(W_silo, 2) < 0.20));
-    Fire_Sale_Assets = double((mean(W_cheap, 2) > 0.42) & (mean(Alpha_Mat, 2) < 0.48) & (psi_b > 0.30));
+    Use_Wave_Bridge  = double((mean(W_coop, 2) > 0.65) & (mean(W_silo + W_pop, 2) < 0.25));
+    % Supply-Side Deregulators & pressed Cash-Hawks monetize public monopolies (+NZD 34.8B cash mirage) on Thin sheets
+    Fire_Sale_Assets = double(((mean(W_dereg + 0.65 * W_cheap, 2) > 0.34) & (mean(Alpha_Mat, 2) < 0.56) & (psi_b > 0.28)));
 end
 
 Traj_Nominal_Match = zeros(R_max, 1);
@@ -250,16 +260,16 @@ for r = 1:R_max
     U_prev = U;
     if is_seq
         for m = 1:5
-            U_star_m = local_best_response_matrix(U, m, Alpha_Mat, W_silo, W_cheap, W_coop, ...
+            U_star_m = local_best_response_matrix(U, m, Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
                 w_iso, H_eff, c_cash_yr3, v_actuarial, C_eff, Use_Wave_Bridge, Fire_Sale_Assets, is_thick, psi_b);
             U(:, m) = (1.0 - step_gain) * U(:, m) + step_gain * U_star_m;
         end
     else
-        U_star = local_best_response_matrix(U, 0, Alpha_Mat, W_silo, W_cheap, W_coop, ...
+        U_star = local_best_response_matrix(U, 0, Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
             w_iso, H_eff, c_cash_yr3, v_actuarial, C_eff, Use_Wave_Bridge, Fire_Sale_Assets, is_thick, psi_b);
         if ~is_thick
             cash_breach = max(0.0, -(U * c_cash_yr3 + 1.15 * Fire_Sale_Assets) + cash_cap_th);
-            osc_push    = (-1)^r * 0.09 * psi_b * min(1.0, cash_breach) .* (W_silo - W_cheap);
+            osc_push    = (-1)^r * 0.09 * psi_b * min(1.0, cash_breach) .* (W_silo + 0.6 * W_pop - W_cheap - 0.6 * W_dereg);
             U = min(1.0, max(-0.35, (1.0 - step_gain) * U + step_gain * U_star + osc_push));
         else
             U = min(1.0, max(-0.35, (1.0 - step_gain) * U + step_gain * U_star));
@@ -297,7 +307,7 @@ end
 %% ========================================================================
 %  LOCAL VECTORIZED HELPER 2: THICK VS THIN BEST-RESPONSE OPERATOR
 %  ========================================================================
-function U_out = local_best_response_matrix(U, col_idx, Alpha_Mat, W_silo, W_cheap, W_coop, ...
+function U_out = local_best_response_matrix(U, col_idx, Alpha_Mat, W_silo, W_cheap, W_dereg, W_pop, W_coop, ...
     w_iso, H_eff, c_cash_yr3, v_actuarial, C_eff, Use_Wave_Bridge, Fire_Sale_Assets, is_thick, psi_b)
 
 U_pos = max(0.0, U);
@@ -307,24 +317,35 @@ if ~is_thick
     tot_cash_drain   = max(0.0, -(U * c_cash_yr3) - 1.25 * Fire_Sale_Assets - 1.40 * (1.0 - psi_b));
     own_iso_row      = (w_iso(:)' / 4.02);
     cash_drag_row    = max(0.15, -c_cash_yr3(:)' / 3.40);
+    ent_tilt_row     = [-0.14, -0.10, -0.08, +0.28, +0.10]; % Deregulators push A4 tax cuts while starving A1-A3
+    pop_tilt_row     = [+0.04, +0.22, +0.06, -0.18, -0.10]; % Populists push immediate A2 cash relief, veto A4 pricing
 
     U_silo_BR  = min(1.0, 0.72 * Alpha_Mat + 0.34 - 0.14 * cash_crowd_scale * tot_cash_drain);
     U_cheap_BR = (0.14 * (1.0 - psi_b) - 0.08 * psi_b) + 0.42 * Alpha_Mat ...
                  - 0.26 * cash_crowd_scale * tot_cash_drain .* cash_drag_row + 0.12 * Fire_Sale_Assets;
+    U_dereg_BR = (0.12 * (1.0 - psi_b) - 0.05 * psi_b) + 0.40 * Alpha_Mat + psi_b * ent_tilt_row ...
+                 - 0.20 * cash_crowd_scale * tot_cash_drain .* cash_drag_row + 0.18 * Fire_Sale_Assets;
+    U_pop_BR   = (0.15 * (1.0 - psi_b) - 0.04 * psi_b) + 0.44 * Alpha_Mat + psi_b * pop_tilt_row ...
+                 - 0.22 * cash_crowd_scale * tot_cash_drain;
     U_coop_BR  = 0.58 * Alpha_Mat + 0.26 * own_iso_row - 0.15 * cash_crowd_scale * tot_cash_drain;
 
-    U_star = W_silo .* U_silo_BR + W_cheap .* U_cheap_BR + W_coop .* U_coop_BR;
+    U_star = W_silo .* U_silo_BR + W_cheap .* U_cheap_BR + W_dereg .* U_dereg_BR ...
+           + W_pop  .* U_pop_BR  + W_coop  .* U_coop_BR;
 else
     syn_lift_mat = (U_pos * H_eff) / 6.80;
     cost_rel_mat = (U_pos * C_eff');
     act_gain_row = (v_actuarial(:)' / 8.60);
-    wave_shield  = 0.20 * Use_Wave_Bridge;
+    exergy_floor = [0.22, 0.28, 0.22, 0.26, 0.24]; % Waves 1-3 rural exergy (2.93x), Super-64 & LVT->12% corp rotation
+    wave_shield  = 0.21 * Use_Wave_Bridge;
 
     U_silo_BR  = min(1.0, 0.48 * Alpha_Mat + 0.28 + 0.42 * syn_lift_mat);
-    U_cheap_BR = min(1.0, 0.26 * Alpha_Mat + 0.26 * act_gain_row + 0.52 * cost_rel_mat + wave_shield);
+    U_cheap_BR = min(1.0, 0.26 * Alpha_Mat + 0.27 * act_gain_row + 0.53 * cost_rel_mat + wave_shield);
+    U_dereg_BR = min(1.0, 0.30 * Alpha_Mat + 0.24 * act_gain_row + 0.42 * syn_lift_mat + 0.34 * cost_rel_mat + wave_shield);
+    U_pop_BR   = min(1.0, 0.32 * Alpha_Mat + exergy_floor + 0.44 * syn_lift_mat + 0.28 * cost_rel_mat + 0.16 * Use_Wave_Bridge);
     U_coop_BR  = min(1.0, 0.46 * Alpha_Mat + 0.27 + 0.54 * syn_lift_mat + 0.24 * cost_rel_mat);
 
-    U_star = W_silo .* U_silo_BR + W_cheap .* U_cheap_BR + W_coop .* U_coop_BR;
+    U_star = W_silo .* U_silo_BR + W_cheap .* U_cheap_BR + W_dereg .* U_dereg_BR ...
+           + W_pop  .* U_pop_BR  + W_coop  .* U_coop_BR;
 end
 
 U_star = min(1.0, max(-0.35, U_star));

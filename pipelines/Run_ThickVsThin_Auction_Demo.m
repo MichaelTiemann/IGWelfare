@@ -1,6 +1,6 @@
 %% RUN_THICKVSTHIN_AUCTION_DEMO
 % Top-level pipeline orchestrating the Thick-vs.-Thin Citizens' Assembly ABM,
-% 30%/50% Epistemic Synergy-Haircut Stress-Test, 8-Spoke Persona Radar, and
+% 30%/50% Epistemic Synergy-Haircut Stress-Test, 12-Spoke 6-Persona Institutional Radar, and
 % 2024->2026 Ambition-Unraveling Clock.
 
 Params = Ensure_Workbench_Initialized();
@@ -27,9 +27,9 @@ end
 fprintf('\n========================================================================================================\n');
 fprintf('  2. SYMMETRIC PERSONA RADAR METRICS (2026 BASELINE: VIABLE CLOSURE %% & REALIZED CE WELFARE)\n');
 fprintf('========================================================================================================\n');
-for k = 1:4
+for k = 1:size(ABM.Arch_Stats, 1)
     st = ABM.Arch_Stats(k, :);
-    fprintf('  * %-24s : ThinPaper %5.1f%% (Viab %4.1f%%, %+5.1f%% CE) | Thick %5.1f%% (%+5.1f%% CE) | -30%%Hair %5.1f%% (%+5.1f%% CE)\n', ...
+    fprintf('  * %-26s : ThinPaper %5.1f%% (Viab %4.1f%%, %+5.1f%% CE) | Thick %5.1f%% (%+5.1f%% CE) | -30%%Hair %5.1f%% (%+5.1f%% CE)\n', ...
         ABM.Archetype_Names{k}, st(1), st(2), st(5), st(4), st(6), st(9), st(10));
 end
 

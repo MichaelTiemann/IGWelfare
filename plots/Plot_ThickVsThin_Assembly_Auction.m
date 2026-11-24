@@ -3,7 +3,7 @@ function Out = Plot_ThickVsThin_Assembly_Auction(Params, Opts)
 % Cross-platform (MATLAB HG2 & GNU Octave) 4-panel dashboard:
 %   Panel A (NW): 1972 (1/16x) -> 2026 (1x) Backlog Bifurcation + 30%/50% Synergy Haircuts
 %   Panel B (NE): SOE Shock Telemetry (Green / Amber / Red + 30% Haircut Resilience)
-%   Panel C (SW): 8-Spoke Symmetric Persona Radar (Closure % & Welfare % on [0, 100] Scale)
+%   Panel C (SW): Twin 6-Spoke Hexagonal Persona Radars (Left: Closure % | Right: Welfare +CE pp)
 %   Panel D (SE): Stated Ambition vs Realized Trajectory (Cash-Basis Bias vs Fragile Silo Deal)
 
 if nargin < 1 || isempty(Params) || ~isfield(Params, 'Profile_ID')
@@ -13,7 +13,11 @@ if nargin < 2 || isempty(Opts)
     Opts = struct();
 end
 
-OutputDir = Resolve_IGW_OutputDir('', Params.Profile_ID);
+if isfield(Opts, 'OutputDir') && ~isempty(Opts.OutputDir)
+    OutputDir = Opts.OutputDir;
+else
+    OutputDir = Resolve_IGW_OutputDir('', Params.Profile_ID);
+end
 AnchorTag = Params.Calibration_Anchor;
 
 ABM = Compute_ThickVsThin_Auction_ABM(Params, Opts);
@@ -33,7 +37,7 @@ fclose(fid);
 csv_arch = fullfile(OutputDir, sprintf('Table_Doc2T_ThickVsThin_Archetypes_%s.csv', AnchorTag));
 fid = fopen(csv_arch, 'w');
 fprintf(fid, 'Archetype,Thin_Nominal_Pct,Thin_Viable_Pct,Thin_FoolsGold_Pct,Thick_Viable_Pct,Thick_Haircut30_Viable_Pct,Thin_Mean_CE_pp,Thick_Mean_CE_pp,Thick_Haircut30_CE_pp\n');
-for k = 1:4
+for k = 1:size(ABM.Arch_Stats, 1)
     st = ABM.Arch_Stats(k, :);
     fprintf(fid, '"%s",%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n', ...
         ABM.Archetype_Names{k}, st(1), st(2), st(7), st(4), st(9), st(5), st(6), st(10));
@@ -178,101 +182,138 @@ for ib = 1:n_bl
 end
 
 %% ========================================================================
-%  PANEL C (SW): 8-Spoke Symmetric Persona Radar (Closure % & Welfare %)
+%  PANEL C (SW): Twin 6-Spoke Hexagonal Radars (Left: Closure % | Right: CE pp)
 %  ========================================================================
-ax3 = axes('Parent', fig, 'Position', pos_SW);
-vfi_active_ax(ax3);
-hold(ax3, 'on');
-axis(ax3, 'equal');
-set(ax3, 'Visible', 'off', 'XLim', [-1.68, 1.68], 'YLim', [-1.56, 1.48]);
+pos_SW_hdr = [0.032, 0.020, 0.472, 0.488];
+pos_SW_L   = [0.034, 0.076, 0.230, 0.358];
+pos_SW_R   = [0.270, 0.076, 0.230, 0.358];
 
-% 8 symmetric angles starting at North (pi/2) stepping clockwise by 45 degrees
-theta_8 = (pi/2) - (0:7) * (2*pi / 8);
-theta_c = [theta_8, theta_8(1)];
+% Shared header, sub-headers, & bottom legend canvas (frees 100% of radar YLim for the hexagons!)
+ax3H = axes('Parent', fig, 'Position', pos_SW_hdr, 'XLim', [0, 1], 'YLim', [0, 1], ...
+    'Color', 'none', 'Visible', 'off', 'XTick', [], 'YTick', []);
+hold(ax3H, 'on');
 
-% Draw concentric web rings w/ dual [Closure % | +CE pp] radial scale ticks
-th_ring = linspace(0, 2*pi, 121);
+text(ax3H, 0.500, 0.975, 'C. 6-Persona Institutional Radars: Closure Rate (%) vs Realized Welfare (+CE pp)', ...
+    'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 10.5, 'FontWeight', 'bold', ...
+    'HorizontalAlignment', 'center', 'Color', [0.08, 0.12, 0.16]);
+text(ax3H, 0.248, 0.910, 'C1. Compact Closure Rate (0–100%)', ...
+    'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 8.9, 'FontWeight', 'bold', ...
+    'HorizontalAlignment', 'center', 'Color', [0.12, 0.18, 0.24]);
+text(ax3H, 0.752, 0.910, 'C2. Realized Welfare (+0 to +24.7 pp CE)', ...
+    'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 8.9, 'FontWeight', 'bold', ...
+    'HorizontalAlignment', 'center', 'Color', [0.05, 0.36, 0.30]);
+
+% Shared 2x2 bottom legend strip tucked cleanly at the base of the SW quadrant
+ly1 = 0.082; ly2 = 0.020;
+plot(ax3H, [0.04, 0.10], [ly1, ly1], '-',  'Color', c_thick_dk, 'LineWidth', 2.6, ...
+    'Marker', 'o', 'MarkerSize', 4.2, 'MarkerFaceColor', c_thick_dk);
+text(ax3H, 0.115, ly1, 'Thick Canonical (15/15 Clear)', 'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.5);
+
+plot(ax3H, [0.53, 0.59], [ly1, ly1], '-.', 'Color', c_thick_30, 'LineWidth', 2.2);
+text(ax3H, 0.605, ly1, 'Thick w/ 30% CBAx Haircut', 'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.5);
+
+plot(ax3H, [0.04, 0.10], [ly2, ly2], ':',  'Color', c_fool_amb, 'LineWidth', 2.3, ...
+    'Marker', 'd', 'MarkerSize', 3.9, 'MarkerFaceColor', c_fool_amb);
+text(ax3H, 0.115, ly2, 'Thin Cash Mirage ("Fool''s Gold")', 'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.5);
+
+plot(ax3H, [0.53, 0.59], [ly2, ly2], '--', 'Color', c_thin_red, 'LineWidth', 2.5, ...
+    'Marker', 's', 'MarkerSize', 4.0, 'MarkerFaceColor', c_thin_red);
+text(ax3H, 0.605, ly2, 'Thin 2026 Reality (0% Viable)', 'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.5);
+
+% 6 symmetric hexagon angles starting at North (pi/2) stepping clockwise by 60 degrees:
+% Outer vertices sit at (0, +1), (+0.866, +0.50), (+0.866, -0.50), (0, -1), (-0.866, -0.50), (-0.866, +0.50)
+n_hex   = 6;
+theta_6 = (pi/2) - (0:(n_hex - 1)) * (2*pi / n_hex);
+theta_c = [theta_6, theta_6(1)];
+th_hex  = [theta_6, theta_6(1)];
+
+% Center every label horizontally on its exact vertex x-coordinate (+/-0.866 at shoulders, 0 at N/S)
+% and float close to the vertex with clean vertical breathing room so the hexagon fills the tile!
+vx6     = cos(theta_6); % [0, +0.866, +0.866, 0, -0.866, -0.866]
+lbl_x6  = [ 0.000, +0.965, +0.965,  0.000, -0.965, -0.965];
+lbl_y6  = [+1.055, +0.615, -0.615, -1.060, -0.615, +0.615];
+lbl_va6 = {'bottom', 'bottom', 'top', 'top', 'top', 'bottom'};
+
+% --- SUB-PANEL C1 (LEFT): CLOSURE RATE (%) [0..100%] ---
+ax3L = axes('Parent', fig, 'Position', pos_SW_L);
+vfi_active_ax(ax3L);
+hold(ax3L, 'on');
+axis(ax3L, 'equal');
+set(ax3L, 'Visible', 'off', 'XLim', [-1.28, 1.28], 'YLim', [-1.32, 1.32]);
+
 for rr = [0.25, 0.50, 0.75, 1.00]
-    lw_r  = 0.7 + 0.5 * (rr == 1.00);
+    lw_r  = 0.7 + 0.45 * (rr == 1.00);
     col_r = [0.80, 0.84, 0.88] - 0.12 * (rr == 1.00);
-    plot(ax3, rr * cos(th_ring), rr * sin(th_ring), '-', 'Color', col_r, 'LineWidth', lw_r);
-    % Cardinal vertical tick = Closure %; 22.5-deg diagonal tick = Absolute CE (pp)
-    text(ax3, -0.03, rr + 0.035, sprintf('%d%%', round(rr * 100)), ...
-        'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.0, ...
-        'HorizontalAlignment', 'right', 'Color', [0.36, 0.41, 0.47]);
-    text(ax3, 0.03, rr + 0.035, sprintf('+%.1fpp', rr * 24.70), ...
-        'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.0, ...
+    plot(ax3L, rr * cos(th_hex), rr * sin(th_hex), '-', 'Color', col_r, 'LineWidth', lw_r);
+    text(ax3L, 0.035, rr - 0.035, sprintf('%d%%', round(rr * 100)), ...
+        'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 6.5, ...
+        'HorizontalAlignment', 'left', 'Color', [0.36, 0.41, 0.47]);
+end
+plot(ax3L, [zeros(1, n_hex); 1.02 * vx6], [zeros(1, n_hex); 1.02 * sin(theta_6)], ...
+    '-', 'Color', [0.76, 0.80, 0.85], 'LineWidth', 0.80);
+
+c_mir = [R.Closure_Thin_Mirage,  R.Closure_Thin_Mirage(1)]  / 100.0;
+c_thr = [R.Closure_Thin_Reality, R.Closure_Thin_Reality(1)] / 100.0;
+c_h30 = [R.Closure_Thick_Hair30, R.Closure_Thick_Hair30(1)] / 100.0;
+c_tkc = [R.Closure_Thick_Canon,  R.Closure_Thick_Canon(1)]  / 100.0;
+
+patch(ax3L, c_tkc .* cos(theta_c), c_tkc .* sin(theta_c), c_thick_dk, 'FaceAlpha', 0.15, 'EdgeColor', 'none');
+patch(ax3L, c_mir .* cos(theta_c), c_mir .* sin(theta_c), c_fool_amb, 'FaceAlpha', 0.13, 'EdgeColor', 'none');
+
+plot(ax3L, c_tkc .* cos(theta_c), c_tkc .* sin(theta_c), '-',  'Color', c_thick_dk, 'LineWidth', 2.6, ...
+    'Marker', 'o', 'MarkerSize', 4.4, 'MarkerFaceColor', c_thick_dk);
+plot(ax3L, c_h30 .* cos(theta_c), c_h30 .* sin(theta_c), '-.', 'Color', c_thick_30, 'LineWidth', 2.1);
+plot(ax3L, c_mir .* cos(theta_c), c_mir .* sin(theta_c), ':',  'Color', c_fool_amb, 'LineWidth', 2.3, ...
+    'Marker', 'd', 'MarkerSize', 4.0, 'MarkerFaceColor', c_fool_amb);
+plot(ax3L, c_thr .* cos(theta_c), c_thr .* sin(theta_c), '--', 'Color', c_thin_red, 'LineWidth', 2.4, ...
+    'Marker', 's', 'MarkerSize', 4.1, 'MarkerFaceColor', c_thin_red);
+
+for s = 1:n_hex
+    lbl_L = sprintf('%s\n(%.0f%%)', R.Short_Names{s}, R.Closure_Thick_Canon(s));
+    text(ax3L, lbl_x6(s), lbl_y6(s), lbl_L, ...
+        'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.3, 'FontWeight', 'bold', ...
+        'HorizontalAlignment', 'center', 'VerticalAlignment', lbl_va6{s}, 'Color', [0.12, 0.16, 0.22]);
+end
+
+% --- SUB-PANEL C2 (RIGHT): REALIZED WELFARE (+CE pp) [0..+24.7 pp] ---
+ax3R = axes('Parent', fig, 'Position', pos_SW_R);
+vfi_active_ax(ax3R);
+hold(ax3R, 'on');
+axis(ax3R, 'equal');
+set(ax3R, 'Visible', 'off', 'XLim', [-1.28, 1.28], 'YLim', [-1.32, 1.32]);
+
+ce_max = R.CE_Frontier_SS2;
+for rr = [0.25, 0.50, 0.75, 1.00]
+    lw_r  = 0.7 + 0.45 * (rr == 1.00);
+    col_r = [0.80, 0.84, 0.88] - 0.12 * (rr == 1.00);
+    plot(ax3R, rr * cos(th_hex), rr * sin(th_hex), '-', 'Color', col_r, 'LineWidth', lw_r);
+    text(ax3R, 0.035, rr - 0.035, sprintf('+%.1f', rr * ce_max), ...
+        'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 6.5, ...
         'HorizontalAlignment', 'left', 'Color', [0.05, 0.40, 0.32]);
 end
+plot(ax3R, [zeros(1, n_hex); 1.02 * vx6], [zeros(1, n_hex); 1.02 * sin(theta_6)], ...
+    '-', 'Color', [0.76, 0.80, 0.85], 'LineWidth', 0.80);
 
-% Draw 8 radial spokes (Vectorized [2 x 8] segment matrix)
-X_spokes = [zeros(1, 8); 1.03 * cos(theta_8)];
-Y_spokes = [zeros(1, 8); 1.03 * sin(theta_8)];
-plot(ax3, X_spokes, Y_spokes, '-', 'Color', [0.76, 0.80, 0.85], 'LineWidth', 0.85);
+w_thin = [R.CE_Thin_Clamped_pp, R.CE_Thin_Clamped_pp(1)] / ce_max;
+w_h30  = [R.CE_Thick_Hair30_pp, R.CE_Thick_Hair30_pp(1)] / ce_max;
+w_tkc  = [R.CE_Thick_Canon_pp,  R.CE_Thick_Canon_pp(1)]  / ce_max;
 
-% Plot the 4 symmetric 8-vertex polygons (every regime has identical 8 dimensions!)
-p_mir = [R.Poly_Thin_Mirage,  R.Poly_Thin_Mirage(1)]  / 100.0;
-p_thr = [R.Poly_Thin_Reality, R.Poly_Thin_Reality(1)] / 100.0;
-p_h30 = [R.Poly_Thick_Hair30, R.Poly_Thick_Hair30(1)] / 100.0;
-p_tkc = [R.Poly_Thick_Canon,  R.Poly_Thick_Canon(1)]  / 100.0;
+patch(ax3R, w_tkc  .* cos(theta_c), w_tkc  .* sin(theta_c), c_thick_dk, 'FaceAlpha', 0.16, 'EdgeColor', 'none');
+patch(ax3R, w_thin .* cos(theta_c), w_thin .* sin(theta_c), c_fool_amb, 'FaceAlpha', 0.18, 'EdgeColor', 'none');
 
-patch(ax3, p_tkc .* cos(theta_c), p_tkc .* sin(theta_c), c_thick_dk, 'FaceAlpha', 0.16, 'EdgeColor', 'none');
-patch(ax3, p_mir .* cos(theta_c), p_mir .* sin(theta_c), c_fool_amb, 'FaceAlpha', 0.12, 'EdgeColor', 'none');
+plot(ax3R, w_tkc  .* cos(theta_c), w_tkc  .* sin(theta_c), '-',  'Color', c_thick_dk, 'LineWidth', 2.6, ...
+    'Marker', 'o', 'MarkerSize', 4.4, 'MarkerFaceColor', c_thick_dk);
+plot(ax3R, w_h30  .* cos(theta_c), w_h30  .* sin(theta_c), '-.', 'Color', c_thick_30, 'LineWidth', 2.1);
+plot(ax3R, w_thin .* cos(theta_c), w_thin .* sin(theta_c), ':',  'Color', c_fool_amb, 'LineWidth', 2.3, ...
+    'Marker', 'd', 'MarkerSize', 4.0, 'MarkerFaceColor', c_fool_amb);
+plot(ax3R, w_thin .* cos(theta_c), w_thin .* sin(theta_c), '--', 'Color', c_thin_red, 'LineWidth', 1.8);
 
-plot(ax3, p_tkc .* cos(theta_c), p_tkc .* sin(theta_c), '-',  'Color', c_thick_dk, 'LineWidth', 2.7, ...
-    'Marker', 'o', 'MarkerSize', 4.8, 'MarkerFaceColor', c_thick_dk);
-plot(ax3, p_h30 .* cos(theta_c), p_h30 .* sin(theta_c), '-.', 'Color', c_thick_30, 'LineWidth', 2.2);
-plot(ax3, p_mir .* cos(theta_c), p_mir .* sin(theta_c), ':',  'Color', c_fool_amb, 'LineWidth', 2.3, ...
-    'Marker', 'd', 'MarkerSize', 4.2, 'MarkerFaceColor', c_fool_amb);
-plot(ax3, p_thr .* cos(theta_c), p_thr .* sin(theta_c), '--', 'Color', c_thin_red, 'LineWidth', 2.6, ...
-    'Marker', 's', 'MarkerSize', 4.5, 'MarkerFaceColor', c_thin_red);
-
-% Spoke labels showing both metric role & realized CE% on the 4 Welfare spokes
-spoke_txt = { ...
-    'Laggards: Closure %', ...
-    sprintf('Laggards: CE (%.0f%%=+%.1fpp)', R.Poly_Thick_Canon(2), ABM.Arch_Stats(1,6)), ...
-    'Silo-Max: Closure %', ...
-    sprintf('Silo-Max: CE (%.0f%%=+%.1fpp)', R.Poly_Thick_Canon(4), ABM.Arch_Stats(2,6)), ...
-    'Cost-Hawks: Closure %', ...
-    sprintf('Cost-Hawks: CE (%.0f%%=+%.1fpp)', R.Poly_Thick_Canon(6), ABM.Arch_Stats(3,6)), ...
-    'Coop: Closure %', ...
-    sprintf('Coop: CE (%.0f%%=+%.1fpp)', R.Poly_Thick_Canon(8), ABM.Arch_Stats(4,6))};
-
-r_lbl = [1.14, 1.17, 1.14, 1.17, 1.15, 1.18, 1.14, 1.17];
-for s = 1:8
-    ang = theta_8(s);
-    lx  = r_lbl(s) * cos(ang);
-    ly  = r_lbl(s) * sin(ang);
-    if abs(cos(ang)) < 0.20
-        ha = 'center';
-    elseif cos(ang) > 0
-        ha = 'left';
-    else
-        ha = 'right';
-    end
-    col_s = [0.12, 0.16, 0.22];
-    if mod(s, 2) == 0, col_s = [0.05, 0.36, 0.30]; end
-    text(ax3, lx, ly, spoke_txt{s}, 'Interpreter', 'none', 'FontName', 'Helvetica', ...
-        'FontSize', 8.1, 'FontWeight', 'bold', 'HorizontalAlignment', ha, 'Color', col_s);
+for s = 1:n_hex
+    lbl_R = sprintf('%s\n(+%.1fpp)', R.Short_Names{s}, R.CE_Thick_Canon_pp(s));
+    text(ax3R, lbl_x6(s), lbl_y6(s), lbl_R, ...
+        'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.3, 'FontWeight', 'bold', ...
+        'HorizontalAlignment', 'center', 'VerticalAlignment', lbl_va6{s}, 'Color', [0.05, 0.36, 0.30]);
 end
-
-text(ax3, 0.0, 1.40, 'C. Symmetric Persona Radar: Closure % & Welfare (% of +24.7pp Frontier)', ...
-    'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 10.6, 'FontWeight', 'bold', ...
-    'HorizontalAlignment', 'center', 'Color', [0.08, 0.12, 0.16]);
-
-% Explicit dual-unit scale key + 2x2 legend strip below the radar web
-text(ax3, 0.0, -1.23, 'Ring Scale — Cardinal Spokes: Closure (0–100%)  |  Diagonal Spokes: Welfare (0 to +24.7 pp CE)', ...
-    'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.2, 'FontWeight', 'bold', ...
-    'HorizontalAlignment', 'center', 'Color', [0.24, 0.30, 0.36]);
-leg_y1 = -1.36; leg_y2 = -1.49;
-plot(ax3, [-1.62, -1.46], [leg_y1, leg_y1], '-',  'Color', c_thick_dk, 'LineWidth', 2.6);
-text(ax3, -1.42, leg_y1, 'Thick Canonical (Closure & CE)', 'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.6);
-plot(ax3, [0.22,  0.38],  [leg_y1, leg_y1], '-.', 'Color', c_thick_30, 'LineWidth', 2.2);
-text(ax3, 0.42,  leg_y1, 'Thick w/ 30% CBAx Haircut', 'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.6);
-plot(ax3, [-1.62, -1.46], [leg_y2, leg_y2], ':',  'Color', c_fool_amb, 'LineWidth', 2.3);
-text(ax3, -1.42, leg_y2, 'Thin Cash Mirage (Low Real CE)', 'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.6);
-plot(ax3, [0.22,  0.38],  [leg_y2, leg_y2], '--', 'Color', c_thin_red, 'LineWidth', 2.5);
-text(ax3, 0.42,  leg_y2, 'Thin 2026 Reality (0% Viable)', 'Interpreter', 'none', 'FontName', 'Helvetica', 'FontSize', 7.6);
 
 %% ========================================================================
 %  PANEL D (SE): Day-1 Ambition vs Time-to-Unraveling (Years 0..6 Clock)

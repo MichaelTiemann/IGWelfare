@@ -1,0 +1,8 @@
+Scenario,Realized_CE_pp,Retained_Frontier_Share_Pct,FireSale_Blocked_Pct
+"Thin Omnibus (Privateer Fire-Sale)",-4.60,0.00,0.0
+"Quarantine A1 (A2..A5 Clear)",12.88,52.14,100.0
+"Quarantine A4 (A1..A3,A5 Clear)",15.09,61.08,100.0
+"Quarantine A5 (A1..A4 Clear)",16.70,67.59,100.0
+"Quarantine A2 (A1,A3..A5 Clear)",17.23,69.77,100.0
+"Quarantine A3 (A1,A2,A4,A5 Clear)",19.20,77.73,100.0
+"Full 5-of-5 Thick Compact",24.70,100.00,100.0

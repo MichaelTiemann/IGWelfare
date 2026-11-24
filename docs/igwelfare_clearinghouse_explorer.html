@@ -391,11 +391,13 @@
       </h2>
       <div class="preset-btns">
         <button type="button" class="preset-btn active" data-preset="sortition">Balanced Sortition</button>
-        <button type="button" class="preset-btn" data-preset="hawks">Fiscal Cost-Hawks</button>
-        <button type="button" class="preset-btn" data-preset="laggards">Status-Quo Laggards</button>
-        <button type="button" class="preset-btn" data-preset="silo">Impatient Silo Raid</button>
+        <button type="button" class="preset-btn" data-preset="laggards">1. Custodians</button>
+        <button type="button" class="preset-btn" data-preset="silo">2. Mandate Advocates</button>
+        <button type="button" class="preset-btn" data-preset="hawks">3. Cash-Rule Hawks</button>
+        <button type="button" class="preset-btn" data-preset="dereg">4. Supply-Side Dereg.</button>
+        <button type="button" class="preset-btn" data-preset="populists">5. CoL Populists</button>
+        <button type="button" class="preset-btn" data-preset="innovators">6. Polycentric Stewards</button>
         <button type="button" class="preset-btn" data-preset="wellington">Compound Cuts (u &lt; 0)</button>
-        <button type="button" class="preset-btn" data-preset="innovators">Te Kāhui Waka Stewards</button>
       </div>
       <div class="toggle-row">
         <label><input type="radio" name="seqMode" value="sim" checked> Simultaneous Clearinghouse</label>
@@ -624,6 +626,20 @@
       { alpha: -0.20, silo: 0.20, hawk: 0.70, coop: 0.10 },
       { alpha: -0.10, silo: 0.35, hawk: 0.55, coop: 0.10 },
       { alpha: -0.18, silo: 0.20, hawk: 0.72, coop: 0.08 }
+    ],
+    dereg: [
+      { alpha: 0.18, silo: 0.12, hawk: 0.66, coop: 0.22, dereg: 0.62, pop: 0.08 },
+      { alpha: 0.22, silo: 0.14, hawk: 0.64, coop: 0.22, dereg: 0.58, pop: 0.10 },
+      { alpha: 0.15, silo: 0.12, hawk: 0.68, coop: 0.20, dereg: 0.60, pop: 0.08 },
+      { alpha: 0.68, silo: 0.20, hawk: 0.45, coop: 0.35, dereg: 0.70, pop: 0.06 },
+      { alpha: 0.36, silo: 0.15, hawk: 0.58, coop: 0.27, dereg: 0.55, pop: 0.10 }
+    ],
+    populists: [
+      { alpha: 0.34, silo: 0.46, hawk: 0.24, coop: 0.30, dereg: 0.08, pop: 0.64 },
+      { alpha: 0.58, silo: 0.54, hawk: 0.18, coop: 0.28, dereg: 0.06, pop: 0.70 },
+      { alpha: 0.38, silo: 0.44, hawk: 0.24, coop: 0.32, dereg: 0.08, pop: 0.58 },
+      { alpha: 0.14, silo: 0.28, hawk: 0.48, coop: 0.24, dereg: 0.10, pop: 0.62 },
+      { alpha: 0.24, silo: 0.34, hawk: 0.42, coop: 0.24, dereg: 0.08, pop: 0.60 }
     ],
     innovators: [
       { alpha: 0.82, silo: 0.15, hawk: 0.20, coop: 0.65 },
@@ -1183,40 +1199,49 @@
     const rand = mulberry32(mcSeed);
     const N_MC = 1000;
     const archNames = [
-      "1. Status-Quo Laggards",
-      "2. Silo-Volume Maximizers",
-      "3. Fiscal Cost-Minimizers (Hawks)",
-      "4. Cooperative Stewards",
+      "1. Incrementalist Custodians",
+      "2. Sectoral Mandate Advocates",
+      "3. Cash-Rule Fiscal Hawks",
+      "4. Supply-Side Deregulators",
+      "5. Cost-of-Living Populists",
+      "6. Polycentric Stewards",
       "ALL COHORTS (Population Mean)"
     ];
-    const buckets = [0, 1, 2, 3, 4].map(() => ({
+    const buckets = [0, 1, 2, 3, 4, 5, 6].map(() => ({
       n: 0, thNom: 0, thViab: 0, thMir: 0, tkViab: 0, thCE: 0, tkCE: 0, tkSurv: 0
     }));
 
     for (let t = 0; t < N_MC; t++) {
       const ag = [];
-      let mAlpha = 0, mSilo = 0, mHawk = 0, mCoop = 0;
+      let mAlpha = 0, mW = [0, 0, 0, 0, 0];
       for (let m = 0; m < 5; m++) {
         const al = -0.15 + 1.15 * rand();
         const g1 = -Math.log(Math.max(1e-9, rand()));
         const g2 = -Math.log(Math.max(1e-9, rand()));
         const g3 = -Math.log(Math.max(1e-9, rand()));
-        const gs = g1 + g2 + g3;
-        const silo = g1 / gs, hawk = g2 / gs, coop = g3 / gs;
-        ag.push({ alpha: al, silo, hawk, coop });
-        mAlpha += al / 5; mSilo += silo / 5; mHawk += hawk / 5; mCoop += coop / 5;
+        const g4 = -Math.log(Math.max(1e-9, rand()));
+        const g5 = -Math.log(Math.max(1e-9, rand()));
+        const gs = g1 + g2 + g3 + g4 + g5;
+        const w1 = g1 / gs, w2 = g2 / gs, w3 = g3 / gs, w4 = g4 / gs, w5 = g5 / gs;
+        // Map 5-simplex onto [silo, hawk, coop] solver coordinates + persona tags
+        const silo = w1 + 0.55 * w4;
+        const hawk = w2 + 0.65 * w3 + 0.20 * w4;
+        const coop = w5 + 0.35 * w3 + 0.25 * w4;
+        ag.push({ alpha: al, silo, hawk, coop, dereg: w3, pop: w4 });
+        mAlpha += al / 5;
+        mW[0] += w1 / 5; mW[1] += w2 / 5; mW[2] += w3 / 5; mW[3] += w4 / 5; mW[4] += w5 / 5;
       }
-      let arch = 3;
-      if (mSilo >= mHawk && mSilo >= mCoop) arch = 1;
-      if (mHawk > mSilo  && mHawk >= mCoop) arch = 2;
-      if (mAlpha < 0.24) arch = 0;
+      let domIdx = 0;
+      for (let c = 1; c < 5; c++) { if (mW[c] > mW[domIdx]) domIdx = c; }
+      let arch = domIdx + 1;
+      if (mAlpha < 0.16) arch = 0;
 
       const rTh = runSingleAuction(ag, psiB, false, isSeq, null, null);
       const rTk = runSingleAuction(ag, psiB, true,  isSeq, null, null);
       const kTk = evalContractZones(rTk, true, psiB, shockIdx, lambdaVal);
       const survives = rTk.viableClosed && kTk.every(k => k.zone !== "RED");
 
-      [arch, 4].forEach(bi => {
+      [arch, 6].forEach(bi => {
         const b = buckets[bi];
         b.n++;
         if (rTh.nominalClosed) b.thNom++;
@@ -1241,7 +1266,7 @@
       const cTk   = (b.tkCE / denom).toFixed(2);
       const pSurv = (100 * b.tkSurv / denom).toFixed(1);
       csvLines.push(`"${archNames[i]}",${psiB.toFixed(4)},${b.n},${pNom},${pThV},${pMir},${pTkV},${cTh},${cTk},${pSurv}`);
-      const boldStyle = i === 4 ? 'style="background:#f8fafc; font-weight:700;"' : "";
+      const boldStyle = i === 6 ? 'style="background:#f8fafc; font-weight:700;"' : "";
       return `
         <tr ${boldStyle}>
           <td>${archNames[i]}</td>
