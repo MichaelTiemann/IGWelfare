@@ -72,64 +72,23 @@ $$
 S_f(n_f; Q_k, G_{\mathrm{ECE}}, \theta_\tau) = u_f(c_f(n_f)) + \beta_{\mathrm{hyp}} \delta V'_f(n_f) - \theta_\tau \psi_{\mathrm{time}} n_f + \omega_{\mathrm{ECE}} G_{\mathrm{ECE}} n_f - \psi_Q Q_k n_f \ge \underline{U}_f
 $$
 
-**Theoretical & Empirical Identification via Cao & Li (2022, Propositions 1–5) — Why We Evaluate $\beta_{\mathrm{hyp}} = 0.72$ Analytically in `FertilityBargaining_Module.m` Rather Than Calling `vfoptions.exoticpreferences = 'QuasiHyperbolic'`:**
+**Theoretical & Empirical Identification via Jones & Schoonbroodt (2010) and Cao & Li (2022, Propositions 1–5) — Why We Evaluate $`\beta_{\mathrm{hyp}} = 0.72`$ Analytically in `Compute_FiscalSolvency_And_Fertility.m` Rather Than Calling `vfoptions.exoticpreferences = 'QuasiHyperbolic'`:**
 
-**1. The Intended ($n^c$) vs. Realized ($n^t$) Fertility Wedge (Cao & Li, 2022, Propositions 1, 2, & 5):** Incorporating quasi-hyperbolic discounting ($\beta \delta^{t'-t}$) into a dynamic Barro–Becker overlapping generations model with altruism
-$\Phi(n) = \frac{n^{1-\epsilon}}{1-\epsilon}$,
-Cao and Li (2022, Eqs. 5–6) show that when young adults formulate their *intended fertility plan* in Period 1 (*the commitment problem*, $n^c$), steady-state fertility satisfies
-$\beta \delta^2 R^2 \frac{\Phi(n^c)}{n^c} = 1$,
-whereas when they reach the active childbearing window in Period 2 without a commitment device (*the time-consistent / realized problem*, $n^t$), they discount the Period-3 dynastic utility of children
-$\Phi(n)V_1(e', b')$
-by an *additional factor of* $\beta$, yielding
-$(\beta \delta R)^2 \frac{\Phi(n^t)}{n^t} = 1$.
-Dividing the two steady-state conditions yields Cao and Li's closed-form identification equation (*Proposition 5*, p. 997). Matching New Zealand's gap between intended family size ($n^c \approx 2.15$) and baseline realized Total Fertility Rate ($n^t = 1.66$ nationally and 1.49 in Auckland, so $n^t / n^c \in [0.693, 0.772]$) pins down the effective hyperbolic fertility discount factor at
-$\beta_{\mathrm{hyp}} = 0.72$:
+**1. Reconciling Dynastic Curvature ($`\sigma_c = 2.2 > 1`$) via Jones & Schoonbroodt (2010) & The Intended ($`n^c`$) vs. Realized ($`n^t`$) Fertility Wedge (Cao & Li, 2022):** Standard Barro–Becker (1989) formulations restrict utility to $`U_{t+1} > 0`$ with $`0 < \sigma_c < 1`$ (an unrealistically high intertemporal elasticity of substitution), which by Topkis (1998, Ch. 2) forces family size and child utility to be preference complements ($`\partial^2 U_t / \partial n_t \partial U_{t+1} > 0`$) and counterfactually predicts rising fertility as productivity grows [Ref 22, 60]. Following **Jones and Schoonbroodt (2010, *IER* / NBER w13680)** [Ref 22], calibrating risk aversion to the standard macroeconomic range ($`\sigma_c = 2.2 > 1`$, so $`u(c) < 0`$) places dynastic altruism $`\Phi(n) = n^{1-\epsilon} / (1-\epsilon)`$ (equivalently $`g(n) = n^{\eta}`$ with $`\eta = 1 - \epsilon \le 1 - \sigma_c < 0`$, i.e., $`\epsilon > 1`$) in the **Topkis substitutes regime** ($`\partial^2 U_t / \partial n_t \partial U_{t+1} < 0`$): higher per-child human-capital continuation value induces families to shift from quantity toward child quality, while direct housing and childcare cost relief ($`\theta_{s,t} \downarrow`$) still lifts realized fertility ($`\partial n_t / \partial \theta_{s,t} < 0`$, Proposition 1.2). Incorporating quasi-hyperbolic discounting ($`\beta \delta^{t^{\prime}-t}`$) into this dynastic structure, Cao and Li (2022, Eqs. 5–6) show that Period-1 *intended fertility* ($`n^c`$) satisfies $`\beta \delta^2 R^2 \Phi(n^c) / n^c = 1`$, whereas Period-2 *time-consistent realized fertility* ($`n^t`$, without a childbearing commitment device) discounts Period-3 dynastic utility $`\Phi(n) V_1(e^{\prime}, b^{\prime})`$ by an additional factor $`\beta_{\mathrm{hyp}}`$, yielding $`(\beta_{\mathrm{hyp}} \delta R)^2 \Phi(n^t) / n^t = 1`$. Dividing the two conditions yields Cao and Li's closed-form identification (*Proposition 5*, p. 997)—where $`\epsilon > 1`$ ($`\eta < 0`$) simultaneously satisfies Jones and Schoonbroodt's concavity restriction and matches New Zealand's empirical ratio between intended family size ($`n^c \approx 2.15`$) and baseline realized Total Fertility Rate ($`n^t = 1.66`$ nationally and `1.49` in Auckland, so $`n^t / n^c \in \lbrack 0.693, 0.772 \rbrack`$) at $`\beta_{\mathrm{hyp}} = 0.72`$:
 
-$$
-n^t = n^c \beta_{\mathrm{hyp}}^{1/\epsilon} \Longleftrightarrow \ln(n^t) = \ln(n^c) + \frac{1}{\epsilon} \ln(\beta_{\mathrm{hyp}})
-$$
+$$n^t = n^c \beta_{\mathrm{hyp}}^{1/\epsilon} \Longleftrightarrow \ln(n^t) = \ln(n^c) + \frac{1}{\epsilon} \ln(\beta_{\mathrm{hyp}})$$
 
-**2. Exact Separation of Period-2 Fertility Realization from Commitment Savings:** In the VFI Toolkit, enabling `vfoptions.exoticpreferences = 'QuasiHyperbolic'` applies quasi-hyperbolic discounting to every continuous savings choice `a'` across all *J* ages, requiring dual value functions and more than doubling GPU backward-induction runtime. In New Zealand's institutional setting, compulsory KiwiSaver/Superannuation and mortgage amortization act as commitment devices on lifecycle asset accumulation (`a'`), whereas no commitment device exists for childbearing
-($n_f$).
-Evaluating the extra Period-2 present-bias factor
-$\beta_{\mathrm{hyp}} = 0.72$
-directly inside `FertilityBargaining_Module.m` analytically replicates Cao and Li's Equation (6) time-consistent fertility wedge at zero additional VFI cost.
+**2. Exact Separation of Period-2 Fertility Realization from Commitment Savings:** In the VFI Toolkit, enabling `vfoptions.exoticpreferences = 'QuasiHyperbolic'` applies quasi-hyperbolic discounting to every continuous savings choice `aprime` across all `J` ages, requiring dual value functions and more than doubling GPU backward-induction runtime. In New Zealand's institutional setting, compulsory KiwiSaver/Superannuation and mortgage amortization act as commitment devices on lifecycle asset accumulation (`aprime`), whereas no commitment device exists for childbearing ($`n_f`$). Evaluating the extra Period-2 present-bias factor $`\beta_{\mathrm{hyp}} = 0.72`$ directly inside `Compute_FiscalSolvency_And_Fertility.m` analytically replicates Cao and Li's Equation (6) time-consistent fertility wedge at zero additional VFI cost.
 
-**3. Interaction with Credit Constraints (`i_c = 0`) and Spousal Bargaining (Doepke & Tertilt, 2018; Cao & Li, 2022, Sec. 4):** Cao and Li (2022, Proposition 4) show that in a frictionless credit market, present-biased parents substitute child quality for quantity
-($n^t < n^c \Rightarrow e^t > e^c$),
-and note that unmodeled hyperbolic discounting confounds estimates of spousal fertility bargaining (Doepke & Tertilt, 2018). In our spatial OLG framework, unconstrained urban couples exhibit Cao and Li's quantity-to-quality shift, whereas rent-squeezed low-income households
-($a' \ge 0, i_c = 0$)
-are prevented by the borrowing constraint from increasing
-`i_c`
-until universal First-2000-Days wraparound
-($G_{\mathrm{ECE},1}$)
-and the Youth Grant (*E*) relax their Period-2 budget constraint.
+**3. Interaction with Credit Constraints (`i_c = 0`) and Spousal Bargaining (Doepke & Tertilt, 2018; Cao & Li, 2022, Sec. 4):** Cao and Li (2022, Proposition 4) show that in a frictionless credit market, present-biased parents substitute child quality for quantity ($`n^t < n^c \Rightarrow e^t > e^c`$), reinforcing Jones and Schoonbroodt's (2010) $`\sigma_c > 1`$ quantity–quality substitutability, and note that unmodeled hyperbolic discounting confounds estimates of spousal fertility bargaining [Ref 21, 22]. In our spatial OLG framework, unconstrained urban couples exhibit this quantity-to-quality shift, whereas rent-squeezed low-income households ($`a^{\prime} \ge 0, i_c = 0`$) are prevented by the borrowing constraint from increasing `i_c` until universal First-2000-Days wraparound ($`G_{\mathrm{ECE},1}`$) and the Youth Grant (`E`) relax their Period-2 budget constraint.
 
-**4. Why We Couple `vfoptions.experienceasset = 1` with Analytical Period-2 $\beta_{\mathrm{hyp}}$ Evaluation Rather Than Global `vfoptions.exoticpreferences = 'QuasiHyperbolic'`:** While VFI Toolkit natively supports pairing `experienceasset = 1` (for the child's skill stock
-$\theta_c$)
-with `vfoptions.exoticpreferences = 'QuasiHyperbolic'`, enabling global quasi-hyperbolic discounting applies
-$\beta_{\mathrm{hyp}} = 0.72$
-to every continuous choice
-$(a', i_c, \ell, I_h)$
-across all `J = 27` ages. Doing so would (i) misattribute the early-childhood
-`i_c = 0`
-investment corner to parental myopia rather than binding credit and housing-subsistence constraints
-($\bar{g}_{\mathrm{ECE}} > 0$),
-(ii) counterfactually depress mortgage and KiwiSaver wealth accumulation (`a'`) that are anchored by institutional commitment devices in New Zealand, and (iii) require tracking dual value functions
-$(V_j, W_j)$
-under non-monotone Markov-perfect policy gaming across the 60-year transition path. Evaluating the Period-2 fertility continuation objective:
+**4. Why We Couple `vfoptions.experienceasset = 1` with Analytical Period-2 $`\beta_{\mathrm{hyp}}`$ Evaluation Rather Than Global `vfoptions.exoticpreferences = 'QuasiHyperbolic'`:** While VFI Toolkit natively supports pairing `experienceasset = 1` (for the child's skill stock $`\theta_c`$) with `vfoptions.exoticpreferences = 'QuasiHyperbolic'`, enabling global quasi-hyperbolic discounting applies $`\beta_{\mathrm{hyp}} = 0.72`$ to every continuous choice $`(a^{\prime}, i_c, \ell, I_h)`$ across all `J = 27` ages. Doing so would (i) misattribute the early-childhood `i_c = 0` investment corner to parental myopia rather than binding credit and housing-subsistence constraints ($`\bar{g}_{\mathrm{ECE}} > 0`$), (ii) counterfactually depress mortgage and KiwiSaver wealth accumulation (`aprime`) that are anchored by institutional commitment devices in New Zealand, and (iii) require tracking dual value functions $`(V_j, W_j)`$ under non-monotone Markov-perfect policy gaming across the 60-year transition path. Evaluating the Period-2 fertility continuation objective:
 
-$$
-W_f(n_f) = u_f(n_f) + \beta_{\mathrm{hyp}} \delta V'_f(n_f)
-$$
+$$W_f(n_f) = u_f(n_f) + \beta_{\mathrm{hyp}} \delta V_f^{\prime}(n_f)$$
 
-directly on the uncommitted fertility margin inside `FertilityBargaining_Module.m` (paired with our `experienceasset = 1` child skill law of motion and
-$\mathcal{T}_{\mathrm{IG}}$
-dynastic closure) achieves exact mathematical equivalence on the Cao and Li (2022) fertility wedge while keeping the
-`i_c = 0`
-hardship corner purely credit- and rent-driven.
+directly on the uncommitted fertility margin inside `Compute_FiscalSolvency_And_Fertility.m` (paired with our `experienceasset = 1` child skill law of motion and $`\mathcal{T}_{\mathrm{IG}}`$ dynastic closure) achieves exact mathematical equivalence on the Cao and Li (2022) fertility wedge while keeping the `i_c = 0` hardship corner purely credit- and rent-driven.
 
-### 5.4 Endogenous NZ Superannuation Solvency & The Retirement-Age U-Curve ($A_{\mathrm{super}} \in [60, 75]$ in `FertilityBargaining_Module.m`)
+### 5.4 Endogenous NZ Superannuation Solvency & The Retirement-Age U-Curve (Ages 60 to 75 in `Compute_FiscalSolvency_And_Fertility.m`)
 
 Let $`D_{A_{\mathrm{super}},t}`$ denote the effective national fiscal dependency ratio of retirees ($`\mathrm{age}_j \ge A_{\mathrm{super}}`$) to working-age taxpayers ($`20 \le \mathrm{age}_j < A_{\mathrm{super}}`$) across the four domestic regions:
 
@@ -557,7 +516,7 @@ To ensure full replicability and unambiguous citation across the theoretical ope
 
 ### Folder 3: `03_Fertility_Bargaining_and_Brain_Drain_Migration` (References 21–30)
 - **[21]** **Doepke, M., Hannusch, A., Kindermann, F., & Tertilt, M. (2022 / 2023):** *"The Economics of Fertility: A New Era"* — *Public PDF:* *Handbook of the Economics of the Family* / NBER Working Paper w29948. *(Anchors the cooperative household childcare bargaining module `FertilityBargaining_Module.m`, maternal time share $`\theta_{\tau} = 0.68`$, and Nordic vs. East Asian fertility regimes.)*
-- **[22]** **Cao, J., & Li, M. (2021 / 2022):** *"Hyperbolic discounting in an intergenerational model with altruistic parents"* — *Public PDF:* *Journal of Population Economics* 35(3), 989–1005 ([https://doi.org/10.1007/s00148-021-00824-7](https://doi.org/10.1007/s00148-021-00824-7)). *(Anchors the Period-2 quasi-hyperbolic fertility discount parameter $`\beta_{\mathrm{hyp}} = 0.72`$ via Proposition 5's closed-form ratio of realized to intended fertility $`n^t / n^c = \beta_{\mathrm{hyp}}^{1/\epsilon}`$.)*
+- **[22]** **Jones, L. E., & Schoonbroodt, A. (2010), Barro, R. J., & Becker, G. S. (1989), & Cao, J., & Li, M. (2022):** *"Complements versus Substitutes and Trends in Fertility Choice in Dynastic Models"* (*International Economic Review* 51(3), 671–699 / NBER Working Paper w13680), *"Fertility Choice in a Model of Economic Growth"* (*Econometrica* 57(2), 481–501), and *"Hyperbolic discounting in an intergenerational model with altruistic parents"* (*Journal of Population Economics* 35(3), 989–1005, [https://doi.org/10.1007/s00148-021-00824-7](https://doi.org/10.1007/s00148-021-00824-7)). *(Establishes via Topkis 1998 that standard macroeconomic risk aversion $`\sigma_c = 2.2 > 1`$ implies $`\eta = 1 - \epsilon \le 1 - \sigma_c < 0`$ quantity–quality substitutability in dynastic altruism while preserving negative fertility sensitivity to child-rearing/housing costs $`\theta_{s,t}`$, and anchors the Period-2 quasi-hyperbolic fertility wedge $`\beta_{\mathrm{hyp}} = 0.72`$ via $`n^t / n^c = \beta_{\mathrm{hyp}}^{1/\epsilon}`$ in `Compute_FiscalSolvency_And_Fertility.m`.)*
 - **[23]** **Labrousse, C., & Perdereau, Y. (2026 / Working Paper 2025):** *"Geography versus income: The heterogeneous effects of carbon taxation"* — *Public PDF:* *Journal of Monetary Economics* 161, 103962 ([https://doi.org/10.1016/j.jmoneco.2026.103962](https://doi.org/10.1016/j.jmoneco.2026.103962); ECB Working Paper Series No. 3104 / Paris School of Economics, building on *Ferriere, A., & Navarro, G., 2025*, *Review of Economic Studies* 92(2), 1061–1125). *(Provides the $`4 \times 5`$ Gumbel extreme-value discrete location-choice operator $`P_t^{k^{\prime}}(a, z, k)`$ and baseline Gumbel shock scale $`\rho_G = 0.10`$ adapted in our Stage-3 youth sorting matrix, the Spatial $`\times`$ Income transfer progressivity framework in `T2`, and the dual-fuel spatial household/firm structure $`\bar{e}(k), \gamma_h(k), \gamma_y(k)`$ with Rest-of-World fossil-import balance closure in Document 2A Sections 2.3–2.5.)*
 - **[24]** **Stillman, S., & Maré, D. C. (2008):** *"Housing Markets and Migration: Evidence from New Zealand"* — *Public PDF:* *Motu Working Paper 08-06*, Motu Economic and Public Policy Research ([https://motu-www.motu.org.nz/wpapers/08_06.pdf](https://motu-www.motu.org.nz/wpapers/08_06.pdf)). *(Provides 5-year New Zealand Census inter-regional internal vs. international migration accounting across Local Labour Market Areas and proves that net retention of NZ-born residents is negatively related to local real house price inflation with an elasticity of **-4.4**.)*
 - **[25]** **Poot, J. (2009 / 2010) & Greenaway-McGrevy, R., & Phillips, P. C. B. (2023):** *"Trans-Tasman Migration, Transnationalism and Economic Development in Australasia"* (*New Zealand Treasury Guest Lecture / Population Studies Centre DP 72*, [https://www.treasury.govt.nz/sites/default/files/2017-11/tfr-ttmteda-28oct09.pdf](https://www.treasury.govt.nz/sites/default/files/2017-11/tfr-ttmteda-28oct09.pdf); alongside *Bushnell, P., & Choy, W. K., 2001*, *"Go West, Young Man, Go West!?"* *NZ Treasury Working Paper 01/07*) + *Greenaway-McGrevy, R., & Phillips, P. C. B. (2023 / 2025)*, *"The Impact of Upzoning on Housing Construction in Auckland"* (*Journal of Urban Economics* 136, 103558 & UoA Economic Policy Centre WP 013). *(Anchors the age 20–35 trans-Tasman emigration pull $`\omega_{\mathrm{OECD}} = 1.32`$, replacement-migration turnover churn, and Auckland's housing supply elasticity $`\delta_{H,\mathrm{Auckland}} = 0.10`$.)*
