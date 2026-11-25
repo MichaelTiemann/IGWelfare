@@ -3,11 +3,11 @@
 # Appendix: January 2027 Energy Minister Briefing (BIM) & Reserve Bank Governor's Companion Memorandum
 
 **Repository Integration:** `IGWelfare` (`wave8-docs` — Pillar I: The Energy Rewiring)  
-**Synchronized Ledger & Figure Artifacts:**
-* `src/ledgers/Compute_Hormuz_EV_Counterfactual_Ledger.m`
-* `plots/Plot_LTFM_EV_And_Hormuz_Shocks.m`
-* `output/NZ_Dunedin1972/Table_LTFM_EV_Credit_And_Hormuz_OilShocks_Dunedin_22.csv`
-* `output/NZ_Dunedin1972/Fig_LTFM_EV_Credit_And_Hormuz_OilShocks_Dunedin_22.png`
+**Synchronized Ledger, Model & Exogenous Input Provenance:**
+* `src/ledgers/Compute_Hormuz_EV_Counterfactual_Ledger.m` — Solves deterministic central paths and 1,000-draw Monte Carlo P95 tail fans (2023–2065) under joint Markov Hormuz/oil-supply and portfolio-balance UIP shocks for bilateral FX, landed capex penalties (`Delta P_K`), refined road-fuel import bills (NZD 9.3B in 2025 rising to NZD 14.5B in 2026), and 2065 Net Core Crown Debt.
+* `src/returnfns/ReturnFn_SpatialHH.m` & `src/returnfns/ReturnFn_Firm.m` — Calibrate four-region Stone-Geary survival/energy floors (`c_floor`, `ebar_energy`), Kimball effective prudence, Second-Law exergy efficiencies ($e_F = 0.30$, $e_N = 0.88$), and Dixit-Pindyck waiting wedges ($\Omega_{\mathrm{opt}}$).
+* `plots/Plot_LTFM_EV_And_Hormuz_Shocks.m` — Generates `output/NZ_Dunedin1972/Table_LTFM_EV_Credit_And_Hormuz_OilShocks_Dunedin_22.csv` (source of the 2025–2026 road-fuel spike table and scenario debt rows) and `output/NZ_Dunedin1972/Fig_LTFM_EV_Credit_And_Hormuz_OilShocks_Dunedin_22.png`.
+* **Exogenous Sectoral & Engineering Inputs (*Rewiring Aotearoa*, 2026):** Household delivered solar-plus-battery LCOE (23c/kWh vs. 40c/kWh retail), household annual cash-flow savings (NZD 6,800–7,300/yr), and gross domestic electrical/trades installation demand (58,000 cumulative FTE job-years across peak deployment; exogenous engineering-ledger multiplier rather than an endogenous OLG labor-clearing output).
 
 ---
 
@@ -16,18 +16,23 @@
 This paired policy appendix translates the incomplete-markets, spatial-exergy Overlapping Generations (OLG) and Small Open Economy (SOE) mechanics of `ReturnFn_SpatialHH`, `ReturnFn_Firm`, and `Compute_Hormuz_EV_Counterfactual_Ledger` into two complementary executive instruments dated **January 2027**:
 
 1. **Part I — Briefing to the Incoming Minister of Energy (BIM):** Voiced directly to the incoming Energy Minister's Cabinet seat, demonstrating how a single three-year parliamentary term (2027–2030) breaks New Zealand's precautionary liquidity and capital-expenditure freeze, locks in twenty years of sovereign currency and debt resilience, and avoids the stranded-asset trap of an imported Liquefied Natural Gas (LNG) terminal.
-2. **Part II — Companion Memorandum from the Governor of the Reserve Bank of New Zealand (Te Pūtea Matua):** Voiced from 2 The Terrace to the Minister of Finance and Incoming Minister of Energy, setting out the formal non-homothetic Euler, Dixit-Pindyck real-options, and Dornbusch-Gabaix-Maggiori exchange-rate equations explaining why monetary policy is currently "pushing on a string"—and why physical electrification is the precondition for restoring symmetric Official Cash Rate (OCR) transmission.
+2. **Part II — Illustrative Monetary-Physical Companion Memorandum (Reserve Bank Analytical Perspective):** An author-constructed analytical simulation framed from the Monetary Policy Committee's structural remit (not an official Reserve Bank document or endorsement), setting out the formal non-homothetic Euler, Dixit-Pindyck real-options, and Dornbusch-Gabaix-Maggiori exchange-rate equations explaining why monetary policy is currently "pushing on a string"—and why physical electrification is the precondition for restoring symmetric Official Cash Rate (OCR) transmission.
 
 ### Synchronized NZD/USD & Sovereign Debt Tail-Risk Matrix (2023–2065)
 
-Anchored at the Clean Car Discount repeal on **31 December 2023** (1.583 NZD/USD), bilateral exchange-rate trajectories decompose into hydrocarbon terms-of-trade bleed, cumulative Net Foreign Asset (NFA/Y) drift, and Dornbusch Uncovered Interest Parity (UIP) overshooting (calibrated to the November 2026 spot extreme of 1.835 NZD/USD). Shifting from imported hydrocarbons ($e_F = 0.30$) to domestic rooftop/farm solar, batteries, and electric drive ($e_N = 0.88$) collapses the P95 downside risk fan after 2035:
+Anchored at the Clean Car Discount repeal on **31 December 2023** (0.632 USD per NZD; $S_0 = 1.583$ NZD per USD), bilateral exchange-rate trajectories decompose into hydrocarbon terms-of-trade bleed, cumulative Net Foreign Asset (NFA/Y) drift, and Dornbusch Uncovered Interest Parity (UIP) overshooting, calibrated to the November 2026 spot trough of **0.545 USD** ($S_t = 1.835$ NZD per USD). *(Convention note: New Zealand market commentary quotes the Kiwi in USD per NZD, e.g., 0.545 USD, whereas open-economy import-pricing equations define $S_t$ in NZD per 1 USD, e.g., 1.835 NZD/USD so that $\Delta S_t > 0$ measures imported price inflation; both conventions are reported below.)* Shifting from imported hydrocarbons ($e_F = 0.30$) to domestic rooftop/farm solar, batteries, and electric drive ($e_N = 0.88$) collapses the P95 downside risk fan (95th percentile across 1,000 stochastic oil-and-UIP paths) after 2035:
 
-| Policy & Energy Architecture | 2026 Spot NZD/USD (Actual UIP + Hormuz) | 2035 NZD/USD (Central / P95 Tail) | 2045 NZD/USD (Central / P95 Tail) | 2045 Landed Capex Penalty (Delta P_K) | 2065 Net Crown Debt % GDP (Central / P95 Tail) |
+| Policy & Energy Architecture | 2026 Spot (USD/NZD) & NZD/USD | 2035 NZD/USD (Central / P95) & (USD/NZD) | 2045 NZD/USD (Central / P95) & (USD/NZD) | 2045 Landed Capex Penalty (Delta P_K) | 2065 Net Crown Debt % GDP (Central / P95 Tail) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **1. Ended EV Credit (Repeal CCD — Fossil Lock-In)** | **1.835** | 1.72 / **2.06** (+0.34) | 1.76 / **2.15** (+0.39) | +11% to **+36%** | 223.8% / **258.4%** (+34.6 pp tail) |
-| **1b. Repeal + Imported LNG Terminal** *(USD Gas Lock-In)* | **1.835** | 1.74 / **2.11** (+0.37) | 1.79 / **2.19** (+0.40) | +13% to **+38%** | 227.5% / **264.1%** (+36.6 pp tail) |
-| **2. Kept EV Credit (Keep CCD — Self-Funding Feebate)** | **1.822** | 1.66 / **1.86** (+0.20) | 1.65 / **1.82** (+0.17) | +4% to **+15%** | 205.6% / **221.9%** (+16.3 pp tail) |
-| **3. +30%/yr Boost + Domestic Solar (*Rewiring Aotearoa*)** | **1.808** | 1.59 / **1.67** (+0.08) | **1.53** / **1.57** (**+0.04**) | **-3% to +0%** | **186.4%** / **191.2%** (**+4.8 pp tail**) |
+| **1. Ended EV Credit (Repeal CCD — Fossil Lock-In)** | **(0.545 USD)** **1.835** | 1.72 / **2.06** (+0.34) (0.581 / 0.485) | 1.76 / **2.15** (+0.39) (0.568 / 0.465) | +11% to **+36%** | 223.8% / **258.4%** (+34.6 pp tail) |
+| **1b. Repeal + Imported LNG Terminal** *(USD Gas Lock-In)* | **(0.545 USD)** **1.835** | 1.74 / **2.11** (+0.37) (0.575 / 0.474) | 1.79 / **2.19** (+0.40) (0.559 / 0.457) | +13% to **+38%** | 227.5% / **264.1%** (+36.6 pp tail) |
+| **2. Kept EV Credit (Keep CCD — Self-Funding Feebate)** | **(0.549 USD)** **1.822** | 1.66 / **1.86** (+0.20) (0.602 / 0.538) | 1.65 / **1.82** (+0.17) (0.606 / 0.549) | +4% to **+15%** | 205.6% / **221.9%** (+16.3 pp tail) |
+| **3. +30%/yr Boost + Domestic Solar (*Rewiring Aotearoa*)** | **(0.553 USD)** **1.808** | 1.59 / **1.67** (+0.08) (0.629 / 0.599) | **1.53** / **1.57** (**+0.04**) (0.654 / 0.637) | **-3% to +0%** | **186.4%** / **191.2%** (**+4.8 pp tail**) |
+
+**Scope Reconciliation Across Hydrocarbon Outflow Metrics:** Three distinct fuel-import aggregates appear in the ledger and text, each covering a specific boundary and pricing regime:
+* **NZD 9.3B (2025 pre-shock) rising to NZD 14.5B (2026 Hormuz shock):** Landed CIF import bill for **refined road-transport fuels only** (retail petrol and on-road diesel) reported in `Table_LTFM_EV_Credit_And_Hormuz_OilShocks_Dunedin_22.csv`.
+* **NZD 12B to 16B/yr (electrifiable fuel outflow extinguished by 2040–2045):** Road petrol and diesel **plus off-road agricultural/construction diesel, coastal/rail middle distillates, and stationary LPG/light fuel oil** displaced by domestic EVs, utes, farm solar-battery systems, and industrial heat pumps across calm-to-elevated crude scenarios.
+* **NZD 19B to 28B/yr (gross economy-wide hydrocarbon & petrochemical exposure):** Total gross external hydrocarbon-linked outflow during moderate-to-acute shock years, adding **international aviation jet fuel, maritime bunker fuel, bitumen, hydrocarbon-derived fertilizers/feedstocks, and prospective spot LNG cargoes** at depreciated exchange rates.
 
 ---
 
@@ -42,7 +47,7 @@ Anchored at the Clean Car Discount repeal on **31 December 2023** (1.583 NZD/USD
 
 Minister, you take up the Energy portfolio at an extraordinary moment. Most incoming Energy Ministers are told their job is keeping the lights on and managing sector regulation while the Minister of Finance and the Reserve Bank of New Zealand (RBNZ) steer the macroeconomy. **In January 2027, that division of labor is dead.**
 
-Over the past twelve months, the Strait of Hormuz oil and middle-distillate shock pushed retail petrol toward NZD 3.70/L and diesel up 71% (NZD 3.51/L), while the New Zealand dollar sank past **1.835 NZD/USD**—a 17-year extreme. Despite the RBNZ cutting the Official Cash Rate (OCR) aggressively to 2.75%, household consumption remains frozen and business capital expenditure has stalled.
+Over the past twelve months, the Strait of Hormuz oil and middle-distillate shock pushed retail petrol toward NZD 3.70/L and diesel up 71% (NZD 3.51/L), while the New Zealand dollar sank to **0.545 USD** (**1.835 NZD/USD**)—a 17-year extreme. Despite the RBNZ cutting the Official Cash Rate (OCR) aggressively to 2.75%, household consumption remains frozen and business capital expenditure has stalled.
 
 The central finding of our four-region spatial macroeconomic modeling is blunt: **the Reserve Bank is pushing on a string because New Zealand households and firms are trapped in a physical energy squeeze.** Until households and businesses believe their future energy bills are bounded, further OCR cuts will simply be hoarded as precautionary cash while trashing the exchange rate.
 
@@ -58,8 +63,8 @@ In calm waters, a 150 to 200 basis point OCR cut reliably stimulates mortgage-ho
 2. **Business Paralysis: The Option Value of Waiting (Dixit-Pindyck Freeze):**  
    Capital equipment—processing lines, delivery fleets, coolstores, orchards—is expensive to buy and costly to reverse. Facing violent swings in diesel freight margins and winter wholesale power prices, New Zealand boards and farm owners attach a massive premium to *waiting for clarity*. That uncertainty adds a **+250 to +350 bp hurdle wedge** onto investment decisions. Cutting the OCR by 150 bps cannot clear a 300 bp fog of energy uncertainty.
 
-3. **The Small-Open-Economy Capex Catch-22 (1.835 NZD/USD):**  
-   Because New Zealand bleeds NZD 19B to 28B/yr offshore for hydrocarbons while the United States exports energy and holds higher interest rates, every RBNZ rate cut weakens the Kiwi dollar further (1.583 NZD/USD at the end of 2023 to **1.835 NZD/USD** in late 2026). Here is the trap: **New Zealand imports nearly 100% of its productive machinery, commercial vehicles, transformers, heat pumps, and solar hardware in foreign currency.** A 150 bp rate cut that sinks the Kiwi by 14% to 16% **inflates the landed NZD sticker price of capital equipment by 12% to 16%**, wiping out the cheaper interest rate on day one.
+3. **The Small-Open-Economy Capex Catch-22 (0.545 USD / 1.835 NZD per USD):**  
+   Because New Zealand faces NZD 19B to 28B/yr in gross hydrocarbon-linked external outflows during global supply spikes while the United States exports energy and holds higher interest rates, RBNZ easing leans into an already sliding currency—from 0.632 USD (1.583 NZD/USD) at the end of 2023 to **0.545 USD (1.835 NZD/USD)** in late 2026, a **14.8% cumulative log jump in the NZD cost of USD**. Here is the trap: **New Zealand imports nearly 100% of its productive machinery, commercial vehicles, transformers, heat pumps, and solar hardware in foreign currency.** In our structural UIP ledger (Part II, Equation II), a standalone 150 bp OCR cut in calm conditions weakens the Kiwi by ~4.0% and inflates landed equipment prices by ~3.6% (clawing back over a third of the ~10.0% financing relief, leaving a net ~6.4% user-cost drop that still cannot clear the +300 bp energy-uncertainty hurdle). Worse, when that 150 bp cut stacks atop the Hormuz terms-of-trade hit (~6.8% FX drop) and unanchored current-account expectations (~4.0% FX drop), the combined **14.8% currency slide inflates landed NZD capital sticker prices by +13.3%**, overpowering the cheaper interest rate and **raising net capital user cost by +3.3% on day one**.
 
 4. **Domestic Demand Pessimism:**  
    Because businesses see households hoarding cash rather than spending, domestic small and medium enterprises (SMEs) anticipate flat order books. Even debt-free firms with cash in the bank sit on their hands because nobody builds capacity for customers who are hunkered down.
@@ -75,12 +80,15 @@ Households and firms hoard cash *today* because they fear **permanent, open-ende
 
 When you legislate a **credible, irreversible 2027–2030 Electrification Compact**—restoring and escalating clean-vehicle and commercial-ute feebates at +30%/yr over three years (2.20x rebate by Year 3), unlocking low-interest Crown-backed finance for household and farm solar plus batteries, and mandating symmetrical export tariffs so households and farmers are paid fairly for peak injection—**three things happen immediately in 2027:**
 
-1. **Future Tail Risk Collapses, Melting Precautionary Hoarding Today:**  
-   Once a household in Waikato, Canterbury, or West Auckland knows its transport and home-energy bill is moving onto fixed-cost domestic electrons—and that across the whole economy, oil shocks will become largely irrelevant by 2040—the 2026–2028 oil spike reclassifies from *permanent impoverishment* to a *temporary bridge*. Precautionary hoarding drops by roughly 70%, **unlocking suppressed household spending immediately**.
+1. **Future Tail Risk & Subsistence Squeeze Collapse, Melting ~70% of Precautionary Hoarding in 2027:**  
+   Even though physical fleet turnover peaks in the 2030s, the shadow precautionary wedge drops by roughly **70% in Year 1 (2027)** through three immediate channels in our four-region OLG solver: **(i) ~30 percentage points from Day-1 cash-flow switching at the subsistence boundary**, as zero-upfront *Rewire Finance* moves the most fuel-stressed rural and commuter cohorts off hyperbolic prudence right away; **(ii) ~25 percentage points from permanent-income re-anchoring**, as legislating post-2032 fossil phase-down reclassifies the 2026–2028 oil spike from *permanent impoverishment* to a *bounded transitory bridge*, slashing next-period consumption-adjustment variance today; and **(iii) ~15 percentage points from immediate spot FX firming** (0.545 to 0.553 USD on announcement), easing imported retail tradables inflation.
 2. **OCR Cuts Channel Directly Into High-Return Balance-Sheet Upgrades:**  
-   Instead of hoping anxious families borrow at 2.75% to buy imported consumer goods, low interest rates pair with point-of-sale electrification finance so households and farms **swap NZD 4,500 to 7,000/yr in imported fossil OPEX for NZD 2,200/yr in domestic solar and EV finance**, generating 58,000 local trades and installation jobs and raising household disposable cash flow every month thereafter.
-3. **Currency & Sovereign Risk Anchor (Closing the Downside Fan):**  
-   Currency markets price the *trajectory* of New Zealand's Net Foreign Assets. Committing credibly in 2027–2030 to extinguish NZD 12B to 16B/yr of imported fuel outflows narrows New Zealand's structural current-account deficit, **cutting P95 currency crash risk from +0.39 NZD/USD down to +0.04 NZD/USD by the 2040s** and shaving **37.4 percentage points of GDP** off 2065 Net Core Crown Debt compared to staying on the repealed-credit path (186.4% vs. 223.8%, beating even the Treasury's calm-water 200.0% baseline).
+   Instead of hoping anxious families borrow at 2.75% to buy imported consumer goods, low interest rates pair with point-of-sale electrification finance so households and farms **swap NZD 4,500 to 7,000/yr in imported fossil OPEX for NZD 2,200/yr in domestic solar and EV finance**, supporting an estimated 58,000 cumulative FTE job-years in local electrical/installation trades (*Rewiring Aotearoa*, 2026 sectoral estimate) and raising household disposable cash flow every month thereafter.
+3. **Currency & Sovereign Debt Bridge (How Retained Fuel Dollars Shave 37.4 pp off 2065 Crown Debt):**  
+   Extinguishing NZD 12B to 16B/yr of electrifiable fuel imports narrows New Zealand's structural current-account deficit, **cutting P95 currency tail risk from +0.39 to +0.04 NZD/USD by 2045** and reducing 2065 Net Core Crown Debt by **37.4 percentage points of GDP** (186.4% vs. 223.8%). Crucially, the ledger nets out all three fiscal leakages before booking Crown gains: roughly **30c per saved fuel dollar** goes offshore for amortized panels, batteries, and vehicles (leaving **70c, or ~1.8%–2.2% of GDP**, in net domestic retention); lost Fuel Excise Duty (FED) is **fiscally neutral** under New Zealand's universal distance-based Road User Charges (RUC); and the 2027–2030 Compact's net Crown outlay (0.2%–0.4% GDP/yr, adding **+1.2 pp** compounded to 2065) is charged upfront. Against that +1.2 pp seed cost, three compounding channels deliver **-38.6 pp** by 2065 (net **-37.4 pp**):
+   * **Sovereign $(r - g)$ Compounding (-16.2 pp):** Narrowing Net Foreign Liabilities trims sovereign external risk premia by 25–40 bps while higher exergy efficiency ($e_N = 0.88$) lifts trend real GDP growth $g$ by +0.15–0.20 pp/yr, shaving 16.2 pp off a ~200%-of-GDP LTFM debt trajectory over 38 years.
+   * **Primary Tax Capture on Domestic Value-Added (-13.8 pp):** Redirecting the retained 70c/dollar from untaxed CIF crude imports into domestic wages, retail spending, and SME/farm operating surpluses yields ~27c/dollar in GST, PAYE, and corporate tax (~0.50% GDP/yr structural primary-balance improvement).
+   * **Avoided Shock Stabilizers & Bailouts (-8.6 pp):** Insulating households and freight from recurring oil/Hormuz spikes eliminates repeated emergency fiscal relief packages, temporary excise/RUC cuts, and recessionary transfer spikes.
 
 ### 1.4 Why an Imported LNG Terminal Is a Macroeconomic Own-Goal
 
@@ -111,20 +119,22 @@ Three years is too short to pour concrete for mega-projects, **which is precisel
 
 ---
 
-## Part II: Reserve Bank Governor's Companion Memorandum (January 2027)
+## Part II: Illustrative Companion Memorandum — The Monetary-Physical Transmission Perspective (January 2027)
 
-**RESERVE BANK OF NEW ZEALAND — TE PŪTEA MATUA**  
-**Office of the Governor — 2 The Terrace, Wellington**  
+<div style="background-color: #f6f8fa; border-left: 4px solid #57606a; padding: 0.75rem 1rem; margin: 1rem 0; font-size: 0.93em; color: #24292f;">
+<strong>Author's Analytical Illustration — Disclaimer:</strong> The following memorandum is a stylised macroeconomic policy device authored by the <code>IGWelfare</code> modeling team to formalise how physical energy exposure interacts with the Monetary Policy Committee's statutory remit. It is <strong>not</strong> an official document, statement, or policy endorsement of the Reserve Bank of New Zealand (Te Pūtea Matua) or its Governor.
+</div>
+
+**Analytical Voice:** Illustrative Central-Bank Structural Assessment (Monetary-Physical Coordination Simulation)  
 **Date:** January 2027  
-**Classification:** Monetary-Physical Coordination Memorandum — *Cabinet Economic Committee (In Confidence)*  
-**To:** Minister of Finance; Incoming Minister of Energy  
-**Subject:** Restoring the Monetary Transmission Mechanism: Structural Equations of the 2026–2027 Stagflationary Trap and Why Credible Domestic Electrification Is Prerequisite to Effective OCR Policy
+**Addressed To:** Minister of Finance; Incoming Minister of Energy  
+**Subject:** Restoring the Monetary Transmission Mechanism: Structural Equations of the 2026–2027 Stagflationary Trap and Why Real-Side Domestic Electrification Is Prerequisite to Symmetric OCR Policy
 
 ### 2.1 Purpose: Why Te Pūtea Matua Is Writing on Energy Architecture
 
 Under the Remit for the Monetary Policy Committee (MPC), the Reserve Bank is charged with keeping future annual Consumers Price Index (CPI) inflation between 1% and 3% over the medium term (with a focus near the 2% midpoint) and supporting maximum sustainable employment, while seeking to avoid unnecessary instability in output, interest rates, and the exchange rate. Standard post-1989 New Keynesian doctrine treats energy supply architecture as an exogenous relative-price disturbance through which monetary policy can "look" while managing aggregate demand via the Official Cash Rate (OCR).
 
-Over the past four quarters, that separability assumption has broken down both empirically and analytically. Following the 2026 Strait of Hormuz crude and middle-distillate shock, the MPC lowered the OCR to 2.75% to cushion contracting domestic output and rising unemployment (5.6%). Yet domestic household consumption and private non-residential capital formation have failed to respond at historical elasticities, while the bilateral exchange rate has depreciated past $S_t = 1.835$ NZD/USD—importing fresh tradables inflation directly back into the CPI basket.
+Over the past four quarters, that separability assumption has broken down both empirically and analytically. Following the 2026 Strait of Hormuz crude and middle-distillate shock, the MPC lowered the OCR to 2.75% to cushion contracting domestic output and rising unemployment (5.6%). Yet domestic household consumption and private non-residential capital formation have failed to respond at historical elasticities, while the bilateral exchange rate has depreciated to 0.545 USD ($S_t = 1.835$ NZD per USD)—importing fresh tradables inflation directly back into the CPI basket.
 
 This memorandum sets out the formal structural mechanics obtained when linearized representative-agent DSGE approximations (Smets & Wouters, 2007) are replaced with an incomplete-markets, spatial-exergy Heterogeneous Agent New Keynesian / Overlapping Generations framework (Kaplan, Moll & Violante, 2018; Auclert, Rognlie & Straub, 2024; Labrousse & Perdereau, 2026; Keen, Ayres & Standish, 2019). The analytical conclusion is unambiguous: **the OCR transmission channel is currently blocked by an unhedged physical energy boundary.** Only real-side policy action from the Energy portfolio can remove that boundary.
 
@@ -184,7 +194,10 @@ $$
 \frac{\mathrm{d} \ln u_{K, t}}{\mathrm{d} i_t^{\mathrm{NZ}}} = \frac{1}{r_t + \delta_k + \Omega_{\mathrm{opt}}} - \theta \bar{\tau}_{\mathrm{gap}}
 $$
 
-When $\Omega_{\mathrm{opt}}$ bloats the denominator to 0.14–0.16 while the FX pass-through slope $\theta \bar{\tau}_g$ approaches 2.4, **cutting the OCR further against a tight US yield curve depreciates NZD/USD toward 1.835, inflating the landed NZD sticker price of imported capital equipment fast enough to neutralize the lower interest rate.** Isolated monetary easing thus risks importing capital-goods and fuel inflation while leaving real capex frozen.
+Evaluating this derivative exposes both the **partial-equilibrium attenuation** and the **general-equilibrium reversal** of OCR cuts during an unhedged energy shock:
+
+* **Partial-Equilibrium UIP Slope ($\theta \bar{\tau}_{\mathrm{gap}} = 2.4$):** With $\theta = 0.90$, $\bar{\tau}_{\mathrm{gap}} = 2.67$, and $r_t + \delta_k + \Omega_{\mathrm{opt}} \approx 0.15$ (so $\left(r_t + \delta_k + \Omega_{\mathrm{opt}}\right)^{-1} \approx 6.67$), a standalone -150 bp OCR cut ($\Delta i_t^{\mathrm{NZ}} = -0.015$) holding oil prices and long-run FX expectations fixed depreciates $s_t$ by 4.0%, inflating landed $P_{K, t}^{\mathrm{NZD}}$ by +3.6% against a -10.0% financing-rate reduction. Even in isolation, adverse FX pass-through claws back over one-third of the easing, leaving a net -6.4% user-cost reduction (equivalent to ~95 bps) that cannot clear the +250 to +350 bp waiting hurdle $\Omega_{\mathrm{opt}}$.
+* **Stacked 2024–2026 Total Differential (Effective Slope $\approx 9.9$ on $s_t$, ~8.9 on $\ln P_K^{\mathrm{NZD}}$):** In the full `Compute_Hormuz_EV_Counterfactual_Ledger` transition from 1.583 to 1.835 NZD/USD ($\Delta s_t = +0.148$, or 0.632 to 0.545 USD), the -150 bp rate-differential move (+4.0% on $s_t$) stacks with the Hormuz hydrocarbon terms-of-trade shock $\eta_{\mathrm{ToT}} \phi_{F, t} \Delta M_{\mathrm{oil}, t}$ (+6.8%) and unanchored long-run FX expectations plus NFA drift $\Delta \mathbb{E}_t\lbrack \bar{s}_T \rbrack + \Gamma_{\mathrm{NFA}} \Delta \vert \mathrm{NFA}_t / Y_t \vert$ following Clean Car Discount repeal (+4.0%). Landed capital goods prices jump +13.3% ($\theta \Delta s_t$ with $\theta = 0.90$, $\Delta s_t = 0.148$), overpowering the -10.0% interest relief and **raising net user cost $u_{K, t}$ by +3.3%** (matching Part I's Catch-22). Moreover, if further unanchored OCR cuts unmoor $\mathbb{E}_t\lbrack \bar{s}_T \rbrack$, the marginal total derivative $\mathrm{d} \ln u_{K, t} / \mathrm{d} i_t^{\mathrm{NZ}}$ itself flips negative—meaning rate cuts actively *raise* the hurdle cost of capital.
 
 ### 2.4 Why Imported LNG Locks In Wrong-Way Stagflationary Covariance
 
@@ -202,23 +215,28 @@ $$
 
 Consider instead how a legislated **2027–2030 Domestic Electrification & Distributed Solar Compact** (*Rewiring Aotearoa*: +30%/yr clean-fleet and commercial-ute feebate escalation paired with universal cash-flow-positive solar, battery, and heat-pump finance) transforms the Bellman continuation value $\beta \mathbb{E}_t\lbrack V_{t+1}\left(a^{\prime}, h^{\prime}, z^{\prime}\right) \rbrack$ across all four regions:
 
-1. **Expectations Reset via Terminal Variance Truncation:**  
-   Credibly driving economy-wide fossil import intensity $\phi_F$ from 1.00 down to 0.16 by 2040 (and 0.06 by 2050) bounds household energy expenditure permanently at domestic solar/hydro marginal cost ($e_N = 0.88$). Because forward-looking households integrate over $\tau \in \lbrack 2027, 2065 \rbrack$, truncating post-2032 energy tail variance collapses conditional headroom variance $\sigma_t^2$ **immediately in 2027**—shrinking the shadow prudence wedge by roughly 70% and **restoring household consumption responsiveness to the OCR from 0.40x back toward 0.90x**.
+1. **Immediate 2027 Compression of the Shadow Prudence Wedge (~70% Drop):**  
+   In a single-period heuristic, removing risk after 2032 would move 2027 saving modestly; in the incomplete-markets OLG Bellman problem (`ReturnFn_SpatialHH`), iterating the Euler equation forward shows that current precautionary saving integrates discounted future prudence-weighted variance across the lifecycle while optimal $c_{t+1}$ responds immediately to permanent-income variance:
+
+$$
+\ln \tilde{c}_{i, r, t} = \mathbb{E}_t \lbrack \ln \tilde{c}_{i, r, T} \rbrack - \sum_{k=0}^{T-t-1} \left( \frac{1}{\tilde{\eta}}\left(\mathbb{E}_t\lbrack r_{t+k} \rbrack - \rho\right) + \frac{1}{2} \mathbb{E}_t \lbrack \mathcal{P}_{\mathrm{eff}}\left(c_{i, r, t+k}\right) \mathrm{Var}_{t+k}\left(\Delta \ln \tilde{c}_{i, r, t+k+1}\right) \rbrack \right)
+$$
+
+   Driving $\phi_F$ down to 0.16 by 2040 shrinks the aggregate 2027 shadow wedge $\Delta r_{2027}^{\mathrm{shadow}}$ by **~70%** via three simultaneous Year-1 effects: **(a) ~30% from targeted cash-flow-positive *Rewire Finance* uptake** among high-$\bar{e}_r$ Rural and SmallUrban commuters, lifting $\tilde{c}_{2027}$ away from the Stone-Geary pole where $\mathcal{P}_{\mathrm{eff}}$ is hyperbolic; **(b) ~25% from reclassifying oil shocks from permanent lifetime-wealth erosion to a bounded 3-to-5 year bridge**, cutting one-step policy-function variance $\mathrm{Var}_{2027}\left(\Delta \ln \tilde{c}_{2028}\right)$ immediately; and **(c) ~15% from spot NZD appreciation** (1.835 to 1.808 NZD/USD on impact via $\Delta \mathbb{E}_t\lbrack \bar{s}_T \rbrack$), trimming 2027–2028 imported pump and tradables prices. Together, these **restore household OCR responsiveness from 0.40x back toward 0.90x in 2027**.
 2. **Channeling 2.75% Credit Into Deflationary Balance-Sheet Capex:**  
    Rather than pushing on a string of anxious retail borrowers, low policy rates coupled with Rewire point-of-sale finance flow directly into positive-NPV household, farm, and SME electrification upgrades—permanently *lowering* non-tradable and transport unit costs in the CPI basket every quarter thereafter.
 3. **Re-Anchoring Long-Run FX Expectations and Compressing the P95 Tail:**  
    In our portfolio-balance UIP equation, spot $s_t$ moves one-for-one with expectations of the long-run equilibrium real exchange rate $\mathbb{E}_t\lbrack \bar{s}_T \rbrack$. Legislating the permanent elimination of NZD 12B to 16B/yr in offshore hydrocarbon drain anchors long-run exchange-rate expectations stronger today, compressing New Zealand's P95 downside exchange-rate tail from +0.39 NZD/USD to +0.04 NZD/USD and allowing the MPC to adjust the OCR counter-cyclically without triggering a currency rout.
 
-### 2.6 Governor's Concluding Endorsement
+### 2.6 Concluding Synthesis: Physical Energy Insulation as Precondition for Monetary Symmetry
 
-Ministers, central bankers rightly guard operational independence, yet intellectual honesty requires acknowledging the physical limits of a single nominal overnight rate. **An Official Cash Rate cannot manufacture electrons off Waikato barn roofs, cannot repeal the Second Law of Thermodynamics to lift combustion efficiency from 30% to 88%, and cannot insure a provincial household against a Strait of Hormuz diesel blockade.**
+Central banks rightly guard operational independence and do not endorse specific fiscal or sectoral programmes; yet analytical candor requires stating the physical boundary conditions of a single nominal overnight rate. **An Official Cash Rate cannot manufacture electrons off Waikato barn roofs, cannot repeal the Second Law of Thermodynamics to lift combustion efficiency from 30% to 88%, and cannot insure a provincial household against a Strait of Hormuz diesel blockade.**
 
-For the past year, Te Pūtea Matua has been forced to use a blunt nominal interest rate to lean against a physical imported-exergy shock—watching rate relief vanish into subsistence-driven precautionary hoarding while a 17-year-low exchange rate re-imports tradables inflation.
+Whenever an economy remains unhedged against imported physical exergy shocks, monetary policy is forced to use a blunt nominal rate to lean against stagflation—watching rate relief vanish into subsistence-driven precautionary hoarding while a 17-year-trough exchange rate (0.545 USD / 1.835 NZD per USD) re-imports tradables and capital-goods inflation.
 
-If the Incoming Minister of Energy seizes this three-year window to legislate *Rewiring Aotearoa*—declining the false comfort of imported USD gas and locking in domestic solar, batteries, and fleet electrification—you will lift the subsistence-prudence and real-options straitjacket off every household and boardroom in the country. **Do your job on the physical kilowatt-hours over the next thirty-six months, Minister, and Te Pūtea Matua can enthusiastically get back to doing ours: running clean, symmetric, low-volatility monetary policy for a growing, sovereign New Zealand economy.**
+Conversely, any credible real-side policy that substitutes zero-marginal-cost domestic electricity and storage for imported USD hydrocarbons—while avoiding new USD gas lock-in—lifts the subsistence-prudence and real-options straitjacket off household and corporate balance sheets. **Insulating the physical kilowatt-hours over the 2027–2030 parliamentary term is what restores clean, symmetric, low-volatility monetary transmission for a sovereign New Zealand economy.**
 
-*Ngā mihi nui,*  
-**Governor, Reserve Bank of New Zealand — Te Pūtea Matua**
+*Analytical Simulation Prepared by the `IGWelfare` Monetary-Physical Modeling Team (Not an official communication of Te Pūtea Matua / RBNZ)*
 
 ---
 
