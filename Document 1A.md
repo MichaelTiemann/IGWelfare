@@ -275,9 +275,9 @@ Every ribbon in a Sankey diagram is, in truth, a biography in motion—sixty tho
 
 *Interactive Sankey Explorer:* The online versions of these Sankey diagrams feature clickable dialogs for every visible ribbon and node, detailing the structural mechanism driving each flow alongside the empirical data and theoretical literature justifying the calculation.
 
- [Interactive Fates SS0](https://github.com/MichaelTiemann/IGWelfare/output/NZ_Dunedin1972/Interactive_ChildFates_SS0_National.html)
- [Interactive Fates SS1](https://github.com/MichaelTiemann/IGWelfare/output/NZ_Dunedin1972/Interactive_ChildFates_SS1_National.html)
- [Interactive Fates SS2](https://github.com/MichaelTiemann/IGWelfare/output/NZ_Dunedin1972/Interactive_ChildFates_SS1_National.html)
+ [Interactive Fates SS0](https://github.com/MichaelTiemann/IGWelfare/blob/main/output/NZ_Dunedin1972/Interactive_ChildFates_SS0_National.html)
+ [Interactive Fates SS1](https://github.com/MichaelTiemann/IGWelfare/blob/main/output/NZ_Dunedin1972/Interactive_ChildFates_SS1_National.html)
+ [Interactive Fates SS2](https://github.com/MichaelTiemann/IGWelfare/blob/main/output/NZ_Dunedin1972/Interactive_ChildFates_SS2_National.html)
 
 ### 2. The 6-Gate Lifecycle Fiscal Sankey & Reconciling Private Parental Commitment
 Our 6-Gate (29-Node) Dollar-Weighted Fiscal Sankey (`Plot_ChildFiscal_SSankey.m`) traces annual per-birth resource and fiscal flows (in real 2025 NZD thousands per year per cohort birth) across two true-scale regimes separated by a vertical regime-break wave at *Gate 5 (Prime Career & Enterprise Sorting, Ages 30–54)*:
@@ -305,9 +305,9 @@ Our 6-Gate (29-Node) Dollar-Weighted Fiscal Sankey (`Plot_ChildFiscal_SSankey.m`
 
 *Interactive Sankey Explorer:* The online versions of these Sankey diagrams feature clickable dialogs for every visible ribbon and node, detailing the structural mechanism driving each flow alongside the empirical data and theoretical literature justifying the calculation.
 
- [Interactive Fiscal SS0](https://github.com/MichaelTiemann/IGWelfare/output/NZ_Dunedin1972/Interactive_ChildFiscal_SS0_National.html)
- [Interactive Fiscal SS1](https://github.com/MichaelTiemann/IGWelfare/output/NZ_Dunedin1972/Interactive_ChildFiscal_SS1_National.html)
- [Interactive Fiscal SS2](https://github.com/MichaelTiemann/IGWelfare/output/NZ_Dunedin1972/Interactive_ChildFiscal_SS1_National.html)
+ [Interactive Fiscal SS0](https://github.com/MichaelTiemann/IGWelfare/blob/main/output/NZ_Dunedin1972/Interactive_ChildFiscal_SS0_National.html)
+ [Interactive Fiscal SS1](https://github.com/MichaelTiemann/IGWelfare/blob/main/output/NZ_Dunedin1972/Interactive_ChildFiscal_SS1_National.html)
+ [Interactive Fiscal SS2](https://github.com/MichaelTiemann/IGWelfare/blob/main/output/NZ_Dunedin1972/Interactive_ChildFiscal_SS2_National.html)
 
 ### 3. Lifecycle Vulnerability Gates in the 18-Node Sankey Architecture
 
@@ -456,7 +456,7 @@ Sweeping the statutory eligibility age reveals a striking **U-curve in required 
   Lowering the retirement age below 63 moves prime 60-to-64-year-old peak earners out of the taxpayer denominator and onto the pension roll (lifting the effective dependency ratio to **39.8%** at Age 60), which consumes +2.48 percentage points of the Phase-2 PAYE tax cut (`Required PAYE = 21.05%` at Age 60 vs. `18.57%` at Age 65).
 * **The Age 64–65 Sweet Spot (Harvesting the *Kuia / Whānau* Dividend in Phase 2):**
   Between **Age 64 and Age 65**, New Zealand hits the exact interior optimum:
-  * **At Age 65 (*SS2* Tax Minimum):** Required working-age PAYE falls to its global minimum of **17.97%** (a **-4.03 percentage-point tax cut** below today's 22.0% PAYE, and **-5.63 pp** below the 23.60% 2050 Status Quo drift) while delivering **+24.53% CE** in national welfare.
+  * **At Age 65 (*SS2* Tax Minimum):** Required working-age PAYE falls to its global minimum of **17.97%** (a **-4.03 percentage-point tax cut** below today's 22.0% PAYE, and **-5.64 pp** below the 23.61% 2050 Status Quo drift) while delivering **+24.53% CE** in national welfare.
   * **At Age 64 (*SS2* Global Welfare Peak):** Lowering the universal NZ Super age by one full year to **64** in Phase 2 releases a **+8.1% *Kuia / Koroua* caregiving time boost** ($`K_{\mathrm{whanau}} \uparrow`$), reduces the rural struggling launch share to 3.0% (and 2.2% across Small, Large, and Auckland), lifts Rural and Small-town fertility to replacement (**TFR = 2.09 and 2.06**, National **1.87–2.03**), and achieves the **global national welfare maximum (+24.70% CE)** while still cutting working-age PAYE taxes by **-3.75 percentage points down to 18.25%**.
 
 | **Policy Pathway & Retirement-Age Regime (`Tables 7, 8, & 8B`)** | **NZ Super Eligibility Age** | **Impact on Extended *Whānau* & Elders (Ages 64–69)** | **Struggling Launch Share (Rural → Auckland)** | **Effective Fiscal Dep. Ratio** | **Required Working-Age PAYE Tax ($`\tau_l`$)** | **National Long-Run Welfare (CE %)** |
