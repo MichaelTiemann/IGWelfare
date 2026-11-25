@@ -1,14 +1,13 @@
 % =========================================================================
-% plots/Plot_Doc1C_FourRewirings_Overview.m
+% plots/Plot_Doc1C_FourFoils_Overview.m
 % =========================================================================
 % Generates the two executive overview figures and backing CSV ledgers for
-% Document 1C ("Flying, Not Floundering: Rewiring Aotearoa's Four Economic
-% Leaks into One Generational Engine"):
+% Document 1C ("Flying, Not Floundering: Turning Aotearoa's Four Economic Leaks into One Generational Engine"):
 %
-%   1. Fig_Doc1C_FourRewirings_Bridge_<Anchor>.png
+%   1. Fig_Doc1C_FourFoils_Bridge_<Anchor>.png
 %      6-column zero-line bridge comparing isolated annual public/trim-tab
 %      seeds (-below 0) and gross annual payoffs (+above 0) against the
-%      LTFM baseline sinkhole and the fully coupled 4-Rewiring harvest.
+%      LTFM baseline sinkhole and the fully coupled 4-Foil harvest.
 %
 %   2. Fig_Doc1C_Leaks_Vs_Foils_60Yr_<Anchor>.png
 %      60-year household welfare trajectories (2026-2086) showing why each
@@ -16,14 +15,14 @@
 %      all four leaks together lifts Aotearoa onto hydrofoils.
 %
 %   3. Backing CSV Ledgers:
-%      - Table_Doc1C_FourRewirings_Bridge_<Anchor>.csv
+%      - Table_Doc1C_FourFoils_Bridge_<Anchor>.csv
 %      - Table_Doc1C_Leaks_Vs_Foils_60Yr_<Anchor>.csv
 %
 % Cross-Platform: 100% vectorized CPU double arrays; zero C-style scalar
 % loops; compatible with MATLAB R2025b+ and GNU Octave 11+.
 % =========================================================================
 
-function Plot_Doc1C_FourRewirings_Overview(Profile_ID)
+function Plot_Doc1C_FourFoils_Overview(Profile_ID)
     % --- 1. Initialize Workbench & Resolve Profile/Output Contracts ---
     if nargin < 1 || isempty(Profile_ID)
         [Params, ~] = Ensure_Workbench_Initialized();
@@ -36,16 +35,16 @@ function Plot_Doc1C_FourRewirings_Overview(Profile_ID)
     font_sans = IGW_UI_Style('sans_font');
 
     % --- 2. Compute Deterministic Ledgers (Vectorized Linear Operators) ---
-    L1C = compute_doc1c_four_rewirings_ledger(calib_anchor);
+    L1C = compute_doc1c_four_foils_ledger(calib_anchor);
 
     % --- 3. Export Backing Audit CSVs ---
-    csv_bridge = fullfile(out_dir, sprintf('Table_Doc1C_FourRewirings_Bridge_%s.csv', calib_anchor));
+    csv_bridge = fullfile(out_dir, sprintf('Table_Doc1C_FourFoils_Bridge_%s.csv', calib_anchor));
     csv_traj   = fullfile(out_dir, sprintf('Table_Doc1C_Leaks_Vs_Foils_60Yr_%s.csv', calib_anchor));
     write_bridge_csv(csv_bridge, L1C);
     write_traj_csv(csv_traj, L1C);
 
     % --- 4. Render & Export Figure 1C.1 (6-Column Bridge) ---
-    png_bridge = fullfile(out_dir, sprintf('Fig_Doc1C_FourRewirings_Bridge_%s.png', calib_anchor));
+    png_bridge = fullfile(out_dir, sprintf('Fig_Doc1C_FourFoils_Bridge_%s.png', calib_anchor));
     render_doc1c_bridge_figure(L1C, png_bridge, font_sans);
 
     % --- 5. Render & Export Figure 1C.2 (60-Year Leaks vs Foils) ---
@@ -62,7 +61,7 @@ end
 % LOCAL SUBFUNCTIONS (Pure Math Kernel, Vectorized Graphics, & CSV Writers)
 % =========================================================================
 
-function L = compute_doc1c_four_rewirings_ledger(anchor_tag)
+function L = compute_doc1c_four_foils_ledger(anchor_tag)
     % Canonical conversion: 1.0% CE = NZD 2.38B/yr (Document 1A / 1C / 3)
     ce_to_bnzd = 2.38;
     guin_mult  = 1.0 + 0.08 * double(strcmpi(anchor_tag, 'MetroSqueeze_GUiNZ'));
@@ -279,7 +278,7 @@ function render_doc1c_bridge_figure(L, out_png, font_sans)
         'Color', [0.08, 0.45, 0.28], 'Interpreter', 'none');
 
     % Section header annotations lifted above y = 86 clear of +75B (+32%)
-    text(ax, 2.5, 89.5, 'ISOLATED SINGLE-LANE REWIRINGS', ...
+    text(ax, 2.5, 89.5, 'ISOLATED SINGLE-LEAK FIXES', ...
         'HorizontalAlignment', 'center', 'VerticalAlignment', 'top', ...
         'FontName', font_sans, 'FontSize', 9.5, 'FontWeight', 'bold', ...
         'Color', [0.38, 0.43, 0.50], 'Interpreter', 'none');
@@ -311,7 +310,7 @@ function render_doc1c_bridge_figure(L, out_png, font_sans)
     ylabel(ax, 'Annual Flow (Real NZD Billions / yr)', ...
         'FontName', font_sans, 'FontSize', 11.5, 'FontWeight', 'bold', 'Interpreter', 'none');
 
-    title(ax, sprintf('Isolated vs. Coupled Investments & Annual Payoffs Across the Four Rewirings (%s)', L.Anchor), ...
+    title(ax, sprintf('Isolated vs. Coupled Investments & Annual Payoffs Across the Four Foils (%s)', L.Anchor), ...
         'FontName', font_sans, 'FontSize', 13.0, 'FontWeight', 'bold', ...
         'Color', [0.10, 0.14, 0.18], 'Interpreter', 'none');
 
@@ -414,7 +413,7 @@ function render_doc1c_traj_figure(L, out_png, font_sans)
     end_adj_y = enforce_min_vertical_gap(end_raw_y, 6.8);
     end_cols  = [col_all4; col_all4d; col_human; col_house; col_cap; col_ltfm; col_def0];
     end_names = {
-        'All 4 Rewirings';
+        'All 4 Foils';
         'All 4 + 3% Def.';
         'Human Silo';
         'Housing Silo';
@@ -464,7 +463,7 @@ function render_doc1c_traj_figure(L, out_png, font_sans)
     % Figure-level suptitle above the legend strip
     ax_hdr = axes('Parent', fig, 'Position', [0.085, 0.915, 0.810, 0.065], 'Visible', 'off');
     text(ax_hdr, 0.5, 0.45, ...
-        sprintf('Why Single-Leak Silos Sink and All Four Coupled Rewirings Fly (2026-2086, %s)', L.Anchor), ...
+        sprintf('Why Single-Leak Silos Sink and All Four Coupled Foils Fly (2026-2086, %s)', L.Anchor), ...
         'Units', 'normalized', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', ...
         'FontName', font_sans, 'FontSize', 13.2, 'FontWeight', 'bold', ...
         'Color', [0.10, 0.14, 0.18], 'Interpreter', 'none');
@@ -475,8 +474,8 @@ function render_doc1c_traj_figure(L, out_png, font_sans)
     % Dedicated 2-Column Legend Strip in [0.770..0.905] — 0% overlap with plotted data!
     leg_h = [h1, h2, h3, h4, h5, h6, h7];
     leg_s = {
-        'All 4 Rewirings Coupled (Te Kahui Waka -> SS2)', ...
-        'All 4 Rewirings + 3.0% GDP Defence Load', ...
+        'All 4 Foils Coupled (Te Kahui Waka -> SS2)', ...
+        'All 4 Foils + 3.0% GDP Defence Load', ...
         'Human Potential Silo Alone (Unplugged Rent & Brain Drain)', ...
         'Housing & Youth Grant Silo Alone (Unmentored + Debt Drift)', ...
         'Capital & Tax Silo Alone (Starved of Domestic Skills)', ...
