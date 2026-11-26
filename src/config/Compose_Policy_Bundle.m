@@ -449,6 +449,15 @@ if isfield(Opts, 'Dials') && isstruct(Opts.Dials)
         end
     end
 end
+
+% Allow isolating any single shock or subset of a bundle via Opts.ActiveIdx / Opts.ActiveCIDs:
+if isfield(Opts, 'ActiveIdx') && ~isempty(Opts.ActiveIdx)
+    keep_mask = false(nC, 1);
+    keep_mask(Opts.ActiveIdx(:)) = true;
+    u_vec(~keep_mask) = 0.0;
+    active_tags = regexp(CIDs(keep_mask), '^C\d+', 'match', 'once');
+    lbl = sprintf('%s [%s]', lbl, strjoin(active_tags(:)', '+'));
+end
 end
 
 function b_name = map_alias_to_bundle(name_in, Bundles)
