@@ -74,6 +74,38 @@ switch lower(strtrim(char(action)))
             set(ax, 'TickLabelInterpreter', 'none');
         end
 
+    case 'sans_font'
+        font_name = 'Helvetica';
+        if ~is_oct
+            avail = listfonts();
+            if any(strcmpi(avail, 'Inter'))
+                font_name = 'Inter';
+            elseif any(strcmpi(avail, 'Arial'))
+                font_name = 'Arial';
+            end
+        end
+        varargout{1} = font_name;
+
+    case 'export_png'
+        fig     = varargin{1};
+        out_png = varargin{2};
+        dpi_val = 220;
+        if numel(varargin) >= 3 && ~isempty(varargin{3})
+            dpi_val = varargin{3};
+        end
+        if ~is_oct
+            exportgraphics(fig, out_png, 'Resolution', dpi_val, 'BackgroundColor', 'white');
+        else
+            if ishandle(fig) && exist('graphics_toolkit', 'file') ~= 0 && strcmp(graphics_toolkit(), 'fltk')
+                set(fig, 'Visible', 'on');
+                drawnow();
+            end
+            pos = get(fig, 'Position');
+            set(fig, 'PaperUnits', 'inches', 'PaperSize', [pos(3)/110, pos(4)/110], ...
+                'PaperPosition', [0, 0, pos(3)/110, pos(4)/110]);
+            print(fig, out_png, '-dpng', sprintf('-r%d', dpi_val));
+        end
+
     otherwise
         error('IGWelfare:UnknownUIStyleAction', 'Unknown IGW_UI_Style action "%s".', char(action));
 end

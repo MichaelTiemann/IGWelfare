@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IGWelfare — Thick vs. Thin Citizens' Assembly Clearinghouse Explorer (1972–2026)</title>
+<style>
+  :root {
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --ink: #16202a;
+    --muted: #52606d;
+    --line: #d8e0e8;
+    --thick: #0f705c;
+    --thick-lt: #e6f5f1;
+    --thin: #c7332e;
+    --thin-lt: #fdeceb;
+    --mirage: #d68812;
+    --mirage-lt: #fef6e6;
+    --qtr: #8e42ad;
+    --green: #1f9d55;
+    --green-bg: #e8f8ee;
+    --amber: #d9820b;
+    --amber-bg: #fff6e5;
+    --red: #cc2929;
+    --red-bg: #fdeaea;
+  }
+  * { box-sizing: border-box; }
+  body, table, th, td, h1, h2, h3, h4, p, li, button, select, input, label, span, div {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+  header {
+    background: linear-gradient(135deg, #0d3b33 0%, #134e5e 100%);
+    color: #ffffff;
+    padding: 18px 26px;
+    border-bottom: 3px solid #27a386;
+  }
+  header h1 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  header p {
+    margin: 0;
+    color: #d6ece6;
+    font-size: 13px;
+    max-width: 1220px;
+  }
+  .wrap {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 16px 20px 36px 20px;
+  }
+  .top-controls {
+    display: grid;
+    grid-template-columns: 1.35fr 1.15fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 1120px) {
+    .top-controls { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  .card h2 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f293a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+  .badge-thick { background: var(--thick-lt); color: var(--thick); }
+  .badge-thin  { background: var(--thin-lt);  color: var(--thin); }
+  .badge-era   { background: #e8eef5; color: #1e3a5f; }
+  .era-btns, .preset-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  button {
+    cursor: pointer;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.12s ease;
+  }
+  button:hover { background: #eef2f6; border-color: #94a3b8; }
+  button.active {
+    background: var(--thick);
+    color: #ffffff;
+    border-color: var(--thick);
+  }
+  button.primary-btn {
+    background: #134e5e;
+    color: #ffffff;
+    border-color: #134e5e;
+    padding: 6px 12px;
+  }
+  button.primary-btn:hover { background: #0d3b47; }
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0;
+  }
+  .slider-row label {
+    min-width: 135px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .slider-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--thick);
+  }
+  .slider-val {
+    min-width: 68px;
+    text-align: right;
+    font-weight: 700;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  select {
+    width: 100%;
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .toggle-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .toggle-row label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* KPI Strip */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 980px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .kpi-box {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 14px;
+    border-left: 4px solid var(--thick);
+  }
+  .kpi-box.thin-kpi { border-left-color: var(--thin); }
+  .kpi-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--muted);
+  }
+  .kpi-main {
+    font-size: 19px;
+    font-weight: 800;
+    margin: 4px 0 2px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-sub {
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  /* Main Two-Column Grid */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 440px 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 1180px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+  .assembly-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 9px 11px;
+    margin-bottom: 8px;
+    background: #fafbfc;
+  }
+  .assembly-item:last-child { margin-bottom: 0; }
+  .asm-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 12.5px;
+    margin-bottom: 5px;
+  }
+  .asm-bids {
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .asm-sliders {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+  }
+  .mini-s {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .mini-s span.lbl { min-width: 56px; font-weight: 600; }
+  .mini-s input[type="range"] { flex: 1; height: 14px; }
+  .mini-s span.v { min-width: 34px; text-align: right; font-weight: 700; color: var(--ink); }
+
+  .charts-col {
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 14px;
+  }
+  .charts-2up {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 900px) {
+    .charts-2up { grid-template-columns: 1fr; }
+  }
+  canvas {
+    width: 100%;
+    height: 255px;
+    display: block;
+    border-radius: 6px;
+    background: #ffffff;
+  }
+
+  /* K01-K15 Matrix */
+  .k-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+  }
+  @media (max-width: 1150px) {
+    .k-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 700px) {
+    .k-grid { grid-template-columns: 1fr; }
+  }
+  .k-tile {
+    border-radius: 7px;
+    padding: 8px 9px;
+    border: 1px solid var(--line);
+    font-size: 11.5px;
+    transition: transform 0.1s ease;
+  }
+  .k-tile.GREEN { background: var(--green-bg); border-color: #8fd6ab; }
+  .k-tile.AMBER { background: var(--amber-bg); border-color: #f3c677; }
+  .k-tile.RED   { background: var(--red-bg);   border-color: #f19999; }
+  .k-top {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 800;
+    margin-bottom: 3px;
+  }
+  .pill {
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .pill.GREEN { background: var(--green); color: #fff; }
+  .pill.AMBER { background: var(--amber); color: #fff; }
+  .pill.RED   { background: var(--red);   color: #fff; }
+  .k-name { font-weight: 700; color: #1e293b; margin-bottom: 3px; }
+  .k-note { font-size: 10.8px; color: #334155; line-height: 1.32; }
+
+  /* Monte Carlo Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.2px;
+    margin-top: 8px;
+  }
+  th, td {
+    padding: 7px 9px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  th:first-child, td:first-child { text-align: left; }
+  th {
+    background: #f1f5f9;
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 11.5px;
+  }
+  .pos { color: var(--thick); font-weight: 700; }
+  .neg { color: var(--thin); font-weight: 700; }
+  .warn { color: var(--mirage); font-weight: 700; }
+  .footnote {
+    margin-top: 10px;
+    font-size: 11.8px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>IGWelfare — "Thick" vs. "Thin" Citizens' Assembly Combinatorial Clearinghouse Explorer</h1>
+  <p>Interactive Agent-Based Model &amp; SOE Shock Telemetry across Five Parallel Citizens' Assemblies (<code>K01</code>–<code>K15</code>), tracing why flat scalar spreadsheets worked in <strong>1972 (1/16x Dunedin Baseline)</strong> yet bifurcate into "Fool's Gold" mirages under <strong>2026 (1.0x LTFM)</strong> backlogs while 26,901-state Topkis supermodular clearing stays resilient.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- TOP 3 CONTROL CARDS -->
+  <div class="top-controls">
+    <!-- Card 1: Historical Backlog Homotopy Slider (1972 -> 2026) -->
+    <div class="card">
+      <h2>
+        <span>1. Historical Backlog Homotopy (ψ: 1972 → 2026)</span>
+        <span class="badge badge-era" id="eraBadge">1.00x (2026 LTFM)</span>
+      </h2>
+      <div class="slider-row">
+        <label for="psiSlider">Backlog Severity (ψ):</label>
+        <input type="range" id="psiSlider" min="-4" max="0" step="0.05" value="0">
+        <span class="slider-val" id="psiValTxt">1.000x</span>
+      </div>
+      <div style="font-size:11.5px; color:var(--muted); margin-bottom:6px;" id="eraDesc">
+        <strong>2026 Status Quo:</strong> Auckland housing Q_k = 3.10 (20% LVR cliff), 25.8% i_c = 0 birth corner, 185% GDP LTFM debt drift, and 3-yr cash OBEGAL cap (-1.55B/yr).
+      </div>
+      <div class="era-btns">
+        <button type="button" data-logpsi="-4" class="era-btn">1/16x (1972 Dunedin)</button>
+        <button type="button" data-logpsi="-3" class="era-btn">1/8x (~1982)</button>
+        <button type="button" data-logpsi="-2" class="era-btn">1/4x (~1995)</button>
+        <button type="button" data-logpsi="-1" class="era-btn">1/2x (~2010)</button>
+        <button type="button" data-logpsi="0"  class="era-btn active">1.0x (2026 LTFM)</button>
+      </div>
+    </div>
+
+    <!-- Card 2: Assembly Cohort Presets & Bargaining Protocol -->
+    <div class="card">
+      <h2>
+        <span>2. Citizen Sortition Archetype &amp; Auction Protocol</span>
+        <span class="badge badge-thick" id="protoBadge">Simultaneous Package</span>
+      </h2>
+      <div class="preset-btns">
+        <button type="button" class="preset-btn active" data-preset="sortition">Balanced Sortition</button>
+        <button type="button" class="preset-btn" data-preset="laggards">1. Custodians</button>
+        <button type="button" class="preset-btn" data-preset="silo">2. Mandate Advocates</button>
+        <button type="button" class="preset-btn" data-preset="hawks">3. Cash-Rule Hawks</button>
+        <button type="button" class="preset-btn" data-preset="dereg">4. Supply-Side Dereg.</button>
+        <button type="button" class="preset-btn" data-preset="populists">5. CoL Populists</button>
+        <button type="button" class="preset-btn" data-preset="innovators">6. Polycentric Stewards</button>
+        <button type="button" class="preset-btn" data-preset="wellington">Compound Cuts (u &lt; 0)</button>
+      </div>
+      <div class="toggle-row">
+        <label><input type="radio" name="seqMode" value="sim" checked> Simultaneous Clearinghouse</label>
+        <label><input type="radio" name="seqMode" value="seq"> Sequential Horse-Trade (A1→A5)</label>
+      </div>
+      <div class="toggle-row">
+        <label><input type="checkbox" id="chkWaveBridge" checked> Allow 13-Wave Early-Adopter Bridge</label>
+        <label><input type="checkbox" id="chkAllowFireSale"> Allow Thin Asset Fire-Sale (+34.8B Cash Mirage)</label>
+      </div>
+    </div>
+
+    <!-- Card 3: Correlated SOE Shock Telemetry -->
+    <div class="card">
+      <h2>
+        <span>3. Small-Open-Economy Shock Stress-Test (λ)</span>
+        <span class="badge" id="shockZoneBadge" style="background:var(--green-bg);color:var(--green);">THICK: GREEN</span>
+      </h2>
+      <div style="margin-bottom:7px;">
+        <select id="shockSelect">
+          <option value="0">S1: Global Export Demand Slump (Floating NZD &amp; r* Cushion)</option>
+          <option value="1">S2: Imported Oil / Exergy Price Spike (2.93x CERF Electrification)</option>
+          <option value="2">S3: Trans-Tasman Kaiako &amp; Clinical Poaching Surge</option>
+          <option value="3">S4: Cohort Stock-Formation Lag &amp; Dry-Year Hydro Squeeze</option>
+          <option value="4">S5: 3.0% GDP Geopolitical Defence Uplift + Polycrisis</option>
+        </select>
+      </div>
+      <div class="slider-row">
+        <label for="lamSlider">Shock Severity (λ):</label>
+        <input type="range" id="lamSlider" min="0" max="2.5" step="0.05" value="0.60">
+        <span class="slider-val" id="lamValTxt">0.60 σ</span>
+      </div>
+      <div style="font-size:11.5px; color:var(--muted);" id="shockNote">
+        Drag λ from 0.00σ to 2.50σ to inspect K01–K15 Green self-clearing, surgical Amber auto-remedies, and Red 30-delegate Plenary circuit-breakers.
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI COMPARISON STRIP -->
+  <div class="kpi-grid">
+    <div class="kpi-box thin-kpi">
+      <div class="kpi-title">Thin Spreadsheet Closure</div>
+      <div class="kpi-main" id="kpiThinStatus" style="color:var(--mirage);">MIRAGE ("Fool's Gold")</div>
+      <div class="kpi-sub" id="kpiThinSub">Nominal Yr-3 Cash OK, Fails K-Thresholds</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-title">Thick 26,901-State Clearinghouse</div>
+      <div class="kpi-main" id="kpiThickStatus" style="color:var(--thick);">VIABLE (15/15 Clear)</div>
+      <div class="kpi-sub" id="kpiThickSub">Topkis Upward Pull Locks Fixed Point</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-title">Realized Cohort Welfare (CE%)</div>
+      <div class="kpi-main" id="kpiCECompare">+2.1% Thin → +21.6% Thick</div>
+      <div class="kpi-sub" id="kpiCESub">Includes +13.47 pp Topkis Synergy &amp; BCH Check</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-title">25-Yr Actuarial &amp; FX Solvency</div>
+      <div class="kpi-main" id="kpiSolvCompare">-2.8B Thin vs +26.4B Thick</div>
+      <div class="kpi-sub" id="kpiSolvSub">Annualized Net Fiscal + FX + Care Balance (NZD/yr)</div>
+    </div>
+  </div>
+
+  <!-- MAIN INTERACTIVE WORKBENCH: LEFT = 5 ASSEMBLIES, RIGHT = DUAL CANVASES -->
+  <div class="main-grid">
+    <div class="card">
+      <h2>
+        <span>Five Parallel Citizens' Assemblies (Individual Agent Sliders)</span>
+        <span style="font-size:11px; color:var(--muted); font-weight:600;">α = Posture | Silo / Hawk / Coop</span>
+      </h2>
+      <div id="assembliesContainer"></div>
+    </div>
+
+    <div class="charts-col">
+      <div class="charts-2up">
+        <div class="card">
+          <h2>
+            <span>Panel A: 1972 (1/16x) → 2026 (1x) Backlog Bifurcation</span>
+            <span style="font-size:11px; color:var(--muted);">Active Assembly Profile</span>
+          </h2>
+          <canvas id="canvasHomotopy" width="520" height="255"></canvas>
+        </div>
+        <div class="card">
+          <h2>
+            <span>Panel B: 28-Round Tâtonnement Convergence</span>
+            <span style="font-size:11px; color:var(--muted);">Mean Commitment u(r) &amp; Gate Threshold</span>
+          </h2>
+          <canvas id="canvasRounds" width="520" height="255"></canvas>
+        </div>
+      </div>
+
+      <!-- K01-K15 Live Contract Telemetry Board -->
+      <div class="card">
+        <h2>
+          <span>Live Clearinghouse Telemetry Across All 15 Bilateral Assembly Contracts (<code>K01</code>–<code>K15</code>)</span>
+          <span style="display:flex; gap:8px; align-items:center;">
+            <label style="font-size:12px; cursor:pointer;"><input type="radio" name="kViewMode" value="thick" checked> View Thick Clearinghouse</label>
+            <label style="font-size:12px; cursor:pointer;"><input type="radio" name="kViewMode" value="thin"> View Thin Spreadsheet</label>
+          </span>
+        </h2>
+        <div class="k-grid" id="kGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONTE CARLO POPULATION BENCHMARK CARD -->
+  <div class="card">
+    <h2>
+      <span>Population Monte Carlo Benchmark (N = 1,000 Heterogeneous 5-Assembly Draws at Selected Backlog ψ)</span>
+      <span style="display:flex; gap:8px;">
+        <button type="button" class="primary-btn" id="btnRunMC">Re-Run 1,000-Trial Monte Carlo</button>
+        <button type="button" id="btnExportCSV">Download Homotopy &amp; Archetype CSV</button>
+      </span>
+    </h2>
+    <table id="mcTable">
+      <thead>
+        <tr>
+          <th>Dominant Assembly Cohort Archetype (at Active ψ)</th>
+          <th>Trials</th>
+          <th>Thin Nominal %</th>
+          <th>Thin Viable %</th>
+          <th>Thin "Fool's Gold" Mirage %</th>
+          <th>Thick Viable % (15/15 K-Clear)</th>
+          <th>Thin Mean CE (pp)</th>
+          <th>Thick Mean CE (pp)</th>
+          <th>Thick Survives Active Shock λ (Green+Amber %)</th>
+        </tr>
+      </thead>
+      <tbody id="mcTbody"></tbody>
+    </table>
+    <div class="footnote">
+      <strong>Mathematical Anchor:</strong> Mirrors <code>src/ledgers/Compute_ThickVsThin_Auction_ABM.m</code> (Documents 2T Sec. 5–6, 2B Sec. 7.4 &amp; 7.7.4, and 1F Part V). At <strong>ψ = 1/16x (1972 Dunedin Study Baseline)</strong>, households sit on the smooth linear interior so Thin scalar spreadsheets achieve <strong>82.4%</strong> viable closure; at <strong>ψ = 1.0x (2026 LTFM Backlog)</strong>, LVR housing cliffs, <code>i_c = 0</code> corners, and the 10.6-year cash <code>OBEGAL</code> stern-kick lag collapse Thin viable closure to <strong>0.0%</strong> (<strong>96.4%</strong> "Fool's Gold" mirages), whereas 26,901-state Topkis trim-tab supermodularity aligns all six institutional personas (<strong>99.9%</strong> viable; <strong>96.3%</strong> under a 30% <code>CBAx</code> haircut).
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  // 1. Canonical Structural Constants (Calibrated to Document 2B Tables 19, 21, 22 & Document 1F)
+  const ASM_META = [
+    { code: "A1", name: "Early Potential & Teen Mentoring", short: "Gates 1–2 ECE + Tuakana" },
+    { code: "A2", name: "Housing, Whānau & Super-64",       short: "Rent Cool, Grant E, Super-64" },
+    { code: "A3", name: "Civic Mycelium & Joiner Passport", short: "Clubs, Arts, 1 NZD Leases" },
+    { code: "A4", name: "Enterprise Tax Shift & z_h Jobs",  short: "LVT->Corp Cut & Food Hubs" },
+    { code: "A5", name: "Sovereign Stewardship & 50/50",    short: "13-Wave Pacing & Infra/Debt" }
+  ];
+
+  const W_ISO = [4.02, 1.04, 1.15, 2.24, 2.78]; // Sum = +11.23 pp CE
+  const H_RAW = [
+    [0.00, 2.40, 1.85, 3.10, 1.45],
+    [2.40, 0.00, 1.10, 2.85, 1.30],
+    [1.85, 1.10, 0.00, 0.95, 1.20],
+    [3.10, 2.85, 0.95, 0.00, 2.15],
+    [1.45, 1.30, 1.20, 2.15, 0.00]
+  ];
+  let rawSum = 0;
+  for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) rawSum += H_RAW[i][j];
+  const H_SYN = H_RAW.map(row => row.map(v => v * (2.0 * 13.47 / rawSum))); // Sum_ij 0.5*H = +13.47 pp CE
+
+  const C_CASH_YR3  = [-3.40, -2.90, -0.35, +1.85, +1.10];
+  const V_ACTUARIAL = [+8.60, +4.10, +2.40, +7.50, +6.20];
+  const C_HELP = [
+    [0.00, 0.34, 0.22, 0.16, 0.28],
+    [0.32, 0.00, 0.14, 0.42, 0.22],
+    [0.20, 0.25, 0.00, 0.24, 0.18],
+    [0.38, 0.28, 0.12, 0.00, 0.30],
+    [0.35, 0.30, 0.22, 0.36, 0.00]
+  ];
+  const U_CRIT_2026 = [0.56, 0.52, 0.48, 0.55, 0.53];
+
+  const SHOCK_MULT_THIN  = [1.15, 0.85, 0.90, 0.82, 0.65];
+  const SHOCK_MULT_THICK = [1.35, 1.55, 1.25, 1.30, 1.05];
+
+  // 15 Bilateral Citizens' Assembly Contracts (K01..K15)
+  const CONTRACTS = [
+    { id: "K01", from: 1, to: 0, title: "A2→A1 Kaiako Rent Relief",     amber: "Index Sector 4A retention parity on high-rent Q_k sub-manifold." },
+    { id: "K02", from: 2, to: 0, title: "A3→A1 After-School Club Hubs", amber: "Prioritize Joiner Passport capitation in high-deprivation wards." },
+    { id: "K03", from: 4, to: 0, title: "A5→A1 Anti-Stop-Go Shield",    amber: "Ring-fence Gate 1/2 multi-term CBAx appropriation from cash cuts." },
+    { id: "K04", from: 0, to: 1, title: "A1→A2 Mentored Age-20 Pool",   amber: "Hold Grant E on Early-Adopter mentored bridge (17.3% -> Waves 7-13)." },
+    { id: "K05", from: 3, to: 1, title: "A4→A2 LVT Cooling & z_h Jobs", amber: "Maintain 10-yr +0.15%/yr LVT ramp + provincial food-hub multipliers." },
+    { id: "K06", from: 1, to: 4, title: "A2→A5 85% Geo-Transfer Retire",amber: "Step down T_k strictly as verified regional z_l->z_h wages clear." },
+    { id: "K07", from: 1, to: 2, title: "A2→A3 Kuia & Whānau Free Time",amber: "Preserve Super-64/65 alloparental care buffer (avoid sandwich drag)." },
+    { id: "K08", from: 0, to: 3, title: "A1→A4 65% Thriving Graduates", amber: "Fast-track Tuakana-Teina technical & micro-enterprise cohorts." },
+    { id: "K09", from: 1, to: 3, title: "A2→A4 Graduate Retention",     amber: "Pair LVR cooling with Grant E home/enterprise seed equity." },
+    { id: "K10", from: 3, to: 2, title: "A4→A3 Peppercorn Lease Offset",amber: "Activate vacant-commercial LVT stewardship rebate for local clubs." },
+    { id: "K11", from: 2, to: 4, title: "A3→A5 -1.4 Yr Breakeven Lift", amber: "Scale low-overhead voucher capitation to compress CAMHS/truancy." },
+    { id: "K12", from: 4, to: 3, title: "A5→A4 -60 bps Enterprise Credit",amber:"Tilt post-breakeven surplus split to 70/30 Sovereign Debt-Sinking." },
+    { id: "K13", from: 3, to: 4, title: "A4→A5 Dual-Speed LVT/Estate",  amber: "Lock 1-to-1 enterprise tax rotation + CERF 14.5B/yr FX savings." },
+    { id: "K14", from: 0, to: 4, title: "A1→A5 IDI Hardship Exit Audit",amber: "Require Sustain_Steps >= 2 IDI cohort audit before SS2 unlock." },
+    { id: "K15", from: 4, to: 1, title: "A5→A2 Two-Key PAYE & Infra",   amber: "Auto-defer Phase-2 PAYE cut (Yrs 27-32) while keeping 50% pipe pool." }
+  ];
+
+  const PRESETS = {
+    sortition: [
+      { alpha: 0.48, silo: 0.28, hawk: 0.30, coop: 0.42 },
+      { alpha: 0.42, silo: 0.32, hawk: 0.33, coop: 0.35 },
+      { alpha: 0.52, silo: 0.25, hawk: 0.25, coop: 0.50 },
+      { alpha: 0.40, silo: 0.30, hawk: 0.38, coop: 0.32 },
+      { alpha: 0.38, silo: 0.20, hawk: 0.45, coop: 0.35 }
+    ],
+    hawks: [
+      { alpha: 0.28, silo: 0.15, hawk: 0.65, coop: 0.20 },
+      { alpha: 0.22, silo: 0.15, hawk: 0.70, coop: 0.15 },
+      { alpha: 0.30, silo: 0.12, hawk: 0.68, coop: 0.20 },
+      { alpha: 0.35, silo: 0.18, hawk: 0.64, coop: 0.18 },
+      { alpha: 0.25, silo: 0.10, hawk: 0.75, coop: 0.15 }
+    ],
+    laggards: [
+      { alpha: 0.04, silo: 0.25, hawk: 0.50, coop: 0.25 },
+      { alpha: 0.00, silo: 0.30, hawk: 0.48, coop: 0.22 },
+      { alpha: 0.08, silo: 0.22, hawk: 0.46, coop: 0.32 },
+      { alpha: 0.02, silo: 0.28, hawk: 0.52, coop: 0.20 },
+      { alpha: 0.05, silo: 0.20, hawk: 0.55, coop: 0.25 }
+    ],
+    silo: [
+      { alpha: 0.62, silo: 0.72, hawk: 0.14, coop: 0.14 },
+      { alpha: 0.85, silo: 0.78, hawk: 0.10, coop: 0.12 },
+      { alpha: 0.68, silo: 0.70, hawk: 0.15, coop: 0.15 },
+      { alpha: 0.58, silo: 0.65, hawk: 0.25, coop: 0.10 },
+      { alpha: 0.45, silo: 0.55, hawk: 0.35, coop: 0.10 }
+    ],
+    wellington: [
+      { alpha: -0.18, silo: 0.30, hawk: 0.60, coop: 0.10 },
+      { alpha: -0.15, silo: 0.25, hawk: 0.65, coop: 0.10 },
+      { alpha: -0.20, silo: 0.20, hawk: 0.70, coop: 0.10 },
+      { alpha: -0.10, silo: 0.35, hawk: 0.55, coop: 0.10 },
+      { alpha: -0.18, silo: 0.20, hawk: 0.72, coop: 0.08 }
+    ],
+    dereg: [
+      { alpha: 0.18, silo: 0.12, hawk: 0.66, coop: 0.22, dereg: 0.62, pop: 0.08 },
+      { alpha: 0.22, silo: 0.14, hawk: 0.64, coop: 0.22, dereg: 0.58, pop: 0.10 },
+      { alpha: 0.15, silo: 0.12, hawk: 0.68, coop: 0.20, dereg: 0.60, pop: 0.08 },
+      { alpha: 0.68, silo: 0.20, hawk: 0.45, coop: 0.35, dereg: 0.70, pop: 0.06 },
+      { alpha: 0.36, silo: 0.15, hawk: 0.58, coop: 0.27, dereg: 0.55, pop: 0.10 }
+    ],
+    populists: [
+      { alpha: 0.34, silo: 0.46, hawk: 0.24, coop: 0.30, dereg: 0.08, pop: 0.64 },
+      { alpha: 0.58, silo: 0.54, hawk: 0.18, coop: 0.28, dereg: 0.06, pop: 0.70 },
+      { alpha: 0.38, silo: 0.44, hawk: 0.24, coop: 0.32, dereg: 0.08, pop: 0.58 },
+      { alpha: 0.14, silo: 0.28, hawk: 0.48, coop: 0.24, dereg: 0.10, pop: 0.62 },
+      { alpha: 0.24, silo: 0.34, hawk: 0.42, coop: 0.24, dereg: 0.08, pop: 0.60 }
+    ],
+    innovators: [
+      { alpha: 0.82, silo: 0.15, hawk: 0.20, coop: 0.65 },
+      { alpha: 0.78, silo: 0.15, hawk: 0.22, coop: 0.63 },
+      { alpha: 0.85, silo: 0.12, hawk: 0.18, coop: 0.70 },
+      { alpha: 0.80, silo: 0.18, hawk: 0.22, coop: 0.60 },
+      { alpha: 0.76, silo: 0.12, hawk: 0.28, coop: 0.60 }
+    ]
+  };
+
+  // State
+  let agents = JSON.parse(JSON.stringify(PRESETS.sortition));
+  let log2Psi = 0.0; // 0 -> psi = 1.00 (2026)
+  let isSeq = false;
+  let shockIdx = 0;
+  let lambdaVal = 0.60;
+  let kViewMode = "thick";
+  let mcSeed = 20261124;
+  let lastHomotopyCSV = "";
+
+  // Build Assembly Sliders UI
+  const asmContainer = document.getElementById("assembliesContainer");
+  function buildAssemblyControls() {
+    asmContainer.innerHTML = "";
+    ASM_META.forEach((m, idx) => {
+      const div = document.createElement("div");
+      div.className = "assembly-item";
+      div.innerHTML = `
+        <div class="asm-head">
+          <span>${m.code}: ${m.name}</span>
+          <span class="asm-bids" id="bidTxt_${idx}">Thin: 0.00 | Thick: 0.00</span>
+        </div>
+        <div class="asm-sliders">
+          <div class="mini-s">
+            <span class="lbl">Posture α</span>
+            <input type="range" min="-0.20" max="1.00" step="0.02" value="${agents[idx].alpha}" data-idx="${idx}" data-f="alpha">
+            <span class="v" id="val_alpha_${idx}">${agents[idx].alpha.toFixed(2)}</span>
+          </div>
+          <div class="mini-s">
+            <span class="lbl">Coop Wt</span>
+            <input type="range" min="0.05" max="0.90" step="0.05" value="${agents[idx].coop}" data-idx="${idx}" data-f="coop">
+            <span class="v" id="val_coop_${idx}">${Math.round(agents[idx].coop * 100)}%</span>
+          </div>
+          <div class="mini-s">
+            <span class="lbl">Silo Wt</span>
+            <input type="range" min="0.05" max="0.90" step="0.05" value="${agents[idx].silo}" data-idx="${idx}" data-f="silo">
+            <span class="v" id="val_silo_${idx}">${Math.round(agents[idx].silo * 100)}%</span>
+          </div>
+          <div class="mini-s">
+            <span class="lbl">Hawk Wt</span>
+            <input type="range" min="0.05" max="0.90" step="0.05" value="${agents[idx].hawk}" data-idx="${idx}" data-f="hawk">
+            <span class="v" id="val_hawk_${idx}">${Math.round(agents[idx].hawk * 100)}%</span>
+          </div>
+        </div>
+      `;
+      asmContainer.appendChild(div);
+    });
+
+    asmContainer.querySelectorAll("input[type='range']").forEach(inp => {
+      inp.addEventListener("input", (e) => {
+        const i = parseInt(e.target.dataset.idx, 10);
+        const f = e.target.dataset.f;
+        const v = parseFloat(e.target.value);
+        if (f === "alpha") {
+          agents[i].alpha = v;
+        } else {
+          agents[i][f] = v;
+          const others = ["silo", "hawk", "coop"].filter(k => k !== f);
+          const rem = Math.max(0.04, 1.0 - v);
+          const oSum = Math.max(0.01, agents[i][others[0]] + agents[i][others[1]]);
+          agents[i][others[0]] = rem * (agents[i][others[0]] / oSum);
+          agents[i][others[1]] = rem - agents[i][others[0]];
+        }
+        syncAgentLabels();
+        document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+        refreshInteractive();
+      });
+    });
+  }
+
+  function syncAgentLabels() {
+    agents.forEach((a, i) => {
+      const elA = document.getElementById(`val_alpha_${i}`);
+      if (!elA) return;
+      elA.textContent = a.alpha.toFixed(2);
+      document.getElementById(`val_coop_${i}`).textContent = Math.round(a.coop * 100) + "%";
+      document.getElementById(`val_silo_${i}`).textContent = Math.round(a.silo * 100) + "%";
+      document.getElementById(`val_hawk_${i}`).textContent = Math.round(a.hawk * 100) + "%";
+      const box = asmContainer.children[i];
+      box.querySelector('[data-f="alpha"]').value = a.alpha;
+      box.querySelector('[data-f="coop"]').value  = a.coop;
+      box.querySelector('[data-f="silo"]').value  = a.silo;
+      box.querySelector('[data-f="hawk"]').value  = a.hawk;
+    });
+  }
+
+  // Core Single-Cohort Auction Solver (Exact port of Compute_ThickVsThin_Auction_ABM.m)
+  function runSingleAuction(agList, psiB, isThick, seqFlag, waveOverride, fireOverride) {
+    const R_MAX = 28;
+    const stepGain = 0.46;
+    const uCrit = U_CRIT_2026.map(uc => 0.05 + (uc - 0.05) * Math.pow(psiB, 0.85));
+    const cashCapTh = -3.90 + 2.35 * psiB;
+    const solvReqB  = -0.20 + 4.20 * psiB;
+    const ceReqPp   = 1.20  + 8.80 * psiB;
+
+    let meanAlpha = 0, meanCoop = 0, meanHawk = 0, meanSilo = 0;
+    for (let m = 0; m < 5; m++) {
+      meanAlpha += agList[m].alpha / 5;
+      meanCoop  += agList[m].coop  / 5;
+      meanHawk  += agList[m].hawk  / 5;
+      meanSilo  += agList[m].silo  / 5;
+    }
+
+    let useWaveBridge = isThick
+      ? ((meanCoop + 0.65 * meanHawk >= 0.30) && (meanAlpha > 0.02) ? 1.0 : 0.0)
+      : ((meanCoop > 0.70 && meanSilo < 0.20) ? 1.0 : 0.0);
+    if (waveOverride !== null) useWaveBridge = waveOverride ? (isThick ? 1.0 : useWaveBridge) : 0.0;
+
+    let fireSale = (!isThick && fireOverride && meanHawk > 0.30 && psiB > 0.25) ? 1.0
+      : (!isThick && fireOverride === null && meanHawk > 0.42 && meanAlpha < 0.48 && psiB > 0.30 ? 1.0 : 0.0);
+
+    let U = agList.map(a => Math.min(1.0, Math.max(-0.30, 0.55 * a.alpha + 0.10 * (a.silo - a.hawk))));
+    const trajMeanU = [];
+    let stepNorm = 0;
+
+    function bestResp(currU) {
+      const Upos = currU.map(v => Math.max(0.0, v));
+      const out = new Array(5);
+      if (!isThick) {
+        let dotCash = 0;
+        for (let m = 0; m < 5; m++) dotCash += currU[m] * C_CASH_YR3[m];
+        const cashCrowd = 0.22 + 0.78 * psiB;
+        const totDrain = Math.max(0.0, -dotCash - 1.25 * fireSale - 1.40 * (1.0 - psiB));
+        for (let m = 0; m < 5; m++) {
+          const ownIso = W_ISO[m] / 4.02;
+          const cDrag  = Math.max(0.15, -C_CASH_YR3[m] / 3.40);
+          const brSilo = Math.min(1.0, 0.72 * agList[m].alpha + 0.34 - 0.14 * cashCrowd * totDrain);
+          const brHawk = (0.14 * (1.0 - psiB) - 0.08 * psiB) + 0.42 * agList[m].alpha
+                         - 0.26 * cashCrowd * totDrain * cDrag + 0.12 * fireSale;
+          const brCoop = 0.58 * agList[m].alpha + 0.26 * ownIso - 0.15 * cashCrowd * totDrain;
+          const uStar  = agList[m].silo * brSilo + agList[m].hawk * brHawk + agList[m].coop * brCoop;
+          out[m] = Math.min(1.0, Math.max(-0.35, uStar));
+        }
+      } else {
+        for (let m = 0; m < 5; m++) {
+          let synLift = 0, costRel = 0;
+          for (let j = 0; j < 5; j++) {
+            synLift += Upos[j] * H_SYN[j][m];
+            costRel += Upos[j] * C_HELP[m][j];
+          }
+          synLift /= 6.80;
+          const actGain = V_ACTUARIAL[m] / 8.60;
+          const wShield = 0.20 * useWaveBridge;
+          const brSilo  = Math.min(1.0, 0.48 * agList[m].alpha + 0.28 + 0.42 * synLift);
+          const brHawk  = Math.min(1.0, 0.26 * agList[m].alpha + 0.25 * actGain + 0.50 * costRel + wShield);
+          const brCoop  = Math.min(1.0, 0.46 * agList[m].alpha + 0.27 + 0.54 * synLift + 0.24 * costRel);
+          const uStar   = agList[m].silo * brSilo + agList[m].hawk * brHawk + agList[m].coop * brCoop;
+          out[m] = Math.min(1.0, Math.max(-0.35, uStar));
+        }
+      }
+      return out;
+    }
+
+    for (let r = 1; r <= R_MAX; r++) {
+      const Uprev = U.slice();
+      if (seqFlag) {
+        for (let m = 0; m < 5; m++) {
+          const br = bestResp(U);
+          U[m] = Math.min(1.0, Math.max(-0.35, (1.0 - stepGain) * U[m] + stepGain * br[m]));
+        }
+      } else {
+        const br = bestResp(U);
+        let dotCash = 0;
+        for (let m = 0; m < 5; m++) dotCash += U[m] * C_CASH_YR3[m];
+        const cBreach = Math.max(0.0, -(dotCash + 1.15 * fireSale) + cashCapTh);
+        const signR = (r % 2 === 0) ? 1.0 : -1.0;
+        for (let m = 0; m < 5; m++) {
+          const osc = !isThick ? signR * 0.09 * psiB * Math.min(1.0, cBreach) * (agList[m].silo - agList[m].hawk) : 0.0;
+          U[m] = Math.min(1.0, Math.max(-0.35, (1.0 - stepGain) * U[m] + stepGain * br[m] + osc));
+        }
+      }
+      stepNorm = 0;
+      let sumU = 0;
+      for (let m = 0; m < 5; m++) {
+        stepNorm = Math.max(stepNorm, Math.abs(U[m] - Uprev[m]));
+        sumU += U[m];
+      }
+      trajMeanU.push(sumU / 5.0);
+    }
+
+    // Evaluate true GE welfare & comprehensive 25-yr solvency
+    const Upos = U.map(v => Math.max(0.0, v));
+    const Uneg = U.map(v => Math.min(0.0, v));
+    let isoTerm = 0, synPos = 0, synNeg = 0, actSum = 0, crossSav = 0, prodCavity = 1.0, meanAbsNeg = 0;
+    let subFracMean = 0, allKClear = true, dotCash = 0;
+
+    for (let m = 0; m < 5; m++) {
+      isoTerm += U[m] * W_ISO[m];
+      actSum  += Upos[m] * V_ACTUARIAL[m];
+      dotCash += U[m] * C_CASH_YR3[m];
+      prodCavity *= (1.0 - 0.65 * Upos[m]);
+      meanAbsNeg += Math.abs(Uneg[m]) / 5.0;
+      subFracMean += Math.max(0.0, Math.min(1.0, Upos[m] / Math.max(0.05, uCrit[m]))) / 5.0;
+      if (U[m] < uCrit[m]) allKClear = false;
+      for (let j = 0; j < 5; j++) {
+        synPos   += 0.5 * Upos[j] * H_SYN[j][m] * Upos[m];
+        synNeg   += Math.abs(Uneg[j]) * H_SYN[j][m] * Math.abs(Uneg[m]);
+        crossSav += 2.80 * Upos[j] * C_HELP[m][j] * Upos[m];
+      }
+    }
+    synPos *= (0.35 + 0.65 * psiB);
+    synNeg *= (-0.65 * psiB);
+
+    const unbridgedGap = Math.max(0.0, Upos[1] - Upos[0]) * (1.0 - useWaveBridge);
+    const bchCE  = -2.40 * psiB * unbridgedGap;
+    const bchB   = -3.80 * psiB * unbridgedGap;
+    const privCE = -4.80 * fireSale;
+    const privB  = -6.50 * fireSale;
+
+    const trueCE = isoTerm + synPos * subFracMean + synNeg + bchCE + privCE;
+    const cavityB = -4.20 * psiB * prodCavity - 5.50 * psiB * meanAbsNeg;
+    const trueSolvB = actSum + crossSav + cavityB + bchB + privB;
+
+    const isConv = (stepNorm < 0.030);
+    const yr3CashPerc = dotCash * (1.0 - 0.55 * useWaveBridge) + 2.60 * fireSale;
+    const nominalClosed = !isThick
+      ? (isConv && yr3CashPerc >= cashCapTh)
+      : (isConv && allKClear && trueSolvB >= solvReqB);
+    const viableClosed = isConv && allKClear && (trueSolvB >= solvReqB) && (trueCE >= ceReqPp);
+
+    return {
+      U, uCrit, trajMeanU, isConv, allKClear, nominalClosed, viableClosed,
+      foolsGold: nominalClosed && !viableClosed,
+      trueCE, trueSolvB, useWaveBridge, fireSale
+    };
+  }
+
+  // Evaluate K01..K15 Contract Status under Shock (sIdx, lam)
+  function evalContractZones(res, isThick, psiB, sIdx, lam) {
+    const mult = isThick ? SHOCK_MULT_THICK[sIdx] : SHOCK_MULT_THIN[sIdx];
+    return CONTRACTS.map((c, idx) => {
+      const uUp = res.U[c.from];
+      const uDn = res.U[c.to];
+      const crit = res.uCrit[c.from];
+      const pairMin = Math.max(0.0, Math.min(uUp, 0.7 * uUp + 0.3 * uDn));
+      const vOk = (uUp >= crit && res.viableClosed) ? 1.0 : 0.0;
+      const waveNudge = 0.05 * ((idx % 3) - 1);
+
+      let rigLim, contLim;
+      if (isThick) {
+        rigLim  = Math.max(0.0, (0.82 * pairMin + 0.30 * (res.trueSolvB / 25.0) + waveNudge) * mult);
+        contLim = rigLim + (0.76 * res.useWaveBridge + 0.36) * mult;
+        if (uUp < crit) { rigLim = -0.01; contLim = -0.01; }
+      } else {
+        const baseR = 0.55 * pairMin + 0.25 * (1.0 - psiB) + 0.16 * Math.max(0.0, res.trueSolvB / 18.0) - 0.30 * res.fireSale + waveNudge;
+        rigLim  = Math.max(0.04, baseR * (0.28 + 0.72 * vOk)) * mult;
+        contLim = rigLim + (0.14 * res.useWaveBridge) * mult;
+        if (!res.nominalClosed || uUp < crit * 0.85) { rigLim = 0.08 * vOk; contLim = 0.14 * vOk; }
+      }
+
+      let zone = "RED";
+      if (lam <= rigLim && uUp >= crit) zone = "GREEN";
+      else if (lam <= contLim && (isThick ? uUp >= crit : res.nominalClosed)) zone = "AMBER";
+
+      return { ...c, zone, uUp, crit, rigLim, contLim };
+    });
+  }
+
+  // Update Era Description
+  function updateEraText(psiB) {
+    const badge = document.getElementById("eraBadge");
+    const valTxt = document.getElementById("psiValTxt");
+    const desc = document.getElementById("eraDesc");
+    valTxt.textContent = psiB.toFixed(3) + "x";
+
+    if (psiB <= 0.08) {
+      badge.textContent = "1/16x (1972 Dunedin)";
+      desc.innerHTML = "<strong>1972 Dunedin Study Baseline:</strong> Full employment, ~3x house-price-to-income ratios (minimal LVR cliff), brand-new pipes/hydro, low debt. Both Thin &amp; Thick clear smoothly!";
+    } else if (psiB <= 0.16) {
+      badge.textContent = "1/8x (~1982 Mild Drift)";
+      desc.innerHTML = "<strong>Early-1980s Counterfactual:</strong> Modest energy &amp; fiscal pressures; most households remain above subsistence corners so flat spreadsheets still close ~65%–75% of deals.";
+    } else if (psiB <= 0.33) {
+      badge.textContent = "1/4x (~1995 Emerging Gaps)";
+      desc.innerHTML = "<strong>Mid-1990s Counterfactual:</strong> Child hardship and deferred infrastructure upkeep widen; Thin viable closure drops toward ~35% while 'Fool's Gold' austerity mirages grow.";
+    } else if (psiB <= 0.68) {
+      badge.textContent = "1/2x (~2010 Strain)";
+      desc.innerHTML = "<strong>~2010 Metropolitan Squeeze:</strong> Rising urban land multiples and 3-year OBEGAL rationing starve multi-gate synergies; Thin auctions stall below critical thresholds.";
+    } else {
+      badge.textContent = "1.0x (2026 LTFM)";
+      desc.innerHTML = "<strong>2026 LTFM Status Quo:</strong> Auckland Q_k = 3.10, 25.8% i_c = 0 corner, and 185% GDP debt trajectory. Thin spreadsheets collapse into mirages; Thick Topkis synergies unlock 15/15 closure.";
+    }
+  }
+
+  // Canvas 1: Homotopy Curve (1972 -> 2026) for Active Cohort
+  function drawHomotopyCanvas(activePsi) {
+    const cvs = document.getElementById("canvasHomotopy");
+    const ctx = cvs.getContext("2d");
+    const W = cvs.width, H = cvs.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const pad = { l: 46, r: 18, t: 18, b: 36 };
+    const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+
+    const logGrid = [];
+    for (let lp = -4.0; lp <= 0.001; lp += 0.25) logGrid.push(lp);
+
+    const waveChk = document.getElementById("chkWaveBridge").checked;
+    const fireChk = document.getElementById("chkAllowFireSale").checked;
+
+    // Smooth cohort viability score across log2(psi)
+    const ptsThick = [], ptsThin = [], ptsMirage = [];
+    logGrid.forEach(lp => {
+      const p = Math.pow(2, lp);
+      const rTk = runSingleAuction(agents, p, true,  isSeq, waveChk, fireChk);
+      const rTh = runSingleAuction(agents, p, false, isSeq, waveChk, fireChk);
+
+      const mTk = Math.min(...rTk.U.map((u, i) => (u - rTk.uCrit[i]) / 0.14), (rTk.trueSolvB - (-0.2 + 4.2 * p)) / 6.0);
+      const mTh = Math.min(...rTh.U.map((u, i) => (u - rTh.uCrit[i]) / 0.14), (rTh.trueSolvB - (-0.2 + 4.2 * p)) / 6.0);
+      const sTk = 100.0 / (1.0 + Math.exp(-4.0 * mTk)) * (rTk.isConv ? 1 : 0.2);
+      const sTh = 100.0 / (1.0 + Math.exp(-4.0 * mTh)) * (rTh.isConv ? 1 : 0.2);
+      ptsThick.push({ lp, y: sTk });
+      ptsThin.push({ lp, y: sTh });
+      ptsMirage.push({ lp, y: rTh.nominalClosed ? Math.max(sTh, 86.0) : sTh });
+    });
+
+    const xOf = lp => pad.l + ((lp + 4.0) / 4.0) * pw;
+    const yOf = val => pad.t + (1.0 - val / 105.0) * ph;
+
+    // Gridlines
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 1;
+    [0, 25, 50, 75, 100].forEach(yv => {
+      const py = yOf(yv);
+      ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(W - pad.r, py); ctx.stroke();
+      ctx.fillStyle = "#64748b"; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
+      ctx.fillText(yv + "%", pad.l - 6, py + 4);
+    });
+
+    const ticks = [
+      { lp: -4, lbl: "1/16x (1972)" },
+      { lp: -3, lbl: "1/8x (~82)" },
+      { lp: -2, lbl: "1/4x (~95)" },
+      { lp: -1, lbl: "1/2x (~10)" },
+      { lp:  0, lbl: "1.0x (2026)" }
+    ];
+    ticks.forEach(t => {
+      const px = xOf(t.lp);
+      ctx.beginPath(); ctx.moveTo(px, pad.t); ctx.lineTo(px, H - pad.b); ctx.stroke();
+      ctx.fillStyle = "#475569"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
+      ctx.fillText(t.lbl, px, H - 12);
+    });
+
+    // Shaded wedge between Thick and Thin
+    ctx.fillStyle = "rgba(15, 112, 92, 0.11)";
+    ctx.beginPath();
+    ptsThick.forEach((p, i) => i === 0 ? ctx.moveTo(xOf(p.lp), yOf(p.y)) : ctx.lineTo(xOf(p.lp), yOf(p.y)));
+    for (let i = ptsThin.length - 1; i >= 0; i--) ctx.lineTo(xOf(ptsThin[i].lp), yOf(ptsThin[i].y));
+    ctx.closePath(); ctx.fill();
+
+    // Mirage dotted line
+    ctx.strokeStyle = "#d68812"; ctx.lineWidth = 2; ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ptsMirage.forEach((p, i) => i === 0 ? ctx.moveTo(xOf(p.lp), yOf(p.y)) : ctx.lineTo(xOf(p.lp), yOf(p.y)));
+    ctx.stroke();
+
+    // Thin Viable dashed line
+    ctx.strokeStyle = "#c7332e"; ctx.lineWidth = 2.6; ctx.setLineDash([7, 4]);
+    ctx.beginPath();
+    ptsThin.forEach((p, i) => i === 0 ? ctx.moveTo(xOf(p.lp), yOf(p.y)) : ctx.lineTo(xOf(p.lp), yOf(p.y)));
+    ctx.stroke();
+
+    // Thick Viable solid line
+    ctx.strokeStyle = "#0f705c"; ctx.lineWidth = 2.8; ctx.setLineDash([]);
+    ctx.beginPath();
+    ptsThick.forEach((p, i) => i === 0 ? ctx.moveTo(xOf(p.lp), yOf(p.y)) : ctx.lineTo(xOf(p.lp), yOf(p.y)));
+    ctx.stroke();
+
+    // Vertical marker at active log2Psi
+    const curX = xOf(Math.log2(activePsi));
+    ctx.strokeStyle = "#1e3a5f"; ctx.lineWidth = 1.6; ctx.setLineDash([2, 2]);
+    ctx.beginPath(); ctx.moveTo(curX, pad.t); ctx.lineTo(curX, H - pad.b); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Compact legend box inside bottom-left
+    ctx.fillStyle = "rgba(255,255,255,0.92)";
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.fillRect(pad.l + 8, H - pad.b - 58, 232, 50);
+    ctx.strokeRect(pad.l + 8, H - pad.b - 58, 232, 50);
+    ctx.font = "11px sans-serif"; ctx.textAlign = "left";
+    ctx.fillStyle = "#0f705c"; ctx.fillText("— Thick Viable Readiness (%)", pad.l + 15, H - pad.b - 42);
+    ctx.fillStyle = "#c7332e"; ctx.fillText("-- Thin Viable Readiness (%)", pad.l + 15, H - pad.b - 27);
+    ctx.fillStyle = "#d68812"; ctx.fillText("··· Thin Nominal ('Fool's Gold')", pad.l + 15, H - pad.b - 13);
+  }
+
+  // Canvas 2: 28-Round Tatonnement Trajectory
+  function drawRoundsCanvas(rThin, rThick) {
+    const cvs = document.getElementById("canvasRounds");
+    const ctx = cvs.getContext("2d");
+    const W = cvs.width, H = cvs.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const pad = { l: 46, r: 18, t: 18, b: 36 };
+    const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+
+    const xOf = r => pad.l + ((r - 1) / 27.0) * pw;
+    const yOf = u => pad.t + ((1.05 - u) / 1.40) * ph; // u in [-0.35, 1.05]
+
+    [-0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0].forEach(uv => {
+      const py = yOf(uv);
+      ctx.strokeStyle = uv === 0 ? "#94a3b8" : "#e2e8f0";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(W - pad.r, py); ctx.stroke();
+      ctx.fillStyle = "#64748b"; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
+      ctx.fillText(uv.toFixed(1), pad.l - 6, py + 4);
+    });
+
+    [1, 5, 10, 15, 20, 25, 28].forEach(rv => {
+      const px = xOf(rv);
+      ctx.fillStyle = "#475569"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("R" + rv, px, H - 12);
+    });
+
+    // Critical K01..K15 threshold line at current psi
+    const meanCrit = rThick.uCrit.reduce((a, b) => a + b, 0) / 5.0;
+    const yCrit = yOf(meanCrit);
+    ctx.strokeStyle = "#8e42ad"; ctx.lineWidth = 1.8; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(pad.l, yCrit); ctx.lineTo(W - pad.r, yCrit); ctx.stroke();
+    ctx.fillStyle = "#8e42ad"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "right";
+    ctx.fillText(`Min K-Gate Threshold (${meanCrit.toFixed(2)})`, W - pad.r - 4, yCrit - 5);
+
+    // Thin Trajectory
+    ctx.strokeStyle = "#c7332e"; ctx.lineWidth = 2.6; ctx.setLineDash([7, 4]);
+    ctx.beginPath();
+    rThin.trajMeanU.forEach((u, i) => i === 0 ? ctx.moveTo(xOf(i + 1), yOf(u)) : ctx.lineTo(xOf(i + 1), yOf(u)));
+    ctx.stroke();
+
+    // Thick Trajectory
+    ctx.strokeStyle = "#0f705c"; ctx.lineWidth = 2.8; ctx.setLineDash([]);
+    ctx.beginPath();
+    rThick.trajMeanU.forEach((u, i) => i === 0 ? ctx.moveTo(xOf(i + 1), yOf(u)) : ctx.lineTo(xOf(i + 1), yOf(u)));
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(255,255,255,0.92)";
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.fillRect(pad.l + 8, H - pad.b - 44, 236, 36);
+    ctx.strokeRect(pad.l + 8, H - pad.b - 44, 236, 36);
+    ctx.font = "11px sans-serif"; ctx.textAlign = "left";
+    ctx.fillStyle = "#0f705c"; ctx.fillText("— Thick Mean Commitment u(r)", pad.l + 15, H - pad.b - 28);
+    ctx.fillStyle = "#c7332e"; ctx.fillText("-- Thin Mean Commitment u(r)", pad.l + 15, H - pad.b - 13);
+  }
+
+  // Refresh Interactive Single-Cohort View
+  function refreshInteractive() {
+    const psiB = Math.pow(2, log2Psi);
+    updateEraText(psiB);
+
+    const waveChk = document.getElementById("chkWaveBridge").checked;
+    const fireChk = document.getElementById("chkAllowFireSale").checked;
+
+    const rThin  = runSingleAuction(agents, psiB, false, isSeq, waveChk, fireChk);
+    const rThick = runSingleAuction(agents, psiB, true,  isSeq, waveChk, fireChk);
+
+    for (let m = 0; m < 5; m++) {
+      document.getElementById(`bidTxt_${m}`).innerHTML =
+        `<span style="color:var(--thin);">Thin: ${rThin.U[m].toFixed(2)}</span> | <span style="color:var(--thick);">Thick: ${rThick.U[m].toFixed(2)}</span>`;
+    }
+
+    // Update KPI Cards
+    const elTh = document.getElementById("kpiThinStatus");
+    const elThSub = document.getElementById("kpiThinSub");
+    if (rThin.viableClosed) {
+      elTh.textContent = "VIABLE (15/15 Clear)";
+      elTh.style.color = "var(--green)";
+      elThSub.textContent = "Low backlog lets flat averages clear gates";
+    } else if (rThin.foolsGold) {
+      elTh.textContent = "MIRAGE ('Fool's Gold')";
+      elTh.style.color = "var(--mirage)";
+      elThSub.textContent = "Passes Yr-3 Cash Cap, Fails Real Thresholds";
+    } else {
+      elTh.textContent = "DEADLOCK / BREACH";
+      elTh.style.color = "var(--red)";
+      elThSub.textContent = "Fails both cash cap & physical K-gates";
+    }
+
+    const elTk = document.getElementById("kpiThickStatus");
+    const elTkSub = document.getElementById("kpiThickSub");
+    if (rThick.viableClosed) {
+      elTk.textContent = "VIABLE (15/15 Clear)";
+      elTk.style.color = "var(--thick)";
+      elTkSub.textContent = "Topkis upward contagion locks Pareto core";
+    } else {
+      elTk.textContent = "BELOW GATE THRESHOLD";
+      elTk.style.color = "var(--red)";
+      elTkSub.textContent = "Extreme retrenchment blocks K01–K15";
+    }
+
+    const fmtS = v => (v >= 0 ? "+" : "") + v.toFixed(1);
+    document.getElementById("kpiCECompare").textContent = `${fmtS(rThin.trueCE)}% Thin → ${fmtS(rThick.trueCE)}% Thick`;
+    document.getElementById("kpiSolvCompare").textContent = `${fmtS(rThin.trueSolvB)}B Thin vs ${fmtS(rThick.trueSolvB)}B Thick`;
+
+    // Evaluate K01..K15 under active shock
+    const kThick = evalContractZones(rThick, true,  psiB, shockIdx, lambdaVal);
+    const kThin  = evalContractZones(rThin,  false, psiB, shockIdx, lambdaVal);
+
+    const nRedTk = kThick.filter(k => k.zone === "RED").length;
+    const nAmbTk = kThick.filter(k => k.zone === "AMBER").length;
+    const zBadge = document.getElementById("shockZoneBadge");
+    if (nRedTk > 0) {
+      zBadge.textContent = `THICK: RED (${nRedTk} Recall Plenary)`;
+      zBadge.style.background = "var(--red-bg)"; zBadge.style.color = "var(--red)";
+    } else if (nAmbTk > 0) {
+      zBadge.textContent = `THICK: AMBER (${nAmbTk} Auto-Remedy)`;
+      zBadge.style.background = "var(--amber-bg)"; zBadge.style.color = "var(--amber)";
+    } else {
+      zBadge.textContent = "THICK: GREEN (15/15 Self-Clear)";
+      zBadge.style.background = "var(--green-bg)"; zBadge.style.color = "var(--green)";
+    }
+
+    const activeK = (kViewMode === "thick") ? kThick : kThin;
+    const kGrid = document.getElementById("kGrid");
+    kGrid.innerHTML = activeK.map(k => {
+      let note = "";
+      if (k.zone === "GREEN") {
+        note = `Self-clears at λ=${lambdaVal.toFixed(2)}σ (Rigid limit ${Math.max(0, k.rigLim).toFixed(2)}σ). Bid u=${k.uUp.toFixed(2)} ≥ ${k.crit.toFixed(2)}.`;
+      } else if (k.zone === "AMBER") {
+        note = `<strong>Auto-Remedy Active (≤${k.contLim.toFixed(2)}σ):</strong> ${k.amber}`;
+      } else {
+        note = k.uUp < k.crit
+          ? `<strong>Contract Unmet:</strong> Upstream bid u=${k.uUp.toFixed(2)} below gate ${k.crit.toFixed(2)}.`
+          : `<strong>Circuit-Breaker (&gt;${Math.max(0, k.contLim).toFixed(2)}σ):</strong> Reconvene 30-delegate Citizen Plenary.`;
+      }
+      return `
+        <div class="k-tile ${k.zone}">
+          <div class="k-top"><span>${k.id}</span><span class="pill ${k.zone}">${k.zone}</span></div>
+          <div class="k-name">${k.title}</div>
+          <div class="k-note">${note}</div>
+        </div>
+      `;
+    }).join("");
+
+    drawHomotopyCanvas(psiB);
+    drawRoundsCanvas(rThin, rThick);
+  }
+
+  // Deterministic PRNG (Mulberry32) for Reproducible 1,000-Trial Monte Carlo
+  function mulberry32(a) {
+    return function() {
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function runMonteCarlo() {
+    const psiB = Math.pow(2, log2Psi);
+    const rand = mulberry32(mcSeed);
+    const N_MC = 1000;
+    const archNames = [
+      "1. Incrementalist Custodians",
+      "2. Sectoral Mandate Advocates",
+      "3. Cash-Rule Fiscal Hawks",
+      "4. Supply-Side Deregulators",
+      "5. Cost-of-Living Populists",
+      "6. Polycentric Stewards",
+      "ALL COHORTS (Population Mean)"
+    ];
+    const buckets = [0, 1, 2, 3, 4, 5, 6].map(() => ({
+      n: 0, thNom: 0, thViab: 0, thMir: 0, tkViab: 0, thCE: 0, tkCE: 0, tkSurv: 0
+    }));
+
+    for (let t = 0; t < N_MC; t++) {
+      const ag = [];
+      let mAlpha = 0, mW = [0, 0, 0, 0, 0];
+      for (let m = 0; m < 5; m++) {
+        const al = -0.15 + 1.15 * rand();
+        const g1 = -Math.log(Math.max(1e-9, rand()));
+        const g2 = -Math.log(Math.max(1e-9, rand()));
+        const g3 = -Math.log(Math.max(1e-9, rand()));
+        const g4 = -Math.log(Math.max(1e-9, rand()));
+        const g5 = -Math.log(Math.max(1e-9, rand()));
+        const gs = g1 + g2 + g3 + g4 + g5;
+        const w1 = g1 / gs, w2 = g2 / gs, w3 = g3 / gs, w4 = g4 / gs, w5 = g5 / gs;
+        // Map 5-simplex onto [silo, hawk, coop] solver coordinates + persona tags
+        const silo = w1 + 0.55 * w4;
+        const hawk = w2 + 0.65 * w3 + 0.20 * w4;
+        const coop = w5 + 0.35 * w3 + 0.25 * w4;
+        ag.push({ alpha: al, silo, hawk, coop, dereg: w3, pop: w4 });
+        mAlpha += al / 5;
+        mW[0] += w1 / 5; mW[1] += w2 / 5; mW[2] += w3 / 5; mW[3] += w4 / 5; mW[4] += w5 / 5;
+      }
+      let domIdx = 0;
+      for (let c = 1; c < 5; c++) { if (mW[c] > mW[domIdx]) domIdx = c; }
+      let arch = domIdx + 1;
+      if (mAlpha < 0.16) arch = 0;
+
+      const rTh = runSingleAuction(ag, psiB, false, isSeq, null, null);
+      const rTk = runSingleAuction(ag, psiB, true,  isSeq, null, null);
+      const kTk = evalContractZones(rTk, true, psiB, shockIdx, lambdaVal);
+      const survives = rTk.viableClosed && kTk.every(k => k.zone !== "RED");
+
+      [arch, 6].forEach(bi => {
+        const b = buckets[bi];
+        b.n++;
+        if (rTh.nominalClosed) b.thNom++;
+        if (rTh.viableClosed)  b.thViab++;
+        if (rTh.foolsGold)     b.thMir++;
+        if (rTk.viableClosed)  b.tkViab++;
+        b.thCE += rTh.trueCE;
+        b.tkCE += rTk.trueCE;
+        if (survives) b.tkSurv++;
+      });
+    }
+
+    const tbody = document.getElementById("mcTbody");
+    let csvLines = ["Archetype,Psi_Backlog,Trials,Thin_Nominal_Pct,Thin_Viable_Pct,Thin_FoolsGold_Pct,Thick_Viable_Pct,Thin_Mean_CE_pp,Thick_Mean_CE_pp,Thick_ShockSurvive_Pct"];
+    tbody.innerHTML = buckets.map((b, i) => {
+      const denom = Math.max(1, b.n);
+      const pNom  = (100 * b.thNom  / denom).toFixed(1);
+      const pThV  = (100 * b.thViab / denom).toFixed(1);
+      const pMir  = (100 * b.thMir  / denom).toFixed(1);
+      const pTkV  = (100 * b.tkViab / denom).toFixed(1);
+      const cTh   = (b.thCE / denom).toFixed(2);
+      const cTk   = (b.tkCE / denom).toFixed(2);
+      const pSurv = (100 * b.tkSurv / denom).toFixed(1);
+      csvLines.push(`"${archNames[i]}",${psiB.toFixed(4)},${b.n},${pNom},${pThV},${pMir},${pTkV},${cTh},${cTk},${pSurv}`);
+      const boldStyle = i === 6 ? 'style="background:#f8fafc; font-weight:700;"' : "";
+      return `
+        <tr ${boldStyle}>
+          <td>${archNames[i]}</td>
+          <td>${b.n}</td>
+          <td>${pNom}%</td>
+          <td class="neg">${pThV}%</td>
+          <td class="warn">${pMir}%</td>
+          <td class="pos">${pTkV}%</td>
+          <td>${cTh >= 0 ? "+" : ""}${cTh}</td>
+          <td class="pos">+${cTk}</td>
+          <td class="pos">${pSurv}%</td>
+        </tr>
+      `;
+    }).join("");
+    lastHomotopyCSV = csvLines.join("\n");
+  }
+
+  // Wire Event Listeners
+  document.getElementById("psiSlider").addEventListener("input", (e) => {
+    log2Psi = parseFloat(e.target.value);
+    document.querySelectorAll(".era-btn").forEach(b => {
+      b.classList.toggle("active", Math.abs(parseFloat(b.dataset.logpsi) - log2Psi) < 0.08);
+    });
+    refreshInteractive();
+    runMonteCarlo();
+  });
+
+  document.querySelectorAll(".era-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      log2Psi = parseFloat(btn.dataset.logpsi);
+      document.getElementById("psiSlider").value = log2Psi;
+      document.querySelectorAll(".era-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      refreshInteractive();
+      runMonteCarlo();
+    });
+  });
+
+  document.querySelectorAll(".preset-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.preset;
+      agents = JSON.parse(JSON.stringify(PRESETS[key]));
+      document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      syncAgentLabels();
+      refreshInteractive();
+    });
+  });
+
+  document.querySelectorAll("input[name='seqMode']").forEach(rad => {
+    rad.addEventListener("change", (e) => {
+      isSeq = (e.target.value === "seq");
+      document.getElementById("protoBadge").textContent = isSeq ? "Sequential A1→A5" : "Simultaneous Package";
+      refreshInteractive();
+      runMonteCarlo();
+    });
+  });
+
+  document.getElementById("chkWaveBridge").addEventListener("change", refreshInteractive);
+  document.getElementById("chkAllowFireSale").addEventListener("change", refreshInteractive);
+
+  document.getElementById("shockSelect").addEventListener("change", (e) => {
+    shockIdx = parseInt(e.target.value, 10);
+    refreshInteractive();
+    runMonteCarlo();
+  });
+
+  document.getElementById("lamSlider").addEventListener("input", (e) => {
+    lambdaVal = parseFloat(e.target.value);
+    document.getElementById("lamValTxt").textContent = lambdaVal.toFixed(2) + " σ";
+    refreshInteractive();
+    runMonteCarlo();
+  });
+
+  document.querySelectorAll("input[name='kViewMode']").forEach(rad => {
+    rad.addEventListener("change", (e) => {
+      kViewMode = e.target.value;
+      refreshInteractive();
+    });
+  });
+
+  document.getElementById("btnRunMC").addEventListener("click", () => {
+    mcSeed = (mcSeed + 104729) >>> 0;
+    runMonteCarlo();
+  });
+
+  document.getElementById("btnExportCSV").addEventListener("click", () => {
+    const blob = new Blob([lastHomotopyCSV], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Table_ThickVsThin_Explorer_Psi_${Math.pow(2, log2Psi).toFixed(3)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // Initialize
+  buildAssemblyControls();
+  refreshInteractive();
+  runMonteCarlo();
+})();
+</script>
+</body>
+</html>
