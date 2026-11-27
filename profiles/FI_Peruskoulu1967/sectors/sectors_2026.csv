@@ -1,0 +1,12 @@
+SubSector_ID,Macro_Sector,Structural_Role,Annual_Spend_BNZD,Paid_Workforce_kFTE,Unpaid_Volunteer_kFTE,Capital_Stock_BNZD,Import_FX_Share,Exergy_Intensity,Fossil_Share_Base,Skill_High_Share
+S1_Primary_Tradable,Sector_1_Primary,Tradable_Land,15.2,74.0,3.0,88.0,0.16,0.125,0.46,0.28
+S2_Weightless_Knowledge,Sector_2_Knowledge,Tradable_Knowledge,62.4,358.0,2.0,124.0,0.18,0.038,0.10,0.76
+S3_Private_NonTradable_Grid,Sector_3_Market_NonTrad,Market_NonTradable,107.4,1145.0,4.5,418.0,0.19,0.050,0.22,0.42
+S4A1_Health_SocialCare,Sector_4A_Civic_Human,Civic_Bifurcated_Health,29.6,302.0,16.0,46.0,0.14,0.025,0.11,0.62
+S4A2_Education_ECE,Sector_4A_Civic_Human,Civic_Capacitating,18.4,198.0,12.0,39.0,0.07,0.021,0.09,0.78
+S4A3_Civic_NGO_Marae,Sector_4A_Civic_Human,Civic_Polycentric_Mycelium,10.8,66.0,48.0,20.0,0.06,0.018,0.11,0.52
+S4A4_Justice_OT_Remed,Sector_4A_Civic_Human,Civic_Reactive_AntiBads,4.6,26.0,2.0,12.0,0.08,0.023,0.16,0.50
+S4A5_Core_Public_Admin,Sector_4A_Civic_Human,Civic_Stewardship_Admin,8.0,56.0,1.5,15.0,0.09,0.016,0.09,0.70
+S4B1_Transport_Rail_Roads,Sector_4B_Public_Infra,Public_Network_Capital,7.8,17.5,0.5,110.0,0.20,0.058,0.38,0.54
+S4B2_ThreeWaters_Councils,Sector_4B_Public_Infra,Public_Network_Capital,9.4,33.5,2.0,112.0,0.14,0.048,0.12,0.52
+S5_Sovereign_Defence,Sector_5_Defence,External_Security,8.2,16.5,28.0,28.0,0.58,0.088,0.72,0.64

@@ -1,0 +1,16 @@
+Contract_ID,Provider_Assembly,Consumer_Assembly,Metric_ID,Unit,Direction,Assumed_Min,Assumed_Max,Deliv_Unified_Compact,Deliv_Day1_Grant,Deliv_CherryPicked,Deliv_Split50Pct,Contingent_Remedy_Rule
+K01_StrugglingLaunch_SS1,A1_EarlyPotential,A2_Housing_Whanau,Struggling_Age20_SS1_Pct,pct,at_most,0.0,4.5,4.0,14.8,19.5,11.8,Hold universal YouthGrant at 17.3% mentored bridge until Gate-2 exits <= 4.5%
+K02_ThrivingGrad_Pool,A1_EarlyPotential,A4_Enterprise_Tax,Thriving_Age20_SS2_Pct,pct,at_least,57.0,70.0,63.5,48.0,24.5,39.0,Surge Gate-2 Tuakana & S4A2 kaiako coaching before corporate tax step-down completes
+K03_ReactiveRemed_Drop,A1_EarlyPotential,A5_Sovereign_Infra,Reactive_Inflow_Cut_Pct,pct,at_least,70.0,85.0,76.5,58.0,12.0,38.0,Keep SS2 PAYE harvest locked under Two-Key rule until IDI exits >= 70%
+K04_MetroRent_Cooling,A2_Housing_Whanau,A1_EarlyPotential,Metro_Q_Cooling_Pct,pct,at_least,7.5,12.0,10.2,3.2,-4.5,3.8,Index S4A kaiako/nurse housing allowance & steepen LVT speculative land ramp
+K05_Kaumatua_Care_Time,A2_Housing_Whanau,A3_Civic_Mycelium,Super_Age_SS2_Yrs,yrs,at_most,63.5,65.0,64.0,65.0,68.0,66.5,Protect Age-65 Super floor in SS1; unlock Age-64 Kuia dividend once DepRatio <= 30%
+K06_GeoTransfer_Retire,A2_Housing_Whanau,A5_Sovereign_Infra,GeoTransfer_Retired_SS2_Pct,pct,at_least,80.0,88.0,85.0,62.0,15.0,42.0,Phase down T_k strictly in lockstep with verified regional z_l -> z_h wage gains
+K07_YouthClub_Reach,A3_Civic_Mycelium,A1_EarlyPotential,Youth_Club_Belonging_Pct,pct,at_least,57.0,70.0,64.0,55.0,14.5,34.0,Expand NZD 500 Joiner Passport & school/marae hub leases in high-deprivation catchments
+K08_SocialCohesion_Lift,A3_Civic_Mycelium,A4_Enterprise_Tax,Social_Cohesion_Index,idx,at_least,122.0,140.0,134.5,118.0,77.5,104.0,Activate Creative Founder fellowships & municipal civic-space rates offsets
+K09_Breakeven_Accel,A3_Civic_Mycelium,A5_Sovereign_Infra,Cash_Breakeven_Accel_Yrs,yrs,at_least,1.0,2.2,1.4,-1.8,-6.5,0.2,Prioritize low-overhead voucher capitation over bureaucratic grant-writing
+K10_LVT_CorpTax_Sync,A4_Enterprise_Tax,A2_Housing_Whanau,LVT_Ramp_Horizon_Yrs,yrs,between,8.0,12.0,10.0,10.0,99.0,20.0,Synchronize +0.15%/yr LVT & 3-yr estate ramp 1-to-1 with corporate tax cuts
+K11_VacantSpace_Offset,A4_Enterprise_Tax,A3_Civic_Mycelium,Civic_Lease_Offset_Share,pct,at_least,75.0,100.0,90.0,80.0,0.0,40.0,Grant 100% LVT/rates rebate on vacant commercial space leased at NZD 1/yr to clubs
+K12_BuilderShare_Surge,A4_Enterprise_Tax,A5_Sovereign_Infra,Active_Builder_zh_SS2_Pct,pct,at_least,40.0,60.0,52.9,38.5,8.5,24.0,Pair competition/monopsony reform with CERF clean-exergy farm/SME retrofits
+K13_Actuarial_Shield,A5_Sovereign_Infra,A1_EarlyPotential,Yr5_Booked_Fiscal_ROI,mult,at_least,3.0,4.8,3.84,2.45,-1.20,1.65,Enshrine statutory CBAx 2% SRTP continuation accounting against 3-yr cash raids
+K14_Yr3_CapitalAtRisk,A5_Sovereign_Infra,A2_Housing_Whanau,Yr3_Net_Drawdown_PctGDP,pct,at_most,0.0,1.6,1.15,2.85,2.40,1.35,Pace rollout in 13 Te Kahui Waka waves & deploy 17.3% Early-Adopter YouthGrant bridge
+K15_InfraAndCredit_Pool,A5_Sovereign_Infra,A4_Enterprise_Tax,Sovereign_Spread_Cut_bps,bps,at_least,45.0,75.0,60.0,32.0,-45.0,18.0,Shift surplus split to 70/30 Debt-Sinking until Net Debt <= 32% GDP before PAYE cut

@@ -1,0 +1,12 @@
+# Empirical Target Moments for SMM Calibration (Calibrate_NZ_Moments.m)
+Moment_ID,Target_Val,Weight,Description
+Struggling_Launch_Share,0.165,2.5,"National share of youth launching in bottom 2 human-capital bins (Dunedin/Stats NZ)"
+Zero_ChildInv_Share,0.220,1.5,"Share of fertile households constrained at zero private child investment"
+ChildInv_Q5_Q1_Ratio,2.850,1.5,"Q5/Q1 total early childhood investment ratio in primate metro"
+Labor_FTE_Share,0.680,1.0,"Working-age full-time equivalent employment share"
+Labor_PT_Share,0.160,1.0,"Working-age part-time employment share"
+LateCareer_Wage_Drop,-0.140,1.0,"Log mean human-capital change from age bin j=7 to j=9"
+Homeowner_Young_Share,0.340,1.5,"Young household (j=2) homeownership share"
+Homeowner_Retiree_Share,0.780,1.0,"Retiree household (j=10) homeownership share"
+Homeowner_Agg_Share,0.645,1.5,"Aggregate household homeownership rate"
+Estate_To_GDP_Ratio,0.055,1.0,"Annual aggregate bequest flow relative to GDP proxy"

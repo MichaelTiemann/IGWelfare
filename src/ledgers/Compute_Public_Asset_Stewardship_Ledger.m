@@ -19,13 +19,19 @@ verbose_flag = isfield(Opts, 'Verbose') && logical(Opts.Verbose);
 SecSpec = Load_Sectoral_Exergy_Spec(Params.Profile_ID);
 AS      = SecSpec.AssetStewardship;
 
-K_Book_BNZD = 50.0;
+gdp_scale   = 1.0;
+curr_iso    = 'NZD';
+if isfield(Params, 'GDP_Base_Billions') && ~strncmpi(Params.Profile_ID, 'NZ_', 3)
+    gdp_scale = Params.GDP_Base_Billions / 430.0;
+    curr_iso  = Params.Currency_ISO;
+end
+K_Book_BNZD = 50.0 * gdp_scale;
 t_col       = (0:1:35)';
 disc_2      = 1.020 .^ (-t_col);
 disc_8      = 1.080 .^ (-t_col);
 
 % 1. Mismanaged Status Quo + Deferred Maintenance ("Tooth Cavity" convex escalation):
-sq_crown_t  = 0.65 * (t_col >= 1 & t_col <= 3) - 0.048 * (max(0.0, t_col - 3.0) .^ AS.Deferred_Maint_Cavity_Convexity);
+sq_crown_t  = gdp_scale * (0.65 * (t_col >= 1 & t_col <= 3) - 0.048 * (max(0.0, t_col - 3.0) .^ AS.Deferred_Maint_Cavity_Convexity));
 sq_soc_t    = sq_crown_t - (0.45 * AS.Public_Mismanagement_TFP_Drag * K_Book_BNZD) * (t_col >= 1);
 
 % 2. Irreversible Distressed Privatization (u_17 = -1):
@@ -40,12 +46,12 @@ priv_soc_t     = priv_crown_t + monopoly_drag;
 Buyback_Cost_Yr10_BNZD = K_Book_BNZD * (1.018 ^ 10) * (1.0 + AS.Recompra_Irreversibility_Premium);
 
 % 3. Ring-Fenced Preventative Maintenance Only:
-maint_crown_t = -0.75 * (t_col >= 1 & t_col <= 4);
+maint_crown_t = -0.75 * gdp_scale * (t_col >= 1 & t_col <= 4);
 maint_soc_t   = maint_crown_t + 0.018 * K_Book_BNZD * (1.0 - exp(-t_col / 6.0)) .* (t_col >= 1);
 
 % 4. Public Stewardship Turnaround (u_17 = +1: Ostrom + Commercial-Stewardship Board):
-turn_crown_t  = -0.95 * (t_col >= 1 & t_col <= 4) + 0.012 * K_Book_BNZD * (1.0 - exp(-t_col / 6.0)) .* (t_col >= 2);
-turn_soc_t    = -0.95 * (t_col >= 1 & t_col <= 4) ...
+turn_crown_t  = -0.95 * gdp_scale * (t_col >= 1 & t_col <= 4) + 0.012 * K_Book_BNZD * (1.0 - exp(-t_col / 6.0)) .* (t_col >= 2);
+turn_soc_t    = -0.95 * gdp_scale * (t_col >= 1 & t_col <= 4) ...
               + (0.42 * AS.Stewardship_Reform_TFP_Lift * K_Book_BNZD) * (1.0 - exp(-t_col / 5.5)) .* (1.012 .^ t_col) .* (t_col >= 1);
 
 Crown_Tx4 = [sq_crown_t, priv_crown_t, maint_crown_t, turn_crown_t];
@@ -81,7 +87,7 @@ Out.SummaryTable            = SummaryTable;
 
 if verbose_flag
     disp(SummaryTable);
-    fprintf('  -> Irreversible Privatization Opportunity Loss vs. Turnaround: -NZD %.2fB (2%% SRTP) | -NZD %.2fB (8%% Hurdle) | Yr-10 Buyback Cost: NZD %.2fB\n', ...
-        OppLoss_2pct_BNZD, OppLoss_8pct_BNZD, Buyback_Cost_Yr10_BNZD);
+    fprintf('  -> Irreversible Privatization Opportunity Loss vs. Turnaround: -%s %.2fB (2%% SRTP) | -%s %.2fB (8%% Hurdle) | Yr-10 Buyback Cost: %s %.2fB\n', ...
+        curr_iso, OppLoss_2pct_BNZD, curr_iso, OppLoss_8pct_BNZD, curr_iso, Buyback_Cost_Yr10_BNZD);
 end
 end

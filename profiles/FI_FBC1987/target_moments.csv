@@ -1,0 +1,12 @@
+# Empirical Target Moments: Observed 2025 Finland (THL FBC-1987/1997, StatFin 2025, Varke 2025)
+Moment_ID,Target_Val,Weight,Description
+Struggling_Launch_Share,0.072,2.5,"National share of youth in h1-h2 struggling launch bins (7.2% exclusive NEET/no-upper-sec; 5-7% GLOSSARY)"
+Zero_ChildInv_Share,0.055,1.5,"Share of households in housing-cost/material overburden (>30% disp income = 5.5% Eurostat)"
+ChildInv_Q5_Q1_Ratio,1.450,1.5,"Compressed Q5/Q1 early/schooling investment ratio (95% public ECEC + 98.4% public schooling)"
+Labor_FTE_Share,0.690,1.0,"Working-age full-time equivalent employment share"
+Labor_PT_Share,0.145,1.0,"Working-age part-time employment share"
+LateCareer_Wage_Drop,-0.105,1.0,"Log mean human-capital change from age bin j=7 to j=9"
+Homeowner_Young_Share,0.310,1.5,"Young household (j=2) homeownership share (slipped post-2022 rate hike & ASP squeeze)"
+Homeowner_Retiree_Share,0.810,1.0,"Retiree household (j=10) homeownership share"
+Homeowner_Agg_Share,0.690,1.5,"Aggregate household homeownership rate"
+Estate_To_GDP_Ratio,0.062,1.0,"Annual aggregate bequest flow relative to GDP proxy"

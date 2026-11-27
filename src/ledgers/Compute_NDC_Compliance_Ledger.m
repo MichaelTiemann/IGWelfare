@@ -18,11 +18,17 @@ Pop_W   = Params.Pop_Weights_4(:);
 t_yr   = (2025:1:2060)';
 dt_col = t_yr - 2025;
 
-E_NDC_cap = 57.1 * (t_yr <= 2030) ...
-          + (57.1 - (57.1 - 40.2) * min(1.0, max(0.0, (t_yr - 2030) / 5.0))) .* ((t_yr > 2030) & (t_yr <= 2035)) ...
-          + (40.2 - (40.2 - 12.0) * min(1.0, max(0.0, (t_yr - 2035) / 15.0))) .* (t_yr > 2035);
-
-E_2025_row = NDC.MtCO2e_2025_reg(:)'; % [26.5, 16.2, 12.8, 12.0] = 67.5 MtCO2e/yr
+E_2025_row   = NDC.MtCO2e_2025_reg(:)'; % [26.5, 16.2, 12.8, 12.0] = 67.5 MtCO2e/yr on NZ
+mt_scale_ndc = 1.0;
+if ~strncmpi(Params.Profile_ID, 'NZ_', 3)
+    mt_scale_ndc = sum(E_2025_row) / 67.5;
+end
+c30 = 57.1 * mt_scale_ndc;
+c35 = 40.2 * mt_scale_ndc;
+c50 = 12.0 * mt_scale_ndc;
+E_NDC_cap = c30 * (t_yr <= 2030) ...
+          + (c30 - (c30 - c35) * min(1.0, max(0.0, (t_yr - 2030) / 5.0))) .* ((t_yr > 2030) & (t_yr <= 2035)) ...
+          + (c35 - (c35 - c50) * min(1.0, max(0.0, (t_yr - 2035) / 15.0))) .* (t_yr > 2035);
 
 % 1. Rollback / Drift Trajectory (C16 = -1: EV deferral + pine saturation cliff post-2050):
 pine_sat_drag = 1.0 + 0.14 * max(0.0, (t_yr - 2048) / 12.0);
@@ -36,7 +42,7 @@ zh_shift_t = 1.0 - 0.58 * (1.0 ./ (1.0 + exp(-(dt_col - 9.0) / 4.5))) * [0.82, 0
 E_Exergy_Tx4 = E_2025_row .* (rel_pF_t .^ (-0.42 * eps_ev_t)) .* zh_shift_t;
 
 % 3. Exergy + Doc 1E Taiao Native Catchment Sinks (C15 = +1 & C16 = +1):
-taiao_sink  = (1.0 ./ (1.0 + exp(-(dt_col - 7.0) / 4.0))) * [3.40, 1.85, 1.10, 0.65];
+taiao_sink  = mt_scale_ndc * (1.0 ./ (1.0 + exp(-(dt_col - 7.0) / 4.0))) * [3.40, 1.85, 1.10, 0.65];
 E_Taiao_Tx4 = max(1.5, E_Exergy_Tx4 - taiao_sink);
 
 E_Tot_Tx3  = [sum(E_Roll_Tx4, 2), sum(E_Exergy_Tx4, 2), sum(E_Taiao_Tx4, 2)];

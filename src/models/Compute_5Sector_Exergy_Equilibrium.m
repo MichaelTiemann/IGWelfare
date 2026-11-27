@@ -95,8 +95,12 @@ p_F_mult_t     = 1.0 + 0.60 * oil_pulse;
 Fossil_Bill_t  = Ex.Fossil_Import_Bill_SS0_BNZD * p_F_mult_t .* fossil_mult_t .* (1.0 + 0.45 * dry_share_t);
 
 % 2. Paris NDC Net Emissions, Pine Saturation Cliff (Yr 25), & Clean-Green vs CBAM Terms-of-Trade
-E_NDC_cap_t = 1.00 - 0.35 * (1.0 - exp(-t_col / 8.0)) - 0.43 * (t_col >= 10.0) .* (1.0 - exp(-max(0, t_col - 10.0) / 12.0));
-kappa_pine  = max(0.0, 1.0 - 0.75 * min(1.0, w_clean) - 0.25 * w_p2);
+e_ndc_1     = NDC.E_NDC_schedule(2);
+e_ndc_2     = NDC.E_NDC_schedule(3);
+E_NDC_cap_t = 1.00 - (1.00 - e_ndc_1) * (1.0 - exp(-t_col / 8.0)) ...
+            - (e_ndc_1 - e_ndc_2) * (t_col >= 10.0) .* (1.0 - exp(-max(0, t_col - 10.0) / 12.0));
+kp0         = NDC.kappa_pine_schedule(1);
+kappa_pine  = max(0.0, kp0 * (1.0 - 0.75 * min(1.0, w_clean) - 0.25 * w_p2));
 S_pine_t    = 0.18 * kappa_pine .* exp(-0.085 * max(0.0, t_col - 25.0));
 S_native_t  = (0.14 * min(1.0, w_clean) + 0.06 * max(0, civic_s) * w_p1) .* min(1.0, t_col / 22.0);
 E_gross_t   = 1.00 * (0.35 + 0.65 * fossil_mult_t) .* (1.0 - 0.22 * min(1.0, w_clean)) + 0.05 * hydro_pulse;
@@ -108,7 +112,8 @@ Pi_trade_Tx4 = max(0.68, 1.0 + theta_ag_t * NDC.pi_green_reg - ndc_gap_t * NDC.c
              - tot_pulse * [0.120, 0.095, 0.045, 0.030]);
 Pi_trade_S1  = Pi_trade_Tx4 * [0.46; 0.30; 0.14; 0.10];
 
-NDC_Outflow_BNZD_t = 67.5 * ndc_gap_t .* (NDC.p_NDC_intl_BNZD_per_Mt * (1.012 .^ t_col));
+mt_base_tot        = sum(NDC.MtCO2e_2025_reg);
+NDC_Outflow_BNZD_t = mt_base_tot * ndc_gap_t .* (NDC.p_NDC_intl_BNZD_per_Mt * (1.012 .^ t_col));
 
 % 3. Five-Sector Labor Reallocation (Internal Sector 4A Reactive -> Capacitating Release!) & Output [T x 6]
 L0_row = MT.Paid_kFTE(:)';
