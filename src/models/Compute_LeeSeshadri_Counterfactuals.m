@@ -187,21 +187,48 @@ for p_idx = 1:N_pol
         ebar_sr_val = earn_SR_sum / max(1e-12, mass_SR_work);
         ebar_lr_val = earn_LR_sum / max(1e-12, mass_LR_work);
 
-        % Parent-Child IGE & Variance Explained at j_launch
-        Dist_p_SR = reshape(sum(sum(Dist_SR_k(:, :, :, :, j_launch), 1), 4), [n_h, n_th]);
-        Dist_p_LR = reshape(sum(sum(Dist_LR_k(:, :, :, :, j_launch), 1), 4), [n_h, n_th]);
-        [H_grid, TH_grid] = ndgrid(log(h_vec), log(th_vec));
+        % Parent-Child Lifetime Earnings IGE & Variance Explained at j_launch
+        % Mirror exact 5D Stage-3 launch operator from Build_IntergenTransitionMatrix.m (0.68 * log(theta_c)
+        % minus parental asset crowding & unbuffered adolescent stress) over [n_a1 x n_h x n_th]:
+        a1_vec    = a_grid_5D.(hh_type)(1:n_a1);
+        Q_hk      = Params_p.Q_reg.(hh_type);
+        Q_bk      = Params_p.Q_reg_base.(hh_type);
+        K_wk      = Params_p.K_whanau.(hh_type);
+        g2_k      = Params_p.G_ece_stage2.(hh_type);
+        M_ment_k  = min(1.0, max(0.0, (g2_k - Params_p.G_ece1_sched(1)) / max(1e-6, Params_p.G_ece2_sched(2) - Params_p.G_ece1_sched(1))));
+        M_tr_k    = M_ment_k * (0.45 + 0.55 * min(1.0, K_wk / 0.35));
+        lam_b_k   = 0.38;
+        if isfield(Params_p, 'lambda_psy') && isstruct(Params_p.lambda_psy) && isfield(Params_p.lambda_psy, hh_type)
+            lam_b_k = Params_p.lambda_psy.(hh_type);
+        end
+        lam_p_k   = max(0.22 * 0.38, 0.22 * (lam_b_k / 0.38) * (1.0 - 0.52 * M_tr_k) * (1.0 - 0.35 * min(1.0, K_wk / 0.38)));
+        unbuf_k   = max(0.38 * lam_p_k, (1.0 - 0.80 * M_tr_k) * (1.0 - 0.55 * K_wk));
+        stress_at = 0.038 .* ((0.55 * double(a1_vec < 0.12 * Q_hk) + 0.45 * double(reshape(th_vec, [1, 1, n_th]) < 0.85)) ...
+                  .* (1.0 + 0.65 * lam_p_k) + lam_p_k) .* unbuf_k;
+        psi_cr    = 0.14;
+        if isfield(Params_p, 'psi_crowd') && ~isempty(Params_p.psi_crowd), psi_cr = Params_p.psi_crowd; end
+        crowd_a   = psi_cr * (Q_hk / max(0.50, Q_bk)) * double(a1_vec < 0.20 * Q_hk);
+        Y_ch_3D   = repmat(reshape(log(th_vec), [1, 1, n_th]) - (stress_at + reshape(crowd_a, [n_a1, 1, 1])) ./ 0.68, [1, n_h, 1]);
+        H_par_3D  = repmat(reshape(log(h_vec), [1, n_h, 1]), [n_a1, 1, n_th]);
 
-        w_p_sr = Dist_p_SR(:) / max(1e-12, sum(Dist_p_SR(:)));
-        w_p_lr = Dist_p_LR(:) / max(1e-12, sum(Dist_p_LR(:)));
+        Dist_3_SR = reshape(sum(Dist_SR_k(:, :, :, :, j_launch), 4), [n_a1, n_h, n_th]);
+        Dist_3_LR = reshape(sum(Dist_LR_k(:, :, :, :, j_launch), 4), [n_a1, n_h, n_th]);
+        w3_sr     = Dist_3_SR(:) / max(1e-12, sum(Dist_3_SR(:)));
+        w3_lr     = Dist_3_LR(:) / max(1e-12, sum(Dist_3_LR(:)));
 
-        cov_sr = sum(w_p_sr .* (H_grid(:) - sum(w_p_sr.*H_grid(:))) .* (TH_grid(:) - sum(w_p_sr.*TH_grid(:))));
-        var_sr = sum(w_p_sr .* ((H_grid(:) - sum(w_p_sr.*H_grid(:))).^2));
-        cov_lr = sum(w_p_lr .* (H_grid(:) - sum(w_p_lr.*H_grid(:))) .* (TH_grid(:) - sum(w_p_lr.*TH_grid(:))));
-        var_lr = sum(w_p_lr .* ((H_grid(:) - sum(w_p_lr.*H_grid(:))).^2));
+        rho_ig    = 0.40;
+        if isfield(Params_p, 'rho_hc_ig') && ~isempty(Params_p.rho_hc_ig), rho_ig = Params_p.rho_hc_ig; end
+        cov_sr    = sum(w3_sr .* (H_par_3D(:) - sum(w3_sr .* H_par_3D(:))) .* (Y_ch_3D(:) - sum(w3_sr .* Y_ch_3D(:))));
+        var_sr    = sum(w3_sr .* ((H_par_3D(:) - sum(w3_sr .* H_par_3D(:))).^2));
+        cov_lr    = sum(w3_lr .* (H_par_3D(:) - sum(w3_lr .* H_par_3D(:))) .* (Y_ch_3D(:) - sum(w3_lr .* Y_ch_3D(:))));
+        var_lr    = sum(w3_lr .* ((H_par_3D(:) - sum(w3_lr .* H_par_3D(:))).^2));
 
-        IGE_SR(p_idx, r_idx) = max(0.15, min(0.65, cov_sr / max(1e-6, var_sr)));
-        IGE_LR(p_idx, r_idx) = max(0.15, min(0.65, cov_lr / max(1e-6, var_lr)));
+        IGE_SR(p_idx, r_idx) = max(0.10, min(0.65, rho_ig * (cov_sr / max(1e-8, var_sr))));
+        IGE_LR(p_idx, r_idx) = max(0.10, min(0.65, rho_ig * (cov_lr / max(1e-8, var_lr))));
+
+        Dist_p_LR = reshape(sum(Dist_3_LR, 1), [n_h, n_th]);
+        [~, TH_grid] = ndgrid(log(h_vec), log(th_vec));
+        w_p_lr    = Dist_p_LR(:) / max(1e-12, sum(Dist_p_LR(:)));
 
         var_th_lr = sum(w_p_lr .* ((TH_grid(:) - sum(w_p_lr.*TH_grid(:))).^2));
         VarExpl_h1(p_idx, r_idx)  = 100 * var_th_lr / (var_th_lr + Params_p.sigma_hc_ig^2);
