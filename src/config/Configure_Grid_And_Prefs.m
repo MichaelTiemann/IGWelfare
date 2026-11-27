@@ -64,4 +64,38 @@ Params.T_trans_years = 60;
 Params.T_trans       = round(Params.T_trans_years / dt);  % 20 (dt=3), 12 (dt=5), 30 (dt=2)
 Params.zeta_cohort   = 1 - (1 - 0.085)^scale_dt;
 
+%% 4. GE CLOSURE & PRICE-SOLVER SELECTION (Solve_Spatial_GE_Loop.m)
+% Canonical GE & Transition Path Anderson Acceleration Toggles:
+%   - Params.ge_method  = 'anderson' | 'broyden' | 'damped' | 'none'
+%   - Params.ge_closure = 'fixed_price' (default fast multipliers) | 'neoclassical' | 'keynesian'
+% Note: Params.ge_method overrides default Params.ge_closure, not the other way around
+
+if ~isfield(Params, 'ge_method') || isempty(Params.ge_method)
+    if isfield(Params, 'ge_closure') && any(strcmpi(Params.ge_closure, {'neoclassical', 'keynesian'}))
+        Params.ge_method = 'anderson';
+    else
+        Params.ge_method = 'none';
+    end
+end
+if any(strcmpi(Params.ge_method, {'anderson','broyden','damped'}))
+    if ~isfield(Params, 'ge_closure')
+        warning("selecting 'keynesian' for `Params.ge_closure`");
+        Params.ge_closure = 'keynesian';
+    elseif ~any(strcmpi(Params.ge_closure, {'fixed_price','neoclassical','keynesian'}))
+        error("unrecognized `Params.ge_closure` setting");
+    end
+    if strcmp(Params.ge_closure, 'fixed_price')
+        warning("When Params.ge_closure is 'fixed_price' the GE solver will not run");
+    end
+elseif strcmp(Params.ge_method, 'none')
+    if ~isfield(Params, 'ge_closure')
+        Params.ge_closure = 'fixed_price';
+    elseif ~strcmp(Params.ge_closure, 'fixed_price')
+        warning("overriding `Params.ge_closure` to 'fixed_price' since `Params.ge_method` set to 'none'");
+        Params.ge_closure = 'fixed_price';
+    end
+else
+    error("unrecognized `Params.ge_method` setting");
+end
+
 end

@@ -20,6 +20,8 @@ if exist('Phases', 'var'),                   tp_opts.Phases                   = 
 if exist('StateMetrics_Trans', 'var'),       tp_opts.StateMetrics_Trans       = StateMetrics_Trans;       end
 if exist('T_phase2_yr', 'var'),              tp_opts.T_phase2_yr              = T_phase2_yr;              end
 if exist('Phase2_Announcement_Mode', 'var'), tp_opts.Phase2_Announcement_Mode = Phase2_Announcement_Mode; end
+if exist('Params_SS1', 'var') && isstruct(Params_SS1), tp_opts.Params_SS1 = Params_SS1; end
+if exist('Params_SS2', 'var') && isstruct(Params_SS2), tp_opts.Params_SS2 = Params_SS2; end
 
 if exist('WelfareResults', 'var'), wr_in = WelfareResults; else, wr_in = struct(); end
 if exist('T1', 'var'),             t1_in = T1;             else, t1_in = [];       end
@@ -46,6 +48,9 @@ Cohort_Years             = TransOut.Cohort_Years;
 CE_Cohort                = TransOut.CE_Cohort;
 CE_Cohort_MIT            = TransOut.CE_Cohort_MIT;
 Q_path                   = TransOut.Q_path;
+w_path                   = TransOut.w_path;
+r_path                   = TransOut.r_path;
+PricePath                = TransOut.PricePath;
 Emig_Rate_Path           = TransOut.Emig_Rate_Path;
 Emig_path                = TransOut.Emig_path;
 Nat_Emig_path            = TransOut.Nat_Emig_path;

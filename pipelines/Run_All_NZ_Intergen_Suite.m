@@ -25,10 +25,12 @@ if exist('Params', 'var') && isstruct(Params)
     end
     if isfield(Params, 'Rollout_Mode'),       cmd_Rollout_Mode       = Params.Rollout_Mode;       end
     if isfield(Params, 'Contingency_Policy'), cmd_Contingency_Policy = Params.Contingency_Policy; end
+    if isfield(Params, 'ge_method'),          cmd_ge_method          = Params.ge_method;          end
+    if isfield(Params, 'ge_closure'),         cmd_ge_closure         = Params.ge_closure;         end
 end
 
 clearvars -except cmd_Force_Recompute cmd_Use_Cache cmd_Enable_Duopoly_Kai cmd_dt cmd_n_workers ...
-                  cmd_Profile_Name cmd_Rollout_Mode cmd_Contingency_Policy;
+                  cmd_Profile_Name cmd_Rollout_Mode cmd_Contingency_Policy cmd_ge_method cmd_ge_closure;
 clc; close all;
 suite_timer = tic;
 
@@ -50,10 +52,12 @@ if exist('cmd_Contingency_Policy', 'var'), Params.Contingency_Policy = cmd_Conti
 if exist('cmd_dt', 'var'),                 Params.dt = cmd_dt;                       else, Params.dt = 3;                          end
 if exist('cmd_n_workers', 'var'),          Params.n_workers = cmd_n_workers;         end
 if exist('cmd_Enable_Duopoly_Kai', 'var'), Params.Enable_Duopoly_Kai = cmd_Enable_Duopoly_Kai;                                     end
+if exist('cmd_ge_method', 'var'),          Params.ge_method = cmd_ge_method;                                                end
+if exist('cmd_ge_closure', 'var'),         Params.ge_closure = cmd_ge_closure;                                              end
 if exist('cmd_Use_Cache', 'var'),          Use_Saved_Cache = cmd_Use_Cache;          else, Use_Saved_Cache = true;                 end
 if exist('cmd_Force_Recompute', 'var'),    Force_Recompute_All = cmd_Force_Recompute; else, Force_Recompute_All = false;           end
 clear cmd_Force_Recompute cmd_Use_Cache cmd_Enable_Duopoly_Kai cmd_dt cmd_n_workers ...
-      cmd_Profile_Name cmd_Rollout_Mode cmd_Contingency_Policy;
+      cmd_Profile_Name cmd_Rollout_Mode cmd_Contingency_Policy cmd_ge_method cmd_ge_closure;
 
 Use_ExpAsset_Pipeline  = true;  % true = Full 5D Experience-Asset Lifecycle Human Capital Pipeline
 Run_SMM_Calibration    = false; % true = Run Sobol global pre-screening + local fminsearch SMM

@@ -189,8 +189,13 @@ end
 if isfield(spec, 'tau_l_delta') && ~isempty(spec.tau_l_delta)
     P_PE.tau_l = max(0.05, P_PE.tau_l + spec.tau_l_delta);
 end
+% In Stage 3A (Short-Run PE): Keynesian closure features stronger short-run aggregate demand / employment crowding-in
 if isfield(spec, 'Frac_struggling') && isfield(P_PE, 'Frac_struggling')
-    P_PE.Frac_struggling = 0.5 * P_PE.Frac_struggling + 0.5 * spec.Frac_struggling;
+    if isfield(Params_SS0, 'ge_closure') && strcmpi(Params_SS0.ge_closure, 'keynesian')
+        P_PE.Frac_struggling = 0.35 * P_PE.Frac_struggling + 0.65 * spec.Frac_struggling;
+    else
+        P_PE.Frac_struggling = 0.50 * P_PE.Frac_struggling + 0.50 * spec.Frac_struggling;
+    end
 end
 P_PE.Transfer_Geo     = spec.Transfer_Geo;
 P_PE.Reform_Intensity = spec.Intensity * mean_eta_m;

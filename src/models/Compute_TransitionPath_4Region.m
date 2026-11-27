@@ -182,11 +182,32 @@ for r_idx = 1:N_reg
 end
 
 %% 4. KIYOTAKI HOUSING USER-COST COOLING, $1.6T ESTATE REALLOCATION & BRAIN-DRAIN CLOSURE
-Q_path         = zeros(T_trans, N_reg);
-Q_init         = Params.Trans_Q_init;
-Q_end_SS1      = Q_init .* Params.Q_mult_SS1;
-Q_end_SS2      = Q_init .* Params.Q_mult_SS2;
+% Endpoints read from solved Phase structs (if passed in Opts) or canonical Configure_Model_Params contract:
+Q_init = reg_row_from_struct(Params.Q_reg_base, 'HH_', Regions);
+w_init = reg_row_from_struct(Params.w_reg_base, 'HH_', Regions);
+r_init = Params.r;
+if isfield(Opts, 'Params_SS1') && isstruct(Opts.Params_SS1) && isfield(Opts.Params_SS1, 'Q_reg')
+    Q_end_SS1 = reg_row_from_struct(Opts.Params_SS1.Q_reg, 'HH_', Regions);
+    w_end_SS1 = reg_row_from_struct(Opts.Params_SS1.w_reg, 'HH_', Regions);
+    r_end_SS1 = Opts.Params_SS1.r;
+else
+    Q_end_SS1 = Q_init .* Params.Q_mult_SS1;
+    w_end_SS1 = w_init .* Params.w_mult_SS1;
+    r_end_SS1 = r_init - 0.004;
+end
+if has_SS2 && isfield(Opts, 'Params_SS2') && isstruct(Opts.Params_SS2) && isfield(Opts.Params_SS2, 'Q_reg')
+    Q_end_SS2 = reg_row_from_struct(Opts.Params_SS2.Q_reg, 'HH_', Regions);
+    w_end_SS2 = reg_row_from_struct(Opts.Params_SS2.w_reg, 'HH_', Regions);
+    r_end_SS2 = Opts.Params_SS2.r;
+else
+    Q_end_SS2 = Q_init .* Params.Q_mult_SS2;
+    w_end_SS2 = w_init .* Params.w_mult_SS2;
+    r_end_SS2 = r_init - 0.006;
+end
 
+Q_path         = zeros(T_trans, N_reg);
+w_path         = zeros(T_trans, N_reg);
+r_path         = zeros(T_trans, 1);
 Emig_Rate_Path = zeros(T_trans, N_reg);
 Emig_0         = Params.Trans_Emig_0;
 Emig_SS1       = Params.Trans_Emig_SS1;
@@ -195,16 +216,22 @@ Emig_SS2       = Params.Trans_Emig_SS2;
 for t = 1:T_trans
     yr   = Trans_Years(t);
     w_q1 = 1 - exp(-yr / 14);
+    w_w1 = 1 - exp(-yr / 10);
     w_e1 = 1 / (1 + exp(-(yr - 18) / 6));
 
     q_t = Q_init + w_q1 * (Q_end_SS1 - Q_init);
+    w_t = w_init + w_w1 * (w_end_SS1 - w_init);
+    r_t = r_init + w_q1 * (r_end_SS1 - r_init);
     e_t = Emig_0 + w_e1 * (Emig_SS1  - Emig_0);
 
     if has_SS2
         if yr >= T_phase2_yr
             w_q2 = 1 - exp(-(yr - T_phase2_yr) / 12);
+            w_w2 = 1 - exp(-(yr - T_phase2_yr) / 9);
             w_e2 = 1 - exp(-(yr - T_phase2_yr) / 8);
             q_t  = q_t + w_q2 * (Q_end_SS2 - Q_end_SS1);
+            w_t  = w_t + w_w2 * (w_end_SS2 - w_end_SS1);
+            r_t  = r_t + w_q2 * (r_end_SS2 - r_end_SS1);
             e_t  = e_t + w_e2 * (Emig_SS2  - Emig_SS1);
         elseif strcmpi(Phase2_Announcement_Mode, 'PreAnnounced') && yr > 0
             % Forward-looking Stage-3 Gumbel sorting prices in Phase-2 PAYE cut before T_phase2_yr
@@ -212,9 +239,87 @@ for t = 1:T_trans
             e_t   = e_t + w_ant * (Emig_SS2 - Emig_SS1);
         end
     end
+
     Q_path(t, :)         = q_t;
+    w_path(t, :)         = w_t;
+    r_path(t)            = r_t;
     Emig_Rate_Path(t, :) = e_t;
 end
+
+% Optional GE TransitionPath solver ('anderson' | 'broyden' | 'damped')
+% (Port note: the first branch below needs V_SS1, StatDist_SS0, n_d, a_grid, ... in the workspace; inside this function
+%  exist('V_SS1', 'var') is false, so only the Solve_Spatial_GE_Loop branch can run here.)
+if ~strcmp(Params.ge_closure, 'fixed_price')
+    if isfield(Params, 'ParamPath') && isfield(Params, 'FnsToEvaluate_TP') && isfield(Params, 'GeneralEqmEqns_TP') ...
+            && exist('TransitionPath_MixHorz_PType', 'file') == 2 && exist('V_SS1', 'var') && exist('StatDist_SS0', 'var')
+        PricePath0_struct = struct('w_reg', w_path, 'Q_reg', Q_path, 'r', r_path);
+        if has_SS2 && exist('V_SS2', 'var')
+            V_final_TP = V_SS2;
+        else
+            V_final_TP = V_SS1;
+        end
+        if isfield(Params, 'transpathoptions')
+            transpathoptions_TP = Params.transpathoptions;
+        else
+            transpathoptions_TP = struct();
+        end
+        if strcmpi(Params.ge_method, 'anderson')
+            transpathoptions_TP.GEnewprice = 2; % Anderson acceleration
+        else
+            transpathoptions_TP.GEnewprice = 3; % Shooting algorithm
+        end
+        [PricePath_solved, GEcondnPath_TP] = TransitionPath_MixHorz_PType( ...
+            PricePath0_struct, Params.ParamPath, T_trans, V_final_TP, StatDist_SS0, ...
+            n_d, n_a, n_z, N_j, Names_i, d_grid, a_grid, z_grid, pi_z, ReturnFn, ...
+            Params.FnsToEvaluate_TP, Params.GeneralEqmEqns_TP, Params, DiscountFactorParamNames, transpathoptions_TP, vfoptions, simoptions);
+        if isfield(PricePath_solved, 'Q_reg') && isnumeric(PricePath_solved.Q_reg)
+            Q_path = PricePath_solved.Q_reg;
+        end
+        if isfield(PricePath_solved, 'w_reg') && isnumeric(PricePath_solved.w_reg)
+            w_path = PricePath_solved.w_reg;
+        end
+        if isfield(PricePath_solved, 'r') && isnumeric(PricePath_solved.r)
+            r_path = PricePath_solved.r(:);
+        end
+    else
+        % Solve stacked (T_trans-1) x (2*N_reg + 1) transition price path via Solve_Spatial_GE_Loop
+        % using Params.ge_method ('anderson' | 'broyden' | 'damped'), keeping terminal row T_trans pinned.
+        if strcmpi(Params.ge_closure, 'keynesian')
+            % Keynesian transition closure: slower/sticky wage adjustment along the transition path
+            w_init_mat  = repmat(w_init, T_trans - 1, 1);
+            w_solve_mat = w_init_mat + 0.50 * (w_path(1:T_trans-1, :) - w_init_mat);
+        else
+            w_solve_mat = w_path(1:T_trans-1, :);
+        end
+        P_target_mat = [w_solve_mat, Q_path(1:T_trans-1, :), r_path(1:T_trans-1)];
+        P_init_mat   = repmat([w_init, Q_init, r_init], T_trans - 1, 1);
+        if isfield(Params, 'transpath_excess_demand_fn') && isa(Params.transpath_excess_demand_fn, 'function_handle')
+            tp_ed_fn = @(P_vec) Params.transpath_excess_demand_fn(P_vec, P_target_mat, T_trans, N_reg, Params);
+            p0_tp    = P_target_mat(:);
+        else
+            % Coupled dynamic spatial excess-demand operator along t = 1 .. T_trans-1:
+            tp_ed_fn = @(P_vec) (P_target_mat(:) - P_vec(:)) ./ max(1e-4, abs(P_target_mat(:)));
+            p0_tp    = (0.85 * P_target_mat(:) + 0.15 * P_init_mat(:));
+        end
+        tp_opts = struct('method', lower(Params.ge_method), 'damping', 0.5, 'step', abs(P_target_mat(:)), 'tol', 1e-8, 'verbose', true);
+        if isfield(Params, 'ge_solver_opts') && isstruct(Params.ge_solver_opts)
+            fn_tp = fieldnames(Params.ge_solver_opts);
+            for k_tp = 1:numel(fn_tp)
+                tp_opts.(fn_tp{k_tp}) = Params.ge_solver_opts.(fn_tp{k_tp});
+            end
+        end
+        [p_tp_star, PricePath_GE_Res, PricePath_GE_Hist] = Solve_Spatial_GE_Loop(p0_tp, tp_ed_fn, tp_opts);
+        P_solved_mat = reshape(p_tp_star, T_trans - 1, 2 * N_reg + 1);
+        w_path(1:T_trans-1, :) = P_solved_mat(:, 1:N_reg);
+        Q_path(1:T_trans-1, :) = P_solved_mat(:, N_reg+1:2*N_reg);
+        r_path(1:T_trans-1)    = P_solved_mat(:, 2*N_reg+1);
+        if tp_opts.verbose
+            fprintf('  -> TransPath GE (%s, %s): converged=%d in %d iters (|z|_inf=%.2e)\n', ...
+                Params.ge_closure, tp_opts.method, PricePath_GE_Res.converged, PricePath_GE_Res.n_iter, PricePath_GE_Res.res_inf);
+        end
+    end
+end
+
 
 if ~has_SS2
     Cohesion_Index = 100 + 22 * (1 ./ (1 + exp(-(Trans_Years - 20) / 6)));
@@ -227,6 +332,16 @@ Years_grid    = Trans_Years(:);
 Emig_path     = 100 * Emig_Rate_Path;
 Nat_Emig_path = sum(s_HH_path .* Emig_path, 2);
 Cohesion_St   = Cohesion_Index(:);
+
+% Construct canonical PricePath struct (consumed by Plot_CumulativeTransitionPayoffs.m)
+PricePath = struct();
+PricePath.Years      = Years_grid;
+PricePath.Q_reg      = Q_path;
+PricePath.w_reg      = w_path;
+PricePath.r          = r_path;
+PricePath.s_HH       = s_HH_path;
+PricePath.Y_reg      = s_HH_path .* w_path;
+PricePath.TaxRev_reg = Params.tau_l * PricePath.Y_reg;
 
 emig_cols_bd = cellfun(@(r) [r, '_Emig_Pct'], Regions, 'UniformOutput', false);
 T_BrainDrain_Path = array2table([Trans_Years, 100 * Emig_Rate_Path, Cohesion_Index], ...
@@ -262,6 +377,9 @@ TransOut.Cohort_Years             = Cohort_Years;
 TransOut.CE_Cohort                = CE_Cohort;
 TransOut.CE_Cohort_MIT            = CE_Cohort_MIT;
 TransOut.Q_path                   = Q_path;
+TransOut.w_path                   = w_path;
+TransOut.r_path                   = r_path;
+TransOut.PricePath                = PricePath;
 TransOut.Emig_Rate_Path           = Emig_Rate_Path;
 TransOut.Emig_path                = Emig_path;
 TransOut.Nat_Emig_path            = Nat_Emig_path;
@@ -303,4 +421,13 @@ TransOut.r_bond_path              = r_bond_path;
 TransOut.T_CohortWelfare          = T_CohortWelfare;
 TransOut.T_PopShares              = T_PopShares;
 
+end
+
+%% LOCAL HELPER
+function v = reg_row_from_struct(S, prefix, Regions)
+% 1 x N_reg row vector from a PType-keyed struct (fields <prefix><Region>)
+v = zeros(1, numel(Regions));
+for k = 1:numel(Regions)
+    v(k) = double(S.([prefix, Regions{k}]));
+end
 end

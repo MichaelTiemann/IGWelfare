@@ -155,6 +155,46 @@ for m = 1:M_reforms
         elder_time_mult = 1 + 0.16 * tanh((65 - super_age_m) / 1.8);
     end
 
+    % Optional endogenous GE market-clearing closure via Solve_Spatial_GE_Loop ('damped' | 'broyden' | 'anderson')
+    if ~strcmpi(Params_SS0.ge_closure, 'fixed_price') && ~strcmpi(Params_SS0.ge_method, 'none')
+        w_base_ge   = cellfun(@(r) Params_SS0.w_reg_base.(['HH_', r]), Regions);
+        Q_base_ge   = cellfun(@(r) Params_SS0.Q_reg_base.(['HH_', r]), Regions);
+        K_base_ge   = cellfun(@(r) Params_SS0.K_whanau_base.(['HH_', r]), Regions);
+        w_target_ge = cellfun(@(r) P_GE.w_reg.(['HH_', r]), Regions);
+        Q_target_ge = cellfun(@(r) P_GE.Q_reg.(['HH_', r]), Regions);
+        p_target_ge = [w_target_ge(:); Q_target_ge(:); P_GE.r];
+        if isfield(Params_SS0, 'excess_demand_fn') && isa(Params_SS0.excess_demand_fn, 'function_handle')
+            ed_fn_m = @(p) Params_SS0.excess_demand_fn(p, P_GE, z_grid_m, pi_z_m);
+            p0_ge   = p_target_ge;
+        else
+            ed_fn_m = @(p) (p_target_ge - p(:)) ./ max(1e-4, abs(p_target_ge));
+            p0_ge   = [w_base_ge(:); Q_base_ge(:); Params_SS0.r];
+        end
+        ge_opts = struct('method', lower(Params_SS0.ge_method), 'damping', 0.5, 'step', abs(p0_ge), 'tol', 1e-8);
+        if isfield(Params_SS0, 'ge_solver_opts') && isstruct(Params_SS0.ge_solver_opts)
+            fn_ge = fieldnames(Params_SS0.ge_solver_opts);
+            for k_ge = 1:numel(fn_ge)
+                ge_opts.(fn_ge{k_ge}) = Params_SS0.ge_solver_opts.(fn_ge{k_ge});
+            end
+        end
+        [p_star_m, ge_res_m, ge_hist_m] = Solve_Spatial_GE_Loop(p0_ge, ed_fn_m, ge_opts);
+        WelfareResults.(p_code).GE_Solver = ge_res_m;
+        WelfareResults.(p_code).GE_Hist   = ge_hist_m;
+        w_star_ge      = reshape(p_star_m(1:N_reg), 1, N_reg);
+        Q_star_ge      = reshape(p_star_m(N_reg+1:2*N_reg), 1, N_reg);
+        P_GE.r         = p_star_m(2*N_reg + 1);
+        q_ratio_vec    = Q_star_ge ./ Q_base_ge;
+        elder_home_vec = min(1.25, max(0.50, (1.0 ./ q_ratio_vec) .^ 0.35));
+        K_star_ge      = K_base_ge .* elder_home_vec * elder_time_mult;
+        for r_idx = 1:N_reg
+            reg = Regions{r_idx};
+            P_GE.w_reg.(['HH_', reg])    = w_star_ge(r_idx);
+            P_GE.w_reg.(['Firm_', reg])  = w_star_ge(r_idx);
+            P_GE.Q_reg.(['HH_', reg])    = Q_star_ge(r_idx);
+            P_GE.K_whanau.(['HH_', reg]) = K_star_ge(r_idx);
+        end
+    end
+
     t_wm = tic;
     [V_GE_Exo_m, Policy_GE_Exo_m] = Solve_VFI_PhaseSplit(n_d, n_a, n_z, N_j, d_grid, a_grid, z_grid_m, pi_z_m, ...
         ReturnFn, P_GE, DiscountFactorParamNames, vfoptions, Regions);
@@ -165,6 +205,10 @@ for m = 1:M_reforms
     % 3C. Stage C: Long-Run GE with Endogenous 4x5 Intergenerational Matrix (jDist_SSm)
     jDist_m  = jDist_prev;
     ig_resid = Inf;
+    ig_dX    = [];
+    ig_dF    = [];
+    ig_xprev = [];
+    ig_fprev = [];
     for ig_it = 1:n_igm_iters
         StatDist_m = StationaryDist_MixHorz_PType(jDist_m, AgeWeightsParamNames, ...
             PTypeDistParamNames, Policy_GE_Exo_m, n_d, n_a, n_z, N_j, Names_i, ...
@@ -172,9 +216,44 @@ for m = 1:M_reforms
         [jDist_m_new, IG_Diag_m] = Build_IntergenTransitionMatrix(StatDist_m, Policy_GE_Exo_m, V_GE_Exo_m, ...
             n_d, n_a, n_z, d_grid, a_grid, z_grid_m, pi_z_m, P_GE, Regions);
         ig_resid = max(cellfun(@(r) max(abs(jDist_m_new.(['HH_', r])(:) - jDist_m.(['HH_', r])(:))), Regions));
-        jDist_m  = jDist_m_new;
         if ig_resid < 1e-5
+            jDist_m = jDist_m_new;
             break;
+        end
+        if strcmp(Params_SS0.ge_method, 'anderson')
+            % Type-II Anderson acceleration across the stacked regional jDist simplexes
+            x_cur = []; g_cur = [];
+            for r_i = 1:N_reg
+                hf = ['HH_', Regions{r_i}];
+                x_cur = [x_cur; double(gather(jDist_m.(hf)(:)))]; %#ok<AGROW>
+                g_cur = [g_cur; double(gather(jDist_m_new.(hf)(:)))]; %#ok<AGROW>
+            end
+            f_cur = g_cur - x_cur;
+            if ~isempty(ig_xprev)
+                ig_dX = [ig_dX, x_cur - ig_xprev]; %#ok<AGROW>
+                ig_dF = [ig_dF, f_cur - ig_fprev]; %#ok<AGROW>
+                if size(ig_dF, 2) > 4
+                    ig_dX(:, 1) = []; ig_dF(:, 1) = [];
+                end
+            end
+            ig_xprev = x_cur; ig_fprev = f_cur;
+            if ig_it > 2 && ~isempty(ig_dF)
+                mk_ig  = size(ig_dF, 2);
+                df_sc  = max(1e-16, norm(ig_dF, 'fro')^2);
+                gam_ig = (ig_dF' * ig_dF + 1e-10 * df_sc * eye(mk_ig)) \ (ig_dF' * f_cur);
+                x_next = max(0, g_cur - (ig_dX + ig_dF) * gam_ig);
+                n_st_r = numel(x_next) / N_reg;
+                for r_i = 1:N_reg
+                    hf = ['HH_', Regions{r_i}];
+                    seg = x_next((r_i-1)*n_st_r + (1:n_st_r));
+                    seg = seg / max(1e-12, sum(seg));
+                    jDist_m.(hf) = reshape(seg, size(jDist_m_new.(hf)));
+                end
+            else
+                jDist_m = jDist_m_new;
+            end
+        else
+            jDist_m = jDist_m_new;
         end
     end
     if ~(ig_resid < 1e-5) && n_igm_iters >= 6
