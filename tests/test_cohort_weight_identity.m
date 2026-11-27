@@ -12,9 +12,9 @@ function test_cohort_weight_identity()
 %   Cond = Flow ./ max(0.01, Pop_29/100) with Pop_29 in percent, so the 0.01 floor is a
 %   1% population share, not a numerical guard; nodes below 1% get CondPerChild that
 %   is too low by a factor pop/1%.
-here = fileparts(mfilename('fullpath'));
-addpath(here);
-outDir = fullfile(fileparts(here), 'output', 'NZ_Dunedin1972');
+testsDir = fileparts(mfilename('fullpath'));
+addpath(testsDir);
+outDir = fullfile(testsDir, 'output', 'NZ_Dunedin1972');
 TOL = 0.015;
 regions = {'National', 'Auckland', 'Large', 'Small', 'Urban', 'Rural'};
 scens   = {'SS0', 'SS1', 'SS2'};

@@ -62,7 +62,8 @@ if ~exist('Interactive_Hover_Mode', 'var') || isempty(Interactive_Hover_Mode)
     Interactive_Hover_Mode = true; % TRUE = keep live vector SSankey figure open for mouse-hover narratives
 end
 
-if ~exist('OutputDir', 'var') || isempty(OutputDir) || ~isfolder(OutputDir)
+% Always re-scope OutputDir if empty or pointing to a different profile folder
+if ~exist('OutputDir', 'var') || isempty(OutputDir) || ~isfolder(OutputDir) || isempty(strfind(OutputDir, DS_sk.Profile_ID))
     OutputDir = Resolve_IGW_OutputDir('', DS_sk.Profile_ID);
 end
 
