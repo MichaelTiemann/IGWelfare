@@ -38,7 +38,7 @@ for r_tg = 1:N_reg
     t_geo_ss1.(hk_tg) = round(Params_SS0.Transfer_Geo.(hk_tg) * m_tg, 4);
 end
 Reform_Phase_Specs(1).Transfer_Geo = t_geo_ss1;
-Reform_Phase_Specs(1).super_age    = Params_SS0.super_age_SS1;
+Reform_Phase_Specs(1).super_age    = Params_SS0.Super_Age_SS1;
 
 if Enable_SS2_Phase
     % --- PHASE 2 (SS2): 2050 Actuarial Liability Release, Debt-Sinking & PAYE Tax-Relief Harvest ---
@@ -67,7 +67,7 @@ if Enable_SS2_Phase
         t_geo_ss2.(['HH_', Regions{r_tg}]) = T2_vec(r_tg);
     end
     Reform_Phase_Specs(2).Transfer_Geo = t_geo_ss2;
-    Reform_Phase_Specs(2).super_age    = Params_SS0.super_age_SS2;
+    Reform_Phase_Specs(2).super_age    = Params_SS0.Super_Age_SS2;
 
     if isfield(Params_SS0, 'tau_l_delta_SS2') && ~isempty(Params_SS0.tau_l_delta_SS2) && isfinite(Params_SS0.tau_l_delta_SS2)
         % Synchronize directly with Compute_FiscalSolvency_And_Fertility when Step 3 has evaluated exact SS2 solvency:

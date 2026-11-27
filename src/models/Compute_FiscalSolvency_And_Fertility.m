@@ -39,8 +39,8 @@ else
     Reg_HH_Shares = Params.Pop_Weights_4(:);
 end
 
-super_age_ss2_target = Params.super_age_SS2;
-A_base               = Params.super_age_base;
+super_age_ss2_target = Params.Super_Age_SS2;
+A_base               = Params.Super_Age_Base;
 
 % Fast O(1) re-anchoring path when Step 6 T1 arrives after Step 3 solved/loaded FertOut:
 if isfield(Opts, 'ReanchorFrom') && isstruct(Opts.ReanchorFrom) && isfield(Opts.ReanchorFrom, 'raw_curve_ss2')

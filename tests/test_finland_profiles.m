@@ -25,6 +25,26 @@ function test_finland_profiles()
     CatTpl = Load_Commitment_Catalog(DTpl);
     assert(numel(CatTpl.Commitment_IDs) == 26, 'TEMPLATE_Profile commitment_catalog.csv must contain 26 commitments (C01..C18, C21..C28).');
 
+    % Verify strict zero-default schema backstop rejects incomplete profile.yaml:
+    [~, tmp_tok] = fileparts(tempname);
+    bad_id  = ['TMP_INCOMPLETE_', regexprep(tmp_tok, '[^a-zA-Z0-9]', '')];
+    bad_dir = fullfile(igw_root, 'profiles', bad_id);
+    mkdir(bad_dir);
+    cleanup_bad = onCleanup(@() rmdir(bad_dir, 's'));
+    tpl_txt = fileread(fullfile(igw_root, 'profiles', 'TEMPLATE_Profile', 'profile.yaml'));
+    bad_txt = regexprep(tpl_txt, '^\s*tau_l:[^\r\n]*[\r\n]+', '', 'lineanchors');
+    bad_txt = strrep(bad_txt, 'TEMPLATE_Profile', bad_id);
+    assert(isempty(strfind(bad_txt, 'tau_l:')), 'Test setup failed to strip tau_l from synthetic profile.yaml.');
+    fid = fopen(fullfile(bad_dir, 'profile.yaml'), 'w'); fwrite(fid, bad_txt); fclose(fid);
+    copyfile(fullfile(igw_root, 'profiles', 'TEMPLATE_Profile', '*.csv'), bad_dir);
+    did_fail = false;
+    try
+        Load_Empirical_Profile(bad_id);
+    catch ME
+        did_fail = ~isempty(strfind(ME.identifier, 'IncompleteProfileSchema')) || ~isempty(strfind(ME.message, 'tau_l'));
+    end
+    assert(did_fail, 'Load_Empirical_Profile must throw IGWelfare:IncompleteProfileSchema when a required key (tau_l) is omitted.');
+
     %% 2. Layer-1 Simplex, Dynamic Primate ('Helsinki'), & Demography Invariants
     D67 = Load_Empirical_Profile('FI_Peruskoulu1967');
     D25 = Load_Empirical_Profile('FI_FBC1987');
@@ -72,6 +92,8 @@ function test_finland_profiles()
 
     % Verify FI_FBC1987 incremental 2025 space (zero double-counting & strict physical bounds)
     [P25, ~] = Ensure_Workbench_Initialized(struct('Profile_Name', 'FI_FBC1987', 'dt', 5, 'RequireWorkerPool', false));
+    assert(P25.tau_l > 0.30 && P25.tau_c > 0.20 && P25.s_sub > 0.40, 'FI_FBC1987 must load Finnish statutory tau_l, VAT tau_c, and municipal ECEC s_sub.');
+    assert(P67.tau_l < 0.26 && P67.s_sub < 0.10, 'FI_Peruskoulu1967 must load 1967 pre-DayCare-Act statutory rates.');
     [P_B25, pi_B25, M_B25] = Compose_Policy_Bundle(P25, struct(), 'baseline_2023');
     assert(abs(M_B25.Frac_Struggling_Imputed - 0.071485) < 1e-4, 'FI_FBC1987 baseline struggling share must equal 7.15% (no NZ overwrite).');
     assert(abs(M_B25.Social_Cohesion_St - 100.0) < 1e-9, 'FI_FBC1987 baseline cohesion index must anchor at 100.0.');

@@ -2,7 +2,7 @@ function [tfr_row, diff_row, struggle_row, dep_ratio, req_tax] = eval_super_age_
     super_age_s, beta_hyp, chi_f_pen, G_ece1_s, G_ece2_s, Q_mult, p_super_s, is_ss2_flag, ...
     Params, Dist_Reg_Cell, w_Reg_Vec, Q_Base_Vec, K_base_vec, base_struggle_vec, sj_ref, Reg_HH_Shares, h_vec, j_fert_vec, base_struggle_mean)
 
-A_base = Params.super_age_base;
+A_base = Params.Super_Age_Base;
 if super_age_s >= A_base
     elder_time_mult = exp(-Params.eta_elder_whanau * (super_age_s - A_base));
 else
@@ -114,7 +114,7 @@ end
 
 dep_ratio       = 100.0 * (eff_ret_mass / max(1e-8, eff_wrk_mass));
 tau_l_base_pct  = 100.0 * Params.tau_l;
-aging_tax_drift = Params.beta_aging_tax_drift * (dep_ratio - Params.dep_ratio_2026_anchor);
+aging_tax_drift = Params.beta_aging_tax_drift * (dep_ratio - Params.Dep_Ratio_Anchor);
 struggle_reduction = base_struggle_mean - mean(struggle_row);
 exits_skill_div = Params.beta_exits_skill_div * struggle_reduction;
 

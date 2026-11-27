@@ -104,11 +104,18 @@ if isempty(rep_urb_ix), rep_urb_ix = max(1, N_reg - 1); end
 DataSpec.Representative_Urban_ID  = Regions{rep_urb_ix};
 DataSpec.Representative_Urban_Idx = rep_urb_ix;
 
-% Monetary, Institutional, Regime, and Actuarial sections
+% Monetary, Institutional, Regime, and Actuarial sections (strictly validated; zero silent defaults!)
+if ~isfield(cfg_yaml, 'Monetary') || ~isfield(cfg_yaml, 'Institutions') || ...
+   ~isfield(cfg_yaml, 'Regime_Schedules') || ~isfield(cfg_yaml, 'Actuarial')
+    error('IGWelfare:IncompleteProfileSchema', ...
+        'Profile "%s" must define Monetary, Institutions, Regime_Schedules, and Actuarial sections in profile.yaml.', ...
+        DataSpec.Profile_ID);
+end
 DataSpec.Monetary         = cfg_yaml.Monetary;
 DataSpec.Institutions     = cfg_yaml.Institutions;
 DataSpec.Regime_Schedules = cfg_yaml.Regime_Schedules;
 DataSpec.Actuarial        = cfg_yaml.Actuarial;
+validate_dataspec_schema(DataSpec);
 
 % Regional cross-section vectors (stored as clean [1 x N_reg] row vectors to match Configure_TimeGrid_Params)
 Pop_Shares  = Reg_CSV.Pop_Share(:)'  / sum(Reg_CSV.Pop_Share(:));
@@ -248,6 +255,33 @@ if isstruct(S) && isfield(S, fname) && ~isempty(S.(fname))
     val = S.(fname);
 else
     val = def_val;
+end
+end
+
+function validate_dataspec_schema(DS)
+req_mon = {'Currency_ISO', 'Currency_Symbol', 'Currency_Unit_Billions', 'Base_Year', ...
+           'Currency_Base_Scale', 'CE_Monetary_Scale_Nat', 'GDP_Base_Billions'};
+req_ins = {'tau_l', 'tau_c', 'tau_k', 'tau_a', 'tau_b', 'p_super', 's_sub', ...
+           'Super_Age_Base', 'Super_Age_SS1', 'Super_Age_SS2', 'Dep_Ratio_Anchor', ...
+           'Estate_Exemption', 'Target_NetMig_Rate', 'w_External', 'Q_External'};
+req_reg = {'G_ece1_sched', 'G_ece2_sched', 'YouthGrant_sched'};
+req_act = {'H_Window_Yrs', 'Attribution_Haircut', 'Real_Cost_Growth', ...
+           'Discount_Central', 'Discount_Sensitivity', 'Sav_Multiplier', 'GDP_Wave_Multiplier'};
+
+assert_section_complete(DS.Monetary,         'Monetary',         req_mon, DS.Profile_ID);
+assert_section_complete(DS.Institutions,     'Institutions',     req_ins, DS.Profile_ID);
+assert_section_complete(DS.Regime_Schedules, 'Regime_Schedules', req_reg, DS.Profile_ID);
+assert_section_complete(DS.Actuarial,        'Actuarial',        req_act, DS.Profile_ID);
+end
+
+function assert_section_complete(S, sec_name, req_fields, prof_id)
+for k = 1:numel(req_fields)
+    fn = req_fields{k};
+    if ~isstruct(S) || ~isfield(S, fn) || isempty(S.(fn))
+        error('IGWelfare:IncompleteProfileSchema', ...
+            'Profile "%s" is incomplete: missing required key %s.%s in profile.yaml (no silent defaults allowed).', ...
+            prof_id, sec_name, fn);
+    end
 end
 end
 

@@ -7,6 +7,13 @@ Country_Name: "Finland"
 Primate_Region_ID: "Helsinki"
 
 Institutions:
+  tau_l: 0.325
+  tau_c: 0.220
+  tau_k: 0.200
+  tau_a: 0.0035
+  tau_b: 0.130
+  p_super: 0.215
+  s_sub: 0.480
   Super_Age_Base: 65.0
   Super_Age_SS1: 65.0
   Super_Age_SS2: 64.0

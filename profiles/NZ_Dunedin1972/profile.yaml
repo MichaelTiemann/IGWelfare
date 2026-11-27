@@ -17,6 +17,13 @@ Monetary:
   GDP_Base_Billions: 430.0
 
 Institutions:
+  tau_l: 0.220
+  tau_c: 0.150
+  tau_k: 0.200
+  tau_a: 0.0050
+  tau_b: 0.150
+  p_super: 0.180
+  s_sub: 0.100
   Super_Age_Base: 65.0
   Super_Age_SS1: 65.0
   Super_Age_SS2: 64.0

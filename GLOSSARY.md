@@ -46,6 +46,8 @@ Every quantitative claim across the monograph suite is produced by side-effect-f
 
 ## 2. Statutory Regimes (`SS0`, `SS1`, `SS2`), Launch Plans (`A, B, C`), & Fiscal Rules
 
+* **Layer-1 Parameter Backstop & 1-to-1 Naming Contract (`Load_Empirical_Profile.m` -> `Apply_Empirical_Data.m`):** Every jurisdiction's `profile.yaml` (after `Inherits_From` merge) is validated by `validate_dataspec_schema` to guarantee all 7 `Monetary` keys, 15 `Institutions` keys (`tau_l`, `tau_c`, `tau_k`, `tau_a`, `tau_b`, `p_super`, `s_sub`, `Super_Age_Base`, `Super_Age_SS1`, `Super_Age_SS2`, `Dep_Ratio_Anchor`, `Estate_Exemption`, `Target_NetMig_Rate`, `w_External`, `Q_External`—copied 1-to-1 onto `Params` with zero case-renaming), 3 `Regime_Schedules` vectors, and 7 `Actuarial` keys are explicitly present; missing keys fail fast with `IGWelfare:IncompleteProfileSchema`.
+
 ### 2.1 Tax-and-Spend Mechanics of `SS0`, `SS1`, and `SS2`
 
 | Policy Dimension | `SS0` — Status Quo Baseline (*LTFM Drift*) | `SS1` — Phase 1 Foundation & Incubation (*Years 0–15/25*) | `SS2` — Phase 2 Generational Harvest (*2050 Protocol*) |

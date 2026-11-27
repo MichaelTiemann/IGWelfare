@@ -114,7 +114,7 @@ fprintf('  STARTING INTERGENERATIONAL WELFARE SUITE [%s | %s | %s]\n', ...
     Params.Profile_ID, Params.Rollout_Mode, Params.Contingency_Policy_ID);
 fprintf('  Regions: %s + %s\n', strjoin(reg_summary_parts, ' | '), Params.External_Dest_Label);
 fprintf('  Time Grid: dt = %d yrs | Horizon J = %d (Ages 20-99) | Retirement Jr = %d (Age %.0f)\n', ...
-    Params.dt, Params.J, Params.Jr, Params.super_age_base);
+    Params.dt, Params.J, Params.Jr, Params.Super_Age_Base);
 fprintf('=========================================================================================\n');
 
 if SuiteBackend.UseGPU
@@ -396,7 +396,7 @@ if strcmpi(Params.Profile_ID, 'NZ_Dunedin1972')
 end
 
 DS_active = Load_Empirical_Profile(Params.Profile_ID);
-Params.super_age_SS2 = DS_active.Institutions.Super_Age_SS2;
+Params.Super_Age_SS2 = DS_active.Institutions.Super_Age_SS2;
 Out_National_Counterfactuals = Plot_Counterfactuals_And_MirrorInvestments(Params);
 
 %% 8. EXPORT ALL 4-REGION + ABROAD TABLES (.CSV), FIGURES (.PNG/.FIG), AND WORKSPACE (.MAT)

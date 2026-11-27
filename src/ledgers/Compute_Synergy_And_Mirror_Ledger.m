@@ -38,10 +38,10 @@ end
 SS1_Nat_Total = sum(SS1_Target_Reg .* Pop_Weights);
 SS2_Nat_Total = sum(SS2_Target_Reg .* Pop_Weights);
 
-if ~isfield(Params, 'super_age_SS2') || isempty(Params.super_age_SS2)
+if ~isfield(Params, 'Super_Age_SS2') || isempty(Params.Super_Age_SS2)
     sa_ss2 = 64;
 else
-    sa_ss2 = Params.super_age_SS2;
+    sa_ss2 = Params.Super_Age_SS2;
 end
 
 psi_ret = 0.850;

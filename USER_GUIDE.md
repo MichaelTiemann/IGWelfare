@@ -30,8 +30,10 @@ The `IGWelfare` repository separates empirical grounding, rollout staging, gover
 
 ### A. The Three-Layer Data & Policy Stack (`profiles/<Profile_ID>/`)
 1. **Layer 1 — Empirical World (`DataSpec = Load_Empirical_Profile(Profile_Name)`):**
-   * Pure, idempotent loader reading `profile.yaml`, `regions.csv`, `demography_5yr.csv`, `migration_utility.csv`, `transition_sorting.csv`, and `target_moments.csv`.
-   * Built-in profiles include `'NZ_Dunedin1972'` (legacy alias `'Dunedin_22'`) and `'NZ_GUiNZ2009'` (legacy alias `'MetroSqueeze_GUiNZ'`, demonstrating single-parent `Inherits_From` profile inheritance), plus `profiles/TEMPLATE_Profile/` for custom jurisdictions.
+   * Pure, idempotent loader reading `profile.yaml`, `regions.csv`, `demography_5yr.csv`, `migration_utility.csv`, `transition_sorting.csv`, and `target_moments.csv` (paired with `sectors/sectors_2026.csv` and `sectors/exergy_and_ndc.yaml` via `Load_Sectoral_Exergy_Spec.m`).
+   * Built-in profiles include `'NZ_Dunedin1972'` (legacy alias `'Dunedin_22'`), `'NZ_GUiNZ2009'` (legacy alias `'MetroSqueeze_GUiNZ'`), `'FI_Peruskoulu1967'` (legacy alias `'Finland_67'`, $t_0 = 1967$ pre-*peruskoulu* baseline with `'Helsinki'` as `Primate_Region_ID`), and `'FI_FBC1987'` (legacy alias `'Finland_2025'`, derived 2025 THL Birth Cohort profile inheriting from `'FI_Peruskoulu1967'`), plus self-contained `profiles/TEMPLATE_Profile/` for custom jurisdictions.
+   * **Strict Zero-Default Schema Backstop (`IGWelfare:IncompleteProfileSchema`):** Root profiles (`NZ_Dunedin1972`, `FI_Peruskoulu1967`, `TEMPLATE_Profile`) must explicitly declare every required key across `Monetary`, `Institutions` (all 15 statutory fiscal/demographic keys, bound 1-to-1 onto `Params` with identical capitalization), `Regime_Schedules`, and `Actuarial` in `profile.yaml`. `Load_Empirical_Profile.m` validates completeness immediately after merging `Inherits_From` and throws `IGWelfare:IncompleteProfileSchema` rather than substituting hidden defaults.
+   * **Profile Inheritance & Incremental Bundle Contract:** Setting `Inherits_From: <Parent_ID>` resolves missing CSVs and `sectors/` files from the parent profile, whereas non-NZ derived profiles include their own `policies/` and `schedules/` subfolders and define **incremental** post-baseline bundles.
 2. **Layer 2 — Kinematic Rollout Schedule (`RolloutSpec = Load_Rollout_Schedule(DataSpec, Rollout_Mode)`):**
    * Defines how investment gates, regional echelons, tax ramps, and implementation frictions (`tau_friction_0`, `phi_adj_bottleneck`, `gamma_learning`) unfold in relative track time (`'TeKahuiWaka'`, `'SingleShot'`, or `'Frictionless_Textbook'`).
 3. **Layer 3 — State-Contingent Governance (`ContingencySpec = Load_Contingency_Policy(DataSpec, Policy_Name)`):**
@@ -59,7 +61,7 @@ The `IGWelfare` repository separates empirical grounding, rollout staging, gover
 * `src/utils/` — Single-source platform & UI contracts (`Resolve_Compute_Backend.m`, `IGW_UI_Style.m`, `IGW_MD5_Hex.m`, `IGW_Restore_Tables.m`, `vfi_active_ax.m`, `enable_vfi_cpu_accel.m`, `IGW_Log.m`, `Resolve_IGW_OutputDir.m`)
 * `pipelines/` — Top-level orchestration scripts (`Run_All_NZ_Intergen_Suite.m`, `NZ_4Region_Master.m`, `PolicyExperiment_LeeSeshadri_4Region.m`, `FertilityBargaining_Module.m`, `WelfareDecomposition_4Region.m`, `TransPath_4Region_Master.m`) and post-simulation sensitivity engines (`Audit_GUiNZ_vs_Dunedin_4Region.m`, `Run_WealthTax_Exemption_Sensitivity.m`)
 * `plots/` — Publication figure, HTML5/SVG Sankey (`exportSankeyToHTML.m`), and set-algebraic policy mirage modules (`Plot_*.m`, incl. `Plot_LTFM_Coalition_Shock_Mirage.m`)
-* `tests/` — Automated cross-platform verification suite (`run_all_tests.m` + 23 contract tests)
+* `tests/` — Automated cross-platform verification suite (`run_all_tests.m` + 30 contract tests, including `test_finland_profiles.m`)
 
 ---
 
@@ -139,3 +141,5 @@ The repository root includes both **`.octaverc`** (for GNU Octave) and **`startu
 2. **Do NOT set `graphics_toolkit('gnuplot')` in Octave:** Octave 11's `gnuplot` backend cannot render modern `hggroup` primitives (`xline`, translucent `fill` bands) inside legends. Leave graphics on `'qt'` or `'fltk'` as configured by `setup_igw_paths()`.
 3. **Do NOT scatter manual `OCTAVE_VERSION`, `gpuDeviceCount`, or `fltk` checks in model or plotting code:** Use `Resolve_Compute_Backend()` for device placement and `vis = IGW_UI_Style('headless_vis')` (plus `IGW_UI_Style('legend_alpha', lgd)`) so figures export cleanly under MATLAB HG2, Octave Qt, and Octave FLTK (`test_wave4_platform_contracts` enforces this boundary automatically).
 4. **Do NOT hardcode relative paths like `run('NZ_4Region_Master.m')` when calling across subfolders:** Use `run(which('NZ_4Region_Master.m'))` so both MATLAB and GNU Octave resolve pipeline scripts cleanly from any working directory.
+5. **Do NOT invoke `run(which('run_all_tests.m'))`:** `setup_igw_paths()` intentionally excludes `tests/` from the runtime search path; invoke `run('tests/run_all_tests.m')` directly from the repository root.
+6. **Do NOT chain multiple profiles across script-based pipelines without clearing workspace state:** Run `clear Params OutputDir Regions; if isappdata(0, 'IGW_OUTPUT_DIR'), rmappdata(0, 'IGW_OUTPUT_DIR'); end` between profile runs.
