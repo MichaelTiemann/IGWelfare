@@ -106,9 +106,17 @@ function test_finland_profiles()
         assert(abs(Sf.SOE.Ostrom_Omega_Paid       - SecNZ.SOE.Ostrom_Omega_Paid)       < 1e-12, 'Universal Ostrom_Omega_Paid must match NZ.');
         assert(abs(Sf.SOE.Waring_Shadow_Wage_Frac - SecNZ.SOE.Waring_Shadow_Wage_Frac) < 1e-12, 'Universal Waring_Shadow_Wage_Frac must match NZ.');
     end
-    assert(abs(sum(Sec25.MacroSector_Table.Annual_Spend_BNZD) - 281.8) < 1e-6, 'Finnish 5-sector spend must sum to EUR 281.8B.');
-    assert(abs(Sec25.Exergy.Fossil_Import_Bill_SS0_BNZD - 4.40) < 1e-9, '2025 net fossil import bill must equal EUR 4.40B.');
-    assert(abs(Sec67.Exergy.Fossil_Import_Bill_SS0_BNZD - 10.85) < 1e-9, '1967 GDP-scaled fossil bill must equal EUR 10.85B.');
+    assert(abs(sum(Sec25.MacroSector_Table.Annual_Spend_BCurr) - 281.8) < 1e-6, 'Finnish 5-sector spend must sum to EUR 281.8B.');
+    assert(abs(Sec25.Exergy.Fossil_Import_Bill_SS0_BCurr - 4.40) < 1e-9, '2025 net fossil import bill must equal EUR 4.40B.');
+    assert(abs(Sec67.Exergy.Fossil_Import_Bill_SS0_BCurr - 10.85) < 1e-9, '1967 GDP-scaled fossil bill must equal EUR 10.85B.');
+
+    % Verify EUR-scaled Actuarial Ledger (EUR 6.02B Yr-5 outlay vs NZD 9.19B; 1967 Sav > 2025 Sav)
+    Act67 = Compute_Actuarial_Ledger([], struct('Profile_Name', 'FI_Peruskoulu1967'), struct('Verbose', false));
+    Act25 = Compute_Actuarial_Ledger([], struct('Profile_Name', 'FI_FBC1987'),        struct('Verbose', false));
+    assert(strcmp(Act25.Currency_ISO, 'EUR') && strcmp(Act25.Currency_Symbol, '€'), 'Actuarial ledger must carry EUR/€ metadata.');
+    assert(abs(Act25.Year5Table.Cum_Outlay_B(5) - 9.19 * (281.78 / 430.0)) < 0.05, 'Year-5 EUR outlay must scale by GDP_Base_Billions.');
+    assert(Act67.Year5Table.Booked_Sav_2pct_B(5) > 2.5 * Act25.Year5Table.Booked_Sav_2pct_B(5), ...
+        '1967 pre-Peruskoulu direct cost avoidance backlog must exceed 2025 post-Peruskoulu backlog by >2.5x.');
     assert(Sec25.NDC.kappa_pine_schedule(1) == 0.0, '2025 Finnish LULUCF net emission source requires kappa_pine(1) == 0.');
 
     Eq67_Def = Compute_5Sector_Exergy_Equilibrium(P67, 'SS0_Defence_3Pct');

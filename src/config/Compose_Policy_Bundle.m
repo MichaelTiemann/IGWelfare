@@ -195,7 +195,7 @@ zh_reg_0  = get_def(Params_Out, 'Z_h_reg_mult',             [1.0, 1.0, 1.0, 1.0]
 v_abr_r_0 = get_def(Params_Out, 'V_Abroad_Reg_Shift',       [0.0, 0.0, 0.0, 0.0]);
 coh_0     = get_def(Params_Out, 'Cohesion_Shock_Pts',       0.000);
 rspr_0    = get_def(Params_Out, 'r_sov_spread',             0.000);
-ndc_dr_0  = get_def(Params_Out, 'Offshore_NDC_Drain_BNZD',  0.000);
+ndc_dr_0  = get_def(Params_Out, 'Offshore_NDC_Drain_BCurr', get_def(Params_Out, 'Offshore_NDC_Drain_BNZD', 0.000));
 eps_e_0   = get_def(Params_Out, 'eps_h_energy',             0.350);
 
 zf_R_0 = get_def(Params_Out, 'z_f_Rural',    [0.70, 1.15]);
@@ -602,6 +602,7 @@ Params_Out.Z_h_reg_mult             = zh_reg_0 .* zh_reg_mult;
 Params_Out.V_Abroad_Reg_Shift       = v_abr_r_0 + v_abr_r_add;
 Params_Out.Cohesion_Shock_Pts       = coh_0 + coh_add;
 Params_Out.r_sov_spread             = max(-0.015, rspr_0 + rspr_add);
+Params_Out.Offshore_NDC_Drain_BCurr = ndc_dr_0 + ndc_add;
 Params_Out.Offshore_NDC_Drain_BNZD  = ndc_dr_0 + ndc_add;
 Params_Out.eps_h_energy             = min(0.95, max(0.15, eps_e_0 + eps_e_add));
 

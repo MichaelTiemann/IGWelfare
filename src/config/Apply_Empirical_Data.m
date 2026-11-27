@@ -115,6 +115,8 @@ Params.Currency_Base_Year     = DataSpec.Monetary.Base_Year;
 Params.Currency_Base_Scale    = DataSpec.Monetary.Currency_Base_Scale;
 Params.CE_Monetary_Scale_Nat  = DataSpec.Monetary.CE_Monetary_Scale_Nat;
 Params.GDP_Base_Billions      = DataSpec.Monetary.GDP_Base_Billions;
+Params.Curr_Per_CE_Nat        = Params.CE_Monetary_Scale_Nat;
+Params.GDP_2026_BCurr         = Params.GDP_Base_Billions;
 Params.NZD_Per_CE_Nat         = Params.CE_Monetary_Scale_Nat;
 Params.GDP_2026_BNZD          = Params.GDP_Base_Billions;
 

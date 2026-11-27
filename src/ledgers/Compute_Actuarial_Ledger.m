@@ -36,6 +36,9 @@ end
 Out = struct();
 Out.Profile_ID         = DataSpec.Profile_ID;
 Out.Calibration_Anchor = Calibration_Anchor;
+Out.Currency_ISO       = DataSpec.Monetary.Currency_ISO;
+Out.Currency_Symbol    = DataSpec.Monetary.Currency_Symbol;
+Out.Currency_Base_Year = DataSpec.Monetary.Base_Year;
 Out.Currency_Unit      = DataSpec.Monetary.Currency_Unit_Billions;
 Out.Pop_Shares         = DataSpec.Pop_Shares;
 
@@ -147,24 +150,28 @@ end
 end
 
 function Out_Cash = build_default_4region_cash_flows(regions, DataSpec)
-years    = 0:5:60;
-sav_mult = DataSpec.Actuarial.Sav_Multiplier;
-gdp_mult = DataSpec.Actuarial.GDP_Wave_Multiplier;
+years     = 0:5:60;
+sav_mult  = DataSpec.Actuarial.Sav_Multiplier;
+gdp_mult  = DataSpec.Actuarial.GDP_Wave_Multiplier;
+gdp_scale = 1.0;
+if ~strncmpi(DataSpec.Profile_ID, 'NZ_', 3)
+    gdp_scale = DataSpec.Monetary.GDP_Base_Billions / 430.0;
+end
 
 annual_inv = zeros(size(years));
-annual_inv(2:end) = 3.6 + 0.3 * (1 - exp(-0.06 * years(2:end)));
+annual_inv(2:end) = gdp_scale * (3.6 + 0.3 * (1 - exp(-0.06 * years(2:end))));
 
 annual_sav = zeros(size(years));
 annual_gdp = zeros(size(years));
 for idx = 2:length(years)
     y = years(idx);
     if y < 20
-        annual_sav(idx) = sav_mult * 0.9 * (y / 20.0);
+        annual_sav(idx) = gdp_scale * sav_mult * 0.9 * (y / 20.0);
     else
-        annual_sav(idx) = sav_mult * (0.9 + 6.8 * (1 - exp(-0.08 * (y - 15))));
+        annual_sav(idx) = gdp_scale * sav_mult * (0.9 + 6.8 * (1 - exp(-0.08 * (y - 15))));
     end
-    eng_A = 14.5 * (1 - exp(-0.11 * y));
-    eng_B = gdp_mult * (y >= 15) * (28.0 / (1 + exp(-0.14 * (y - 32))));
+    eng_A = gdp_scale * 14.5 * (1 - exp(-0.11 * y));
+    eng_B = gdp_scale * gdp_mult * (y >= 15) * (28.0 / (1 + exp(-0.14 * (y - 32))));
     annual_gdp(idx) = eng_A + eng_B;
 end
 
@@ -208,7 +215,8 @@ idx_y5 = find(Out.years == 5, 1);
 if isempty(idx_y5), idx_y5 = 2; end
 
 fprintf('\n========================================================================================================\n');
-fprintf(' YEAR %d PARLIAMENTARY AUDIT: 4-REGION ACTUARIAL CONTINUATION VALUATION (NZD BILLIONS, REAL 2025$)\n', Out.years(idx_y5));
+fprintf(' YEAR %d PARLIAMENTARY AUDIT: 4-REGION ACTUARIAL CONTINUATION VALUATION (%s BILLIONS, REAL %d%s)\n', ...
+    Out.years(idx_y5), Out.Currency_ISO, Out.Currency_Base_Year, Out.Currency_Symbol);
 fprintf('========================================================================================================\n');
 fprintf('%-10s | %8s | %9s | %15s | %17s | %17s | %15s\n', ...
     'Region', 'Outlay', 'Cash Fisc', 'Booked Sav (2%)', 'Booked Fisc (2%)', 'Booked Fisc (8%)', 'Booked GDP (2%)');

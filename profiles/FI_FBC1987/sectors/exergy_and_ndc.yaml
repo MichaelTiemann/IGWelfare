@@ -1,7 +1,7 @@
 Metadata:
   Schema_Version: "1.0"
   Description: "Finland 2025 Observed Exergy (84.6 TWh @ 26 gCO2/kWh; €10.0B Imp - €5.6B Exp = €4.40B Net), LULUCF (+9.44 Mt Source), & 2.9% GDP Defence"
-  Anti_Double_Counting_CashTransfers_BNZD: 53.4
+  Anti_Double_Counting_CashTransfers_BCurr: 53.4
 
 Exergy_And_Grid:
   e_N_elec: 0.900
@@ -11,8 +11,8 @@ Exergy_And_Grid:
   eps_h_energy: 0.380
   p_F_world_base: 0.6800
   p_N_grid_base: 0.3100
-  Fossil_Import_Bill_SS0_BNZD: 4.40
-  K_N_Grid_Init_BNZD: 57.0
+  Fossil_Import_Bill_SS0_BCurr: 4.40
+  K_N_Grid_Init_BCurr: 57.0
   M_olig_grid_schedule: [1.140, 1.050, 1.020]
   DryYear_Thermal_Share_SS0: 0.040
   DryYear_Thermal_Share_SS2: 0.008
@@ -35,8 +35,8 @@ Paris_NDC_And_Trade:
   Pi_trade_SS2: [1.050, 1.045, 1.035, 1.030]
   xk_geo_rebate: [2.250, 2.100, 2.200, 2.050]
   phi_ctr_rebate: 0.650
-  p_NDC_intl_BNZD_per_Mt: 0.0744
-  CERF_Pulse_BNZD: 2.20
+  p_NDC_intl_BCurr_per_Mt: 0.0744
+  CERF_Pulse_BCurr: 2.20
 
 External_SOE_And_Defence:
   r_world_real: 0.0300

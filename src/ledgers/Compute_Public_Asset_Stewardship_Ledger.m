@@ -75,8 +75,12 @@ SummaryTable = table(Strategy_Names, round(Crown_Yr0to3_4x1, 2), round(NPV_2pct_
 
 Out = struct();
 Out.Years                   = 2026 + t_col;
+Out.Currency_ISO            = curr_iso;
+Out.Asset_Book_Value_BCurr  = K_Book_BNZD;
 Out.Asset_Book_Value_BNZD   = K_Book_BNZD;
+Out.FireSale_Proceeds_BCurr = sale_cash_0;
 Out.FireSale_Proceeds_BNZD  = sale_cash_0;
+Out.Buyback_Cost_Yr10_BCurr = Buyback_Cost_Yr10_BNZD;
 Out.Buyback_Cost_Yr10_BNZD  = Buyback_Cost_Yr10_BNZD;
 Out.Opportunity_Loss_2pct_B = OppLoss_2pct_BNZD;
 Out.Opportunity_Loss_8pct_B = OppLoss_8pct_BNZD;

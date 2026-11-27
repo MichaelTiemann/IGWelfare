@@ -126,7 +126,8 @@ for b = 1:nB
         'StatDist', StatDist_b, 'jDist', jDist_b);
 end
 
-VarNames = {'Rural_CE_Pct', 'Small_CE_Pct', 'Large_CE_Pct', 'Auckland_CE_Pct', 'National_CE_Pct'};
+VarNames = {sprintf('%s_CE_Pct', Regions{1}), sprintf('%s_CE_Pct', Regions{2}), ...
+            sprintf('%s_CE_Pct', Regions{3}), sprintf('%s_CE_Pct', Regions{4}), 'National_CE_Pct'};
 Out = struct();
 Out.Baseline            = struct('Params', P_Base, 'Meta', Meta_Base, 'IG_Diag', IG_Base, 'V', V_Base, 'jDist', jDist_Base);
 Out.Bundles             = Results;
