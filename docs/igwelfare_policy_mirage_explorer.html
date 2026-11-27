@@ -1,0 +1,3013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IGWelfare — Policy Mirage, Symmetric Investments &amp; Additionality Explorer (2023–2065)</title>
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)']],
+      displayMath: [['\\[', '\\]']]
+    },
+    options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+  :root {
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --ink: #16202a;
+    --muted: #52606d;
+    --line: #d8e0e8;
+    --pos: #0f705c;
+    --pos-lt: #e6f5f1;
+    --neg: #b91c1c;
+    --neg-lt: #fdeceb;
+    --mirage: #d97706;
+    --mirage-lt: #fef6e6;
+    --plum: #3d1f5c;
+    --plum-lt: #f3eef8;
+    --slate: #475569;
+  }
+  * { box-sizing: border-box; }
+  body, table, th, td, h1, h2, h3, h4, p, li, button, select, input, label, span, div {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  code, pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 13.5px;
+    line-height: 1.48;
+  }
+  header {
+    background: linear-gradient(135deg, #0d3b33 0%, #163b56 100%);
+    color: #ffffff;
+    padding: 16px 26px 0 26px;
+    border-bottom: 3px solid #27a386;
+  }
+  .hdr-top {
+    max-width: 1520px;
+    margin: 0 auto;
+  }
+  header h1 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  header p {
+    margin: 0 0 12px 0;
+    color: #d6ece6;
+    font-size: 13px;
+    max-width: 1280px;
+  }
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+    max-width: 1520px;
+    margin: 0 auto;
+  }
+  .nav-tab {
+    background: rgba(255,255,255,0.12);
+    color: #e2f1ed;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .nav-tab:hover { background: rgba(255,255,255,0.20); }
+  .nav-tab.active {
+    background: var(--bg);
+    color: #0d3b33;
+    border-color: var(--bg);
+  }
+  .wrap {
+    max-width: 1520px;
+    margin: 0 auto;
+    padding: 16px 20px 40px 20px;
+  }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  .top-controls {
+    display: grid;
+    grid-template-columns: 1.25fr 1.15fr 1.05fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 1150px) { .top-controls { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 13px 15px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  .card h2 {
+    margin: 0 0 8px 0;
+    font-size: 13.8px;
+    font-weight: 700;
+    color: #0f293a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .badge-pos { background: var(--pos-lt); color: var(--pos); }
+  .badge-neg { background: var(--neg-lt); color: var(--neg); }
+  .badge-plum { background: var(--plum-lt); color: var(--plum); }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  button {
+    cursor: pointer;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 11.8px;
+    font-weight: 600;
+    transition: all 0.12s ease;
+  }
+  button:hover { background: #eef2f6; border-color: #94a3b8; }
+  button.active { background: #134e5e; color: #fff; border-color: #134e5e; }
+  button.pos-btn.active { background: var(--pos); color: #fff; border-color: var(--pos); }
+  button.neg-btn.active { background: var(--neg); color: #fff; border-color: var(--neg); }
+
+  .expr-row { display: flex; gap: 6px; margin-top: 7px; }
+  .expr-row input[type="text"] {
+    flex: 1;
+    padding: 6px 9px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  select {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 980px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+  .kpi-box {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 14px;
+    border-left: 4px solid var(--plum);
+  }
+  .kpi-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: var(--muted); }
+  .kpi-main  { font-size: 18.5px; font-weight: 800; margin: 4px 0 2px 0; font-variant-numeric: tabular-nums; }
+  .kpi-sub   { font-size: 11.4px; color: var(--muted); }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 455px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+  @media (max-width: 1180px) { .main-grid { grid-template-columns: 1fr; } }
+
+  .lane-group {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 9px;
+    overflow: hidden;
+  }
+  .lane-hdr {
+    background: #f1f5f9;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .c-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 10px;
+    border-top: 1px solid #edf2f7;
+    background: #ffffff;
+  }
+  .c-row.state-shock  { background: #fff8f8; }
+  .c-row.state-reform { background: #f3fbf8; }
+  .c-title { font-size: 12px; font-weight: 700; color: #16202a; }
+  .c-sub   { font-size: 10.8px; color: var(--muted); line-height: 1.28; }
+  .tri-pill {
+    display: inline-flex;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .tri-pill button {
+    border: none;
+    border-right: 1px solid #cbd5e1;
+    border-radius: 0;
+    padding: 4px 7px;
+    font-size: 10.8px;
+    background: #f8fafc;
+    color: #475569;
+  }
+  .tri-pill button:last-child { border-right: none; }
+  .tri-pill button.sel-shock  { background: var(--neg); color: #fff; font-weight: 700; }
+  .tri-pill button.sel-off    { background: #64748b; color: #fff; font-weight: 700; }
+  .tri-pill button.sel-reform { background: var(--pos); color: #fff; font-weight: 700; }
+
+  .view-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  canvas.viz-canvas {
+    width: 100%;
+    display: block;
+    background: #ffffff;
+    border-radius: 6px;
+  }
+  table.data-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+  table.data-tbl th, table.data-tbl td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  table.data-tbl th:first-child, table.data-tbl td:first-child { text-align: left; }
+  table.data-tbl th { background: #f1f5f9; font-weight: 700; font-size: 11.3px; }
+  .pos-txt { color: var(--pos); font-weight: 700; }
+  .neg-txt { color: var(--neg); font-weight: 700; }
+  .mir-txt { color: var(--mirage); font-weight: 700; }
+
+  /* README Tab Styling */
+  .readme-doc {
+    max-width: 1060px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 28px 36px;
+    line-height: 1.62;
+    font-size: 14.2px;
+  }
+  .readme-doc h2 { font-size: 19px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-top: 26px; color: #0d3b33; }
+  .readme-doc h3 { font-size: 15.5px; margin-top: 20px; color: #163b56; }
+  .math-box {
+    background: #f8fafc;
+    border-left: 4px solid #134e5e;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    overflow-x: auto;
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="hdr-top">
+    <h1>IGWelfare — Policy Mirage, Symmetric Investments &amp; Additionality Explorer (2023–2065)</h1>
+    <p>Interactive Convention-2 Policy Algebra (<code>C01</code>–<code>C18</code> Shocks &amp; <code>C21</code>–<code>C28</code> <code>SS1</code>/<code>SS2</code> Pillars) across 4 Portfolio Lanes and 7 Public-Finance &amp; ACC Actuarial Accounting Lenses, contrasting 2024–2026 short-term fiscal mirages (<code>u_i</code> shock direction) against symmetric Topkis supermodular investments (<code>+u_i</code> reform direction).</p>
+  </div>
+  <div class="nav-tabs">
+    <button type="button" class="nav-tab active" data-tab="workbenchPane">1. Interactive Policy &amp; Wedge Explorer</button>
+    <button type="button" class="nav-tab" data-tab="readmePane">2. Algebraic, Shapley &amp; Accounting README</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ===================================================================== -->
+  <!-- TAB 1: INTERACTIVE POLICY SET, MIRAGE & ADDITIONALITY WORKBENCH       -->
+  <!-- ===================================================================== -->
+  <div id="workbenchPane" class="tab-pane active">
+
+    <!-- TOP 3 CONTROL CARDS -->
+    <div class="top-controls">
+
+      <!-- Card 1: Preset Bundles & Signed Set Expression Parser -->
+      <div class="card">
+        <h2>
+          <span>1. Policy Bundle Presets &amp; Signed Set Expression</span>
+          <span class="badge badge-plum" id="setCardBadge">16 Active</span>
+        </h2>
+        <div class="btn-row">
+          <button type="button" class="preset-set-btn neg-btn active" data-expr="full16" title="2024–2026 Coalition 16-Commitment Vector">2024 Full 16 Shocks</button>
+          <button type="button" class="preset-set-btn neg-btn" data-expr="cuts12" title="12 Public Retrenchments (+NZ$7.69B 4-Yr OBEGALx Mirage vs -NZ$186.8B GE)">12 Public Cuts</button>
+          <button type="button" class="preset-set-btn neg-btn" data-expr="debtfirst" title="Document 3 Trajectory 3: Cut ECE/Kaiako & Raise NZ Super to Age 70 (-36.2% Kuia Care Loss)">Solve-Debt-First (Super 70)</button>
+          <button type="button" class="preset-set-btn" data-expr="ss0" title="Reset to Clean 2023 SS0 LTFM Baseline (All Shocks & Reforms Off)">SS0 Baseline (Clear)</button>
+          <button type="button" class="preset-set-btn pos-btn" data-expr="ss1" title="Pure SS1 Foundation on Clean 2023 Base (+C21..C26: ECE, Tuakana, Land/Estate, Youth Grant, Geo Bridge, z_h Firms)">★ SS1 (Clean Base)</button>
+          <button type="button" class="preset-set-btn pos-btn" data-expr="ss2" title="Pure SS1→SS2 Compact on Clean 2023 Base (+C21..C28: Adds 50/50 Debt-Sinking, 18.25% PAYE & Super Age 64)">★ SS2 (Clean Base)</button>
+          <button type="button" class="preset-set-btn pos-btn" data-expr="hole_ss1" title="Digging Out of the 2024 Hole: Enacts SS1 (+C21..C26) atop the 2024 Full-16 Shocks — toggle shocks Off/+Reform to see breakeven accelerate!">⛏ SS1 on 2024 Hole</button>
+          <button type="button" class="preset-set-btn pos-btn" data-expr="hole_ss2" title="Digging Out of the 2024 Hole: Enacts Full SS1→SS2 (+C21..C28) atop the 2024 Full-16 Shocks">⛏ SS2 on 2024 Hole</button>
+          <button type="button" class="preset-set-btn pos-btn" data-expr="+c21, +c22" title="Inspect Cunha–Heckman Wedge 1 (+C21 First-2000-Days ECE × +C22 Tuakana Mentoring) in View B!">Wedge 1: +C21×C22</button>
+        </div>
+        <div class="expr-row">
+          <input type="text" id="setExprInput" value="c01..c16" placeholder="e.g. ss2  or  hole_ss2  or  +c21, +c22  or  c01..c16, +c21..c28">
+          <button type="button" id="btnApplyExpr" style="background:#134e5e;color:#fff;border-color:#134e5e;">Apply Set</button>
+          <button type="button" id="btnInvertSigns" title="Flip every active shock to +Reform and vice versa">Flip ± Signs</button>
+        </div>
+        <div style="font-size:11px; color:var(--muted); margin-top:5px;">
+          Set grammar: bare/<code>-c08</code> = 2024 Shock; <code>+c08</code> = Symmetric Positive Investment; duplicates auto-collapse into canonical set <code>S</code>.
+        </div>
+      </div>
+
+      <!-- Card 2: Public-Finance & Actuarial Accounting Lens Switcher (7 Frameworks) -->
+      <div class="card">
+        <h2>
+          <span>2. Accounting Lens (7 Frameworks) &amp; Profile</span>
+          <span class="badge badge-neg" id="lensTagBadge">Lens 4: 2.5% GE</span>
+        </h2>
+        <div style="margin-bottom:6px;">
+          <select id="lensSelect">
+            <option value="lens1">Lens 1: 4-Yr OBEGALx Crown Cash (BEFU/PREFU, Zero Weight &gt;Yr 4)</option>
+            <option value="lens2">Lens 2: 8.0% Commercial Hurdle — Siloed CBA (71% Tail Discount)</option>
+            <option value="lens3">Lens 3: 2.5% Social Rate — Siloed CBAx (Zero Cross-Lane Wedges)</option>
+            <option value="lens4" selected>Lens 4: 2.5% Full General-Equilibrium IGWelfare (+Synergy Wedges)</option>
+            <option value="lens5">Lens 5: 2.0%/1.5% Official NZ Treasury SRTP — Full GE</option>
+            <option value="lens6">Lens 6: ACC Actuarial Crown Fiscal (2.0% Real, 30% Attribution Haircut)</option>
+            <option value="lens7">Lens 7: ACC Economy-Wide GDP Prize (WideGDP, 2.0% Real, 30% Haircut)</option>
+          </select>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:space-between; margin-bottom:6px; padding:5px 7px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
+          <div style="display:flex; gap:4px; align-items:center;">
+            <span style="font-size:11px; font-weight:700; color:#334155;">Profile:</span>
+            <button type="button" class="prof-lens-btn active" data-prof="Dunedin_22" style="padding:2px 7px; font-size:11px;">Dunedin_22</button>
+            <button type="button" class="prof-lens-btn" data-prof="MetroSqueeze_GUiNZ" style="padding:2px 7px; font-size:11px;">MetroSqueeze</button>
+          </div>
+          <div style="display:flex; gap:4px; align-items:center;" title="Audit year for Lenses 6 & 7 and View E">
+            <span style="font-size:11px; font-weight:700; color:#334155;">Audit Horizon:</span>
+            <button type="button" class="audit-yr-btn active" data-idx="5" style="padding:2px 6px; font-size:11px;">Yr 5 (2028)</button>
+            <button type="button" class="audit-yr-btn" data-idx="15" style="padding:2px 6px; font-size:11px;">Yr 15 (2038)</button>
+            <button type="button" class="audit-yr-btn" data-idx="42" style="padding:2px 6px; font-size:11px;">2065 Full</button>
+          </div>
+        </div>
+        <div style="font-size:11.3px; color:var(--muted);" id="lensDescTxt">
+          <strong>Lens 4 (Canonical IGWelfare GE):</strong> Evaluates 42-year Present Value (2024–2065 at 2.5% real) including endogenous human capital, Kaiako rent pass-through, Gumbel migration, and convex Debt²/PAYE² closure.
+        </div>
+      </div>
+
+      <!-- Card 3: Active Visualization View & Export -->
+      <div class="card">
+        <h2>
+          <span>3. Analytical View &amp; Data Export</span>
+          <span class="badge badge-pos" id="activeLanesBadge">4 Active Lanes</span>
+        </h2>
+        <div class="btn-row" id="viewBtnsRow">
+          <button type="button" class="view-btn active" data-view="multipliers">View A: Groupings &amp; Multipliers</button>
+          <button type="button" class="view-btn" data-view="wedges">View B: Additionality &amp; Shapley</button>
+          <button type="button" class="view-btn" data-view="trajectory">View C: 2023–65 LTFM Crossover</button>
+          <button type="button" class="view-btn" data-view="lenses">View D: 7-Lens Translator</button>
+          <button type="button" class="view-btn" data-view="actuarial">View E: ACC Actuarial &amp; WideGDP</button>
+        </div>
+        <div class="btn-row" style="margin-top:9px;">
+          <button type="button" id="btnExportCSV">Download Active View CSV</button>
+          <button type="button" id="btnCopyCLI">Copy MATLAB/Octave CLI Call</button>
+        </div>
+        <div style="font-size:11px; color:var(--muted); margin-top:5px;" id="cliPreviewTxt">
+          CLI: <code>Plot_LTFM_Coalition_Shock_Mirage('c01..c16')</code>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 4-CARD KPI SUMMARY STRIP -->
+    <div class="kpi-grid">
+      <div class="kpi-box" id="kpiBox1">
+        <div class="kpi-title">4-Yr OBEGALx Crown Cash (FY24–27)</div>
+        <div class="kpi-main" id="kpiObegalMain">-NZ$11.85B</div>
+        <div class="kpi-sub" id="kpiObegalSub">4-Yr Policy Scale: NZ$35.60B</div>
+      </div>
+      <div class="kpi-box" id="kpiBox2">
+        <div class="kpi-title">Siloed Sum (Zero Cross-Coupling)</div>
+        <div class="kpi-main" id="kpiSiloMain">-NZ$225.61B</div>
+        <div class="kpi-sub" id="kpiSiloSub">-NZ$6.34 per $1 scale (Partial Eq.)</div>
+      </div>
+      <div class="kpi-box" id="kpiBox3">
+        <div class="kpi-title">Active Lens Full Valuation</div>
+        <div class="kpi-main" id="kpiGeMain">-NZ$294.67B</div>
+        <div class="kpi-sub" id="kpiGeSub">-NZ$8.28 per $1 scale (Lens 4 GE)</div>
+      </div>
+      <div class="kpi-box" id="kpiBox4">
+        <div class="kpi-title">Cross-Gate Additionality &amp; 2065 Debt</div>
+        <div class="kpi-main" id="kpiWedgeMain">-NZ$69.06B (+30.6%)</div>
+        <div class="kpi-sub" id="kpiWedgeSub">2065 Net Debt: 271.4% GDP (vs 200.0% Base)</div>
+      </div>
+    </div>
+
+    <!-- MAIN 2-COLUMN WORKBENCH: LEFT = 18 COMMITMENTS BY LANE, RIGHT = CANVAS + TABLE -->
+    <div class="main-grid">
+
+      <!-- Left Sidebar: 4 Portfolio Lanes x Tri-State Toggles -->
+      <div class="card">
+        <h2>
+          <span>Institutional Commitments by Portfolio Lane (<code>C01</code>–<code>C18</code> Shocks &amp; <code>C21</code>–<code>C28</code> <code>SS1</code>/<code>SS2</code> Pillars)</span>
+          <span style="font-size:11px; color:var(--muted); font-weight:600;">Shock | Off | +Reform</span>
+        </h2>
+        <div id="lanesSidebarContainer"></div>
+      </div>
+
+      <!-- Right Column: High-DPI Canvas + Live Ledger Table -->
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="view-bar">
+            <h2 style="margin:0;" id="canvasHeaderTitle">View A — Shock-by-Shock &amp; Logical Group Multipliers</h2>
+            <span style="font-size:11.5px; color:var(--muted);" id="canvasHeaderSub">Evaluated under Lens 4: 2.5% Real Full General-Equilibrium IGWelfare</span>
+          </div>
+          <div id="actuarialSubBar" style="display:none; margin-bottom:10px; padding:7px 11px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:7px;">
+            <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:space-between;">
+              <div style="display:flex; flex-wrap:wrap; gap:5px; align-items:center;">
+                <strong style="font-size:11.5px; color:#0f293a;">Spatial Scope:</strong>
+                <button type="button" class="act-reg-btn active" data-reg="National">National (NZ)</button>
+                <button type="button" class="act-reg-btn" data-reg="Auckland">Auckland (34.1%)</button>
+                <button type="button" class="act-reg-btn" data-reg="Large">Large Cities (25.9%)</button>
+                <button type="button" class="act-reg-btn" data-reg="Small">Small Towns (24.0%)</button>
+                <button type="button" class="act-reg-btn" data-reg="Rural">Rural (16.0%)</button>
+                <button type="button" class="act-reg-btn pos-btn" data-reg="All4Grid">4-Region Horizon Grid (2&times;2)</button>
+                <button type="button" class="act-reg-btn pos-btn" data-reg="AuditBars">Audit-Yr Regional Bars</button>
+              </div>
+              <span style="font-size:11px; color:#475569;">Uses active <strong>Profile</strong> &amp; <strong>Audit Horizon</strong> from Card 2</span>
+            </div>
+          </div>
+          <canvas id="mainVizCanvas" class="viz-canvas" width="1020" height="620"></canvas>
+        </div>
+
+        <div class="card">
+          <h2>
+            <span id="tableHeaderTitle">Active Set Ledger &amp; Decomposition Table</span>
+            <span style="font-size:11.5px; color:var(--muted);" id="tableHeaderSub">All figures in Real 2026 NZD Billions</span>
+          </h2>
+          <div style="overflow-x:auto;">
+            <table class="data-tbl" id="ledgerTable">
+              <thead id="ledgerThead"></thead>
+              <tbody id="ledgerTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- TAB 2: ALGEBRAIC, SHAPLEY & PUBLIC-FINANCE ACCOUNTING README          -->
+  <!-- ===================================================================== -->
+  <div id="readmePane" class="tab-pane">
+    <div class="readme-doc" id="readmeContent">
+      <h1 style="margin-top:0; font-size:23px; color:#0d3b33;">Algebraic, Game-Theoretic &amp; Public-Finance Accounting Architecture</h1>
+      <p style="color:#52606d; font-size:13.8px; margin-top:-4px;">
+        <strong>Technical Reference Guide (README)</strong> — Companion to <code>Compose_Policy_Bundle.m</code>, <code>Load_Commitment_Catalog.m</code>, and <code>Plot_LTFM_Coalition_Shock_Mirage.m</code> in the <code>IGWelfare</code> 4-Region Overlapping-Generations (OLG) Workbench.
+      </p>
+
+      <h2>1. Purpose: Connecting 4-Year Cash Budgets to 42-Year Intergenerational Welfare</h2>
+      <p>
+        Daily fiscal debate in Aotearoa New Zealand scores policy packages almost exclusively inside a 4-year operating cash window (<code>OBEGALx</code> in <code>BEFU</code>/<code>PREFU</code>), whereas demographic, health, infrastructure, and human-capital dynamics unfold across a 40-to-60-year generational horizon (the New Zealand Treasury's <em>He Tirohanga Mokopuna</em> Long-Term Fiscal Model, <code>LTFM</code>, spanning 2023–2065).
+      </p>
+      <p>
+        This explorer evaluates any combination of 18 ongoing institutional commitments (<code>C01</code>–<code>C18</code> Shocks &amp; <code>C21</code>–<code>C28</code> <code>SS1</code>/<code>SS2</code> Pillars) simultaneously as:
+      </p>
+      <ul>
+        <li><strong>Short-Term Fiscal Mirages vs. Trim-Tab Seeds:</strong> How retrenching early-years, clinical, R&amp;D, civic, or Smokefree commitments books small positive 4-year cash reliefs (+NZ$7.69B across the 12 public cuts) at the cost of compounding multi-decade welfare and solvency sinkholes (-NZ$186.77B in general equilibrium)—and conversely, how modest upfront 4-year seed outlays unlock supermodular long-run dividends when flipped to <code>+Reform</code>.</li>
+        <li><strong>Siloed Partial Equilibrium vs. Coupled General Equilibrium:</strong> How evaluating policies one ministry at a time misses cross-portfolio feedbacks across housing rents, educator purchasing power, skilled youth migration, hospital congestion, and sovereign debt-service curvature.</li>
+      </ul>
+
+      <h2>2. Convention-2 Institutional Commitment Algebra</h2>
+      <p>
+        Every policy configuration is represented by a signed institutional commitment vector \(\mathbf{u} = (u_1, \dots, u_{18})^\top \in \mathbb{R}^{18}\) anchored to the pre-shock 2023 economy (<code>SS0_2023</code> at \(\mathbf{u} = \mathbf{0}\)):
+      </p>
+      <ul>
+        <li><strong>Public Capability, Tenure-Neutrality, Civic &amp; Exergy Commitments (<code>C01</code>–<code>C08</code>, <code>C12</code>–<code>C17</code>):</strong> Oriented so \(u_i > 0\) strengthens institutional capacity or tax neutrality (<code>+Reform</code>) and \(u_i < 0\) enacts the calibrated 2024–2026 retrenchment, deferral, privatization, or leveraged-landlord tax restoration (<code>Shock</code>).</li>
+        <li><strong>Tax-Relief, Investor-Visa, Asset-Expensing &amp; Defence Levers (<code>C09</code>–<code>C11</code>, <code>C18</code>):</strong> Oriented so \(u_i > 0\) enacts the 2024–2026 statutory tax cut, visa inflow, immediate expensing, or unfunded 3.0%-of-GDP defence uplift, while \(u_i < 0\) tightens or offsets that schedule.</li>
+      </ul>
+
+      <div class="math-box">
+        <strong>Additive Vector Composition &amp; Pass-Through Scaling:</strong> Composing any two policy bundles \(A\) and \(B\) sums their underlying commitment vectors \(\mathbf{u} = \mathbf{u}_A + \mathbf{u}_B\) before resolving non-linear general-equilibrium couplings in a single pass:
+        \[
+          u_i^{\text{eff}} = \begin{cases}
+            s_{\text{core13}} \, u_i & \text{for } i \in \{1,\dots,13\} \quad (s_{\text{core13}} = 0.5915 \text{ macro announcement pass-through}), \\[4pt]
+            s_{\text{direct}} \, u_i & \text{for } i \in \{14,\dots,18\} \quad (s_{\text{direct}} = 1.0000 \text{ direct statutory / balance-sheet wedges}).
+          \end{cases}
+        \]
+      </div>
+
+      <h3>Endogenous Cross-Gate Couplings Resolved in <code>Compose_Policy_Bundle</code></h3>
+      <p>
+        Across the four spatial regions \(k \in \lbrace 1, 2, 3, 4 \rbrace\) — Rural (16.0%), Small Towns (24.0%), Large Cities (25.9%), and Auckland (34.1%) — commitments interact multiplicatively rather than additively:
+      </p>
+      <ol>
+        <li><strong>Kaiako Housing-Cost Deflator:</strong> Restoring landlord interest deductibility (<code>C01</code>) or passive luxury land inflows (<code>C10</code>) bids up regional house-price-to-income multiples \(Q_k\) relative to \(Q_{\text{base},k}\), eroding real educator retention and effective early-childhood quality:
+          \[
+            \kappa_k^{\text{kaiako}} = \left(\frac{Q_{\text{base},k}}{Q_k}\right)^{\nu_{\text{kaiako}}}, \qquad \nu_{\text{kaiako}} = 0.350, \qquad G_{\text{ECE},m,\text{eff},k} = G_{\text{ECE},m} \cdot \kappa_k^{\text{kaiako}} \quad (m \in \{1,2\}).
+          \]
+        </li>
+        <li><strong>General-Equilibrium Wage &amp; Productivity Pass-Through:</strong> Regional operating-firm TFP ceilings \(z_{h,k}\) (shifted by <code>C02</code> R&amp;D, <code>C10</code> capital, <code>C15</code> creative IP, <code>C16</code> clean-green market access, and <code>C17</code> network markups), corporate tax \(\tau_k\), collateral \(\lambda_{\text{col}}\), and sovereign spreads \(r_{\text{spread}}\) feed directly into marginal-product wages:
+          \[
+            w_{\text{GE},k} = w_k \left(1 - 0.28\,\Delta\tau_k + 0.08\,\Delta\lambda_{\text{col}} - 1.20\,r_{\text{spread}} + 0.45\,\frac{z_{h,k} - z_{h,\text{ref},k}}{z_{h,\text{ref},k}}\right).
+          \]
+        </li>
+        <li><strong>Cohort Struggle, 4&times;5 Gumbel Skilled Emigration &amp; Social Cohesion:</strong> Effective ECE scaffolding, housing multiples \(Q_k\), Age-20 launch endowments (<code>YouthGrant</code>), and foreign skill-premium wedges jointly shift regional material struggle \(\Delta\text{Strug}_k\), skilled youth emigration \(\Delta\text{Emig}_k\), and social cohesion \(S_{t,k}\).</li>
+      </ol>
+
+      <h2>3. Set-Algebraic Subset Grammar, Logical Groupings &amp; Dynamic Pruning</h2>
+      <p>
+        Any user selection or expression string (such as <code>c01, c02, c02</code> or <code>ret10, +c06, +c15, +c16</code>) is normalized into a canonical ordered set \(S \subseteq \lbrace 1,\dots,39 \rbrace\) paired with a sign map \(\sigma: S \to \lbrace -1, +1 \rbrace\). Duplicate tokens collapse idempotently (\(A \cup A = A\)).
+      </p>
+      <p>
+        Commitments partition into the four Document 3 portfolio lanes:
+      </p>
+      <ul>
+        <li><strong>Lane 1 (Children, Health &amp; Education):</strong> Shocks/Reforms <code>C05</code>, <code>C06</code>, <code>C07</code>, <code>C08</code>, <code>C12</code> &nbsp;|&nbsp; Constructive <code>SS1</code> Pillars: <code>C21</code> (First-2,000-Days Universal ECE &amp; Farm-to-ECE) and <code>C22</code> (<em>Tuakana-Teina</em>, Montessori &amp; FYI Mentoring — unlocking <strong>Wedge 1</strong>)</li>
+        <li><strong>Lane 2 (Housing, KiwiSaver, Water &amp; Civic Commons):</strong> Shocks/Reforms <code>C01</code>, <code>C13</code>, <code>C14</code>, <code>C15</code>, <code>C17</code> &nbsp;|&nbsp; Constructive <code>SS1</code> Pillars: <code>C23</code> (1.5% Land &amp; 25% Estate Rebalance), <code>C24</code> (Age-20 Youth Capital Grant), and <code>C25</code> (Income &times; Geography Bridge, 85% retired in <code>SS2</code> — unlocking <strong>Wedge 2</strong>)</li>
+        <li><strong>Lane 3 (Science, State Capacity, Freight &amp; Productive Enterprise):</strong> Shocks/Reforms <code>C02</code>, <code>C03</code>, <code>C04</code>, <code>C10</code>, <code>C11</code>, <code>C16</code> &nbsp;|&nbsp; Constructive <code>SS1</code> Pillar: <code>C26</code> (Productive \(z_l \to z_h\) Firm Tax Shift &amp; Food-Hub Procurement — unlocking <strong>Wedge 3</strong>)</li>
+        <li><strong>Lane 4 (Working-Age Tax, Defence &amp; 2050 Solvency Harvest):</strong> Shocks/Reforms <code>C09</code>, <code>C18</code> &nbsp;|&nbsp; Constructive <code>SS2</code> Pillars: <code>C27</code> (2050 50/50 Sovereign Debt-Sinking &amp; 1.65x Infra Pool) and <code>C28</code> (<code>-3.75 pp</code> PAYE Cut to <code>18.25%</code> &amp; Super Age-64 <em>Kuia</em> Care Dividend — unlocking <strong>Wedge 4</strong>)</li>
+        <li><strong>Reserved Sparse Code Slots:</strong> <code>C19</code>–<code>C20</code> (NDC / shock sub-splits), <code>C29</code>–<code>C30</code> (<code>SS1</code>/<code>SS2</code> sub-splits), and <code>C31</code>–<code>C39</code> (Forestry ETS, Dairy/Ag Emissions Discounting, Clean Exergy &amp; Paris Sovereign/Trade Risk Suite).</li>
+      </ul>
+      <p>
+        For any active set \(S\), let \(S_k = S \cap L_k\) and let \(\mathcal{L}_{\text{act}}(S) = \{k \in \{1,2,3,4\} : |S_k| \ge 1\}\) with \(m = |\mathcal{L}_{\text{act}}(S)|\) active lanes:
+      </p>
+      <ul>
+        <li><strong>Logical Sub-Groupings (View A):</strong> A lane sub-group bar is generated if and only if \(2 \le |S_k| < |S|\) (singleton lanes are never duplicated as redundant group bars). When \(S = \{1,\dots,16\}\) in the 2024 shock direction, the grouping rules reproduce the exact <code>Retrenchment + Landlord 10</code>, <code>Full 15 Domestic</code>, and <code>Full 16 Vector</code> bars.</li>
+        <li><strong>Dynamic Wedge Pruning (View B):</strong> Empty lanes (\(S_k = \emptyset\)) are pruned automatically. <code>Wedge 1: Intra-Lane</code> is included if and only if \(\max_{k} |S_k| \ge 2\) (for instance, when <code>C05</code> hospital deferrals and <code>C08</code> Smokefree repeal co-occur inside Lane 1). Cross-lane wedges are constructed strictly across the \(m\) active lanes \(k_1 < k_2 < \dots < k_m\).</li>
+      </ul>
+
+      <h2>4. Sequential Additionality Wedges vs. Order-Invariant Shapley Attribution</h2>
+      <p>
+        Let \(V(A)\) denote the Present-Value social welfare valuation of any subset of commitments \(A \subseteq S\). For the 2024–2026 Full-16 vector (\(S = \{1,\dots,16\}\)), the siloed partial-equilibrium sum is \(\sum_{i=1}^{16} V(\lbrace i \rbrace)\) = -NZD 225.61B, whereas the coupled general-equilibrium valuation is \(V(S)\) = -NZD 294.40B—a <strong>-NZ$69.06B (+30.6%)</strong> negative additionality gap (consisting of <strong>-NZ$7.42B</strong> intra-lane and <strong>-NZ$61.64B</strong> cross-lane interference).
+      </p>
+      <p>
+        View B presents two complementary, mathematically exact decompositions of that gap:
+      </p>
+
+      <div class="math-box">
+        <strong>1. Sequential Stack Cascade (View B, Left Waterfall):</strong> Stacks active lanes in canonical order \(k_1 < k_2 < \dots < k_m\):
+        \[
+          V(S) = \underbrace{\sum_{r=1}^{m} \sum_{i \in S_{k_r}} V(\{i\})}_{\text{Siloed Sum}}
+               + \underbrace{\sum_{r=1}^{m} \Big(V(S_{k_r}) - \sum_{i \in S_{k_r}} V(\{i\})\Big)}_{\text{Wedge 1: Intra-Lane}}
+               + \sum_{r=2}^{m} \underbrace{\Big[V\!\Big(\bigcup_{j=1}^{r} S_{k_j}\Big) - V\!\Big(\bigcup_{j=1}^{r-1} S_{k_j}\Big) - V(S_{k_r})\Big]}_{\text{Sequential Cross-Lane Wedge } r}.
+        \]
+      </div>
+
+      <div class="math-box">
+        <strong>2. Order-Invariant \(2^m\) Shapley-Owen Attribution (View B, Right Bars):</strong> Averages each lane's marginal impact across all \(m!\) entry orders—equivalently dividing every Harsanyi synergy dividend \(m(T) = \sum_{R \subseteq T} (-1)^{|T|-|R|} V\!\big(\bigcup_{r \in R} S_r\big)\) equally among the \(|T|\) participating lanes:
+        \[
+          \phi_r(V) = \sum_{Q \subseteq \mathcal{L}_{\text{act}} \setminus \{r\}} \frac{|Q|!\,(m - |Q| - 1)!}{m!} \Big[ V(Q \cup \{r\}) - V(Q) \Big]
+                    = V(S_r) + \sum_{\substack{T \subseteq \mathcal{L}_{\text{act}} \\ r \in T,\, |T| \ge 2}} \frac{m(T)}{|T|}, \qquad \sum_{r=1}^{m} \phi_r(V) = V(S).
+        \]
+      </div>
+
+      <h3>Why the Two Decompositions Differ Numerically</h3>
+      <ul>
+        <li><strong>Eliminating First-Mover Asymmetry:</strong> In the sequential waterfall (<code>L1 &rarr; L2 &rarr; L3 &rarr; L4</code>), Lane 1 enters onto an empty stage and receives <strong>NZ$0.00B</strong> of cross-lane wedge while Lane 2 absorbs 100% of their bilateral <code>Rent &times; ECE</code> collision (-NZ$21.21B). Shapley splits every bilateral interaction 50/50 and every 3-way interaction 1/3 each, revealing that <strong>Lane 1 (Children, Health &amp; Education)</strong> actually carries the largest proportional cross-economy amplification (+51.0%, from -NZ$47.57B siloed to -NZ$71.81B in GE).</li>
+        <li><strong>Splitting the Quadratic Sovereign Debt Cross-Term:</strong> Along Document 3's macroeconomic welfare surface, sovereign debt crowding-out above 42% of GDP and distortionary PAYE closure above 22% are strictly convex:
+          \[
+            \Delta\text{CE}_{\text{Surf}}(D_t, \tau_{l,t}) = -0.045\,\max(0, D_t - 42) - 0.00032\,\max(0, D_t - 42)^2 - 0.920\,(\tau_{l,t} - 22) - 0.038\,\max(0, \tau_{l,t} - 22)^2.
+          \]
+          Because \((\Delta D_{\text{retrench}} + \Delta D_{\text{tax}})^2 = \Delta D_{\text{retrench}}^2 + \Delta D_{\text{tax}}^2 + 2\,\Delta D_{\text{retrench}}\Delta D_{\text{tax}}\), stacking <code>C09</code> tax cuts last (<code>Wedge 4</code> = -NZ$17.34B) bills 100% of that quadratic cross-term to Lane 4, whereas Shapley (-NZ$10.73B on Lane 4) attributes half of the cross-term back to Lanes 1–3 for eroding the fiscal base simultaneously.</li>
+      </ul>
+
+      <h2>5. Snowball Debt Dynamics &amp; The 7 Public-Finance &amp; ACC Actuarial Accounting Lenses</h2>
+      <p>
+        Annual Crown operating balance deltas \(\Delta\text{OBEGAL}_t\) map onto Net Core Crown Debt (% of GDP) over \(t \in \{2023,\dots,2065\}\) via the lower-triangular compounding operator \(\mathbf{C}\) (at \(r - g = 0.0165\text{ yr}^{-1}\), i.e. 1.65%/yr) atop the 200.0%-of-GDP 2065 <code>LTFM</code> baseline:
+      </p>
+      <div class="math-box">
+        \[
+          D_t = D_t^{\text{LTFM}} + \sum_{s=2023}^{t} (1.0165)^{t - s} \left( -\frac{100 \cdot \Delta\text{OBEGAL}_s}{\text{GDP}_s} \right), \qquad
+          \text{PV}_r = \int_{2024}^{2065} \beta_r(t)\,\Delta W_t\,dt.
+        \]
+      </div>
+
+      <p>
+        Over the 42-year window (2024–2065 at 2.5% real), the Present Value of New Zealand's real GDP is <strong>NZD 15,869B</strong> (and PV household consumption is <strong>NZD 9,204B</strong>). Thus the Full-16 general-equilibrium sinkhole represents <strong>1.86% of 42-year PV GDP</strong> (or <strong>3.20% of PV household consumption</strong>). Switching across all <strong>7 Frameworks</strong> in Card 2 demonstrates why orthodox cash-window reporting misses both retrenchment sinkholes and generational investment returns:
+      </p>
+
+      <table class="data-tbl" style="margin-bottom:20px;">
+        <thead>
+          <tr>
+            <th>Public-Finance / Actuarial Framework</th>
+            <th>Horizon</th>
+            <th>Real Discount Rate</th>
+            <th>Cross-Lane Coupling?</th>
+            <th>12 Public Cuts (NZD 11.9B)</th>
+            <th>Full 16 Shocks (NZD 35.6B)</th>
+            <th>Clean <code>SS1&rarr;SS2</code> Compact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Lens 1: Budget <code>OBEGALx</code> Cash</strong> (<code>BEFU</code>/<code>PREFU</code>)</td>
+            <td>4 Yrs (FY24–27)</td>
+            <td>Nominal cash</td>
+            <td>No (excludes ACC &amp; &gt;Yr 4)</td>
+            <td class="pos-txt">+NZD 7.69B</td>
+            <td class="neg-txt">-NZD 11.84B</td>
+            <td class="mir-txt">-NZD 5.30B (Seed)</td>
+          </tr>
+          <tr>
+            <td><strong>Lens 2: Commercial Hurdle CBA</strong></td>
+            <td>42 Yrs (to 2065)</td>
+            <td>8.0% flat</td>
+            <td>No (Partial Eq. Silos)</td>
+            <td class="neg-txt">-NZD 48.2B</td>
+            <td class="neg-txt">-NZD 65.2B</td>
+            <td class="pos-txt">+NZD 61.4B</td>
+          </tr>
+          <tr>
+            <td><strong>Lens 3: Agency Social <code>CBAx</code></strong></td>
+            <td>42 Yrs (to 2065)</td>
+            <td>2.5% flat</td>
+            <td>No (Partial Eq. Silos)</td>
+            <td class="neg-txt">-NZD 144.8B</td>
+            <td class="neg-txt">-NZD 225.4B</td>
+            <td class="pos-txt">+NZD 260.4B</td>
+          </tr>
+          <tr style="background:#f8fafc; font-weight:700;">
+            <td><strong>Lens 4: <code>IGWelfare</code> Canonical GE</strong></td>
+            <td>42 Yrs (to 2065)</td>
+            <td>2.5% flat</td>
+            <td><strong>Yes (+30.6% Shock / +54% SS2 Wedges)</strong></td>
+            <td class="neg-txt">-NZD 186.5B</td>
+            <td class="neg-txt">-NZD 294.4B</td>
+            <td class="pos-txt">+NZD 567.8B</td>
+          </tr>
+          <tr>
+            <td><strong>Lens 5: Official NZ Treasury SRTP GE</strong></td>
+            <td>42 Yrs (to 2065)</td>
+            <td>2.0% (Yrs 1–30), 1.5% (31+)</td>
+            <td><strong>Yes (Full GE Coupling)</strong></td>
+            <td class="neg-txt">-NZD 213.0B</td>
+            <td class="neg-txt">-NZD 339.4B</td>
+            <td class="pos-txt">+NZD 661.2B</td>
+          </tr>
+          <tr>
+            <td><strong>Lens 6: ACC Actuarial Crown Fiscal</strong> (Circular 2024/15)</td>
+            <td>Rolling \(H = 25\text{ yr}\)</td>
+            <td>2.0% real (30% Haircut)</td>
+            <td><strong>Yes (Tax + Remediation Continuation)</strong></td>
+            <td class="neg-txt">Yr 5: -NZD 22.8B</td>
+            <td class="neg-txt">Yr 5: -NZD 47.4B</td>
+            <td class="pos-txt">Yr 5: +NZD 38.6B</td>
+          </tr>
+          <tr>
+            <td><strong>Lens 7: ACC Economy-Wide <code>WideGDP</code></strong></td>
+            <td>Rolling \(H = 25\text{ yr}\)</td>
+            <td>2.0% real (30% Haircut)</td>
+            <td><strong>Yes (Output Continuation Prize)</strong></td>
+            <td class="neg-txt">Yr 5: -NZD 54.1B</td>
+            <td class="neg-txt">Yr 5: -NZD 86.2B</td>
+            <td class="pos-txt">Yr 5: +NZD 108.4B</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>6. Mathematical Care in Mixed Counterfactuals: Commutativity, Two-Channel Coupling &amp; Statutory Fiscal Closure</h2>
+      <p>
+        When evaluating mixed counterfactuals—such as enacting the constructive Generational Compact (<code>SS1</code>: <code>+C21..C26</code>, or <code>SS2</code>: <code>+C21..C28</code>) <em>atop</em> the 2024–2026 Coalition Shocks (<code>hole_ss1</code> / <code>hole_ss2</code>, "digging out of a hole")—naive sequential or single-scalar approximations introduce three subtle mathematical distortions. This engine eliminates all three by construction:
+      </p>
+
+      <ol>
+        <li>
+          <strong>Strict Operator Commutativity (Zero "Last-Through-the-Door" Order Dependence):</strong>
+          In naive sequential scripts, mixing multiplicative scalings and additive shifts with intermediate clamping causes the result to depend on commitment evaluation order—for example, applying an additive clinical overhead shift \(\Delta\bar{e}_k\) <em>before</em> versus <em>after</em> a multiplicative network cost shock \(m_k\), or clamping council-rate wedges mid-loop. Here, <code>composePolicyBundle</code> accumulates all multiplicative operators in a commutative product group and all additive wedges in a separate vector sum, applying domain bounds once at closure:
+          <div class="math-box">
+            \[
+              \bar{e}_k(\mathbf{u}) = \max\!\left(0.004,\; \bar{e}_{0,k} \prod_{i \in S} m_{i,k}(u_i) + \sum_{i \in S} \delta_{i,k}(u_i)\right), \qquad
+              s_j(\mathbf{u}) = \mathrm{clip}\!\left(s_{0,j} \prod_{i \in S} \gamma_{i,j}(u_i),\; 0.05,\; 0.995\right).
+            \]
+          </div>
+          Permuting the order in which active commitments enter \(\mathbf{u}\) alters the resulting macroeconomic state by identically zero (\(0.00 \times 10^{-16}\)).
+        </li>
+
+        <li>
+          <strong>Two-Channel Shock/Reform Decomposition (Eliminating Majority-Dollar Tug-of-War):</strong>
+          Suppose an active vector \(\mathbf{u} = \mathbf{u}_{\mathrm{shk}} + \mathbf{u}_{\mathrm{ref}}\) contains both negative retrenchment/deficit shocks (\(\mathbf{u}_{\mathrm{shk}}\), with fast cash-window onset \(\tau_{\mathrm{shk}} \approx 4.6\text{ yr}\) and cross-lane interference \(1 + \chi_{\mathrm{neg}}\)) and constructive multi-decade investments (\(\mathbf{u}_{\mathrm{ref}}\), with human-capital gestation \(\tau_{\mathrm{ref}} \approx 10.1\text{ yr}\) and Topkis supermodular synergy \(1 + \chi_{\mathrm{pos}}\)). Pooling both into a single net-dollar ratio \(\vert W_{\mathrm{shk}} - W_{\mathrm{ref}} \vert / (W_{\mathrm{shk}} + W_{\mathrm{ref}})\) would artificially erase <code>SS1</code>'s cross-lane synergy whenever a large 4-year tax shock (such as <code>C09</code>, NZD 14.70B) has comparable headline dollar volume. Instead, we decompose the exact coupled state vector \(R(\mathbf{u})\) into the shock channel plus the exact coupled reform residual:
+          <div class="math-box">
+            \[
+              \Delta Y_{\mathrm{tail}}(t;\mathbf{u}) = (1 + \chi_{\mathrm{neg}})\,R(\mathbf{u}_{\mathrm{shk}})\,\Omega(t;\tau_{\mathrm{shk}})
+              + (1 + \chi_{\mathrm{pos}})\,\Big[R(\mathbf{u}_{\mathrm{shk}} + \mathbf{u}_{\mathrm{ref}}) - R(\mathbf{u}_{\mathrm{shk}})\Big]\,\Omega(t;\tau_{\mathrm{ref}}),
+            \]
+          </div>
+          where \(\Omega(t;\tau) = 1 - \exp(-(t - 2024)/\tau)\). Notice three exact properties: (i) when \(\mathbf{u}_{\mathrm{ref}} = \mathbf{0}\), it reduces identically to the pure shock model; (ii) when \(\mathbf{u}_{\mathrm{shk}} = \mathbf{0}\), it reduces identically to the pure constructive model; and (iii) when both are active, <code>SS1</code> retains 100% of its Topkis synergy while the bracketed difference captures all genuine physical cross-terms (such as <code>C01</code> landlord rent inflation deflating <code>C21</code> <em>Kaiako</em> purchasing power until <code>C23</code> cools \(Q_k\)).
+        </li>
+
+        <li>
+          <strong>Statutory <code>SS1</code> Fiscal Rebalance (<code>C23</code>) &amp; Root-Perturbation Grazing Sensitivity:</strong>
+          In Document 3, Phase 1 (<code>SS1</code>) is a ring-fenced statutory fiscal compact: enacting <code>C23</code> (the 1.5% Land &amp; 25% Estate Tax Rebalance) re-anchors the working-age revenue floor at \(\tau_l = 0.220\) from 2027 onward. Consequently, when <code>SS1</code> is enacted atop the 2024 shocks (<code>hole_ss1</code>), <code>C09</code>'s FY2024–2026 borrowing remains on the books as genuine <em>sunk sovereign debt</em>, but <code>C23</code> statutorily terminates <code>C09</code>'s post-2026 structural deficit bleed. Dynamically, this keeps the post-incubation debt-reduction slope \(\vert \dot{\Delta D}(t^{\ast}) \vert\) steep (\(\approx 1.8\text{ pp GDP/yr}\)). By first-order root-perturbation calculus, the horizontal shift in the debt-crossover year \(t^{\ast}\) caused by any secondary fiscal drag \(\delta D\) (such as <code>C16</code>'s offshore Paris NDC liability) obeys:
+          <div class="math-box">
+            \[
+              \Delta t^{\ast} \approx \frac{\delta D(t^{\ast})}{\left\vert \frac{d(\Delta D)}{dt}\big\vert_{t = t^{\ast}} \right\vert}.
+            \]
+          </div>
+          Without statutory base closure, an uncounteracted permanent tax bleed flattens \(\vert d(\Delta D)/dt \vert\) toward zero (a shallow grazing intersection), artificially magnifying a modest 2.5 pp NDC drag into a 7-year crossover delay; with statutory <code>SS1</code> base closure, both <code>C09</code>'s sunk 2024–2026 debt (~3–4 years) and <code>C16</code>'s NDC drag (~1–2 years) register with proportional, physically transparent timing shifts.
+        </li>
+      </ol>
+
+      <p style="font-size:12.8px; color:#52606d; margin-bottom:4px;">
+        <strong>Reproducibility &amp; CLI Equivalence:</strong> Every view in this standalone HTML explorer uses the exact parameter vectors of <code>profiles/NZ_Dunedin1972/policies/commitment_catalog.csv</code> and <code>policy_bundles.yaml</code>, matching <code>Compose_Policy_Bundle.m</code> and <code>Plot_LTFM_Coalition_Shock_Mirage.m</code> in MATLAB and GNU Octave 11.x.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================================
+// PART 2: TWO-SIDED CONVENTION-2 POLICY ALGEBRA, LTFM SNOWBALL & SHAPLEY ENGINE
+// Verified bit-for-bit against GNU Octave / MATLAB Plot_LTFM_Coalition_Shock_Mirage.m
+// ============================================================================
+const IGW_ENGINE = (function() {
+  "use strict";
+
+  const POP_W = [0.160, 0.240, 0.259, 0.341]; // Rural, Small, Large, Auckland
+  const DT = 3.0, SCALE_DT = 0.6, JR = 16, J_MAX = 24;
+  const YEARS = [];
+  for (let y = 2023; y <= 2065; y++) YEARS.push(y);
+  const T_LEN = YEARS.length; // 43 years (2023..2065)
+
+  // Exact PCHIP interpolation on [2023, 2024, 2025, 2026] -> [38.8, 41.2, 41.8, 41.3]
+  const DEBT_HIST_MAP = { 2023: 38.8, 2024: 41.2, 2025: 41.8, 2026: 41.3 };
+  const DEBT_B0 = YEARS.map(y => {
+    if (y <= 2026) return DEBT_HIST_MAP[y];
+    const tp = (y - 2026.0) / (2065.0 - 2026.0);
+    return 41.3 + 48.0 * tp + 110.7 * Math.pow(tp, 2.35);
+  });
+  const TAX_B0 = YEARS.map(y => 22.0 + 6.2 * Math.pow(Math.max(0.0, (y - 2026.0) / 60.0), 1.20));
+  const GDP_B  = YEARS.map(y => 452.2 * Math.pow(1.019, y - 2026.0));
+
+  // Discount vectors anchored at 2024
+  const DISC_25 = YEARS.map(y => Math.pow(1.025, -Math.max(0.0, y - 2024.0)));
+  const DISC_80 = YEARS.map(y => Math.pow(1.080, -Math.max(0.0, y - 2024.0)));
+  const DISC_SRTP = YEARS.map(y => {
+    if (y <= 2024) return 1.0;
+    if (y <= 2054) return Math.pow(1.020, -(y - 2024.0));
+    return Math.pow(1.020, -30.0) * Math.pow(1.015, -(y - 2054.0));
+  });
+
+  function evalDoc3Surf(D, T) {
+    const dEx = Math.max(0.0, D - 42.0);
+    const tEx = Math.max(0.0, T - 22.0);
+    return -0.045 * dEx - 0.00032 * dEx * dEx - 0.920 * (T - 22.0) - 0.038 * tEx * tEx;
+  }
+  const CE_SURF_B0 = YEARS.map((_, i) => evalDoc3Surf(DEBT_B0[i], TAX_B0[i]));
+
+  // Canonical 18 Commitments (Convention-2 Catalog + Symmetric Reform Meanings)
+  // state s_i in {-1 (2024-26 Shock), 0 (Off), +1 (Symmetric Positive Reform)}:
+  // Notice: actual Convention-2 dial u_i = (-s_i) * refDir!
+  //   - When user selects "Shock", q_act = +1 -> u_i = refDir (reproduces 2024-26 shock!).
+  //   - When user selects "+Reform", q_act = -1 -> u_i = -refDir (reproduces symmetric positive investment!).
+  const RAW_CATALOG = [
+    { codeNum: 1,  code: "C01", lane: 2, cat: 2, claimed: 2.90, mirageSign: -1.00, tau: 5.5,  refDir: -1, posOnly: false,
+      shockLbl: "Landlord Interest Deductibility",    reformLbl: "Owner-Occupier Neutrality & LVR Cool",
+      aliases: ["c01", "landlord", "deductibility"] },
+    { codeNum: 2,  code: "C02", lane: 3, cat: 1, claimed: 0.65, mirageSign: +1.00, tau: 7.5,  refDir: -1, posOnly: false,
+      shockLbl: "Callaghan & Science Wind-Down",      reformLbl: "Expand CRI, Marsden & Deep-Tech R&D",
+      aliases: ["c02", "callaghan", "science", "marsden"] },
+    { codeNum: 3,  code: "C03", lane: 3, cat: 1, claimed: 1.50, mirageSign: +1.00, tau: 4.5,  refDir: -1, posOnly: false,
+      shockLbl: "Core Public Service Redundancies",   reformLbl: "Stabilize Analytical & Regional Delivery",
+      aliases: ["c03", "pubsec", "layoffs"] },
+    { codeNum: 4,  code: "C04", lane: 3, cat: 1, claimed: 0.80, mirageSign: +0.35, tau: 5.5,  refDir: -1, posOnly: false,
+      shockLbl: "iReX Rail-Ferry Cancellation",       reformLbl: "Upgrade Rail-Enabled Cook Strait Ferries",
+      aliases: ["c04", "irex", "ferry"] },
+    { codeNum: 5,  code: "C05", lane: 1, cat: 1, claimed: 0.55, mirageSign: +1.00, tau: 6.5,  refDir: -1, posOnly: false,
+      shockLbl: "Dunedin Hospital & Clinical Deferral",reformLbl: "Deliver Teaching Hospitals & Staffing",
+      aliases: ["c05", "dunedin", "hospital"] },
+    { codeNum: 6,  code: "C06", lane: 1, cat: 1, claimed: 1.40, mirageSign: +1.00, tau: 10.0, refDir: -1, posOnly: false,
+      shockLbl: "Pay Equity Repeal & ECE Squeeze",    reformLbl: "Restore Pay Equity & Baseline ECE",
+      aliases: ["c06", "payequity"] },
+    { codeNum: 7,  code: "C07", lane: 1, cat: 1, claimed: 0.85, mirageSign: +1.00, tau: 6.5,  refDir: -1, posOnly: false,
+      shockLbl: "Tertiary Fees-Free Repeal",          reformLbl: "Restore First-Year Fees-Free & Trades",
+      aliases: ["c07", "tertiary", "feesfree"] },
+    { codeNum: 8,  code: "C08", lane: 1, cat: 1, claimed: 0.30, mirageSign: +1.00, tau: 8.0,  refDir: -1, posOnly: false,
+      shockLbl: "Tobacco Freeze & Smokefree Repeal",  reformLbl: "Advance Smokefree Endgame & Longevity",
+      aliases: ["c08", "tobacco", "smokefree", "s10"] },
+    { codeNum: 9,  code: "C09", lane: 4, cat: 2, claimed: 14.70, mirageSign: -1.00, tau: 3.5, refDir: +1, posOnly: false,
+      shockLbl: "Working-Age Tax Threshold Relief",   reformLbl: "Revenue-Paired Progressive Tax Base",
+      aliases: ["c09", "taxcut", "brackets"] },
+    { codeNum: 10, code: "C10", lane: 3, cat: 3, claimed: 4.40, mirageSign: +0.08, tau: 6.0,  refDir: +1, posOnly: false,
+      shockLbl: "Active Investor Plus Visa Inflow",   reformLbl: "Screen Passive Luxury-Land Inflows",
+      aliases: ["c10", "aip", "visa"] },
+    { codeNum: 11, code: "C11", lane: 3, cat: 3, claimed: 1.70, mirageSign: -1.00, tau: 4.5,  refDir: +1, posOnly: false,
+      shockLbl: "20% Immediate Asset Expensing",      reformLbl: "Targeted R&D / Broad Depreciation Base",
+      aliases: ["c11", "expensing", "investboost"] },
+    { codeNum: 12, code: "C12", lane: 1, cat: 1, claimed: 0.75, mirageSign: +1.00, tau: 9.0,  refDir: -1, posOnly: false,
+      shockLbl: "Educator Real Pay Compression",      reformLbl: "Maintain Kaiako & Teacher Parity > CPI",
+      aliases: ["c12", "teacher", "kaiako"] },
+    { codeNum: 13, code: "C13", lane: 2, cat: 1, claimed: 2.60, mirageSign: +1.00, tau: 10.5, refDir: -1, posOnly: false,
+      shockLbl: "KiwiSaver Match Cut & 30% Social IRR",reformLbl: "Full KiwiSaver Match & 25% Social IRR",
+      aliases: ["c13", "kiwisaver"] },
+    { codeNum: 14, code: "C14", lane: 2, cat: 1, claimed: 1.20, mirageSign: +0.80, tau: 7.0,  refDir: -1, posOnly: false,
+      shockLbl: "Three Waters Devolution & Rates Cap",reformLbl: "Ring-Fenced National Water Balance Sheet",
+      aliases: ["c14", "water", "3waters"] },
+    { codeNum: 15, code: "C15", lane: 2, cat: 1, claimed: 0.35, mirageSign: +1.00, tau: 8.5,  refDir: -1, posOnly: false,
+      shockLbl: "Grassroots Arts, Sport & Civic Cuts",reformLbl: "Doc 1E Joiner Passport & Creative Clubs",
+      aliases: ["c15", "civic", "arts", "wcc", "doc1e"] },
+    { codeNum: 16, code: "C16", lane: 3, cat: 1, claimed: 0.95, mirageSign: +0.45, tau: 5.5,  refDir: -1, posOnly: false,
+      shockLbl: "Paris NDC Shortfall & Clean-Car Repeal", reformLbl: "CERF Electrification & Clean-Green Lift",
+      aliases: ["c16", "ndc", "ev", "cerf"] },
+    { codeNum: 17, code: "C17", lane: 2, cat: 1, claimed: 3.20, mirageSign: +1.00, tau: 6.5,  refDir: -1, posOnly: false,
+      shockLbl: "Distressed Network/Grid Privatization",  reformLbl: "Ostrom & Commercial-Board Grid Reform",
+      aliases: ["c17", "privatize", "grid"] },
+    { codeNum: 18, code: "C18", lane: 4, cat: 1, claimed: 8.00, mirageSign: -1.00, tau: 3.0,  refDir: +1, posOnly: false,
+      shockLbl: "Unfunded 3.0% GDP Defence Posture",      reformLbl: "Reduce Defence Drain / Clean-FX Offset",
+      aliases: ["c18", "defence", "defense"] },
+    // [Reserved: C19–C20 for NDC / Coalition Shock Sub-Splits]
+    // [Constructive SS1 & SS2 Generational Pillars: C21–C28; Reserved C29–C30 for SS1/SS2 Sub-Splits; C31–C39 for Climate/ETS/Ag]
+    { codeNum: 21, code: "C21", lane: 1, cat: 1, claimed: 5.20, mirageSign: +1.00, tau: 11.0, refDir: -1, posOnly: true,
+      shockLbl: "Baseline ECE Only (22% Corner Trap)",    reformLbl: "[SS1 L1] First-2000-Days Universal ECE & Farm-to-ECE",
+      aliases: ["c21", "ece2000", "farm2ece", "korowai"] },
+    { codeNum: 22, code: "C22", lane: 1, cat: 1, claimed: 3.20, mirageSign: +1.00, tau: 9.5,  refDir: -1, posOnly: true,
+      shockLbl: "Unmentored Adol. Fade-Out (delta=0.22)", reformLbl: "[SS1 L1] Tuakana-Teina, Montessori & FYI Mentoring",
+      aliases: ["c22", "tuakana", "mentoring", "erdkinder", "fyi"] },
+    { codeNum: 23, code: "C23", lane: 2, cat: 1, claimed: 6.40, mirageSign: -0.58, tau: 8.0,  refDir: -1, posOnly: true,
+      shockLbl: "Untaxed 1.6T Land Hoarding Skew",        reformLbl: "[SS1 L2] 1.5% Land & 25% Estate Tax Rebalance (Cool Q_k)",
+      aliases: ["c23", "landtax", "estatetax", "rebalance"] },
+    { codeNum: 24, code: "C24", lane: 2, cat: 1, claimed: 3.80, mirageSign: +0.85, tau: 10.0, refDir: -1, posOnly: true,
+      shockLbl: "No Age-20 Endowment (20% LVR Cliff)",    reformLbl: "[SS1 L2] Universal Age-20 Youth Capital Grant (E)",
+      aliases: ["c24", "youthgrant", "endowment"] },
+    { codeNum: 25, code: "C25", lane: 2, cat: 1, claimed: 2.20, mirageSign: +0.75, tau: 6.0,  refDir: -1, posOnly: true,
+      shockLbl: "Unbuffered Regional Cost Squeeze",       reformLbl: "[SS1 L2] Income × Geography Bridge (85% Retired in SS2)",
+      aliases: ["c25", "geotransfer", "geobridge"] },
+    { codeNum: 26, code: "C26", lane: 3, cat: 1, claimed: 3.40, mirageSign: +0.35, tau: 9.5,  refDir: -1, posOnly: true,
+      shockLbl: "Passive Rent Skew (z_l > z_h)",          reformLbl: "[SS1 L3] Productive z_h Firm Shift & Food-Hub Procurement",
+      aliases: ["c26", "zhbuilders", "foodhubs", "growthnz"] },
+    { codeNum: 27, code: "C27", lane: 4, cat: 1, claimed: 4.00, mirageSign: -0.10, tau: 12.0, refDir: -1, posOnly: true,
+      shockLbl: "No Statutory 50/50 Sinking Fund",        reformLbl: "[SS2 L4] 2050 50/50 Debt-Sinking (-60 bps) & 1.65x Infra",
+      aliases: ["c27", "debtsink", "infra5050"] },
+    { codeNum: 28, code: "C28", lane: 4, cat: 1, claimed: 4.60, mirageSign: +0.15, tau: 13.5, refDir: -1, posOnly: true,
+      shockLbl: "Solve-Debt-First: Raise NZ Super to 70", reformLbl: "[SS2 L4] -3.75pp PAYE Cut (18.25%) & Super Age-64 Kuia Care",
+      aliases: ["c28", "super64", "payecut", "kuia"] }
+  ];
+  const CODE_TO_POS = {};
+  const CATALOG = RAW_CATALOG.map((item, pos) => {
+    CODE_TO_POS[item.codeNum] = pos;
+    return Object.assign({ pos, idx: pos + 1 }, item);
+  });
+  function uByCode(vec, cnum) {
+    const p = CODE_TO_POS[cnum];
+    return (p === undefined) ? 0.0 : (vec[p] || 0.0);
+  }
+
+  const LANE_META = {
+    1: { id: 1, short: "Lane 1: Health, ECE & Edu",    full: "1. Children, Health & Education" },
+    2: { id: 2, short: "Lane 2: Housing, KS & Civic",  full: "2. Housing, KiwiSaver, Water & Civic" },
+    3: { id: 3, short: "Lane 3: Sci, Infra & NDC/EV",  full: "3. Science, Infra & Clean Exergy" },
+    4: { id: 4, short: "Lane 4: Tax & Defence Fiscal", full: "4. Working-Age Tax & Defence Base" }
+  };
+
+  const SJ_BASE = [];
+  for (let j = 0; j < J_MAX - 1; j++) {
+    SJ_BASE.push(0.995 + (0.695 - 0.995) * (j / (J_MAX - 2)));
+  }
+
+  function dot4(a, b) { return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3]; }
+
+  function composePolicyBundle(uVecIn, isReanchor) {
+    const eff = uVecIn.map((u, i) => (CATALOG[i].codeNum <= 13 ? u * 0.5915 : u));
+    const eC = cn => uByCode(eff, cn);
+
+    // Strictly Commutative Accumulators (Zero "Last-Through-the-Door" Order Dependence):
+    // Multiplicative scalings accumulate in product variables; additive shifts accumulate in sum variables;
+    // domain bounds are applied once at closure.
+    let debtAdd = 0.0, tauLAdd = 0.0, tauKAdd = 0.0, lamAdd = 0.0;
+    let vAbrSkillAdd = 0.0, upsHAdd = 0.0, cohAdd = 0.0, rsprAdd = 0.0, ndcAdd = 0.0, epsEAdd = 0.0;
+    let sjMult = 1.0, G1Mult = 1.0, G2Mult = 1.0, gbarMult = 1.0, ygMult = 1.0, mentMult = 1.0, alpIMult = 1.0;
+    let dhcMult = 1.0, hospMult = 1.0, morbidAdd = 0.0, adolMult = 1.0;
+
+    const muRatesAdd = [0, 0, 0, 0], QMult = [1, 1, 1, 1], wMult = [1, 1, 1, 1];
+    const ebarMult = [1, 1, 1, 1], ebarAdd = [0, 0, 0, 0], pubsecHaz = [0, 0, 0, 0];
+    const zflMult = [1, 1, 1, 1], zfhMult = [1, 1, 1, 1], zhRegMult = [1, 1, 1, 1], vAbrRegAdd = [0, 0, 0, 0];
+
+    if (!isReanchor) {
+      const u01 = eC(1);
+      if (Math.abs(u01) > 0) {
+        upsHAdd += u01 * 0.0035;
+        const m = [0.025, 0.035, 0.052, 0.068];
+        for (let k = 0; k < 4; k++) QMult[k] *= Math.max(0.50, 1.0 - u01 * m[k]);
+        debtAdd -= u01 * 0.007;
+      }
+      const u02 = eC(2);
+      if (Math.abs(u02) > 0) {
+        const mh = [0.015, 0.025, 0.075, 0.068], ml = [0.020, 0.025, 0.035, 0.045];
+        for (let k = 0; k < 4; k++) {
+          zflMult[k] *= Math.max(0.50, 1.0 - u02 * ml[k]);
+          zfhMult[k] *= Math.max(0.50, 1.0 + u02 * mh[k]);
+        }
+        vAbrSkillAdd -= u02 * 0.085;
+      }
+      const u03 = eC(3);
+      if (Math.abs(u03) > 0) {
+        adolMult *= Math.max(0.40, 1.0 - u03 * 0.15);
+        const hz = [0.004, 0.008, 0.028, 0.015];
+        for (let k = 0; k < 4; k++) pubsecHaz[k] += (-u03) * hz[k];
+      }
+      const u04 = eC(4);
+      if (Math.abs(u04) > 0) {
+        debtAdd -= Math.min(0.0, u04) * 0.0035;
+        const me = [0.065, 0.055, 0.040, 0.015], mw = [0.011, 0.009, 0.008, 0.002];
+        for (let k = 0; k < 4; k++) {
+          ebarMult[k] *= Math.max(0.50, 1.0 - u04 * me[k]);
+          wMult[k]    *= Math.max(0.50, 1.0 + u04 * mw[k]);
+        }
+      }
+      const u05 = eC(5);
+      if (Math.abs(u05) > 0) {
+        dhcMult  *= Math.max(0.60, 1.0 - u05 * 0.085);
+        hospMult *= Math.max(0.50, 1.0 - u05 * 0.140);
+        const hd = [0.0012, 0.0010, 0.0018, 0.0008];
+        for (let k = 0; k < 4; k++) ebarAdd[k] += (-u05) * hd[k];
+      }
+      const u06 = eC(6);
+      if (Math.abs(u06) > 0) {
+        G1Mult   *= Math.max(0.25, 1.0 + u06 * 0.220);
+        G2Mult   *= Math.max(0.25, 1.0 + u06 * 0.160);
+        gbarMult *= Math.max(0.20, 1.0 - u06 * 0.200);
+        mentMult *= Math.max(0.20, 1.0 + u06 * 0.250);
+        const mw = [0.006, 0.010, 0.012, 0.008];
+        for (let k = 0; k < 4; k++) wMult[k] *= Math.max(0.50, 1.0 + u06 * mw[k]);
+      }
+      const u07 = eC(7);
+      if (Math.abs(u07) > 0) {
+        ygMult   *= Math.max(0.15, 1.0 + u07 * 0.350);
+        alpIMult *= Math.max(0.30, 1.0 + u07 * 0.075);
+      }
+      const u08 = eC(8);
+      if (Math.abs(u08) > 0) {
+        hospMult  *= Math.max(0.50, 1.0 - u08 * 0.045);
+        morbidAdd -= u08 * 0.008;
+        sjMult    *= Math.pow(Math.max(0.50, 1.0 + u08 * 0.008), SCALE_DT);
+      }
+      const u09 = eC(9), u23 = eC(23);
+      if (Math.abs(u09) > 0) {
+        // Statutory SS1 Fiscal Rebalance (`C23 > 0`) restores working-age revenue floor against unbacked `C09 > 0` bracket leakage
+        const c09TaxPersist = (u09 > 0) ? (1.0 - 0.85 * Math.min(1.0, Math.max(0.0, u23))) : 1.0;
+        tauLAdd -= u09 * 0.012 * c09TaxPersist;
+        debtAdd += u09 * 0.024 * (0.45 + 0.55 * c09TaxPersist);
+      }
+      const u10 = eC(10);
+      if (Math.abs(u10) > 0) {
+        lamAdd += u10 * 0.045;
+        const mq = [0.012, 0.010, 0.008, 0.018];
+        for (let k = 0; k < 4; k++) QMult[k] *= Math.max(0.50, 1.0 + u10 * mq[k]);
+        zfhMult[2] *= Math.max(0.50, 1.0 + u10 * 0.012);
+        zfhMult[3] *= Math.max(0.50, 1.0 + u10 * 0.018);
+      }
+      const u11 = eC(11);
+      if (Math.abs(u11) > 0) {
+        tauKAdd -= u11 * 0.022;
+        debtAdd += u11 * 0.011;
+      }
+      const u12 = eC(12);
+      if (Math.abs(u12) > 0) {
+        G1Mult *= Math.max(0.30, 1.0 + u12 * 0.065);
+        G2Mult *= Math.max(0.30, 1.0 + u12 * 0.080);
+        vAbrSkillAdd -= u12 * 0.025;
+      }
+      const u13 = eC(13);
+      if (Math.abs(u13) > 0) {
+        ygMult   *= Math.max(0.20, 1.0 + u13 * 0.150);
+        gbarMult *= Math.max(0.20, 1.0 - u13 * 0.085);
+      }
+      const u14 = eC(14);
+      if (Math.abs(u14) > 0) {
+        const mr = [0.0022, 0.0030, 0.0042, 0.0026];
+        for (let k = 0; k < 4; k++) muRatesAdd[k] -= u14 * mr[k];
+      }
+      const u15 = eC(15);
+      if (u15 < 0) {
+        const q = -u15, rw = [0.75, 0.85, 2.10, 1.35];
+        debtAdd -= q * 0.0004;
+        G2Mult  *= Math.max(0.30, 1.0 - q * 0.038);
+        for (let k = 0; k < 4; k++) {
+          zhRegMult[k]  *= Math.max(0.60, 1.0 - q * 0.011 * rw[k]);
+          vAbrRegAdd[k] += q * 0.018 * rw[k];
+        }
+        cohAdd -= q * 4.80;
+      } else if (u15 > 0) {
+        debtAdd += u15 * 0.00077;
+        G2Mult  *= (1.0 + u15 * 0.075);
+        const mz = [0.85, 0.95, 1.25, 1.28], mv = [0.80, 0.90, 1.30, 1.25];
+        for (let k = 0; k < 4; k++) {
+          zhRegMult[k]  *= (1.0 + u15 * 0.020 * mz[k]);
+          vAbrRegAdd[k] -= u15 * 0.032 * mv[k];
+        }
+        cohAdd += u15 * 8.50;
+      }
+      const u16 = eC(16);
+      const cleanExergy = Math.max(0.0, u16);
+      if (u16 < 0) {
+        const q = -u16, me = [0.065, 0.052, 0.030, 0.022], mz = [0.034, 0.024, 0.008, 0.006];
+        epsEAdd -= q * 0.120;
+        for (let k = 0; k < 4; k++) {
+          ebarMult[k]  *= (1.0 + q * me[k]);
+          zhRegMult[k] *= Math.max(0.60, 1.0 - q * 0.5 * mz[k]);
+        }
+        const ndcQ = q * 0.5 * 1.45, rsprQ = q * 0.5 * 0.0022;
+        debtAdd += q * 0.5 * 0.0185;
+        ndcAdd  += ndcQ;
+        rsprAdd += rsprQ;
+        tauLAdd += 0.0025 * (ndcQ / 0.725) + 0.80 * rsprQ;
+      } else if (u16 > 0) {
+        const me = [0.220, 0.190, 0.140, 0.110], mz = [0.045, 0.030, 0.012, 0.008];
+        epsEAdd += u16 * 0.300;
+        for (let k = 0; k < 4; k++) {
+          ebarMult[k]  *= Math.max(0.45, 1.0 - u16 * me[k]);
+          zhRegMult[k] *= (1.0 + u16 * mz[k]);
+        }
+        rsprAdd -= u16 * 0.0015;
+      }
+      const u17 = eC(17);
+      if (u17 < 0) {
+        const q = -u17, me = [0.140, 0.125, 0.105, 0.095], mr = [0.0028, 0.0032, 0.0038, 0.0034], mz = [0.028, 0.026, 0.024, 0.022];
+        debtAdd -= q * 0.018;
+        for (let k = 0; k < 4; k++) {
+          ebarMult[k]   *= (1.0 + q * me[k]);
+          muRatesAdd[k] += q * mr[k];
+          zhRegMult[k]  *= Math.max(0.65, 1.0 - q * mz[k]);
+        }
+        cohAdd -= q * 3.20;
+      } else if (u17 > 0) {
+        const me = [0.085, 0.080, 0.070, 0.065], mr = [0.0018, 0.0020, 0.0024, 0.0020], mz = [0.022, 0.020, 0.018, 0.016];
+        for (let k = 0; k < 4; k++) {
+          ebarMult[k]   *= Math.max(0.55, 1.0 - u17 * me[k]);
+          muRatesAdd[k] -= u17 * mr[k];
+          zhRegMult[k]  *= (1.0 + u17 * mz[k]);
+        }
+        cohAdd += u17 * 2.40;
+      }
+      const u18 = eC(18);
+      if (Math.abs(u18) > 0) {
+        const netFx = u18 > 0 ? Math.max(0.0, u18 * (1.0 - 0.65 * cleanExergy)) : u18;
+        debtAdd += netFx * 0.028;
+        rsprAdd += netFx * 0.0018;
+        tauLAdd += u18 * 0.0175 - (u18 > 0 ? 0.0040 * cleanExergy : 0.0);
+      }
+
+      // --- C21..C28: Constructive SS1 & SS2 Pillars + Explicit Intra- & Cross-Lane Wedges ---
+      const u21 = eC(21), u22 = eC(22), u24 = eC(24), u25 = eC(25), u26 = eC(26), u27 = eC(27), u28 = eC(28);
+
+      if (u21 > 0) {
+        G1Mult   *= (1.0 + u21 * 0.720);
+        gbarMult *= Math.max(0.25, 1.0 - u21 * 0.340);
+        hospMult *= Math.max(0.55, 1.0 - u21 * 0.115);
+        cohAdd   += u21 * 4.20;
+      }
+      if (u22 > 0) {
+        G2Mult   *= (1.0 + u22 * 0.420);
+        mentMult *= (1.0 + u22 * 0.780);
+        adolMult *= Math.max(0.35, 1.0 - u22 * 0.250);
+        cohAdd   += u22 * 3.10;
+      }
+      const w1Syn = Math.max(0.0, u21) * Math.max(0.0, u22);
+      if (w1Syn > 0) {
+        G1Mult   *= (1.0 + w1Syn * 0.420);
+        G2Mult   *= (1.0 + w1Syn * 0.350);
+        mentMult *= (1.0 + w1Syn * 0.600);
+        dhcMult  *= Math.max(0.55, 1.0 - w1Syn * 0.135);
+        hospMult *= Math.max(0.50, 1.0 - w1Syn * 0.115);
+        cohAdd   += w1Syn * 5.40;
+      }
+      if (u23 > 0) {
+        const mq23 = [0.020, 0.045, 0.075, 0.105];
+        for (let k = 0; k < 4; k++) QMult[k] *= Math.max(0.60, 1.0 - u23 * mq23[k]);
+        debtAdd -= u23 * 0.012;
+        cohAdd  += u23 * 3.20;
+      }
+      if (u24 > 0) {
+        ygMult   *= (1.0 + u24 * 0.550);
+        alpIMult *= (1.0 + u24 * 0.065);
+      }
+      if (u25 > 0) {
+        gbarMult *= Math.max(0.25, 1.0 - u25 * 0.120);
+        adolMult *= Math.max(0.40, 1.0 - u25 * 0.080);
+        cohAdd   += u25 * 2.20;
+      }
+      const w2Syn = Math.max(0.0, u23) * Math.max(0.0, u24) * (1.0 + 0.25 * Math.max(0.0, u25));
+      if (w2Syn > 0) {
+        ygMult       *= (1.0 + w2Syn * 0.680);
+        vAbrSkillAdd -= w2Syn * 0.075;
+        cohAdd       += w2Syn * 4.80;
+      }
+      if (u26 > 0) {
+        tauKAdd -= u26 * 0.038;
+        lamAdd  += u26 * 0.085;
+        const mzh26 = [0.065, 0.068, 0.062, 0.058];
+        for (let k = 0; k < 4; k++) zhRegMult[k] *= (1.0 + u26 * mzh26[k]);
+      }
+      const st1 = 0.5 * (Math.max(0.0, u21) + Math.max(0.0, u22));
+      const st2 = 0.5 * (Math.max(0.0, u23) + Math.max(0.0, u24));
+      const w3Syn = st1 * st2 * Math.max(0.0, u26);
+      if (w3Syn > 0) {
+        const mzhW3 = [0.085, 0.082, 0.075, 0.072];
+        for (let k = 0; k < 4; k++) zhRegMult[k] *= (1.0 + w3Syn * mzhW3[k]);
+        vAbrSkillAdd -= w3Syn * 0.110;
+        cohAdd       += w3Syn * 5.50;
+      }
+      if (u27 > 0) {
+        debtAdd -= u27 * 0.028;
+        rsprAdd -= u27 * 0.0065;
+        const me27 = [0.105, 0.095, 0.082, 0.072], mz27 = [0.038, 0.038, 0.040, 0.042];
+        for (let k = 0; k < 4; k++) {
+          ebarMult[k]  *= Math.max(0.55, 1.0 - u27 * me27[k]);
+          zhRegMult[k] *= (1.0 + u27 * mz27[k]);
+        }
+      }
+      if (u28 > 0) {
+        const geoRetBonus = 0.0064 * Math.max(0.0, u25) * Math.max(0.0, u26);
+        tauLAdd  -= u28 * (0.0311 + geoRetBonus);
+        G1Mult   *= (1.0 + u28 * 0.120);
+        hospMult *= Math.max(0.55, 1.0 - u28 * 0.055);
+        sjMult   *= Math.pow(1.0 + u28 * 0.006, SCALE_DT);
+        cohAdd   += u28 * 5.20;
+      } else if (u28 < 0) {
+        const q28 = -u28;
+        debtAdd  += q28 * 0.012;
+        hospMult *= (1.0 + q28 * 0.185);
+        adolMult *= (1.0 + q28 * 0.280);
+        G1Mult   *= Math.max(0.40, 1.0 - q28 * 0.200);
+        cohAdd   -= q28 * 8.40;
+      }
+      const w4Syn = st1 * Math.max(0.0, u26) * 0.5 * (Math.max(0.0, u27) + Math.max(0.0, u28));
+      if (w4Syn > 0) {
+        debtAdd -= w4Syn * 0.024;
+        const mzW4 = [0.048, 0.048, 0.044, 0.042];
+        for (let k = 0; k < 4; k++) zhRegMult[k] *= (1.0 + w4Syn * mzW4[k]);
+        cohAdd += w4Syn * 4.50;
+      }
+    }
+
+    const QBase = [1.03, 1.37, 2.00, 3.02];
+    const wBase = [0.85, 0.93, 1.05, 1.18];
+    const eBase = [0.048, 0.036, 0.022, 0.016];
+    const zflBase = [0.70, 0.75, 0.83, 0.90];
+    const zhRef = [1.15, 1.28, 1.50, 1.75];
+
+    const P = {
+      Debt_to_GDP_Init: 0.405 + debtAdd,
+      tau_l: Math.max(0.05, 0.220 + tauLAdd),
+      tau_k: Math.max(0.05, 0.250 + tauKAdd),
+      lambda_col: Math.max(1.10, 1.800 + lamAdd),
+      V_Abroad_SkillPrem_Shift: vAbrSkillAdd,
+      upsilon_h: 0.0095 + upsHAdd,
+      mu_rates_wedge_vec: [0,1,2,3].map(k => Math.max(-0.02, muRatesAdd[k])),
+      Q_base: QBase,
+      Q_k_vec: [0,1,2,3].map(k => QBase[k] * QMult[k]),
+      w_k_vec: [0,1,2,3].map(k => wBase[k] * wMult[k]),
+      ebar_k_vec: [0,1,2,3].map(k => Math.max(0.004, eBase[k] * ebarMult[k] + ebarAdd[k])),
+      sj: SJ_BASE.map((s0, j) => (j >= JR - 1 ? Math.min(0.995, Math.max(0.05, s0 * sjMult)) : s0)),
+      G_ECE_1: 0.045 * G1Mult,
+      G_ECE_2: 0.065 * G2Mult,
+      gbar_ece: 0.020 * gbarMult,
+      YouthGrant: 0.030 * ygMult,
+      M_mentor: 0.150 * mentMult,
+      nu_kaiako: 0.350,
+      alpha_I: 0.090 * alpIMult,
+      delta_hc_mult: dhcMult,
+      zf_low: [0,1,2,3].map(k => zflBase[k] * zflMult[k]),
+      zf_high: [0,1,2,3].map(k => zhRef[k] * zfhMult[k] * zhRegMult[k]),
+      Exit2_Hosp_Mult: hospMult,
+      Senescence_Morbid_Add: Math.max(-0.02, morbidAdd),
+      psi_unemp_adol: 0.220 * adolMult,
+      V_Abroad_Reg_Shift: vAbrRegAdd,
+      Cohesion_Shock_Pts: cohAdd,
+      r_sov_spread: Math.max(-0.015, rsprAdd),
+      Offshore_NDC_Drain_BNZD: ndcAdd,
+      eps_h_energy: Math.min(0.95, Math.max(0.15, 0.350 + epsEAdd)),
+      pubsec_hazard_shift: pubsecHaz
+    };
+
+    const kDefl = [0, 1, 2, 3].map(k => Math.pow(P.Q_base[k] / P.Q_k_vec[k], P.nu_kaiako));
+    P.w_ge_vec = [0, 1, 2, 3].map(k => {
+      if (isReanchor) return P.w_k_vec[k];
+      const dLnZh = (P.zf_high[k] - zhRef[k]) / zhRef[k];
+      const geCap = -0.28 * (P.tau_k - 0.250) + 0.08 * (P.lambda_col - 1.800) - 1.20 * P.r_sov_spread;
+      return P.w_k_vec[k] * (1.0 + geCap + 0.45 * dLnZh);
+    });
+    P.G_ECE_1_eff = kDefl.map(kd => P.G_ECE_1 * kd);
+    P.G_ECE_2_eff = kDefl.map(kd => P.G_ECE_2 * kd);
+    P.delta_hc = 1.0 - Math.pow(1.0 - Math.min(0.45, 0.087 * P.delta_hc_mult), SCALE_DT);
+
+    const dStrug = [0, 1, 2, 3].map(k => Math.max(-0.205,
+      -0.38 * (P.G_ECE_1_eff[k] - 0.045) + 0.045 * (P.Q_k_vec[k] - P.Q_base[k]) + 0.15 * (P.tau_l - 0.220)));
+    const dEmig = [0, 1, 2, 3].map(k => Math.max(-0.050,
+      0.32 * (P.V_Abroad_SkillPrem_Shift + P.V_Abroad_Reg_Shift[k]) + 0.042 * (P.Q_k_vec[k] - P.Q_base[k])
+      - 0.45 * (P.YouthGrant - 0.030) + 0.35 * (P.tau_l - 0.220) + 0.18 * (P.tau_k - 0.250) - 0.06 * (P.zf_high[k] - zhRef[k])));
+    const dChurn = dEmig.map(e => Math.max(0.0, 0.65 * e));
+    const cw = [0.75, 0.85, 2.10, 1.35], cwNorm = dot4(cw, POP_W);
+    const StReg = [0, 1, 2, 3].map(k => 100.0 - 125.0 * dStrug[k] - 160.0 * dEmig[k] - 85.0 * dChurn[k] + P.Cohesion_Shock_Pts * (cw[k] / cwNorm));
+    const baseStrug = [0.198, 0.182, 0.156, 0.143], baseEmig = [0.018, 0.091, 0.234, 0.070];
+
+    P.Frac_Struggling    = dot4([0,1,2,3].map(k => baseStrug[k] + dStrug[k]), POP_W);
+    P.Emig_Nat           = dot4([0,1,2,3].map(k => baseEmig[k]  + dEmig[k]),  POP_W);
+    P.Social_Cohesion_St = dot4(StReg, POP_W);
+    return P;
+  }
+
+  const P0 = composePolicyBundle(new Array(CATALOG.length).fill(0.0), true);
+
+  function extractRawStateCoefs(P1, uVec) {
+    const dTauL = (P1.tau_l - P0.tau_l) * 100.0;
+    const dTauK = (P1.tau_k - P0.tau_k) * 100.0;
+    const dHosp = P1.Exit2_Hosp_Mult - P0.Exit2_Hosp_Mult;
+    const dMorb = P1.Senescence_Morbid_Add - P0.Senescence_Morbid_Add;
+    const dDHC  = P1.delta_hc - P0.delta_hc;
+    const dStrg = P1.Frac_Struggling - P0.Frac_Struggling;
+    const dEmig = P1.Emig_Nat - P0.Emig_Nat;
+    const dCoh  = P1.Social_Cohesion_St - P0.Social_Cohesion_St;
+
+    const dQ     = dot4([0,1,2,3].map(k => P1.Q_k_vec[k] - P0.Q_k_vec[k]), POP_W);
+    const dLnW   = dot4([0,1,2,3].map(k => (P1.w_ge_vec[k] - P0.w_ge_vec[k]) / P0.w_ge_vec[k]), POP_W);
+    const dEbar  = dot4([0,1,2,3].map(k => P1.ebar_k_vec[k] - P0.ebar_k_vec[k]), POP_W);
+    const dRates = dot4([0,1,2,3].map(k => P1.mu_rates_wedge_vec[k] - P0.mu_rates_wedge_vec[k]), POP_W);
+    const dGEff  = dot4([0,1,2,3].map(k => (P1.G_ECE_1_eff[k] - P0.G_ECE_1_eff[k]) + (P1.G_ECE_2_eff[k] - P0.G_ECE_2_eff[k])), POP_W);
+    const dHaz   = dot4(P1.pubsec_hazard_shift, POP_W);
+    const dAdol  = P1.psi_unemp_adol - P0.psi_unemp_adol;
+    const dGbar  = P1.gbar_ece - P0.gbar_ece;
+    const dMent  = P1.M_mentor - P0.M_mentor;
+    const dAlpI  = P1.alpha_I - P0.alpha_I;
+    const dYG    = P1.YouthGrant - P0.YouthGrant;
+    let sumSjDiff = 0.0;
+    for (let j = JR - 1; j < J_MAX - 1; j++) sumSjDiff += (P1.sj[j] - P0.sj[j]);
+    const dSurv  = sumSjDiff / (J_MAX - JR);
+    const dRspr  = P1.r_sov_spread - P0.r_sov_spread;
+    const dNdc   = P1.Offshore_NDC_Drain_BNZD - P0.Offshore_NDC_Drain_BNZD;
+
+    return {
+      dTauL,
+      dTauK,
+      hRaw: -(0.85 * dHosp + 11.5 * dMorb + 20.0 * dDHC),
+      cRaw: -(14.0 * dStrg + 6.5 * dEmig - 5.8 * dLnW - 16.0 * dGEff + 36.0 * dGbar - 3.5 * dMent - 15.0 * dAlpI - 24.0 * dYG),
+      sRaw: -(135.0 * dEbar + 48.0 * dRates + 15.5 * dHaz + 4.8 * dAdol + 0.34 * dNdc + 55.0 * dRspr),
+      oRaw: (22.0 * dSurv - 2.35 * dQ - 38.0 * dRates + 0.024 * dCoh),
+      u13:  uByCode(uVec, 13)
+    };
+  }
+
+  function trapz(yArr, xArr) {
+    let s = 0.0;
+    for (let i = 0; i < yArr.length - 1; i++) {
+      s += 0.5 * (yArr[i] + yArr[i + 1]) * (xArr[i + 1] - xArr[i]);
+    }
+    return s;
+  }
+
+  const ACT_REGIONS = ["Rural", "Small", "Large", "Auckland"];
+  const ACT_PSI     = [0.984, 0.984, 0.986, 0.987];
+
+  function cumTrapzUnit(yArr) {
+    const out = new Array(yArr.length).fill(0.0);
+    for (let i = 1; i < yArr.length; i++) out[i] = out[i - 1] + 0.5 * (yArr[i - 1] + yArr[i]);
+    return out;
+  }
+
+  function computeSingleActuarialLedger(annInv, annSav, annFisc, annGdp, psiAnn) {
+    const H = 25, alphaAtt = 0.30, gCost = 0.015, r2 = 0.020, r8 = 0.080;
+    const nPts = annInv.length;
+    const cumInv  = cumTrapzUnit(annInv);
+    const cumSav  = cumTrapzUnit(annSav);
+    const cumFisc = cumTrapzUnit(annFisc);
+    const cumGdp  = cumTrapzUnit(annGdp);
+
+    const savExt = annSav.slice(), fiscExt = annFisc.slice(), gdpExt = annGdp.slice();
+    for (let e = 0; e < 30; e++) {
+      savExt.push(annSav[nPts - 1]);
+      fiscExt.push(annFisc[nPts - 1]);
+      gdpExt.push(annGdp[nPts - 1]);
+    }
+
+    const bkSav2 = new Array(nPts).fill(0.0), bkSav8 = new Array(nPts).fill(0.0);
+    const bkFisc2 = new Array(nPts).fill(0.0), bkFisc8 = new Array(nPts).fill(0.0);
+    const bkGdp2 = new Array(nPts).fill(0.0), bkGdp8 = new Array(nPts).fill(0.0);
+
+    for (let i = 1; i < nPts; i++) {
+      const pm = Math.min(1.0, i / 15.0);
+      let sSav2 = 0, sSav8 = 0, sFisc2 = 0, sFisc8 = 0, sGdp2 = 0, sGdp8 = 0;
+      for (let s = 1; s <= H; s++) {
+        const pPers = Math.pow(psiAnn, s) * pm;
+        const d2 = Math.pow((1.0 + gCost) / (1.0 + r2), s) * pPers;
+        const d8 = Math.pow((1.0 + gCost) / (1.0 + r8), s) * pPers;
+        const k = i + s;
+        sSav2  += d2 * savExt[k];  sSav8  += d8 * savExt[k];
+        sFisc2 += d2 * fiscExt[k]; sFisc8 += d8 * fiscExt[k];
+        sGdp2  += d2 * gdpExt[k];  sGdp8  += d8 * gdpExt[k];
+      }
+      bkSav2[i]  = cumSav[i]  + (1.0 - alphaAtt) * sSav2;
+      bkSav8[i]  = cumSav[i]  + (1.0 - alphaAtt) * sSav8;
+      bkFisc2[i] = cumFisc[i] + (1.0 - alphaAtt) * sFisc2;
+      bkFisc8[i] = cumFisc[i] + (1.0 - alphaAtt) * sFisc8;
+      bkGdp2[i]  = cumGdp[i]  + (1.0 - alphaAtt) * sGdp2;
+      bkGdp8[i]  = cumGdp[i]  + (1.0 - alphaAtt) * sGdp8;
+    }
+    return { cumInv, cumSav, cumFisc, cumGdp, bkSav2, bkSav8, bkFisc2, bkFisc8, bkGdp2, bkGdp8 };
+  }
+
+  function evalVectorLedger(uVec, profileTag) {
+    const qAct = uVec.map((u, i) => u * CATALOG[i].refDir); // +1 = 2024 Shock; -1 = +Reform / SS1 / SS2
+    const wAct = uVec.map((u, i) => Math.abs(u) * CATALOG[i].claimed);
+    const sumW = wAct.reduce((a, b) => a + b, 0.0);
+
+    // Split active vector into Shock Sub-Vector (`qAct > 0`) and Constructive Reform Sub-Vector (`qAct < 0`)
+    const uShk = uVec.map((u, i) => (qAct[i] > 0 ? u : 0.0));
+    const wShk = uShk.map((u, i) => Math.abs(u) * CATALOG[i].claimed);
+    const wRef = uVec.map((u, i) => (qAct[i] < 0 ? Math.abs(u) * CATALOG[i].claimed : 0.0));
+    const shockWt  = wShk.reduce((a, b) => a + b, 0.0);
+    const reformWt = wRef.reduce((a, b) => a + b, 0.0);
+    const tauShk = shockWt  > 0 ? wShk.reduce((acc, w, i) => acc + w * CATALOG[i].tau, 0.0) / shockWt  : 5.5;
+    const tauRef = reformWt > 0 ? wRef.reduce((acc, w, i) => acc + w * CATALOG[i].tau, 0.0) / reformWt : 9.5;
+
+    // Two-Channel Complementarity: Shock Interference (`cgNeg`) & Constructive Topkis Synergy (`cgPos`)
+    const lsNeg = [0, 0, 0, 0], lsPos = [0, 0, 0, 0];
+    for (let i = 0; i < CATALOG.length; i++) {
+      const ln = CATALOG[i].lane - 1;
+      const isRefPos = (CATALOG[i].refDir === -1);
+      lsNeg[ln] += isRefPos ? Math.max(0.0, -uVec[i]) : Math.max(0.0,  uVec[i]);
+      lsPos[ln] += isRefPos ? Math.max(0.0,  uVec[i]) : Math.max(0.0, -uVec[i]);
+    }
+    const pairNeg = lsNeg[0]*lsNeg[1] + lsNeg[0]*lsNeg[2] + lsNeg[1]*lsNeg[2] + 0.65*(lsNeg[0]+lsNeg[1]+lsNeg[2])*lsNeg[3];
+    const pairPos = lsPos[0]*lsPos[1] + lsPos[0]*lsPos[2] + lsPos[1]*lsPos[2] + 0.65*(lsPos[0]+lsPos[1]+lsPos[2])*lsPos[3];
+    const cgNeg   = Math.min(0.32, 0.016 * pairNeg + 0.14 * Math.max(0.0, -uByCode(uVec, 5)) * Math.max(0.0, -uByCode(uVec, 8)));
+    const cgPos   = Math.min(0.36, 0.018 * pairPos + 0.14 * Math.max(0.0,  uByCode(uVec, 5)) * Math.max(0.0,  uByCode(uVec, 8)));
+    const mShk    = 1.0 + cgNeg;
+    const mRef    = 1.0 + cgPos;
+
+    const P1 = composePolicyBundle(uVec, false);
+    const RAll = extractRawStateCoefs(P1, uVec);
+    const zeroCoefs = { dTauL: 0, dTauK: 0, hRaw: 0, cRaw: 0, sRaw: 0, oRaw: 0, u13: 0 };
+
+    let RShk, RRem;
+    if (shockWt > 0 && reformWt > 0) {
+      RShk = extractRawStateCoefs(composePolicyBundle(uShk, false), uShk);
+      RRem = {
+        dTauL: RAll.dTauL - RShk.dTauL,
+        dTauK: RAll.dTauK - RShk.dTauK,
+        hRaw:  RAll.hRaw  - RShk.hRaw,
+        cRaw:  RAll.cRaw  - RShk.cRaw,
+        sRaw:  RAll.sRaw  - RShk.sRaw,
+        oRaw:  RAll.oRaw  - RShk.oRaw,
+        u13:   RAll.u13   - RShk.u13
+      };
+    } else if (shockWt > 0) {
+      RShk = RAll;
+      RRem = zeroCoefs;
+    } else {
+      RShk = zeroCoefs;
+      RRem = RAll;
+    }
+
+    const upfrontB = new Array(T_LEN);
+    const netObegalB = new Array(T_LEN);
+    const fiscFlowPct = new Array(T_LEN);
+    const u23Act = Math.min(1.0, Math.max(0.0, uByCode(uVec, 23)));
+    const posC09 = CODE_TO_POS[9];
+
+    for (let t = 0; t < T_LEN; t++) {
+      const y = YEARS[t];
+      const scGdp = GDP_B[t] / 452.2;
+      const kMir = (y >= 2024) ? Math.exp(-Math.max(0.0, y - 2027.5) / 4.5) : 0.0;
+      const kStr = (y >= 2024) ? (0.48 + 0.52 * Math.exp(-Math.max(0.0, y - 2028.0) / 10.0)) * scGdp : 0.0;
+      let up = 0.0;
+      for (let i = 0; i < CATALOG.length; i++) {
+        const ms = CATALOG[i].mirageSign;
+        let term = (ms >= 0 ? kMir : kStr) * (qAct[i] * ms * (CATALOG[i].claimed / 4.0));
+        // Statutory SS1 Fiscal Rebalance (`C23 > 0`) closes post-2026 unbacked `C09` structural deficit (retaining FY24-26 sunk debt!)
+        if (i === posC09 && qAct[i] > 0 && u23Act > 0 && y >= 2027) {
+          const closeRamp = Math.min(1.0, (y - 2026.0) / 2.0);
+          term *= (1.0 - 0.92 * u23Act * closeRamp);
+        }
+        up += term;
+      }
+      if (y === 2024 || y === 2025) up -= 0.35 * Math.max(0.0, -uByCode(uVec, 4));
+      const geoRet = Math.max(0.0, uByCode(uVec, 25)) * Math.max(0.0, uByCode(uVec, 26));
+      if (y >= 2036 && geoRet > 0) {
+        up += 0.85 * 0.42 * geoRet * (1.0 / (1.0 + Math.exp(-(y - 2040.0) / 2.5))) * scGdp;
+      }
+      upfrontB[t] = up;
+
+      const onShk = (y >= 2024) ? (1.0 - Math.exp(-Math.max(0.0, y - 2024.0) / tauShk)) : 0.0;
+      const onRef = (y >= 2024) ? (1.0 - Math.exp(-Math.max(0.0, y - 2024.0) / tauRef)) : 0.0;
+      const hTail = (mShk * RShk.hRaw * onShk + mRef * RRem.hRaw * onRef) * scGdp;
+      const cTail = (mShk * RShk.cRaw * onShk + mRef * RRem.cRaw * onRef) * scGdp;
+      const sTail = (mShk * RShk.sRaw * onShk + mRef * RRem.sRaw * onRef) * scGdp;
+      netObegalB[t] = up + hTail + cTail + sTail;
+      fiscFlowPct[t] = -(netObegalB[t] / GDP_B[t]) * 100.0;
+    }
+
+    const debtShock = new Array(T_LEN);
+    for (let t = 0; t < T_LEN; t++) {
+      let acc = 0.0;
+      for (let s = 0; s <= t; s++) {
+        acc += Math.pow(1.0165, t - s) * fiscFlowPct[s];
+      }
+      debtShock[t] = DEBT_B0[t] + acc;
+    }
+
+    const welfareFlowB = new Array(T_LEN);
+    const cumPV25B = new Array(T_LEN).fill(0.0);
+    for (let t = 0; t < T_LEN; t++) {
+      const y = YEARS[t];
+      const scGdp = GDP_B[t] / 452.2;
+      const onShk = (y >= 2024) ? (1.0 - Math.exp(-Math.max(0.0, y - 2024.0) / tauShk)) : 0.0;
+      const onRef = (y >= 2024) ? (1.0 - Math.exp(-Math.max(0.0, y - 2024.0) / tauRef)) : 0.0;
+      const clRamp = 1.0 / (1.0 + Math.exp(-(y - 2033.0) / 3.2));
+      const dDebt = debtShock[t] - DEBT_B0[t];
+      const payeDiv = (reformWt > 0) ? (0.035 * Math.min(0.0, dDebt) * clRamp) : 0.0;
+      const taxShk = TAX_B0[t] + RAll.dTauL * (1.0 - 0.72 * clRamp) + 0.060 * Math.max(0.0, dDebt) * clRamp + payeDiv;
+      const dCeSurf = evalDoc3Surf(debtShock[t], taxShk) - CE_SURF_B0[t];
+      const macroSurfB = 0.28 * (dCeSurf / 100.0) * (0.58 * GDP_B[t]);
+
+      const hTail = (mShk * RShk.hRaw * onShk + mRef * RRem.hRaw * onRef) * scGdp;
+      const cTail = (mShk * RShk.cRaw * onShk + mRef * RRem.cRaw * onRef) * scGdp;
+      const sTail = (mShk * RShk.sRaw * onShk + mRef * RRem.sRaw * onRef) * scGdp;
+      const oTail = (mShk * RShk.oRaw * onShk + mRef * RRem.oRaw * onRef) * scGdp;
+      const u13Tail = (RShk.u13 * onShk + RRem.u13 * onRef) * scGdp;
+
+      const dirOlgB = ((-0.095 * RAll.dTauK) * (y >= 2025 ? 1.0 : 0.0) * scGdp)
+                    + 0.68 * u13Tail
+                    + 1.20 * hTail + 1.25 * cTail + 1.15 * sTail + oTail;
+      welfareFlowB[t] = macroSurfB + dirOlgB;
+      if (t > 0) {
+        cumPV25B[t] = cumPV25B[t - 1] + 0.5 * (DISC_25[t - 1] * welfareFlowB[t - 1] + DISC_25[t] * welfareFlowB[t]);
+      }
+    }
+
+    let obegal4Yr = 0.0;
+    for (let t = 0; t < T_LEN; t++) {
+      if (YEARS[t] >= 2024 && YEARS[t] <= 2027) obegal4Yr += netObegalB[t];
+    }
+    const pv25   = cumPV25B[T_LEN - 1];
+    const pv80   = trapz(YEARS.map((_, i) => DISC_80[i]   * welfareFlowB[i]), YEARS);
+    const pvSrtp = trapz(YEARS.map((_, i) => DISC_SRTP[i] * welfareFlowB[i]), YEARS);
+
+    const isGuinz = (profileTag === "MetroSqueeze_GUiNZ" || profileTag === "NZ_GUiNZ2009");
+    const savMult = isGuinz ? 1.18 : 1.00;
+    const gdpMult = isGuinz ? 1.10 : 1.00;
+    const wInv = isGuinz ? [0.15, 0.23, 0.26, 0.36] : [0.18, 0.25, 0.25, 0.32];
+    const wSav = isGuinz ? [0.16, 0.22, 0.26, 0.36] : [0.21, 0.26, 0.25, 0.28];
+    const wGdp = isGuinz ? [0.13, 0.21, 0.27, 0.39] : [0.14, 0.22, 0.27, 0.37];
+
+    const annInvNat = YEARS.map((y, t) => y >= 2024 ? -upfrontB[t] : 0.0);
+    const annSavNat = YEARS.map((y, t) => y >= 2024 ? (netObegalB[t] - upfrontB[t]) * savMult : 0.0);
+    const annGdpNat = YEARS.map((y, t) => y >= 2024 ? welfareFlowB[t] * gdpMult : 0.0);
+
+    const actReg = {};
+    ACT_REGIONS.forEach((rn, r) => {
+      const rInv  = annInvNat.map(v => wInv[r] * v);
+      const rSav  = annSavNat.map(v => wSav[r] * v);
+      const rGdp  = annGdpNat.map(v => wGdp[r] * v);
+      const rFisc = rSav.map((sv, idx) => sv + 0.288 * rGdp[idx]);
+      actReg[rn]  = computeSingleActuarialLedger(rInv, rSav, rFisc, rGdp, ACT_PSI[r]);
+    });
+
+    const sumAct = fld => YEARS.map((_, i) => ACT_REGIONS.reduce((acc, rn) => acc + actReg[rn][fld][i], 0.0));
+    const actNat = {
+      cumInv:  sumAct("cumInv"),
+      cumSav:  sumAct("cumSav"),
+      cumFisc: sumAct("cumFisc"),
+      cumGdp:  sumAct("cumGdp"),
+      bkSav2:  sumAct("bkSav2"),
+      bkSav8:  sumAct("bkSav8"),
+      bkFisc2: sumAct("bkFisc2"),
+      bkFisc8: sumAct("bkFisc8"),
+      bkGdp2:  sumAct("bkGdp2"),
+      bkGdp8:  sumAct("bkGdp8")
+    };
+
+    const cgMult = reformWt >= shockWt ? mRef : mShk;
+    return {
+      years: YEARS,
+      debtBase: DEBT_B0,
+      debtShock,
+      upfrontB,
+      netObegalB,
+      welfareFlowB,
+      cumPV25B,
+      obegal4Yr,
+      pv25,
+      pv80,
+      pvSrtp,
+      actNat,
+      actReg,
+      claimed4Yr: sumW,
+      cgMult
+    };
+  }
+
+  return { CATALOG, CODE_TO_POS, ACT_REGIONS, POP_W, LANE_META, YEARS, DEBT_B0, evalVectorLedger };
+})();
+
+// ============================================================================
+// PART 4: INTERACTIVE CONTROLLER, SIGNED SET PARSER & HIGH-DPI CANVAS VIEWS
+// ============================================================================
+(function() {
+  "use strict";
+
+  const CAT = IGW_ENGINE.CATALOG;
+  const LANE_META = IGW_ENGINE.LANE_META;
+  const YEARS = IGW_ENGINE.YEARS;
+
+  // Tri-state array for C01..C18:
+  //   -1 = 2024-26 Shock Direction (u_i = refDir)
+  //    0 = Off (u_i = 0)
+  //   +1 = Symmetric Positive Reform Direction (u_i = -refDir)
+  let itemState = CAT.map((_, i) => (i < 16 ? -1 : 0)); // Default: 2024 Full 16 Shocks
+  let activeProfile  = "Dunedin_22"; // "Dunedin_22" | "MetroSqueeze_GUiNZ"
+  let activeAuditIdx = 5;            // 5 = Yr 5 (2028), 15 = Yr 15 (2038), 42 = Full Horizon (2065)
+  let activeLens     = "lens4";      // lens1..lens7
+  let activeView     = "multipliers"; // multipliers | wedges | trajectory | lenses | actuarial
+  let lastExportCSV = "";
+  let lastExportName = "IGWelfare_Policy_Mirage_Export.csv";
+
+  const LENS_INFO = {
+    lens1: { tag: "Lens 1: 4-Yr OBEGALx", short: "4-Yr OBEGALx Cash (FY24–27)", isSilo: false,
+      desc: "<strong>Lens 1 (4-Year OBEGALx Cash Horizon):</strong> Scores only FY2024–FY2027 Crown operating cash flows and assigns literally zero weight to Years 5–42. Public service, ECE, health, and Smokefree cuts appear as green 'surplus improvements' (+NZ$7.69B across the 12 cuts)." },
+    lens2: { tag: "Lens 2: 8.0% Silo CBA", short: "8.0% Commercial Hurdle (Siloed)", isSilo: true,
+      desc: "<strong>Lens 2 (8.0% Commercial Hurdle, Partial Equilibrium):</strong> Evaluates each commitment in isolation at an 8.0% real discount rate—erasing 71% of generational health/skill tails and ignoring all cross-portfolio synergies." },
+    lens3: { tag: "Lens 3: 2.5% Silo CBAx", short: "2.5% Social Rate (Siloed CBAx)", isSilo: true,
+      desc: "<strong>Lens 3 (2.5% Social Rate, Siloed Agency CBAx):</strong> Extends horizon to 2065 at 2.5% real, exposing -NZ$225.61B in isolated losses, but holds housing rents Q_k, wages, migration, and Debt² curvature fixed across ministries (zero cross-lane wedges)." },
+    lens4: { tag: "Lens 4: 2.5% Full GE", short: "2.5% Real Full GE IGWelfare", isSilo: false,
+      desc: "<strong>Lens 4 (Canonical IGWelfare General Equilibrium):</strong> Couples all 4 portfolio lanes over 2023–2065 at 2.5% real, capturing Kaiako rent pass-through, Cunha-Heckman skill gates, Gumbel youth migration, and convex Debt²/PAYE² closure." },
+    lens5: { tag: "Lens 5: Treasury SRTP GE", short: "2.0%/1.5% NZ Treasury SRTP (Full GE)", isSilo: false,
+      desc: "<strong>Lens 5 (Official NZ Treasury Non-Commercial SRTP, Full GE):</strong> Applies the Treasury's 2.0% real rate (Years 1–30) and 1.5% real rate (Years 31+) to the exact same GE flows—valuing the 16-shock sinkhole at -NZ$339.74B." },
+    lens6: { tag: "Lens 6: ACC Actuarial Fiscal", short: "ACC Actuarial Crown Fiscal (2% Real, 30% Haircut)", isSilo: false,
+      desc: "<strong>Lens 6 (ACC / Treasury Circular 2024/15 Actuarial Crown Fiscal Valuation):</strong> Books realized cash plus the rolling H = 25-year forward Crown fiscal continuation value (direct remediation savings + endogenous tax shift at 2.0% real, net of 30% causal attribution haircut) at the selected Parliamentary Audit horizon." },
+    lens7: { tag: "Lens 7: ACC WideGDP Prize", short: "ACC Economy-Wide GDP Prize (2% Real, 30% Haircut)", isSilo: false,
+      desc: "<strong>Lens 7 (ACC / Treasury Circular 2024/15 Economy-Wide GDP Continuation Valuation):</strong> Books realized output/welfare gains plus the rolling H = 25-year forward WideGDP continuation prize (at 2.0% real, net of 30% causal attribution haircut) at the selected Parliamentary Audit horizon." }
+  };
+
+  function stateToUVec(stArr) {
+    // s = -1 (Shock) -> u = +refDir; s = +1 (+Reform) -> u = -refDir; s = 0 -> 0
+    return stArr.map((s, i) => (s === 0 ? 0.0 : (-s) * CAT[i].refDir));
+  }
+
+  function lensValueFromLedger(L, lensKey) {
+    switch (lensKey) {
+      case "lens1": return L.obegal4Yr;
+      case "lens2": return L.pv80;
+      case "lens3": return L.pv25;
+      case "lens4": return L.pv25;
+      case "lens5": return L.pvSrtp;
+      case "lens6": return L.actNat.bkFisc2[activeAuditIdx];
+      case "lens7": return L.actNat.bkGdp2[activeAuditIdx];
+      default:      return L.pv25;
+    }
+  }
+
+  // Evaluate a subset of indices (0-based) using current itemState signs under activeLens
+  function evalSubset(idx0List, stArr, lensKey, forceGE) {
+    const useSilo = LENS_INFO[lensKey].isSilo && !forceGE;
+    if (idx0List.length === 0) {
+      return { val: 0.0, claimed: 0.0, obegal4: 0.0, pv25: 0.0, debt65: 200.0, ledger: null };
+    }
+    if (useSilo) {
+      let sumVal = 0.0, sumClm = 0.0, sumOb4 = 0.0, sumPv25 = 0.0;
+      idx0List.forEach(i0 => {
+        if (stArr[i0] === 0) return;
+        const ui = new Array(CAT.length).fill(0.0);
+        ui[i0] = (-stArr[i0]) * CAT[i0].refDir;
+        const Li = IGW_ENGINE.evalVectorLedger(ui, activeProfile);
+        sumVal  += lensValueFromLedger(Li, lensKey);
+        sumClm  += Li.claimed4Yr;
+        sumOb4  += Li.obegal4Yr;
+        sumPv25 += Li.pv25;
+      });
+      const uFull = new Array(CAT.length).fill(0.0);
+      idx0List.forEach(i0 => { uFull[i0] = (-stArr[i0]) * CAT[i0].refDir; });
+      const Lge = IGW_ENGINE.evalVectorLedger(uFull, activeProfile);
+      return { val: sumVal, claimed: sumClm, obegal4: sumOb4, pv25: sumPv25, debt65: Lge.debtShock[Lge.debtShock.length - 1], ledger: Lge };
+    } else {
+      const uSub = new Array(CAT.length).fill(0.0);
+      idx0List.forEach(i0 => { uSub[i0] = (-stArr[i0]) * CAT[i0].refDir; });
+      const L = IGW_ENGINE.evalVectorLedger(uSub, activeProfile);
+      return {
+        val: lensValueFromLedger(L, lensKey),
+        claimed: L.claimed4Yr,
+        obegal4: L.obegal4Yr,
+        pv25: L.pv25,
+        debt65: L.debtShock[L.debtShock.length - 1],
+        ledger: L
+      };
+    }
+  }
+
+  // Helper: map codeNum list -> dense pos list
+  const C2P = IGW_ENGINE.CODE_TO_POS;
+  function codesToPos(codeNums) {
+    return codeNums.map(cn => C2P[cn]).filter(p => p !== undefined);
+  }
+  const SS1_POS = codesToPos([21, 22, 23, 24, 25, 26]);
+  const SS2_POS = codesToPos([21, 22, 23, 24, 25, 26, 27, 28]);
+
+  // Signed Set-Expression Parser (Sparse Code-Indexed: C01–C18, C21–C28; C19–C20 & C29–C39 Reserved)
+  function applyExpressionString(exprRaw) {
+    const s = (exprRaw || "").trim().toLowerCase();
+    const nextState = new Array(CAT.length).fill(0);
+    if (!s || s === "none" || s === "clear" || s === "off" || s === "ss0" || s === "baseline") {
+      itemState = nextState;
+      return;
+    }
+    const tokens = s.replace(/[\{\}\[\]\(\)]/g, " ").split(/[,;\s]+/).filter(Boolean);
+    tokens.forEach(tok => {
+      const hasPlus  = tok.startsWith("+");
+      const hasMinus = tok.startsWith("-");
+      let signMode = hasPlus ? +1 : -1;
+      let core = (hasPlus || hasMinus) ? tok.slice(1) : tok;
+
+      if (core === "ss0" || core === "baseline") {
+        nextState.fill(0);
+        return;
+      }
+      if (core === "ss1") {
+        // Pure SS1 resets graph state unless preceded in same expression by full16/shocks
+        SS1_POS.forEach(p => { nextState[p] = +1; });
+        return;
+      }
+      if (core === "ss2" || core === "compact") {
+        SS2_POS.forEach(p => { nextState[p] = +1; });
+        return;
+      }
+      if (core === "hole_ss1" || core === "post2024_ss1") {
+        nextState.fill(0);
+        codesToPos([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]).forEach(p => { nextState[p] = -1; });
+        SS1_POS.forEach(p => { nextState[p] = +1; });
+        return;
+      }
+      if (core === "hole_ss2" || core === "post2024_ss2") {
+        nextState.fill(0);
+        codesToPos([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]).forEach(p => { nextState[p] = -1; });
+        SS2_POS.forEach(p => { nextState[p] = +1; });
+        return;
+      }
+      if (core === "debtfirst" || core === "austerity70") {
+        codesToPos([6, 12, 28]).forEach(p => { nextState[p] = -1; });
+        return;
+      }
+      if (core === "all" || core === "full16" || core === "full_16") {
+        codesToPos([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]).forEach(p => { nextState[p] = signMode; });
+        return;
+      }
+      if (core === "dom15" || core === "domestic15") {
+        codesToPos([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]).forEach(p => { nextState[p] = signMode; });
+        return;
+      }
+      if (core === "ret10" || core === "retrenchment10") {
+        codesToPos([1,2,3,4,5,6,7,8,12,13]).forEach(p => { nextState[p] = signMode; });
+        return;
+      }
+      if (core === "cuts12") {
+        codesToPos([2,3,4,5,6,7,8,12,13,14,15,16]).forEach(p => { nextState[p] = signMode; });
+        return;
+      }
+      if (core === "reforms13") {
+        codesToPos([1,2,3,4,5,6,7,8,12,13,14,15,16]).forEach(p => { nextState[p] = +1; });
+        return;
+      }
+
+      // Sparse Range e.g. c01..c16 or +c21..c28 (skips reserved unallocated codeNums cleanly!)
+      const rng = core.match(/^c?0*(\d+)(?:\.\.|-|:)c?0*(\d+)$/);
+      if (rng) {
+        const a = parseInt(rng[1], 10), b = parseInt(rng[2], 10);
+        for (let cn = Math.min(a, b); cn <= Math.max(a, b); cn++) {
+          const p = C2P[cn];
+          if (p !== undefined) {
+            nextState[p] = (CAT[p].posOnly && !hasMinus) ? +1 : (CAT[p].posOnly && cn !== 28 ? +1 : signMode);
+          }
+        }
+        return;
+      }
+      const numM = core.match(/^c?0*(\d+)$/);
+      if (numM) {
+        const cn = parseInt(numM[1], 10);
+        const p = C2P[cn];
+        if (p !== undefined) {
+          nextState[p] = (CAT[p].posOnly && !hasMinus) ? +1 : (CAT[p].posOnly && cn !== 28 ? +1 : signMode);
+        }
+        return;
+      }
+      const hit = CAT.find(c => c.aliases.includes(core));
+      if (hit) {
+        nextState[hit.pos] = (hit.posOnly && !hasMinus) ? +1 : (hit.posOnly && hit.codeNum !== 28 ? +1 : signMode);
+      }
+    });
+    itemState = nextState;
+  }
+
+  function stateToCanonicalExpr(stArr) {
+    const shk = [], ref = [];
+    stArr.forEach((s, i) => {
+      const code = CAT[i].code.toLowerCase();
+      if (s === -1) shk.push(code);
+      else if (s === +1) ref.push("+" + code);
+    });
+    const f16Pos = codesToPos([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
+    const allF16Shk = f16Pos.every(p => stArr[p] === -1);
+    const allF16Ref = f16Pos.every(p => stArr[p] === +1);
+    const nonF16Zero = stArr.every((s, p) => f16Pos.includes(p) || s === 0);
+
+    if (allF16Shk && nonF16Zero) return "c01..c16";
+    if (allF16Ref && nonF16Zero) return "+c01..c16";
+    if (shk.length === 0 && ref.length === SS1_POS.length && SS1_POS.every(p => stArr[p] === +1)) return "ss1 (+c21..c26)";
+    if (shk.length === 0 && ref.length === SS2_POS.length && SS2_POS.every(p => stArr[p] === +1)) return "ss2 (+c21..c28)";
+    if (allF16Shk && ref.length === SS1_POS.length && SS1_POS.every(p => stArr[p] === +1) && shk.length === 16) return "c01..c16, +c21..c26";
+    if (allF16Shk && ref.length === SS2_POS.length && SS2_POS.every(p => stArr[p] === +1) && shk.length === 16) return "c01..c16, +c21..c28";
+    return shk.concat(ref).join(", ") || "ss0";
+  }
+  // Build Sidebar UI Grouped by Portfolio Lanes 1..4
+  function buildSidebar() {
+    const container = document.getElementById("lanesSidebarContainer");
+    container.innerHTML = "";
+    [1, 2, 3, 4].forEach(laneId => {
+      const members = CAT.filter(c => c.lane === laneId);
+      const grp = document.createElement("div");
+      grp.className = "lane-group";
+      grp.innerHTML = `
+        <div class="lane-hdr">
+          <span>${LANE_META[laneId].full}</span>
+          <span style="display:flex; gap:4px;">
+            <button type="button" class="lane-bulk" data-lane="${laneId}" data-s="-1" title="Activate 2024 Shocks in this lane (leaves SS1/SS2 pillars Off)" style="padding:2px 5px;font-size:10px;">Shocks</button>
+            <button type="button" class="lane-bulk" data-lane="${laneId}" data-s="0"  style="padding:2px 5px;font-size:10px;">Off</button>
+            <button type="button" class="lane-bulk" data-lane="${laneId}" data-s="1"  title="Activate all +Reforms & SS1/SS2 Pillars in this lane" style="padding:2px 5px;font-size:10px;">All +On</button>
+          </span>
+        </div>
+      `;
+      members.forEach(c => {
+        const i0 = c.pos;
+        const row = document.createElement("div");
+        row.className = "c-row";
+        row.id = `crow_${i0}`;
+        const pillHtml = c.posOnly
+          ? `<div class="tri-pill" data-i0="${i0}">
+               <button type="button" data-v="0">Off</button>
+               <button type="button" data-v="1">+On (${c.codeNum <= 26 ? "SS1" : "SS2"})</button>
+             </div>`
+          : `<div class="tri-pill" data-i0="${i0}">
+               <button type="button" data-v="-1">Shock</button>
+               <button type="button" data-v="0">Off</button>
+               <button type="button" data-v="1">+Reform</button>
+             </div>`;
+        row.innerHTML = `
+          <div>
+            <div class="c-title">${c.code} <span style="font-weight:500;color:var(--muted);">(NZ$${c.claimed.toFixed(2)}B)</span></div>
+            <div class="c-sub" id="csub_${i0}">${c.posOnly ? c.reformLbl : c.shockLbl}</div>
+          </div>
+          ${pillHtml}
+        `;
+        grp.appendChild(row);
+      });
+      container.appendChild(grp);
+    });
+
+    container.querySelectorAll(".tri-pill button").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const i0 = parseInt(e.target.parentElement.dataset.i0, 10);
+        const v  = parseInt(e.target.dataset.v, 10);
+        itemState[i0] = v;
+        document.querySelectorAll(".preset-set-btn").forEach(b => b.classList.remove("active"));
+        syncUIAndRender();
+      });
+    });
+
+    container.querySelectorAll(".lane-bulk").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const ln = parseInt(e.target.dataset.lane, 10);
+        const s  = parseInt(e.target.dataset.s, 10);
+        CAT.forEach((c, i0) => {
+          if (c.lane === ln) itemState[i0] = (s === -1 && c.posOnly) ? 0 : s;
+        });
+        document.querySelectorAll(".preset-set-btn").forEach(b => b.classList.remove("active"));
+        syncUIAndRender();
+      });
+    });
+  }
+
+  function syncSidebarVisuals() {
+    CAT.forEach((c, i0) => {
+      const s = itemState[i0];
+      const row = document.getElementById(`crow_${i0}`);
+      const sub = document.getElementById(`csub_${i0}`);
+      row.className = "c-row" + (s === -1 ? " state-shock" : (s === +1 ? " state-reform" : ""));
+      if (c.posOnly) {
+        sub.textContent = (s === -1) ? c.shockLbl : c.reformLbl;
+        sub.style.color = (s === +1) ? "var(--pos)" : (s === -1 ? "#991b1b" : "var(--muted)");
+        const btns = row.querySelectorAll(".tri-pill button");
+        btns[0].className = (s === 0)  ? "sel-off"    : (s === -1 ? "sel-shock" : "");
+        btns[1].className = (s === +1) ? "sel-reform" : "";
+      } else {
+        sub.textContent = (s === +1) ? c.reformLbl : c.shockLbl;
+        sub.style.color = (s === +1) ? "var(--pos)" : (s === -1 ? "#991b1b" : "var(--muted)");
+        const btns = row.querySelectorAll(".tri-pill button");
+        btns[0].className = (s === -1) ? "sel-shock"  : "";
+        btns[1].className = (s ===  0) ? "sel-off"    : "";
+        btns[2].className = (s === +1) ? "sel-reform" : "";
+      }
+    });
+  }
+  // High-DPI Canvas Setup Helper
+  function prepCanvas(cvs, logicalW, logicalH) {
+    const dpr = Math.min(2.5, window.devicePixelRatio || 1);
+    cvs.width  = Math.round(logicalW * dpr);
+    cvs.height = Math.round(logicalH * dpr);
+    cvs.style.height = logicalH + "px";
+    const ctx = cvs.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, logicalW, logicalH);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, logicalW, logicalH);
+    return ctx;
+  }
+
+  function fmtSignedB(v, dec) {
+    const d = (dec === undefined) ? 2 : dec;
+    return (v >= 0 ? "+NZ$" : "-NZ$") + Math.abs(v).toFixed(d) + "B";
+  }
+
+  function fmtMult(v) {
+    return (v >= 0 ? "+$" : "-$") + Math.abs(v).toFixed(2) + "/$1";
+  }
+
+  // ==========================================================================
+  // VIEW A: SHOCK/REFORM MULTIPLIERS & LOGICAL GROUPINGS
+  // ==========================================================================
+  function renderMultipliersView(activeIdx0) {
+    const cvs = document.getElementById("mainVizCanvas");
+    if (activeIdx0.length === 0) {
+      const ctx = prepCanvas(cvs, 1020, 320);
+      ctx.fillStyle = "#64748b"; ctx.font = "bold 15px sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("No commitments active — toggle any commitment in the left sidebar or select a preset bundle above.", 510, 160);
+      return;
+    }
+
+    // 1. Evaluate each individual active item under activeLens
+    const rows = activeIdx0.map(i0 => {
+      const c = CAT[i0];
+      const s = itemState[i0];
+      const r = evalSubset([i0], itemState, activeLens, false);
+      const lbl = `${c.code} (${s === +1 ? (c.posOnly ? (c.codeNum <= 26 ? "+SS1" : "+SS2") : "+Reform") : "Shock"}): ${s === +1 ? c.reformLbl : c.shockLbl}`;
+      return { label: lbl, claimed: c.claimed, val: r.val, mult: r.val / Math.max(0.05, c.claimed), isGroup: false, state: s, cat: c.cat };
+    });
+
+    // 2. Build Logical Sub-Groupings + Combined Set
+    const tailZ = itemState.slice(16).every(v => v === 0);
+    const isFullShk16 = (activeIdx0.length === 16 && tailZ && activeIdx0.every((v, k) => v === k && itemState[v] === -1));
+    const isFullRef16 = (activeIdx0.length === 16 && tailZ && activeIdx0.every((v, k) => v === k && itemState[v] === +1));
+    const grpRows = [];
+
+    if (isFullShk16 || isFullRef16) {
+      const pfx = isFullRef16 ? "+REFORM BUNDLE" : "COMBINED";
+      [
+        { lbl: `${pfx}: Retrenchment/Tenure 10 (GE)`, idxs: [0,1,2,3,4,5,6,7,11,12] },
+        { lbl: `${pfx}: Full 15 Domestic Bundle (GE)`, idxs: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14] },
+        { lbl: `${pfx}: Full 16 Commitments Vector (GE)`, idxs: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] }
+      ].forEach(g => {
+        const rg = evalSubset(g.idxs, itemState, activeLens, false);
+        grpRows.push({ label: g.lbl, claimed: rg.claimed, val: rg.val, mult: rg.val / Math.max(0.05, rg.claimed), isGroup: true, state: 0, cat: 4 });
+      });
+    } else if (activeIdx0.length >= 2) {
+      [1, 2, 3, 4].forEach(ln => {
+        const sub = activeIdx0.filter(i0 => CAT[i0].lane === ln);
+        if (sub.length >= 2 && sub.length < activeIdx0.length) {
+          const rg = evalSubset(sub, itemState, activeLens, false);
+          const codes = sub.length <= 4 ? sub.map(i0 => CAT[i0].code).join("+") : `${sub.length} items`;
+          grpRows.push({ label: `GROUP: ${LANE_META[ln].short} (${codes})`, claimed: rg.claimed, val: rg.val, mult: rg.val / Math.max(0.05, rg.claimed), isGroup: true, state: 0, cat: 4 });
+        }
+      });
+      const rAll = evalSubset(activeIdx0, itemState, activeLens, false);
+      const sDesc = activeIdx0.length <= 5 ? activeIdx0.map(i0 => (itemState[i0] === 1 ? "+" : "") + CAT[i0].code).join(", ") : `${activeIdx0.length} Active Commitments`;
+      grpRows.push({ label: `COMBINED SET: ${sDesc}`, claimed: rAll.claimed, val: rAll.val, mult: rAll.val / Math.max(0.05, rAll.claimed), isGroup: true, state: 0, cat: 4 });
+    }
+
+    const allRows = rows.concat(grpRows);
+    const nB = allRows.length;
+    const H = Math.max(420, 115 + nB * 29);
+    const W = 1020;
+    const ctx = prepCanvas(cvs, W, H);
+
+    const padT = 54, padB = 42;
+    const xL1 = 278, xR1 = 620;
+    const xL2 = 665, xR2 = 995;
+    const plotH = H - padT - padB;
+    const rowStep = plotH / nB;
+    const barH = Math.min(20, rowStep * 0.72);
+
+    // Titles
+    ctx.fillStyle = "#0f293a"; ctx.font = "bold 13px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("A. Outcome per $1 of 4-Yr Policy Scale (-$ Lost | +$ Gained)", (xL1 + xR1) / 2, 22);
+    ctx.fillText("B. Absolute Scale: 4-Yr Scale vs. Active Lens Valuation (NZD B)", (xL2 + xR2) / 2, 22);
+
+    // Panel A range
+    const mVals = allRows.map(r => r.mult);
+    const mMin = Math.min(-2.0, Math.min(...mVals) * 1.32);
+    const mMax = Math.max(+2.0, Math.max(...mVals) * 1.32);
+    const xMap1 = v => xL1 + ((v - mMin) / (mMax - mMin)) * (xR1 - xL1);
+
+    // Panel B range
+    const vVals = allRows.map(r => r.val);
+    const cVals = allRows.map(r => r.claimed);
+    const bMin = Math.min(-10.0, Math.min(...vVals, 0) * 1.34);
+    const bMax = Math.max(+10.0, Math.max(...vVals, ...cVals) * 1.34);
+    const xMap2 = v => xL2 + ((v - bMin) / (bMax - bMin)) * (xR2 - xL2);
+
+    // Borders & Grids
+    ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1;
+    ctx.strokeRect(xL1, padT, xR1 - xL1, plotH);
+    ctx.strokeRect(xL2, padT, xR2 - xL2, plotH);
+
+    // Zero lines
+    [ [xMap1(0), xL1, xR1], [xMap2(0), xL2, xR2] ].forEach(([zx, xl, xr]) => {
+      if (zx >= xl && zx <= xr) {
+        ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(zx, padT); ctx.lineTo(zx, padT + plotH); ctx.stroke();
+      }
+    });
+
+    // Separator above groups
+    if (grpRows.length > 0) {
+      const ySep = padT + rows.length * rowStep;
+      ctx.strokeStyle = "#334155"; ctx.lineWidth = 1.4; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(12, ySep); ctx.lineTo(xR2, ySep); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function barColor(r) {
+      if (r.isGroup) return "#3d1f5c";
+      if (r.val >= 0) return "#0f705c";
+      if (r.cat === 2) return "#d97706";
+      if (r.cat === 3) return "#2b6cb0";
+      return "#b91c1c";
+    }
+
+    allRows.forEach((r, idx) => {
+      const yc = padT + (idx + 0.5) * rowStep;
+      const col = barColor(r);
+
+      // Y-axis label on left
+      ctx.fillStyle = r.isGroup ? "#3d1f5c" : "#16202a";
+      ctx.font = (r.isGroup ? "bold " : "600 ") + "11px sans-serif";
+      ctx.textAlign = "right";
+      const cleanLbl = r.label.length > 41 ? r.label.slice(0, 40) + "…" : r.label;
+      ctx.fillText(cleanLbl, xL1 - 7, yc + 3.5);
+
+      // Panel A bar
+      const z1 = xMap1(0), x1 = xMap1(r.mult);
+      ctx.fillStyle = col;
+      ctx.fillRect(Math.min(z1, x1), yc - barH / 2, Math.max(1.5, Math.abs(x1 - z1)), barH);
+      ctx.font = "bold 10.2px sans-serif";
+      if (r.mult >= 0) {
+        ctx.textAlign = "left"; ctx.fillText(fmtMult(r.mult), x1 + 4, yc + 3.5);
+      } else {
+        ctx.textAlign = "right"; ctx.fillText(fmtMult(r.mult), x1 - 4, yc + 3.5);
+      }
+
+      // Panel B bars: light slate outline for 4-Yr Scale, solid bar for Active Lens Valuation
+      const z2 = xMap2(0), xVal = xMap2(r.val);
+      ctx.fillStyle = col;
+      ctx.fillRect(Math.min(z2, xVal), yc - barH / 2, Math.max(1.5, Math.abs(xVal - z2)), barH);
+      ctx.font = "bold 10.2px sans-serif";
+      if (r.val >= 0) {
+        ctx.textAlign = "left"; ctx.fillText(`+${r.val.toFixed(1)}B`, xVal + 4, yc + 3.5);
+      } else {
+        ctx.textAlign = "right"; ctx.fillText(`${r.val.toFixed(1)}B`, xVal - 4, yc + 3.5);
+      }
+    });
+
+    // Axis footers
+    ctx.fillStyle = "#334155"; ctx.font = "bold 11.2px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(`Valuation per $1 of 4-Yr Scale (${LENS_INFO[activeLens].short})`, (xL1 + xR1) / 2, H - 12);
+    ctx.fillText(`Net Valuation in Real 2026 NZD Billions (${LENS_INFO[activeLens].short})`, (xL2 + xR2) / 2, H - 12);
+
+    // Populate Table & CSV
+    const thead = document.getElementById("ledgerThead");
+    const tbody = document.getElementById("ledgerTbody");
+    thead.innerHTML = `<tr>
+      <th>Commitment or Logical Group</th>
+      <th>Direction</th>
+      <th>4-Yr Scale (NZ$B)</th>
+      <th>4-Yr OBEGALx Cash</th>
+      <th>Active Lens (${LENS_INFO[activeLens].tag})</th>
+      <th>Outcome per $1</th>
+    </tr>`;
+    const csvRows = ["Item,Direction,Scale_4Yr_BNZD,OBEGALx_4Yr_BNZD,ActiveLens_Valuation_BNZD,Multiplier_Per_Dollar"];
+    tbody.innerHTML = allRows.map(r => {
+      const dirStr = r.isGroup ? "Bundle / Group" : (r.state === +1 ? "+Reform" : "2024 Shock");
+      const cls = r.val >= 0 ? "pos-txt" : "neg-txt";
+      csvRows.push(`"${r.label}",${dirStr},${r.claimed.toFixed(2)},-,${r.val.toFixed(2)},${r.mult.toFixed(2)}`);
+      return `<tr ${r.isGroup ? 'style="background:#f8fafc;font-weight:700;"' : ""}>
+        <td>${r.label}</td>
+        <td>${dirStr}</td>
+        <td>${r.claimed.toFixed(2)}B</td>
+        <td>${activeLens === "lens1" ? fmtSignedB(r.val) : "—"}</td>
+        <td class="${cls}">${fmtSignedB(r.val)}</td>
+        <td class="${cls}">${fmtMult(r.mult)}</td>
+      </tr>`;
+    }).join("");
+    lastExportCSV = csvRows.join("\n");
+    lastExportName = `Table_PolicyMirage_Multipliers_${activeLens}.csv`;
+  }
+
+  // ==========================================================================
+  // VIEW B: DYNAMIC LOGICAL WEDGES BRIDGE & ACTIVE-LANE 2^m SHAPLEY
+  // ==========================================================================
+  function compactLaneCodes(posList, stArr) {
+    const groups = [];
+    posList.forEach(i0 => {
+      const cn = CAT[i0].codeNum, s = stArr[i0];
+      const prev = groups[groups.length - 1];
+      if (prev && prev.s === s && cn === prev.b + 1) prev.b = cn;
+      else groups.push({ a: cn, b: cn, s });
+    });
+    return groups.map(g => {
+      const pfx = g.s === 1 ? "+" : "";
+      const ca = pfx + "C" + String(g.a).padStart(2, "0");
+      if (g.a === g.b) return ca;
+      const cb = String(g.b).padStart(2, "0");
+      return g.b === g.a + 1 ? `${ca},${pfx}C${cb}` : `${ca}..${cb}`;
+    });
+  }
+
+  function renderWedgesView(activeIdx0) {
+    const cvs = document.getElementById("mainVizCanvas");
+    if (activeIdx0.length === 0) {
+      renderMultipliersView(activeIdx0);
+      return;
+    }
+
+    // Active portfolio lanes
+    const actLanes = [1, 2, 3, 4].filter(ln => activeIdx0.some(i0 => CAT[i0].lane === ln));
+    const mL = actLanes.length;
+    const laneMembers = {};
+    const siloM = [], valM = [], cntM = [];
+
+    actLanes.forEach(ln => {
+      const sub = activeIdx0.filter(i0 => CAT[i0].lane === ln);
+      laneMembers[ln] = sub;
+      cntM.push(sub.length);
+      let sSum = 0.0;
+      sub.forEach(i0 => { sSum += evalSubset([i0], itemState, activeLens, false).val; });
+      siloM.push(sSum);
+      valM.push(evalSubset(sub, itemState, activeLens, false).val);
+    });
+
+    const totSilo = siloM.reduce((a, b) => a + b, 0.0);
+    const wfSteps = [];
+    actLanes.forEach((ln, r) => {
+      const rhs = LANE_META[ln].short.split(": ")[1];
+      wfSteps.push({ name: `Silo L${ln}: ${rhs}`, lines: [`Silo L${ln}:`, rhs], val: siloM[r], isTot: false, kind: "silo" });
+    });
+    wfSteps.push({ name: "SILO SUM", lines: ["SILO SUM"], val: totSilo, isTot: true, kind: "sub" });
+
+    const wIntra = valM.reduce((acc, v, r) => acc + (v - siloM[r]), 0.0);
+    if (cntM.some(c => c >= 2)) {
+      wfSteps.push({ name: "Wedge 1: Intra-Lane", lines: ["Wedge 1:", "Intra-Lane"], val: wIntra, isTot: false, kind: "intra" });
+    }
+
+    let cumIdx = laneMembers[actLanes[0]].slice();
+    let valCum = valM[0];
+    for (let r = 1; r < mL; r++) {
+      const lnNext = actLanes[r];
+      const nextIdx = cumIdx.concat(laneMembers[lnNext]);
+      const valNext = evalSubset(nextIdx, itemState, activeLens, false).val;
+      const wCross  = valNext - valCum - valM[r];
+      const prevStr = actLanes.slice(0, r).map(x => "L" + x).join("+");
+      wfSteps.push({ name: `Wedge: (${prevStr})×L${lnNext}`, lines: ["Wedge:", `(${prevStr})×L${lnNext}`], val: wCross, isTot: false, kind: "cross" });
+      cumIdx = nextIdx;
+      valCum = valNext;
+    }
+    wfSteps.push({ name: "FULL BUNDLE", lines: ["FULL BUNDLE"], val: valCum, isTot: true, kind: "tot" });
+
+    // Exact 2^mL Shapley over active lanes
+    const nMasks = (1 << mL);
+    const vMask = new Array(nMasks).fill(0.0);
+    for (let mask = 1; mask < nMasks; mask++) {
+      let sub = [];
+      for (let r = 0; r < mL; r++) {
+        if ((mask >> r) & 1) sub = sub.concat(laneMembers[actLanes[r]]);
+      }
+      vMask[mask] = evalSubset(sub, itemState, activeLens, false).val;
+    }
+    const fact = [1, 1, 2, 6, 24];
+    const shapM = new Array(mL).fill(0.0);
+    for (let r = 0; r < mL; r++) {
+      for (let mask = 0; mask < nMasks; mask++) {
+        if (((mask >> r) & 1) === 0) {
+          let sSz = 0;
+          for (let b = 0; b < mL; b++) if ((mask >> b) & 1) sSz++;
+          const wt = (fact[sSz] * fact[mL - sSz - 1]) / fact[mL];
+          shapM[r] += wt * (vMask[mask | (1 << r)] - vMask[mask]);
+        }
+      }
+    }
+
+    // Expanded chart widths now that Lane labels break cleanly on the colon!
+    const W = 1020, H = 540;
+    const ctx = prepCanvas(cvs, W, H);
+    const padT = 50, padB = 78;
+    const p1L = 56, p1R = 566, p2L = 686, p2R = 1004;
+    const plotH = H - padT - padB;
+
+    ctx.fillStyle = "#0f293a"; ctx.font = "bold 13px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(`A. Logical Additionality Waterfall (${wfSteps.length} Steps)`, (p1L + p1R) / 2, 24);
+    ctx.fillText(`B. Order-Invariant Shapley Attribution (${mL} Active Lane${mL > 1 ? "s" : ""})`, (p2L + p2R) / 2, 24);
+
+    // Waterfall coordinates
+    let run = 0.0;
+    const y0 = [], y1 = [];
+    wfSteps.forEach(st => {
+      if (st.isTot) { y0.push(0.0); y1.push(st.val); run = st.val; }
+      else { y0.push(run); y1.push(run + st.val); run += st.val; }
+    });
+    const allY = y0.concat(y1, [0]);
+    const yMin = Math.min(-5.0, Math.min(...allY) * 1.22);
+    const yMax = Math.max(+5.0, Math.max(...allY) * 1.22);
+    const yOf1 = v => padT + (1.0 - (v - yMin) / (yMax - yMin)) * plotH;
+
+    ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1;
+    ctx.strokeRect(p1L, padT, p1R - p1L, plotH);
+    const zY1 = yOf1(0);
+    ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(p1L, zY1); ctx.lineTo(p1R, zY1); ctx.stroke();
+
+    // Y-axis ticks on Waterfall
+    ctx.fillStyle = "#64748b"; ctx.font = "10px sans-serif"; ctx.textAlign = "right";
+    for (let s = 0; s <= 4; s++) {
+      const vv = yMin + (s / 4.0) * (yMax - yMin);
+      ctx.fillText((vv >= 0 ? "+" : "") + vv.toFixed(0) + "B", p1L - 5, yOf1(vv) + 3.5);
+    }
+
+    const stepW = (p1R - p1L) / wfSteps.length;
+    const bw = Math.min(38, stepW * 0.66);
+    wfSteps.forEach((st, i) => {
+      const xc = p1L + (i + 0.5) * stepW;
+      const py0 = yOf1(y0[i]), py1 = yOf1(y1[i]);
+      let col = "#576b82";
+      if (st.kind === "sub") col = "#2b3e50";
+      else if (st.kind === "tot") col = "#3d1f5c";
+      else if (st.kind === "intra") col = st.val >= 0 ? "#10b981" : "#d97706";
+      else if (st.kind === "cross") col = st.val >= 0 ? "#0f705c" : "#b91c1c";
+
+      ctx.fillStyle = col;
+      ctx.fillRect(xc - bw / 2, Math.min(py0, py1), bw, Math.max(2, Math.abs(py1 - py0)));
+      if (i < wfSteps.length - 1) {
+        const nx = p1L + (i + 1.5) * stepW;
+        ctx.strokeStyle = "#64748b"; ctx.setLineDash([2, 2]);
+        ctx.beginPath(); ctx.moveTo(xc + bw / 2, py1); ctx.lineTo(nx - bw / 2, py1); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      ctx.fillStyle = "#16202a"; ctx.font = "bold 9.8px sans-serif"; ctx.textAlign = "center";
+      const lblY = (st.val >= 0) ? Math.min(py0, py1) - 5 : Math.max(py0, py1) + 12;
+      ctx.fillText(`${st.val >= 0 ? "+" : ""}${st.val.toFixed(1)}B`, xc, lblY);
+
+      // Colon-broken 2-line X-axis label (zero left-edge clipping & compact bottom height!)
+      ctx.save();
+      ctx.translate(xc + 4, padT + plotH + 10);
+      ctx.rotate(-0.36);
+      ctx.textAlign = "right";
+      st.lines.forEach((lnTxt, li) => {
+        ctx.font = (li === 0 ? "bold " : "600 ") + "9.6px sans-serif";
+        ctx.fillStyle = li === 0 ? "#0f293a" : "#334155";
+        ctx.fillText(lnTxt, 0, li * 11.2);
+      });
+      ctx.restore();
+    });
+
+    // Panel B: Shapley Horizontal Bars (expanded width p2L..p2R = 318px!)
+    ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1;
+    ctx.strokeRect(p2L, padT, p2R - p2L, plotH);
+    const sMin = Math.min(-5.0, Math.min(...shapM, ...siloM, 0) * 1.38);
+    const sMax = Math.max(+5.0, Math.max(...shapM, ...siloM, 0) * 1.38);
+    const xOf2 = v => p2L + ((v - sMin) / (sMax - sMin)) * (p2R - p2L);
+    const zX2  = xOf2(0);
+    ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(zX2, padT); ctx.lineTo(zX2, padT + plotH); ctx.stroke();
+
+    const rStep = plotH / mL;
+    const bh2 = Math.min(36, rStep * 0.50);
+    actLanes.forEach((ln, r) => {
+      const yc = padT + (r + 0.5) * rStep;
+      const sBase = siloM[r], sTot = shapM[r];
+      const xSilo = xOf2(sBase), xTot = xOf2(sTot);
+
+      ctx.fillStyle = "#576b82";
+      ctx.fillRect(Math.min(zX2, xSilo), yc - bh2 / 2, Math.max(1.5, Math.abs(xSilo - zX2)), bh2);
+      ctx.fillStyle = (sTot - sBase) >= 0 ? "#0f705c" : "#b91c1c";
+      ctx.fillRect(Math.min(xSilo, xTot), yc - bh2 / 2, Math.max(1, Math.abs(xTot - xSilo)), bh2);
+
+      // Colon-broken Lane Label in middle gutter (never crosses p1R = 566!)
+      const [lnHead, lnDesc] = LANE_META[ln].short.split(": ");
+      const compactParts = compactLaneCodes(laneMembers[ln], itemState);
+      const codeFull = "(" + compactParts.join(",") + ")";
+
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#0f293a"; ctx.font = "bold 10.6px sans-serif";
+      ctx.fillText(lnHead + ":", p2L - 7, yc - 12);
+      ctx.fillStyle = "#1e293b"; ctx.font = "600 10px sans-serif";
+      ctx.fillText(lnDesc, p2L - 7, yc);
+
+      ctx.fillStyle = "#64748b"; ctx.font = "9.2px sans-serif";
+      if (codeFull.length <= 21 || compactParts.length <= 2) {
+        ctx.fillText(codeFull, p2L - 7, yc + 12);
+      } else {
+        const mid = Math.ceil(compactParts.length / 2);
+        ctx.fillText("(" + compactParts.slice(0, mid).join(",") + ",", p2L - 7, yc + 11);
+        ctx.fillText(compactParts.slice(mid).join(",") + ")", p2L - 7, yc + 21);
+      }
+
+      // Bar value callout: keep strictly inside Panel B (never cross p2L into the Lane title!)
+      ctx.fillStyle = sTot >= 0 ? "#0f705c" : "#991b1b";
+      ctx.font = "bold 10.2px sans-serif";
+      const valTxt = `${sTot >= 0 ? "+" : ""}${sTot.toFixed(1)}B`;
+      const leftEdge = Math.min(xSilo, xTot);
+      const rightEdge = Math.max(zX2, xSilo, xTot);
+      if (sTot >= 0) {
+        ctx.textAlign = "left";
+        ctx.fillText(valTxt, Math.min(p2R - 38, rightEdge + 4), yc + 3.5);
+      } else if (leftEdge - 38 >= p2L + 3) {
+        ctx.textAlign = "right";
+        ctx.fillText(valTxt, leftEdge - 4, yc + 3.5);
+      } else {
+        ctx.textAlign = "left";
+        ctx.fillText(valTxt, zX2 + 5, yc + 3.5);
+      }
+    });
+
+    // Populate Table & CSV
+    const thead = document.getElementById("ledgerThead");
+    const tbody = document.getElementById("ledgerTbody");
+    thead.innerHTML = `<tr><th>Waterfall / Shapley Component</th><th>Role</th><th>Valuation (${LENS_INFO[activeLens].tag})</th><th>Share of Bundle</th></tr>`;
+    const csvRows = ["Step,Role,Valuation_BNZD,Share_Pct"];
+    tbody.innerHTML = wfSteps.map(st => {
+      const sh = Math.abs(valCum) > 1e-6 ? ((st.val / valCum) * 100).toFixed(1) + "%" : "—";
+      csvRows.push(`"${st.name}",${st.kind},${st.val.toFixed(2)},${sh}`);
+      return `<tr ${st.isTot ? 'style="background:#f8fafc;font-weight:700;"' : ""}>
+        <td>${st.name}</td>
+        <td>${st.kind.toUpperCase()}</td>
+        <td class="${st.val >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(st.val)}</td>
+        <td>${sh}</td>
+      </tr>`;
+    }).join("");
+    lastExportCSV = csvRows.join("\n");
+    lastExportName = `Table_PolicyMirage_Wedges_${activeLens}.csv`;
+  }
+  // ==========================================================================
+  // VIEW C: 2023–2065 LTFM CROSSOVER TRAJECTORY (ACTIVE VS. MIRROR COUNTERFACTUAL)
+  // ==========================================================================
+  function renderTrajectoryView(activeIdx0) {
+    const cvs = document.getElementById("mainVizCanvas");
+    if (activeIdx0.length === 0) { renderMultipliersView(activeIdx0); return; }
+
+    const uAct = stateToUVec(itemState);
+    const hasPosOnly = activeIdx0.some(i0 => CAT[i0].posOnly && itemState[i0] === +1);
+    const hasShocks  = activeIdx0.some(i0 => !CAT[i0].posOnly && itemState[i0] === -1);
+
+    let stRef, refLabel, refCol;
+    if (hasPosOnly && hasShocks) {
+      // Digging out of 2024 hole -> compare directly against Clean-Base SS1/SS2 (with C01..C18 shocks = Off)!
+      stRef = itemState.map((s, i) => CAT[i].posOnly ? s : 0);
+      refLabel = "Clean-Base SS1/SS2 (No 2024 Hole)";
+      refCol = "#0284c7";
+    } else if (hasPosOnly) {
+      // Clean-Base SS1/SS2 -> compare against 2024 Full-16 Shocks sinkhole!
+      const f16 = codesToPos([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
+      stRef = CAT.map((_, i) => f16.includes(i) ? -1 : 0);
+      refLabel = "2024 Full-16 Shocks Sinkhole";
+      refCol = "#b91c1c";
+    } else {
+      // Pure C01..C18 selection -> exact Symmetric Mirror (-uAct)!
+      stRef = itemState.map(s => -s);
+      refLabel = "Symmetric Mirror Counterfactual";
+      refCol = "#0f705c";
+    }
+
+    const uMir = stateToUVec(stRef);
+    const LAct = IGW_ENGINE.evalVectorLedger(uAct, activeProfile);
+    const LMir = IGW_ENGINE.evalVectorLedger(uMir, activeProfile);
+
+    const W = 1020, H = 600;
+    const ctx = prepCanvas(cvs, W, H);
+
+    drawDebtPanel(ctx, 56, 44, 420, 215, YEARS, LAct, LMir, false, refLabel, refCol);
+    drawDebtPanel(ctx, 558, 44, 435, 215, YEARS, LAct, LMir, true,  refLabel, refCol);
+    drawFlowsPanel(ctx, 56, 328, 937, 228, YEARS, LAct);
+
+    const thead = document.getElementById("ledgerThead");
+    const tbody = document.getElementById("ledgerTbody");
+    thead.innerHTML = `<tr><th>Year</th><th>2023 LTFM Debt (% GDP)</th><th>Active Set Debt (% GDP)</th><th>${refLabel} Debt</th><th>Annual OBEGAL Delta</th><th>Annual Welfare Flow</th><th>Cum. PV Welfare (2.5%)</th></tr>`;
+    const sampleYrs = [2024, 2026, 2028, 2030, 2033, 2036, 2040, 2045, 2050, 2055, 2060, 2065];
+    const csvRows = [`Year,Debt_LTFM_PctGDP,Debt_Active_PctGDP,"Debt_${refLabel.replace(/\s+/g,"_")}_PctGDP",Annual_OBEGAL_BNZD,Annual_Welfare_BNZD,Cum_PV25_Welfare_BNZD`];
+    YEARS.forEach((y, i) => {
+      csvRows.push(`${y},${LAct.debtBase[i].toFixed(2)},${LAct.debtShock[i].toFixed(2)},${LMir.debtShock[i].toFixed(2)},${LAct.netObegalB[i].toFixed(3)},${LAct.welfareFlowB[i].toFixed(3)},${LAct.cumPV25B[i].toFixed(3)}`);
+    });
+    tbody.innerHTML = YEARS.map((y, i) => {
+      if (!sampleYrs.includes(y)) return "";
+      return `<tr>
+        <td><strong>${y}</strong></td>
+        <td>${LAct.debtBase[i].toFixed(1)}%</td>
+        <td>${LAct.debtShock[i].toFixed(1)}%</td>
+        <td>${LMir.debtShock[i].toFixed(1)}%</td>
+        <td class="${LAct.netObegalB[i] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(LAct.netObegalB[i])}</td>
+        <td class="${LAct.welfareFlowB[i] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(LAct.welfareFlowB[i])}</td>
+        <td class="${LAct.cumPV25B[i] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(LAct.cumPV25B[i])}</td>
+      </tr>`;
+    }).join("");
+    lastExportCSV = csvRows.join("\n");
+    lastExportName = "Table_PolicyMirage_Trajectory_2023_2065.csv";
+  }
+
+  function drawDebtPanel(ctx, x0, y0, w, h, yrs, LAct, LMir, isZoom, refLabel, refCol) {
+    const maxYr = isZoom ? 2045 : 2065;
+    const idxs = yrs.map((y, i) => y <= maxYr ? i : -1).filter(i => i >= 0);
+    const dAct = idxs.map(i => LAct.debtShock[i] - LAct.debtBase[i]);
+    const dMir = idxs.map(i => LMir.debtShock[i] - LMir.debtBase[i]);
+    const yLim = Math.max(0.09, Math.max(...dAct.map(Math.abs), ...dMir.map(Math.abs)) * 1.25);
+
+    ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1; ctx.strokeRect(x0, y0, w, h);
+    const xOf = y => x0 + ((y - 2023) / (maxYr - 2023)) * w;
+    const yOf = v => y0 + (0.5 - v / (2 * yLim)) * h;
+
+    ctx.strokeStyle = "#475569"; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(x0, yOf(0)); ctx.lineTo(x0 + w, yOf(0)); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Reference / Counterfactual curve (dashed)
+    ctx.strokeStyle = refCol; ctx.lineWidth = 2.1; ctx.setLineDash([5, 3]);
+    ctx.beginPath();
+    idxs.forEach((i, k) => { const px = xOf(yrs[i]), py = yOf(dMir[k]); k === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); });
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // Active curve (solid)
+    const actCol = LAct.pv25 >= 0 ? "#0f705c" : "#b91c1c";
+    ctx.strokeStyle = actCol; ctx.lineWidth = 2.8;
+    ctx.beginPath();
+    idxs.forEach((i, k) => { const px = xOf(yrs[i]), py = yOf(dAct[k]); k === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); });
+    ctx.stroke();
+
+    // Detect sign-flip Debt Crossover on BOTH Full Horizon (for 2048/2058 hole recovery) & Zoom Panel!
+    for (let k = 3; k < dAct.length; k++) {
+      if ((dAct[2] < 0 && dAct[k] >= 0) || (dAct[2] > 0 && dAct[k] <= 0)) {
+        const cx = xOf(yrs[idxs[k]]), cy = yOf(dAct[k]);
+        ctx.fillStyle = actCol;
+        ctx.beginPath(); ctx.arc(cx, cy, 4.8, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#16202a"; ctx.font = "bold 10px sans-serif";
+        ctx.textAlign = (cx > x0 + w * 0.62) ? "right" : "left";
+        ctx.fillText(`Debt Crossover (${yrs[idxs[k]]})`, cx + (cx > x0 + w * 0.62 ? -7 : 7), cy - 7);
+        break;
+      }
+    }
+
+    // Mini Legend inside panel top-left
+    ctx.fillStyle = actCol; ctx.fillRect(x0 + 8, y0 + 7, 12, 3);
+    ctx.fillStyle = "#1e293b"; ctx.font = "bold 9.5px sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("Active Selection", x0 + 24, y0 + 11.5);
+    ctx.fillStyle = refCol; ctx.fillRect(x0 + 122, y0 + 7, 12, 3);
+    ctx.fillStyle = "#475569"; ctx.fillText(`Dashed: ${refLabel}`, x0 + 138, y0 + 11.5);
+
+    ctx.fillStyle = "#0f293a"; ctx.font = "bold 11.8px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(isZoom ? "B. 2023–2045 Tactical Mirage / Incubation Crossover (pp GDP)" : "A. 2023–2065 Net Debt Wedge vs. LTFM Baseline (pp GDP)", x0 + w / 2, y0 - 10);
+    ctx.fillStyle = "#64748b"; ctx.font = "10.3px sans-serif";
+    [2025, 2030, 2035, 2040, 2045, 2050, 2060].filter(y => y <= maxYr).forEach(y => {
+      ctx.fillText(String(y), xOf(y), y0 + h + 15);
+    });
+    ctx.textAlign = "right";
+    [-yLim * 0.8, 0, yLim * 0.8].forEach(v => {
+      ctx.fillText((v >= 0 ? "+" : "") + v.toFixed(yLim < 1 ? 2 : 1), x0 - 5, yOf(v) + 3.5);
+    });
+  }
+  function drawFlowsPanel(ctx, x0, y0, w, h, yrs, LAct) {
+    ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1; ctx.strokeRect(x0, y0, w, h);
+    const maxF = Math.max(0.08, Math.max(...LAct.netObegalB.map(Math.abs), ...LAct.welfareFlowB.map(Math.abs)) * 1.25);
+    const maxC = Math.max(0.20, Math.max(...LAct.cumPV25B.map(Math.abs)) * 1.15);
+    const scaleR = maxC / maxF;
+
+    const xOf = y => x0 + ((y - 2023) / (2065 - 2023)) * w;
+    const yOf = v => y0 + (0.5 - v / (2 * maxF)) * h;
+
+    ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 1.1;
+    ctx.beginPath(); ctx.moveTo(x0, yOf(0)); ctx.lineTo(x0 + w, yOf(0)); ctx.stroke();
+
+    // Annual OBEGAL bars
+    const bw = (w / yrs.length) * 0.58;
+    yrs.forEach((y, i) => {
+      const v = LAct.netObegalB[i];
+      const py = yOf(v), pz = yOf(0);
+      ctx.fillStyle = v >= 0 ? "rgba(22, 128, 74, 0.48)" : "rgba(217, 119, 6, 0.48)";
+      ctx.fillRect(xOf(y) - bw / 2, Math.min(py, pz), bw, Math.max(1, Math.abs(py - pz)));
+    });
+
+    // Annual Social Welfare Flow (solid)
+    ctx.strokeStyle = LAct.pv25 >= 0 ? "#0f705c" : "#b91c1c"; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    yrs.forEach((y, i) => { const px = xOf(y), py = yOf(LAct.welfareFlowB[i]); i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); });
+    ctx.stroke();
+
+    // Cumulative PV25 curve (dashed plum, right-axis scaled)
+    ctx.strokeStyle = "#3d1f5c"; ctx.lineWidth = 2.8; ctx.setLineDash([6, 3]);
+    ctx.beginPath();
+    yrs.forEach((y, i) => { const px = xOf(y), py = yOf(LAct.cumPV25B[i] / scaleR); i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); });
+    ctx.stroke(); ctx.setLineDash([]);
+
+    ctx.fillStyle = "#0f293a"; ctx.font = "bold 12.2px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(`C. Annual OBEGAL Cash Bars & Social Welfare Flow (Left) vs. Cumulative 2.5% PV = ${fmtSignedB(LAct.pv25)} (Right, Dashed Plum)`, x0 + w / 2, y0 - 10);
+    ctx.fillStyle = "#64748b"; ctx.font = "10.5px sans-serif";
+    [2025, 2030, 2035, 2040, 2045, 2050, 2055, 2060, 2065].forEach(y => ctx.fillText(String(y), xOf(y), y0 + h + 15));
+  }
+
+  // ==========================================================================
+  // VIEW D: 5-FRAMEWORK ACCOUNTING LENS TRANSLATOR ON ACTIVE SET + BENCHMARKS
+  // ==========================================================================
+  function renderLensesView(activeIdx0) {
+    const cvs = document.getElementById("mainVizCanvas");
+    const auditLbl = activeAuditIdx === 5 ? "Yr5" : (activeAuditIdx === 15 ? "Yr15" : "2065");
+    const lensKeys = ["lens1", "lens2", "lens3", "lens4", "lens5", "lens6", "lens7"];
+    const lensShort = [
+      "1. 4Y OBEGALx",
+      "2. 8% Silo CBA",
+      "3. 2.5% Silo",
+      "4. 2.5% Full GE",
+      "5. Treas. SRTP",
+      `6. Act.Fisc(${auditLbl})`,
+      `7. WideGDP(${auditLbl})`
+    ];
+
+    const activeVals = lensKeys.map(lk => evalSubset(activeIdx0, itemState, lk, false).val);
+    const ss2Idxs    = SS2_POS;
+    const ss2St      = CAT.map((_, i) => (ss2Idxs.includes(i) ? +1 : 0));
+    const ss2Vals    = lensKeys.map(lk => evalSubset(ss2Idxs, ss2St, lk, false).val);
+    const full16Idxs = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+    const full16St   = CAT.map((_, i) => (i < 16 ? -1 : 0));
+    const full16Vals = lensKeys.map(lk => evalSubset(full16Idxs, full16St, lk, false).val);
+
+    const W = 1020, H = 520;
+    const ctx = prepCanvas(cvs, W, H);
+    const padL = 70, padR = 28, padT = 62, padB = 68;
+    const pw = W - padL - padR, ph = H - padT - padB;
+
+    const allV = activeVals.concat(ss2Vals, full16Vals, [35, -35]);
+    const yMin = Math.min(...allV) * 1.15, yMax = Math.max(...allV) * 1.16;
+    const yOf = v => padT + (1.0 - (v - yMin) / (yMax - yMin)) * ph;
+
+    ctx.fillStyle = "rgba(230, 245, 241, 0.55)";
+    ctx.fillRect(padL, padT, pw, Math.max(0, yOf(0) - padT));
+    ctx.strokeStyle = "#cbd5e1"; ctx.strokeRect(padL, padT, pw, ph);
+    ctx.strokeStyle = "#16202a"; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.moveTo(padL, yOf(0)); ctx.lineTo(padL + pw, yOf(0)); ctx.stroke();
+
+    // Vertical divider separating Discounted Cash/Welfare Lenses (1..5) from ACC Actuarial Continuation Lenses (6..7)
+    const xSplit = padL + (5.0 / 7.0) * pw;
+    ctx.strokeStyle = "#64748b"; ctx.lineWidth = 1.2; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(xSplit, padT); ctx.lineTo(xSplit, padT + ph); ctx.stroke();
+    ctx.setLineDash([]);
+
+    const grpW = pw / 7.0, bw = grpW * 0.24;
+    lensKeys.forEach((lk, j) => {
+      const xc = padL + (j + 0.5) * grpW;
+      const trio = [
+        { v: activeVals[j], col: "#2563eb", dx: -bw * 1.08 },
+        { v: ss2Vals[j],    col: "#0f705c", dx: 0 },
+        { v: full16Vals[j], col: "#b91c1c", dx: +bw * 1.08 }
+      ];
+      trio.forEach(b => {
+        const py = yOf(b.v), pz = yOf(0);
+        ctx.fillStyle = b.col;
+        ctx.fillRect(xc + b.dx - bw / 2, Math.min(py, pz), bw, Math.max(2, Math.abs(py - pz)));
+        ctx.fillStyle = "#16202a"; ctx.font = "bold 8.8px sans-serif"; ctx.textAlign = "center";
+        ctx.fillText(`${b.v >= 0 ? "+" : ""}${b.v.toFixed(0)}`, xc + b.dx, b.v >= 0 ? py - 4 : py + 11);
+      });
+      ctx.fillStyle = lk === activeLens ? "#0d3b33" : "#334155";
+      ctx.font = (lk === activeLens ? "800 " : "700 ") + "10.3px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(lensShort[j], xc, padT + ph + 20);
+    });
+
+    // Top Title + Legend Bar
+    ctx.fillStyle = "#0f293a"; ctx.font = "bold 12.8px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(`7-Framework Translator (${activeProfile}): Active Selection (Blue) vs. ★ SS1→SS2 Compact (Green) vs. 2024 Full-16 Shocks (Red)`, W / 2, 22);
+    const lgItems = [
+      ["#2563eb", "Active Selection"],
+      ["#0f705c", "★ SS1→SS2 Full Generational Compact"],
+      ["#b91c1c", "2024 Full-16 Shocks Benchmark"]
+    ];
+    let lx = 215;
+    lgItems.forEach(([c, lb]) => {
+      ctx.fillStyle = c; ctx.fillRect(lx, 33, 12, 10);
+      ctx.fillStyle = "#1e293b"; ctx.font = "bold 10.5px sans-serif"; ctx.textAlign = "left";
+      ctx.fillText(lb, lx + 16, 42);
+      lx += lb.length * 6.3 + 42;
+    });
+
+    // Y-axis ticks
+    ctx.fillStyle = "#64748b"; ctx.font = "10.2px sans-serif"; ctx.textAlign = "right";
+    for (let s = 0; s <= 4; s++) {
+      const vv = yMin + (s / 4.0) * (yMax - yMin);
+      ctx.fillText((vv >= 0 ? "+" : "") + vv.toFixed(0) + "B", padL - 6, yOf(vv) + 3.5);
+    }
+
+    const thead = document.getElementById("ledgerThead");
+    const tbody = document.getElementById("ledgerTbody");
+    thead.innerHTML = `<tr><th>Accounting Lens (${activeProfile}, Audit=${YEARS[activeAuditIdx]})</th><th>Active Selection</th><th>★ SS1→SS2 Compact Ref</th><th>2024 Full-16 Shocks Ref</th></tr>`;
+    const csvRows = [`Lens,Profile,Audit_Year,Active_Set_BNZD,Ref_SS1_SS2_Compact_BNZD,Ref_Full16_Shocks_BNZD`];
+    tbody.innerHTML = lensShort.map((nm, j) => {
+      csvRows.push(`"${nm}",${activeProfile},${YEARS[activeAuditIdx]},${activeVals[j].toFixed(2)},${ss2Vals[j].toFixed(2)},${full16Vals[j].toFixed(2)}`);
+      return `<tr ${lensKeys[j] === activeLens ? 'style="background:#eef6f4;font-weight:700;"' : ""}>
+        <td>${nm}</td>
+        <td class="${activeVals[j] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(activeVals[j])}</td>
+        <td class="${ss2Vals[j] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(ss2Vals[j])}</td>
+        <td class="${full16Vals[j] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(full16Vals[j])}</td>
+      </tr>`;
+    }).join("");
+    lastExportCSV = csvRows.join("\n");
+    lastExportName = `Table_PolicyMirage_7Lenses_${activeProfile}_${auditLbl}.csv`;
+  }
+  // ==========================================================================
+  // VIEW E: LIVE POLICY-DRIVEN ACC / TREASURY CIRCULAR 2024/15 ACTUARIAL & WIDEGDP
+  // Replaces Plot_ActuarialContinuationValuation.m across National, 4 Regions,
+  // 2x2 All-Regions Grid, and Parliamentary Audit-Year Regional Bars!
+  // ==========================================================================
+  let activeActScope = "National"; // National | Auckland | Large | Small | Rural | All4Grid | AuditBars
+
+  function renderActuarialView(activeIdx0) {
+    const cvs = document.getElementById("mainVizCanvas");
+    if (activeIdx0.length === 0) {
+      renderMultipliersView(activeIdx0);
+      return;
+    }
+
+    const uAct = stateToUVec(itemState);
+    const LFull = IGW_ENGINE.evalVectorLedger(uAct, activeProfile);
+    const regNames = IGW_ENGINE.ACT_REGIONS;
+    const iy = activeAuditIdx;
+    const auditCalYr = YEARS[iy];
+
+    if (activeActScope === "AuditBars") {
+      const W = 1020, H = 540;
+      const ctx = prepCanvas(cvs, W, H);
+      drawActuarialAuditBars(ctx, LFull, regNames, iy, auditCalYr, W, H);
+      populateActuarialAuditTable(LFull, regNames, iy, auditCalYr);
+      return;
+    }
+
+    if (activeActScope === "All4Grid") {
+      const W = 1020, H = 660;
+      const ctx = prepCanvas(cvs, W, H);
+      const coords = [
+        ["Rural",    58,  52, 416, 236],
+        ["Small",   558,  52, 424, 236],
+        ["Large",    58, 366, 416, 236],
+        ["Auckland",558, 366, 424, 236]
+      ];
+      coords.forEach(([rn, x0, y0, pw, ph]) => {
+        drawSingleActuarialCurvePanel(
+          ctx, x0, y0, pw, ph, LFull.actReg[rn], iy,
+          `${rn}: Crown Actuarial Fiscal vs. WideGDP (${activeProfile})`, "both"
+        );
+      });
+      populateActuarialAuditTable(LFull, regNames, iy, auditCalYr);
+      return;
+    }
+
+    // Single Scope (National or specific Region): 2-Panel Side-by-Side (Left = Crown Actuarial Fiscal, Right = WideGDP Prize)
+    const W = 1020, H = 545;
+    const ctx = prepCanvas(cvs, W, H);
+    const A = (activeActScope === "National") ? LFull.actNat : LFull.actReg[activeActScope];
+    const tag = `${activeActScope} (${activeProfile})`;
+
+    drawSingleActuarialCurvePanel(ctx, 60,  58, 414, 420, A, iy, `A. Crown Actuarial Fiscal Ledger: ${tag}`, "fiscal");
+    drawSingleActuarialCurvePanel(ctx, 558, 58, 424, 420, A, iy, `B. Economy-Wide GDP Prize (WideGDP): ${tag}`, "gdp");
+
+    // Populate Horizon Table + CSV Export
+    const thead = document.getElementById("ledgerThead");
+    const tbody = document.getElementById("ledgerTbody");
+    thead.innerHTML = `<tr>
+      <th>Calendar Year</th>
+      <th>Cum. Upfront Outlay/Cut</th>
+      <th>Wait-As-You-Go Cash</th>
+      <th>Booked Direct Sav (2%)</th>
+      <th>Actuarial Fiscal (8% Sens.)</th>
+      <th>Actuarial Fiscal (2%, 30% Haircut)</th>
+      <th>WideGDP Prize (2%, 30% Haircut)</th>
+    </tr>`;
+    const csvRows = ["Year,Scope,Profile,Cum_Upfront_BNZD,Cash_Fiscal_BNZD,Booked_DirectSav_2pct_BNZD,Actuarial_Fiscal_8pct_BNZD,Actuarial_Fiscal_2pct_BNZD,WideGDP_2pct_BNZD"];
+    const showYrs = [2024, 2026, 2028, 2030, 2033, 2038, 2043, 2048, 2055, 2060, 2065];
+    if (!showYrs.includes(auditCalYr)) showYrs.push(auditCalYr);
+    showYrs.sort((a, b) => a - b);
+
+    YEARS.forEach((cy, i) => {
+      csvRows.push(`${cy},${activeActScope},${activeProfile},${A.cumInv[i].toFixed(2)},${A.cumFisc[i].toFixed(2)},${A.bkSav2[i].toFixed(2)},${A.bkFisc8[i].toFixed(2)},${A.bkFisc2[i].toFixed(2)},${A.bkGdp2[i].toFixed(2)}`);
+    });
+
+    tbody.innerHTML = YEARS.map((cy, i) => {
+      if (!showYrs.includes(cy)) return "";
+      const isAud = (i === iy);
+      return `<tr ${isAud ? 'style="background:#eef6f4;font-weight:700;"' : ""}>
+        <td>${cy}${isAud ? " ★ Audit" : ""}</td>
+        <td>${fmtSignedB(A.cumInv[i])}</td>
+        <td class="${A.cumFisc[i] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(A.cumFisc[i])}</td>
+        <td class="${A.bkSav2[i] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(A.bkSav2[i])}</td>
+        <td class="${A.bkFisc8[i] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(A.bkFisc8[i])}</td>
+        <td class="${A.bkFisc2[i] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(A.bkFisc2[i])}</td>
+        <td class="${A.bkGdp2[i] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(A.bkGdp2[i])}</td>
+      </tr>`;
+    }).join("");
+    lastExportCSV = csvRows.join("\n");
+    lastExportName = `Table_Actuarial_WideGDP_${activeActScope}_${activeProfile}.csv`;
+  }
+
+  function populateActuarialAuditTable(LFull, regNames, iy, auditCalYr) {
+    const thead = document.getElementById("ledgerThead");
+    const tbody = document.getElementById("ledgerTbody");
+    thead.innerHTML = `<tr>
+      <th>Region (${auditCalYr} Audit, ${activeProfile})</th>
+      <th>Cum. Upfront Outlay/Cut</th>
+      <th>Realized Cash Fiscal</th>
+      <th>Booked Direct Sav (2%)</th>
+      <th>Actuarial Fiscal (8%)</th>
+      <th>Actuarial Fiscal (2%)</th>
+      <th>Audit Multiple vs Outlay</th>
+      <th>WideGDP Prize (2%)</th>
+    </tr>`;
+    const csvRows = ["Region,Audit_Year,Profile,Cum_Upfront_BNZD,Cash_Fiscal_BNZD,Booked_DirectSav_2pct_BNZD,Actuarial_Fiscal_8pct_BNZD,Actuarial_Fiscal_2pct_BNZD,Audit_Multiple_2pct,WideGDP_2pct_BNZD"];
+    const scopes = regNames.concat(["National"]);
+    tbody.innerHTML = scopes.map(rn => {
+      const A = (rn === "National") ? LFull.actNat : LFull.actReg[rn];
+      const inv = A.cumInv[iy];
+      const mult = A.bkFisc2[iy] / Math.max(0.05, Math.abs(inv));
+      csvRows.push(`${rn},${auditCalYr},${activeProfile},${inv.toFixed(2)},${A.cumFisc[iy].toFixed(2)},${A.bkSav2[iy].toFixed(2)},${A.bkFisc8[iy].toFixed(2)},${A.bkFisc2[iy].toFixed(2)},${mult.toFixed(2)},${A.bkGdp2[iy].toFixed(2)}`);
+      return `<tr ${rn === "National" ? 'style="background:#f8fafc;font-weight:700;"' : ""}>
+        <td>${rn}</td>
+        <td>${fmtSignedB(inv)}</td>
+        <td class="${A.cumFisc[iy] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(A.cumFisc[iy])}</td>
+        <td class="${A.bkSav2[iy] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(A.bkSav2[iy])}</td>
+        <td class="${A.bkFisc8[iy] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(A.bkFisc8[iy])}</td>
+        <td class="${A.bkFisc2[iy] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(A.bkFisc2[iy])}</td>
+        <td class="${mult >= 0 ? "pos-txt" : "neg-txt"}">${mult >= 0 ? "+" : ""}${mult.toFixed(2)}x</td>
+        <td class="${A.bkGdp2[iy] >= 0 ? "pos-txt" : "neg-txt"}">${fmtSignedB(A.bkGdp2[iy])}</td>
+      </tr>`;
+    }).join("");
+    lastExportCSV = csvRows.join("\n");
+    lastExportName = `Table_Actuarial_RegionalAudit_${auditCalYr}_${activeProfile}.csv`;
+  }
+
+  function drawSingleActuarialCurvePanel(ctx, x0, y0, w, h, A, iy, titleStr, mode) {
+    // mode: "fiscal" | "gdp" | "both" (used in 2x2 All4Grid)
+    const xMin = YEARS[0], xMax = YEARS[YEARS.length - 1];
+    const b2   = (mode === "gdp") ? A.bkGdp2 : A.bkFisc2;
+    const b8   = (mode === "gdp") ? A.bkGdp8 : A.bkFisc8;
+    const cash = (mode === "gdp") ? A.cumGdp : A.cumFisc;
+    const extra = (mode === "both") ? A.bkGdp2 : (mode === "fiscal" ? A.bkSav2 : []);
+    const allV = A.cumInv.concat(b2, b8, cash, extra, [2, -2]);
+    const yMin = Math.min(0.0, Math.min(...allV) * 1.16);
+    const yMax = Math.max(0.0, Math.max(...allV) * 1.16);
+    const spanY = Math.max(1.0, yMax - yMin);
+
+    const xOf = cy => x0 + ((cy - xMin) / (xMax - xMin)) * w;
+    const yOf = v  => y0 + (1.0 - (v - yMin) / spanY) * h;
+
+    ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1; ctx.strokeRect(x0, y0, w, h);
+    ctx.strokeStyle = "#334155"; ctx.lineWidth = 1.1;
+    ctx.beginPath(); ctx.moveTo(x0, yOf(0)); ctx.lineTo(x0 + w, yOf(0)); ctx.stroke();
+
+    const isNetPos = b2[YEARS.length - 1] >= 0;
+    ctx.fillStyle = isNetPos ? "rgba(134, 209, 156, 0.34)" : "rgba(252, 165, 165, 0.32)";
+    ctx.beginPath();
+    YEARS.forEach((cy, i) => { i === 0 ? ctx.moveTo(xOf(cy), yOf(b8[i])) : ctx.lineTo(xOf(cy), yOf(b8[i])); });
+    for (let i = YEARS.length - 1; i >= 0; i--) ctx.lineTo(xOf(YEARS[i]), yOf(b2[i]));
+    ctx.closePath(); ctx.fill();
+
+    // Selected Parliamentary Audit vertical line
+    const xAud = xOf(YEARS[iy]);
+    ctx.strokeStyle = isNetPos ? "#0f705c" : "#b91c1c"; ctx.lineWidth = 1.3; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(xAud, y0); ctx.lineTo(xAud, y0 + h); ctx.stroke();
+    ctx.setLineDash([]);
+
+    function strokeSeries(arr, col, lw, dash) {
+      ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+      ctx.beginPath();
+      YEARS.forEach((cy, i) => { i === 0 ? ctx.moveTo(xOf(cy), yOf(arr[i])) : ctx.lineTo(xOf(cy), yOf(arr[i])); });
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    const colMain2 = isNetPos ? "#065f46" : "#991b1b";
+    const colSens8 = isNetPos ? "#2f855a" : "#dc2626";
+
+    strokeSeries(A.cumInv, "#d97706", 2.1, [5, 3]);
+    strokeSeries(cash,     "#0284c7", 1.9, [7, 3, 2, 3]);
+    if (mode === "fiscal") strokeSeries(A.bkSav2, "#4f46e5", 2.0, []);
+    if (mode === "both")   strokeSeries(A.bkGdp2, "#3d1f5c", 2.3, [6, 3]);
+    strokeSeries(b8, colSens8, 1.7, [4, 3]);
+    strokeSeries(b2, colMain2, 2.8, []);
+
+    // Audit Callout Box (placed automatically away from curves & clamped inside panel)
+    const boxW = mode === "both" ? 196 : 216;
+    const boxH = mode === "fiscal" ? 76 : 64;
+    const bx = (xAud + boxW + 12 <= x0 + w) ? (xAud + 7) : Math.max(x0 + 6, xAud - boxW - 7);
+    const by = isNetPos ? (y0 + 10) : (y0 + h - boxH - 10);
+    ctx.fillStyle = isNetPos ? "rgba(240, 253, 244, 0.94)" : "rgba(254, 242, 242, 0.94)";
+    ctx.strokeStyle = colMain2; ctx.lineWidth = 1.15;
+    ctx.fillRect(bx, by, boxW, boxH); ctx.strokeRect(bx, by, boxW, boxH);
+
+    const invY = A.cumInv[iy], mult = b2[iy] / Math.max(0.05, Math.abs(invY));
+    ctx.fillStyle = isNetPos ? "#064e3b" : "#7f1d1d";
+    ctx.font = "bold 9.8px sans-serif"; ctx.textAlign = "left";
+    ctx.fillText(`Audit @ ${YEARS[iy]} (Yr ${iy}):`, bx + 6, by + 14);
+    ctx.font = "600 9.3px sans-serif";
+    ctx.fillText(`• Upfront: ${fmtSignedB(invY, 1)} | Cash: ${fmtSignedB(cash[iy], 1)}`, bx + 6, by + 28);
+    if (mode === "both") {
+      ctx.fillText(`• Fisc 2%: ${fmtSignedB(A.bkFisc2[iy], 1)} (${mult >= 0 ? "+" : ""}${mult.toFixed(1)}x)`, bx + 6, by + 42);
+      ctx.fillText(`• WideGDP 2% (Plum): ${fmtSignedB(A.bkGdp2[iy], 1)}`, bx + 6, by + 56);
+    } else {
+      ctx.fillText(`• Booked 2%: ${fmtSignedB(b2[iy], 2)} (${mult >= 0 ? "+" : ""}${mult.toFixed(2)}x)`, bx + 6, by + 42);
+      ctx.fillText(`• Booked 8%: ${fmtSignedB(b8[iy], 2)}`, bx + 6, by + 56);
+      if (mode === "fiscal") ctx.fillText(`• Direct Sav (2%): ${fmtSignedB(A.bkSav2[iy], 2)}`, bx + 6, by + 70);
+    }
+
+    // Panel Header & Compact Legend Strip
+    ctx.fillStyle = "#0f293a"; ctx.font = "bold 11.8px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(titleStr, x0 + w / 2, y0 - 27);
+    ctx.fillStyle = "#f8fafc"; ctx.strokeStyle = "#cbd5e1";
+    ctx.fillRect(x0, y0 - 21, w, 17); ctx.strokeRect(x0, y0 - 21, w, 17);
+    const lg = mode === "gdp"
+      ? [ ["#d97706","Upfront",8], ["#0284c7","Cash GDP",86], [colSens8,"WideGDP 8%",178], [colMain2,"WideGDP 2% (25y)",278] ]
+      : (mode === "both"
+          ? [ ["#d97706","Upfront",8], ["#0284c7","Cash",80], [colMain2,"Fisc 2%",145], ["#3d1f5c","WideGDP 2%",232] ]
+          : [ ["#d97706","Upfront",8], ["#0284c7","Cash",76], ["#4f46e5","Direct Sav",142], [colMain2,"Act. Fisc 2% (30% Haircut)",232] ]);
+    lg.forEach(([c, lb, dx]) => {
+      ctx.fillStyle = c; ctx.fillRect(x0 + dx, y0 - 16, 10, 7);
+      ctx.fillStyle = "#1e293b"; ctx.font = "bold 9.1px sans-serif"; ctx.textAlign = "left";
+      ctx.fillText(lb, x0 + dx + 13, y0 - 9.5);
+    });
+
+    ctx.fillStyle = "#64748b"; ctx.font = "10px sans-serif"; ctx.textAlign = "center";
+    [2024, 2030, 2040, 2050, 2060, 2065].forEach(cy => ctx.fillText(String(cy), xOf(cy), y0 + h + 15));
+    if (h > 300) ctx.fillText("Calendar Year (Rolling H = 25-Yr Continuation Valuation, 30% Haircut)", x0 + w / 2, y0 + h + 32);
+    ctx.textAlign = "right";
+    for (let s = 0; s <= 4; s++) {
+      const vv = yMin + (s / 4.0) * spanY;
+      ctx.fillText((vv >= 0 ? "+" : "") + vv.toFixed(0) + "B", x0 - 5, yOf(vv) + 3.5);
+    }
+  }
+
+  function drawActuarialAuditBars(ctx, LFull, regNames, iy, auditCalYr, W, H) {
+    const panels = [
+      { x0: 60,  w: 414, title: `A. ${auditCalYr} Crown Actuarial Fiscal by Region (${activeProfile})`, keys: ["cumInv","cumFisc","bkSav2","bkFisc8","bkFisc2"], cols: ["#d97706","#0284c7","#4f46e5","#2f855a","#065f46"], lbls: ["Upfront","Cash","Sav 2%","Fisc 8%","Fisc 2%"] },
+      { x0: 558, w: 424, title: `B. ${auditCalYr} Economy-Wide GDP Prize by Region (${activeProfile})`, keys: ["cumInv","cumGdp","bkGdp8","bkGdp2"], cols: ["#d97706","#0284c7","#2f855a","#065f46"], lbls: ["Upfront","Cash","WideGDP 8%","WideGDP 2%"] }
+    ];
+    panels.forEach(P => {
+      const y0 = 58, h = 415;
+      const vals = [1, -1];
+      regNames.forEach(rn => P.keys.forEach(k => vals.push(LFull.actReg[rn][k][iy])));
+      const yMin = Math.min(0.0, Math.min(...vals) * 1.20);
+      const yMax = Math.max(0.0, Math.max(...vals) * 1.20);
+      const spanY = Math.max(1.0, yMax - yMin);
+      const yOf = v => y0 + (1.0 - (v - yMin) / spanY) * h;
+
+      ctx.strokeStyle = "#cbd5e1"; ctx.strokeRect(P.x0, y0, P.w, h);
+      ctx.strokeStyle = "#1e293b"; ctx.beginPath(); ctx.moveTo(P.x0, yOf(0)); ctx.lineTo(P.x0 + P.w, yOf(0)); ctx.stroke();
+
+      const grpW = P.w / 4.0, bw = (grpW * 0.76) / P.keys.length;
+      regNames.forEach((rn, rIdx) => {
+        const gLeft = P.x0 + rIdx * grpW + grpW * 0.12;
+        P.keys.forEach((k, kIdx) => {
+          const v = LFull.actReg[rn][k][iy], py = yOf(v), pz = yOf(0);
+          let col = P.cols[kIdx];
+          if (kIdx >= 2 && v < 0) col = (kIdx === P.keys.length - 1) ? "#991b1b" : "#dc2626";
+          ctx.fillStyle = col;
+          ctx.fillRect(gLeft + kIdx * bw, Math.min(py, pz), bw - 1.5, Math.max(1.5, Math.abs(py - pz)));
+        });
+        ctx.fillStyle = "#1e293b"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
+        ctx.fillText(rn, P.x0 + (rIdx + 0.5) * grpW, y0 + h + 18);
+      });
+
+      ctx.fillStyle = "#0f293a"; ctx.font = "bold 11.8px sans-serif"; ctx.textAlign = "center";
+      ctx.fillText(P.title, P.x0 + P.w / 2, y0 - 27);
+      ctx.fillStyle = "#f8fafc"; ctx.strokeStyle = "#cbd5e1";
+      ctx.fillRect(P.x0, y0 - 21, P.w, 17); ctx.strokeRect(P.x0, y0 - 21, P.w, 17);
+      P.lbls.forEach((lb, li) => {
+        const lx = P.x0 + 8 + li * (P.w / P.lbls.length);
+        ctx.fillStyle = P.cols[li]; ctx.fillRect(lx, y0 - 16, 10, 7);
+        ctx.fillStyle = "#1e293b"; ctx.font = "bold 9.1px sans-serif"; ctx.textAlign = "left";
+        ctx.fillText(lb, lx + 13, y0 - 9.5);
+      });
+      ctx.fillStyle = "#64748b"; ctx.font = "10px sans-serif"; ctx.textAlign = "right";
+      for (let s = 0; s <= 4; s++) {
+        const vv = yMin + (s / 4.0) * spanY;
+        ctx.fillText((vv >= 0 ? "+" : "") + vv.toFixed(1) + "B", P.x0 - 5, yOf(vv) + 3.5);
+      }
+    });
+  }
+
+  // Master Sync & Render
+  function syncUIAndRender() {
+    syncSidebarVisuals();
+    const activeIdx0 = [];
+    itemState.forEach((s, i0) => { if (s !== 0) activeIdx0.push(i0); });
+
+    const exprCanonical = stateToCanonicalExpr(itemState);
+    document.getElementById("setExprInput").value = exprCanonical;
+    document.getElementById("setCardBadge").textContent = `${activeIdx0.length} Active`;
+    document.getElementById("cliPreviewTxt").innerHTML = `CLI: <code>Plot_LTFM_Coalition_Shock_Mirage('${exprCanonical}')</code>`;
+
+    const actLanes = [1, 2, 3, 4].filter(ln => activeIdx0.some(i0 => CAT[i0].lane === ln));
+    document.getElementById("activeLanesBadge").textContent = `${actLanes.length} Active Lane${actLanes.length === 1 ? "" : "s"}`;
+
+    const lInfo = LENS_INFO[activeLens];
+    document.getElementById("lensTagBadge").textContent = lInfo.tag;
+    document.getElementById("lensDescTxt").innerHTML = lInfo.desc;
+
+    // Evaluate KPI Strip
+    const rSilo = evalSubset(activeIdx0, itemState, "lens3", false); // 2.5% Siloed
+    const rLens = evalSubset(activeIdx0, itemState, activeLens, false);
+    const rGE25 = evalSubset(activeIdx0, itemState, "lens4", true);
+    const wedge25 = rGE25.pv25 - rSilo.pv25;
+    const wedgePct = Math.abs(rSilo.pv25) > 1e-6 ? ((rGE25.pv25 / rSilo.pv25 - 1.0) * 100.0) : 0.0;
+
+    const elOb = document.getElementById("kpiObegalMain");
+    elOb.textContent = fmtSignedB(rGE25.obegal4);
+    elOb.style.color = rGE25.obegal4 >= 0 ? "var(--pos)" : "var(--mirage)";
+    document.getElementById("kpiObegalSub").textContent = `4-Yr Policy Scale: NZ$${rGE25.claimed.toFixed(2)}B`;
+
+    const elSi = document.getElementById("kpiSiloMain");
+    elSi.textContent = fmtSignedB(rSilo.pv25);
+    elSi.style.color = rSilo.pv25 >= 0 ? "var(--pos)" : "var(--neg)";
+    document.getElementById("kpiSiloSub").textContent = `${fmtMult(rSilo.pv25 / Math.max(0.05, rGE25.claimed))} (2.5% Siloed Sum)`;
+
+    const elGe = document.getElementById("kpiGeMain");
+    elGe.textContent = fmtSignedB(rLens.val);
+    elGe.style.color = rLens.val >= 0 ? "var(--pos)" : "var(--plum)";
+    document.getElementById("kpiGeSub").textContent = `${fmtMult(rLens.val / Math.max(0.05, rGE25.claimed))} (${lInfo.tag})`;
+
+    const elWd = document.getElementById("kpiWedgeMain");
+    elWd.textContent = `${fmtSignedB(wedge25)} (${wedgePct >= 0 ? "+" : ""}${wedgePct.toFixed(1)}%)`;
+    elWd.style.color = wedge25 >= 0 ? "var(--pos)" : "var(--neg)";
+    document.getElementById("kpiWedgeSub").textContent = `2065 Net Debt: ${rGE25.debt65.toFixed(1)}% GDP (vs 200.0% Base)`;
+
+    // Dispatch View
+    const auditTag = (activeLens === "lens6" || activeLens === "lens7") ? ` @ ${YEARS[activeAuditIdx]} Audit` : "";
+    document.getElementById("canvasHeaderSub").textContent = `[${activeProfile}] Evaluated under ${lInfo.tag}${auditTag} (${lInfo.short})`;
+    if (activeView === "multipliers") {
+      document.getElementById("canvasHeaderTitle").textContent = "View A — Individual & Logical Group Outcomes";
+      renderMultipliersView(activeIdx0);
+    } else if (activeView === "wedges") {
+      document.getElementById("canvasHeaderTitle").textContent = "View B — Set-Algebraic Additionality Bridge & Shapley Attribution";
+      renderWedgesView(activeIdx0);
+    } else if (activeView === "trajectory") {
+      document.getElementById("canvasHeaderTitle").textContent = "View C — 2023–2065 LTFM Debt Crossover & Welfare Trajectory";
+      renderTrajectoryView(activeIdx0);
+    } else if (activeView === "lenses") {
+      document.getElementById("canvasHeaderTitle").textContent = "View D — 7-Framework Public-Finance & Actuarial Translator";
+      renderLensesView(activeIdx0);
+    } else {
+      document.getElementById("canvasHeaderTitle").textContent = `View E — ACC Actuarial Crown Fiscal & WideGDP Valuation (${YEARS[activeAuditIdx]} Audit)`;
+      document.getElementById("canvasHeaderSub").textContent = `[${activeProfile}] Rolling H = 25-Yr Continuation Valuation (2.0% Central vs. 8.0% Sens., 30% Attribution Haircut)`;
+      renderActuarialView(activeIdx0);
+    }
+    const actSub = document.getElementById("actuarialSubBar");
+    if (actSub) actSub.style.display = (activeView === "actuarial") ? "block" : "none";
+  }
+
+  // Event Listeners
+  document.querySelectorAll(".nav-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById(tab.dataset.tab).classList.add("active");
+      if (tab.dataset.tab === "workbenchPane") syncUIAndRender();
+      else if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise();
+    });
+  });
+
+  document.querySelectorAll(".preset-set-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".preset-set-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      applyExpressionString(btn.dataset.expr);
+      const nAct = itemState.filter(s => s !== 0).length;
+      if (nAct === 1) {
+        activeView = "trajectory";
+        document.querySelectorAll(".view-btn").forEach(v => v.classList.toggle("active", v.dataset.view === "trajectory"));
+      }
+      syncUIAndRender();
+    });
+  });
+
+  document.getElementById("btnApplyExpr").addEventListener("click", () => {
+    document.querySelectorAll(".preset-set-btn").forEach(b => b.classList.remove("active"));
+    applyExpressionString(document.getElementById("setExprInput").value);
+    syncUIAndRender();
+  });
+
+  document.getElementById("setExprInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("btnApplyExpr").click();
+  });
+
+  document.getElementById("btnInvertSigns").addEventListener("click", () => {
+    itemState = itemState.map((s, i) => CAT[i].posOnly ? (s !== 0 ? +1 : 0) : -s);
+    document.querySelectorAll(".preset-set-btn").forEach(b => b.classList.remove("active"));
+    syncUIAndRender();
+  });
+
+  document.getElementById("lensSelect").addEventListener("change", e => {
+    activeLens = e.target.value;
+    syncUIAndRender();
+  });
+
+  document.querySelectorAll(".view-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeView = btn.dataset.view;
+      document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      syncUIAndRender();
+    });
+  });
+
+  document.getElementById("btnExportCSV").addEventListener("click", () => {
+    const blob = new Blob([lastExportCSV], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = lastExportName;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("btnCopyCLI").addEventListener("click", () => {
+    const expr = stateToCanonicalExpr(itemState);
+    const cmd = `Plot_LTFM_Coalition_Shock_Mirage('${expr}');`;
+    if (navigator.clipboard) navigator.clipboard.writeText(cmd);
+    const btn = document.getElementById("btnCopyCLI");
+    const orig = btn.textContent;
+    btn.textContent = "Copied CLI!";
+    setTimeout(() => { btn.textContent = orig; }, 1400);
+  });
+
+  window.addEventListener("resize", () => {
+    if (document.getElementById("workbenchPane").classList.contains("active")) syncUIAndRender();
+  });
+
+  document.querySelectorAll(".prof-lens-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeProfile = btn.dataset.prof;
+      document.querySelectorAll(".prof-lens-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      syncUIAndRender();
+    });
+  });
+
+  document.querySelectorAll(".audit-yr-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeAuditIdx = parseInt(btn.dataset.idx, 10);
+      document.querySelectorAll(".audit-yr-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      syncUIAndRender();
+    });
+  });
+
+  document.querySelectorAll(".act-reg-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeActScope = btn.dataset.reg;
+      document.querySelectorAll(".act-reg-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      syncUIAndRender();
+    });
+  });
+
+  buildSidebar();
+  syncUIAndRender();
+})();
+
+</script>
+</html>

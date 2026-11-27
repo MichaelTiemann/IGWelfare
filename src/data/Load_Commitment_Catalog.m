@@ -4,6 +4,11 @@ function PolicyCatalog = Load_Commitment_Catalog(DataSpec)
 % Loads commitment_catalog.csv and policy_bundles.yaml for DataSpec.Profile_ID,
 % automatically falling back to parent profile (Inherits_From) when a derived
 % profile such as NZ_GUiNZ2009 shares the canonical policy algebra.
+%
+% Supports sparse code-indexed commitments (e.g., C01..C18 and C21..C28 with
+% unallocated slots C19..C20 and C29+ reserved cleanly without index drift) via:
+%   - PolicyCatalog.Code_Nums   : [nC x 1] integer code numbers (1..18, 21..28)
+%   - PolicyCatalog.Code_To_Pos : [maxCode x 1] O(1) lookup mapping cnum -> row pos (0 if reserved)
 
 if nargin < 1 || isempty(DataSpec)
     DataSpec = Load_Empirical_Profile('NZ_Dunedin1972');
@@ -36,16 +41,35 @@ end
 CatTable   = Read_IGW_CSV(fullfile(pol_dir, 'commitment_catalog.csv'));
 BundleSpec = Read_IGW_YAML(fullfile(pol_dir, 'policy_bundles.yaml'));
 
+cids    = CatTable.Commitment_ID(:);
+nC      = numel(cids);
+tok     = regexp(cids, '^C0*(\d+)', 'tokens', 'once');
+c_nums  = cellfun(@(t) str2double(t{1}), tok);
+max_num = max([39; c_nums(:)]);
+c2pos   = zeros(max_num, 1);
+c2pos(c_nums) = (1:nC)';
+
 PolicyCatalog = struct();
-PolicyCatalog.Profile_ID     = DataSpec.Profile_ID;
-PolicyCatalog.Source_Dir     = pol_dir;
-PolicyCatalog.Catalog_Table  = CatTable;
-PolicyCatalog.Commitment_IDs = CatTable.Commitment_ID(:);
-PolicyCatalog.Domains        = CatTable.Domain(:);
-Meta = BundleSpec.Metadata;
+PolicyCatalog.Profile_ID       = DataSpec.Profile_ID;
+PolicyCatalog.Source_Dir       = pol_dir;
+PolicyCatalog.Catalog_Table    = CatTable;
+PolicyCatalog.Commitment_IDs   = cids;
+PolicyCatalog.Domains          = CatTable.Domain(:);
+PolicyCatalog.Code_Nums        = c_nums(:);
+PolicyCatalog.Code_To_Pos      = c2pos;
+if isfield(CatTable, 'Portfolio_Lane')
+    PolicyCatalog.Portfolio_Lanes = CatTable.Portfolio_Lane(:);
+end
+if isfield(CatTable, 'Is_Positive_Only')
+    PolicyCatalog.Is_Positive_Only = logical(CatTable.Is_Positive_Only(:));
+else
+    PolicyCatalog.Is_Positive_Only = false(nC, 1);
+end
+
+Meta        = BundleSpec.Metadata;
 BundlesOnly = rmfield(BundleSpec, 'Metadata');
-PolicyCatalog.Bundles        = BundlesOnly;
+PolicyCatalog.Bundles                   = BundlesOnly;
 PolicyCatalog.Default_Core13_PassThrough = Meta.Default_Core13_PassThrough;
-PolicyCatalog.Digest         = IGW_MD5_Hex(struct('Catalog', CatTable, 'Bundles', BundleSpec));
+PolicyCatalog.Digest                    = IGW_MD5_Hex(struct('Catalog', CatTable, 'Bundles', BundleSpec));
 
 end
