@@ -9,10 +9,10 @@ function test_recompute_table14_cond_crlf()
 %   the National file, every line of it still ends in CRLF, the other five files are
 %   byte-identical to their inputs, only those 2 cells differ, and a second run
 %   changes 0 cells.
-here = fileparts(mfilename('fullpath'));
-repo = fileparts(here);
+testsDir = fileparts(mfilename('fullpath'));
+repo = fileparts(testsDir);
 addpath(fullfile(repo, 'tools'));
-src = fullfile(repo, 'output', 'NZ_Dunedin1972');
+outDir = fullfile(testsDir, 'output', 'NZ_Dunedin1972');
 regions = {'National', 'Auckland', 'Large', 'Small', 'Urban', 'Rural'};
 
 tmp = tempname;
@@ -22,7 +22,7 @@ cleaner = onCleanup(@() rmdir(tmp, 's'));
 orig = cell(1, numel(regions));
 for r = 1:numel(regions)
     fn = sprintf('Table14_FiscalLedger_6Gate_Decomp_%s.csv', regions{r});
-    txt = read_bytes(fullfile(src, fn));
+    txt = read_bytes(fullfile(outDir, fn));
     assert(isempty(strfind(txt, char(13))), '%s unexpectedly has CR in the repo', fn);
     if r == 1
         lines = strsplit(txt, char(10), 'CollapseDelimiters', false);

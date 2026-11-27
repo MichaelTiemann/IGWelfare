@@ -2,11 +2,11 @@ function test_sankey_shares_sum()
 %TEST_SANKEY_SHARES_SUM Node shares in every Sankey stage/gate sum to 100 (+/- 0.05 pp).
 %   CSV structure (read from the files and from Plot_ChildFates_SSankey.m /
 %   Plot_ChildFiscal_SSankey.m, which write them with writetable):
-%     output/NZ_Dunedin1972/Table15_ChildFates_5Stage_Decomp_<Region>.csv
+%     tests/output/NZ_Dunedin1972/Table15_ChildFates_5Stage_Decomp_<Region>.csv
 %       18 rows = 5 stages (column Gate) of 3,3,3,3,6 nodes. <SS>_Pop_Pct is the
 %       share of the birth cohort in that node; the nodes of one stage are a
 %       partition of the cohort, so each stage sums to 100.
-%     output/NZ_Dunedin1972/Table14_FiscalLedger_6Gate_Decomp_<Region>.csv
+%     tests/output/NZ_Dunedin1972/Table14_FiscalLedger_6Gate_Decomp_<Region>.csv
 %       29 rows = 6 gates (column Gate); node number = digits before the first '_'
 %       in Node_Name. <SS>_Pop_Pct is the share of the cohort in the node, but the
 %       gates are not all plain partitions (code: Build_Custom_Table14_Fiscal_CSV
@@ -22,9 +22,9 @@ function test_sankey_shares_sum()
 %   up to 6 nodes can be off by 0.03 from rounding alone.
 %   Interior consistency flows-out == flows-in is not testable from these CSVs (only
 %   node marginals are exported, not the ribbon matrices).
-here = fileparts(mfilename('fullpath'));
-addpath(here);
-outDir = fullfile(fileparts(here), 'output', 'NZ_Dunedin1972');
+testsDir = fileparts(mfilename('fullpath'));
+addpath(testsDir);
+outDir = fullfile(testsDir, 'output', 'NZ_Dunedin1972');
 TOL = 0.05;
 regions = {'National', 'Auckland', 'Large', 'Small', 'Urban', 'Rural'};
 scens   = {'SS0', 'SS1', 'SS2'};
