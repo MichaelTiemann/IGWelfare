@@ -1,0 +1,63 @@
+Metadata:
+  Schema_Version: "1.0"
+  Description: "Finland 2025 Observed Exergy (84.6 TWh @ 26 gCO2/kWh; €10.0B Imp - €5.6B Exp = €4.40B Net), LULUCF (+9.44 Mt Source), & 2.9% GDP Defence"
+  Anti_Double_Counting_CashTransfers_BCurr: 53.4
+
+Exergy_And_Grid:
+  e_N_elec: 0.900
+  e_F_fossil: 0.320
+  sigma_KL_X: 0.075
+  eps_y_fuel_sub: 0.480
+  eps_h_energy: 0.380
+  p_F_world_base: 0.6800
+  p_N_grid_base: 0.3100
+  Fossil_Import_Bill_SS0_BCurr: 4.40
+  K_N_Grid_Init_BCurr: 57.0
+  M_olig_grid_schedule: [1.140, 1.050, 1.020]
+  DryYear_Thermal_Share_SS0: 0.040
+  DryYear_Thermal_Share_SS2: 0.008
+  gamma_h_reg: [0.640, 0.480, 0.300, 0.180]
+  omega_y_reg: [0.095, 0.082, 0.045, 0.020]
+  ebar_subsistence_reg: [0.044, 0.032, 0.020, 0.014]
+
+Paris_NDC_And_Trade:
+  Enable_NDC_Module: true
+  E_NDC_schedule: [1.000, 0.480, 0.120]
+  MtCO2e_2025_reg: [11.80, 11.40, 7.50, 5.84]
+  tau_h_ets_schedule: [0.051, 0.075, 0.095]
+  tau_f_ets_schedule: [0.074, 0.085, 0.095]
+  kappa_pine_schedule: [0.000, 0.350, 0.750]
+  theta_ag_schedule: [0.150, 0.550, 1.000]
+  pi_green_reg: [0.040, 0.035, 0.015, 0.008]
+  chi_CBAM_reg: [0.065, 0.055, 0.020, 0.010]
+  Pi_trade_SS0: [0.970, 0.990, 1.010, 1.020]
+  Pi_trade_SS1: [1.020, 1.030, 1.030, 1.025]
+  Pi_trade_SS2: [1.050, 1.045, 1.035, 1.030]
+  xk_geo_rebate: [2.250, 2.100, 2.200, 2.050]
+  phi_ctr_rebate: 0.650
+  p_NDC_intl_BCurr_per_Mt: 0.0744
+  CERF_Pulse_BCurr: 2.20
+
+External_SOE_And_Defence:
+  r_world_real: 0.0300
+  r_dom_SS0: 0.0325
+  NFA_to_GDP_Init: 0.170
+  NFA_to_GDP_Bar: 0.170
+  psi_sov_spread: 0.0200
+  Arrow_S2_Spillover_Eta: 0.140
+  Ostrom_CoProd_Rho: 0.650
+  Ostrom_Omega_Paid: 0.720
+  Health_Reactive_Share_SS0: 0.360
+  Defence_Base_PctGDP: 0.029
+  Defence_Target_PctGDP: 0.033
+  Defence_Import_Share: 0.580
+  Waring_Shadow_Wage_Frac: 0.720
+  Household_Unpaid_Care_kFTE_SS0: 685.0
+
+Public_Asset_Stewardship:
+  Privatization_FireSale_Discount: 0.260
+  Privatized_Monopoly_Markup_Add: 0.250
+  Public_Mismanagement_TFP_Drag: 0.095
+  Stewardship_Reform_TFP_Lift: 0.155
+  Deferred_Maint_Cavity_Convexity: 2.050
+  Recompra_Irreversibility_Premium: 0.350

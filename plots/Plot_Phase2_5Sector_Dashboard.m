@@ -5,9 +5,14 @@ if nargin < 1 || isempty(Params) || ~isfield(Params, 'Profile_ID')
     Params = Configure_Model_Params(struct('dt', 3));
 end
 
-OutputDir = Resolve_IGW_OutputDir('', Params.Profile_ID);
-AnchorTag = Params.Calibration_Anchor;
-def_font  = get(0, 'DefaultAxesFontName');
+OutputDir  = Resolve_IGW_OutputDir('', Params.Profile_ID);
+AnchorTag  = Params.Calibration_Anchor;
+curr_iso_d = 'NZD'; curr_sym_d = '$'; curr_yr_d = 2026;
+if isfield(Params, 'Currency_ISO') && ~strncmpi(Params.Profile_ID, 'NZ_', 3)
+    curr_iso_d = Params.Currency_ISO;
+    curr_sym_d = Params.Currency_Symbol;
+end
+def_font   = get(0, 'DefaultAxesFontName');
 
 L_3T  = Compute_ThreeTier_NationalAccounts_Ledger(Params);
 L_AS  = Compute_Public_Asset_Stewardship_Ledger(Params);
@@ -39,7 +44,7 @@ max_bA  = max([L_2026(:); L_SS050(:); L_Ref50(:); L_Def50(:)]);
 
 bA = bar(ax1, 1:6, [L_2026(:), L_SS050(:), L_Ref50(:), L_Def50(:)], 'grouped', 'BarWidth', 0.82);
 cols_A  = {[0.35 0.45 0.58], [0.72 0.16 0.18], [0.06 0.56 0.40], [0.18 0.36 0.72]};
-names_A = {'2026 Base (2,352k FTE)', '2050 SS0 Drift', '2050 Phase II Reform', '2050 Reform + 3% Defence'};
+names_A = {sprintf('%d Base (%.0fk FTE)', curr_yr_d, sum(L_2026)), '2050 SS0 Drift', '2050 Phase II Reform', '2050 Reform + 3% Defence'};
 for k = 1:4, set(bA(k), 'FaceColor', cols_A{k}); end
 xlim(ax1, [0.4, 6.6]); ylim(ax1, [0, ceil(max_bA * 1.09 / 50) * 50]);
 set(ax1, 'XTick', 1:6, 'XTickLabel', {'S1 Primary', 'S2 Knowl z_h', 'S3 Mkt NT', 'S4A Care', 'S4B Infra', 'S5 Defence'}, ...
@@ -64,8 +69,12 @@ yyaxis(ax2, 'left'); hold(ax2, 'on'); grid(ax2, 'on'); box(ax2, 'on');
 plot(ax2, Eq_SS0.Years, Eq_SS0.Fossil_Import_BNZD_t, '--', 'Color', [0.72 0.16 0.18], 'LineWidth', 2.3);
 plot(ax2, Eq_Ref.Years, Eq_Ref.Fossil_Import_BNZD_t, '-',  'Color', [0.06 0.56 0.40], 'LineWidth', 2.7);
 plot(ax2, Eq_Def.Years, Eq_Def.Def_Imports_BNZD_t,   '-.', 'Color', [0.18 0.36 0.72], 'LineWidth', 2.3);
-ylabel(ax2, 'Annual FX Import Outflow (2026 NZD B/yr)', 'FontSize', 9.4, 'FontWeight', 'bold');
-ylim(ax2, [0, 35.0]);
+ylabel(ax2, sprintf('Annual FX Import Outflow (%d %s B/yr)', curr_yr_d, curr_iso_d), 'FontSize', 9.4, 'FontWeight', 'bold');
+y2_top = 35.0;
+if ~strncmpi(Params.Profile_ID, 'NZ_', 3)
+    y2_top = max(12.0, ceil(max([Eq_SS0.Fossil_Import_BCurr_t(:); Eq_Def.Def_Imports_BCurr_t(:)]) * 1.35 / 5.0) * 5.0);
+end
+ylim(ax2, [0, y2_top]);
 set(vfi_active_ax(ax2), 'YColor', [0.15 0.15 0.15]);
 
 yyaxis(ax2, 'right'); hold(ax2, 'on');
@@ -78,7 +87,7 @@ set(vfi_active_ax(ax2), 'YColor', [0.42 0.14 0.62], 'Color', 'none');
 % Keep yyaxis right active above opaque left axes so NFA curves are never masked by ax2's white fill!
 xlim(ax2, [2026, 2086]);
 items2 = { ...
-    '--', [0.72 0.16 0.18], 2.3, 'none', 'SS0 Fossil (~$20B/yr)'; ...
+    '--', [0.72 0.16 0.18], 2.3, 'none', sprintf('SS0 Fossil (~%s%.0fB/yr)', curr_sym_d, Eq_SS0.Fossil_Import_BCurr_t(1)); ...
     '-',  [0.06 0.56 0.40], 2.7, 'none', 'Electrified Fossil (e_N=0.88)'; ...
     '-.', [0.18 0.36 0.72], 2.3, 'none', '3% Defence FX Imports'; ...
     ':',  [0.55 0.10 0.12], 2.2, 'none', 'SS0 NFA/GDP (%) [Right]'; ...
@@ -109,7 +118,7 @@ items3 = { ...
     'bar', [0.05 0.58 0.38], 1.0, 'none', 'Tier 2: Atkinson-Waring Output (+Care/Vol - Y_rem)'};
 meta3 = igw_smart_incanvas_legend(ax3, items3, struct('FontSize', 6.9, 'MarginPt', 4.0, 'PreferLocs', {{'northwest'}}, 'AutoExpandY', false));
 
-ylabel(ax3, '2050 Real Annual Output (2026 NZD B/yr)', 'FontSize', 9.6, 'FontWeight', 'bold');
+ylabel(ax3, sprintf('2050 Real Annual Output (%d %s B/yr)', curr_yr_d, curr_iso_d), 'FontSize', 9.6, 'FontWeight', 'bold');
 title(ax3, 'C. Three-Tier Scorecard: SNA GDP vs. Atkinson-Waring Satellite Account', ...
     'Interpreter', 'none', 'FontName', def_font, 'FontSize', 10.3, 'FontWeight', 'bold');
 
@@ -131,18 +140,23 @@ ylim(ax4, [floor(min(Cum4(:)) - 75), ceil(max(Cum4(:)) + 65)]);
 
 items4 = { ...
     '--', [0.55 0.35 0.15], 2.3, 'none', sprintf('1. Mismanaged + Deferred Maint (2%% PV: %+.0fB)', L_AS.SummaryTable.Net_Societal_PV_2pct_BNZD(1)); ...
-    '-',  [0.78 0.12 0.16], 2.5, 'v',    sprintf('2. Fire-Sale (+$%.0fB Cash -> 2%% PV: %+.0fB)', L_AS.SummaryTable.Crown_Cash_Yr0to3_BNZD(2), L_AS.SummaryTable.Net_Societal_PV_2pct_BNZD(2)); ...
+    '-',  [0.78 0.12 0.16], 2.5, 'v',    sprintf('2. Fire-Sale (+%s%.0fB Cash -> 2%% PV: %+.0fB)', curr_sym_d, L_AS.SummaryTable.Crown_Cash_Yr0to3_BNZD(2), L_AS.SummaryTable.Net_Societal_PV_2pct_BNZD(2)); ...
     '-.', [0.22 0.48 0.72], 2.3, 'none', sprintf('3. Ring-Fenced Maint Only (2%% PV: %+.0fB)', L_AS.SummaryTable.Net_Societal_PV_2pct_BNZD(3)); ...
     '-',  [0.04 0.56 0.36], 2.8, '^',    sprintf('4. Public Stewardship Turnaround (2%% PV: %+.0fB)', L_AS.SummaryTable.Net_Societal_PV_2pct_BNZD(4))};
 meta4 = igw_smart_incanvas_legend(ax4, items4, struct('FontSize', 6.8, 'MarginPt', 4.0, 'PreferLocs', {{'southwest'}}, 'AutoExpandY', false));
 
-text(ax4, 2027.4, -435, sprintf('Privatization Loss: -NZD %.1fB (2%% SRTP)\nYr-10 Buyback Cost: NZD %.1fB', ...
-    L_AS.Opportunity_Loss_2pct_B, L_AS.Buyback_Cost_Yr10_BNZD), ...
+yl4_cur  = ylim(ax4);
+y_txt_d4 = -435;
+if ~strncmpi(Params.Profile_ID, 'NZ_', 3)
+    y_txt_d4 = yl4_cur(1) + 0.32 * (yl4_cur(2) - yl4_cur(1));
+end
+text(ax4, 2027.4, y_txt_d4, sprintf('Privatization Loss: -%s %.1fB (2%% SRTP)\nYr-10 Buyback Cost: %s %.1fB', ...
+    curr_iso_d, L_AS.Opportunity_Loss_2pct_B, curr_iso_d, L_AS.Buyback_Cost_Yr10_BCurr), ...
     'Interpreter', 'none', 'FontName', def_font, 'FontSize', 7.5, 'FontWeight', 'bold', ...
     'Color', [0.65 0.05 0.10], 'BackgroundColor', [1.0 0.97 0.97], 'EdgeColor', [0.78 0.12 0.16], 'Margin', 2.2, 'Clipping', 'on');
 
-xlabel(ax4, 'Horizon Year (NZD 50B Network/Grid Asset Block)', 'FontSize', 9.6, 'FontWeight', 'bold');
-ylabel(ax4, 'Cumulative Net Societal Value (NZD B)', 'FontSize', 9.6, 'FontWeight', 'bold');
+xlabel(ax4, sprintf('Horizon Year (%s %.0fB Network/Grid Asset Block)', curr_iso_d, L_AS.Asset_Book_Value_BCurr), 'FontSize', 9.6, 'FontWeight', 'bold');
+ylabel(ax4, sprintf('Cumulative Net Societal Value (%s B)', curr_iso_d), 'FontSize', 9.6, 'FontWeight', 'bold');
 title(ax4, 'D. Public Assets on the Block: Privatization Mirage vs. Governance Reform', ...
     'Interpreter', 'none', 'FontName', def_font, 'FontSize', 10.3, 'FontWeight', 'bold');
 

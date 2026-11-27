@@ -1,0 +1,6 @@
+# Macro Transition Law-of-Motion Anchors: Finland 1967 -> SS1 (2025 Observed) -> SS2 (Full Builder & Fertility Harvest)
+Origin_ID,Pi_SS1_Rural,Pi_SS1_Small,Pi_SS1_Large,Pi_SS1_Helsinki,Pi_SS2_Rural,Pi_SS2_Small,Pi_SS2_Large,Pi_SS2_Helsinki,Intl_Inflow_Share,Q_init_trans,Emig_0,Emig_SS1,Emig_SS2
+Rural,0.78,0.08,0.08,0.06,0.83,0.07,0.06,0.04,0.08,0.90,0.095,0.028,0.018
+Small,0.04,0.77,0.10,0.09,0.04,0.82,0.08,0.06,0.12,1.25,0.078,0.032,0.020
+Large,0.03,0.05,0.82,0.10,0.03,0.05,0.84,0.08,0.26,1.75,0.065,0.042,0.025
+Helsinki,0.02,0.04,0.08,0.86,0.03,0.05,0.08,0.84,0.54,2.45,0.058,0.048,0.028

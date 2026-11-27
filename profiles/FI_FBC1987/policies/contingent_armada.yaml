@@ -1,0 +1,36 @@
+# Layer 3 State-Contingent Policy Governance Contract
+Policy_ID: TeKahuiWaka_Contingent
+Default_Rollout_Mode: TeKahuiWaka
+SS2_Track_CSV: "ss2_dividend_harvest.csv"
+Announcement_Mode: PreAnnounced
+Default_SS2_Fallback_Year: 25
+
+Gates:
+  - Gate_ID: Unlock_YouthGrant_Echelons
+    Target_Track: YGr_New
+    Min_Year: 6
+    Fallback_Year: 7
+    Logic: all_of
+    Conditions:
+      - Metric: ECE_Active_Share_Nat
+        Op: ">="
+        Threshold: 0.60
+      - Metric: Fiscal_Drawdown_GDP_Pct
+        Op: "<="
+        Threshold: 0.025
+
+  - Gate_ID: Unlock_SS2_Dividend_Harvest
+    Target_Track: SS2_Transition
+    Min_Year: 15
+    Fallback_Year: 25
+    Logic: all_of
+    Conditions:
+      - Metric: Struggling_Share_Nat
+        Op: "<="
+        Threshold: 0.125
+      - Metric: Youth_Emig_Cut_Share
+        Op: ">="
+        Threshold: 0.35
+      - Metric: Booked_Fiscal_Ratio_2pct
+        Op: ">="
+        Threshold: 1.50

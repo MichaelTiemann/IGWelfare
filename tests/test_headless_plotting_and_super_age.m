@@ -50,7 +50,7 @@ j_fert_vec = [2, 3, 4];
 sj_ref = 0.985 .^ ((0:(J - 1))' * 0.25);            % 16 five-year cohorts (ages 20..99)
 
 Params = struct();
-Params.super_age_base           = 65.0;
+Params.Super_Age_Base           = 65.0;
 Params.eta_elder_whanau         = 0.08;
 Params.kappa_kuia_max           = 0.15;
 Params.tau_kuia_sat             = 3.0;
@@ -66,7 +66,7 @@ Params.lambda_offset_decay_u65  = 0.12;
 Params.omega_acc_offset_under65 = 0.30;
 Params.nu_peak_earn_u65         = 1.15;
 Params.nu_peak_earn_slope_u65   = 0.03;
-Params.dep_ratio_2026_anchor    = 28.5;
+Params.Dep_Ratio_Anchor    = 28.5;
 Params.beta_aging_tax_drift     = 0.35;
 Params.beta_exits_skill_div     = 0.12;
 Params.psi_austerity_tax_drag   = 0.08;

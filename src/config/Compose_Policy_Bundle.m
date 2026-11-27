@@ -81,40 +81,76 @@ BundleMeta.Core13Scale      = s_core13;
 BundleMeta.DirectScale      = s_direct;
 BundleMeta.Catalog_Digest   = Catalog.Digest;
 
+HH_Names_4   = strcat('HH_',   Regions);
+Firm_Names_4 = strcat('Firm_', Regions);
+zf4_field    = ['z_f_', Regions{4}];
+is_nz_prof   = strncmpi(get_def(Params_Out, 'Profile_ID', 'NZ_Dunedin1972'), 'NZ_', 3);
+
 %% ========================================================================
 %  ANCHOR MODE: PRE-SHOCK 2023 BASELINE ECONOMY (SS0_2023)
 %  ========================================================================
 if is_reanchor
-    Params_Out.Debt_to_GDP_Init         = 0.405;
-    Params_Out.tau_l                    = 0.220;
-    Params_Out.tau_k                    = 0.250;
-    Params_Out.tau_a                    = 0.000;
-    Params_Out.tau_b                    = 0.000;
-    Params_Out.lambda_col               = 1.800;
-    Params_Out.V_Abroad_SkillPrem_Shift = 0.000;
+    if is_nz_prof
+        Params_Out.Debt_to_GDP_Init         = 0.405;
+        Params_Out.tau_l                    = 0.220;
+        Params_Out.tau_k                    = 0.250;
+        Params_Out.tau_a                    = 0.000;
+        Params_Out.tau_b                    = 0.000;
+        Params_Out.lambda_col               = 1.800;
+        Params_Out.V_Abroad_SkillPrem_Shift = 0.000;
 
-    Params_Out.upsilon_h                = 0.0095;
-    Params_Out.mu_maint_base            = 0.0400;
-    Params_Out.mu_rates_wedge_vec       = [0.0, 0.0, 0.0, 0.0];
-    Params_Out.Q_k_vec                  = [1.03, 1.37, 2.00, 3.02];
-    Params_Out.Q_reg_base_vec           = [1.03, 1.37, 2.00, 3.02];
-    Params_Out.w_k_vec                  = [0.85, 0.93, 1.05, 1.18];
-    Params_Out.ebar_k_vec               = [0.048, 0.036, 0.022, 0.016];
-    Params_Out.sj_base                  = Params_Out.sj;
+        Params_Out.upsilon_h                = 0.0095;
+        Params_Out.mu_maint_base            = 0.0400;
+        Params_Out.mu_rates_wedge_vec       = [0.0, 0.0, 0.0, 0.0];
+        Params_Out.Q_k_vec                  = [1.03, 1.37, 2.00, 3.02];
+        Params_Out.Q_reg_base_vec           = [1.03, 1.37, 2.00, 3.02];
+        Params_Out.w_k_vec                  = [0.85, 0.93, 1.05, 1.18];
+        Params_Out.ebar_k_vec               = [0.048, 0.036, 0.022, 0.016];
+        Params_Out.sj_base                  = Params_Out.sj;
 
-    Params_Out.G_ECE_1                  = 0.045;
-    Params_Out.G_ECE_2                  = 0.065;
-    Params_Out.gbar_ece                 = 0.020;
-    Params_Out.YouthGrant               = 0.030;
-    Params_Out.M_mentor                 = 0.150;
-    Params_Out.nu_kaiako                = 0.350;
-    Params_Out.alpha_I                  = 0.090;
-    Params_Out.delta_hc_mult            = 1.000;
+        Params_Out.G_ECE_1                  = 0.045;
+        Params_Out.G_ECE_2                  = 0.065;
+        Params_Out.gbar_ece                 = 0.020;
+        Params_Out.YouthGrant               = 0.030;
+        Params_Out.M_mentor                 = 0.150;
+        Params_Out.nu_kaiako                = 0.350;
+        Params_Out.alpha_I                  = 0.090;
+        Params_Out.delta_hc_mult            = 1.000;
 
-    Params_Out.z_f_Rural                = [0.70, 1.15];
-    Params_Out.z_f_Small                = [0.75, 1.28];
-    Params_Out.z_f_Large                = [0.83, 1.50];
-    Params_Out.z_f_Auckland             = [0.90, 1.75];
+        Params_Out.z_f_Rural                = [0.70, 1.15];
+        Params_Out.z_f_Small                = [0.75, 1.28];
+        Params_Out.z_f_Large                = [0.83, 1.50];
+        Params_Out.z_f_Auckland             = [0.90, 1.75];
+    else
+        % Preserve non-NZ profile empirical Layer-1 anchors loaded by Apply_Empirical_Data:
+        Q_prof_row = ptype_to_row(get_def(Params_Out, 'Q_reg',       struct()), HH_Names_4, [1.03, 1.37, 2.00, 3.02]);
+        w_prof_row = ptype_to_row(get_def(Params_Out, 'w_reg',       struct()), HH_Names_4, [0.85, 0.93, 1.05, 1.18]);
+        e_prof_row = ptype_to_row(get_def(Params_Out, 'ebar_energy', struct()), HH_Names_4, [0.048, 0.036, 0.022, 0.016]);
+        Params_Out.V_Abroad_SkillPrem_Shift = 0.000;
+        Params_Out.mu_rates_wedge_vec       = [0.0, 0.0, 0.0, 0.0];
+        Params_Out.Q_k_vec                  = Q_prof_row;
+        Params_Out.Q_reg_base_vec           = Q_prof_row;
+        Params_Out.w_k_vec                  = w_prof_row;
+        Params_Out.ebar_k_vec               = e_prof_row;
+        Params_Out.sj_base                  = Params_Out.sj;
+        Params_Out.tau_l_base_anchor        = get_def(Params_Out, 'tau_l', 0.220);
+        Params_Out.tau_k_base_anchor        = get_def(Params_Out, 'tau_k', 0.250);
+        Params_Out.G_ECE_1                  = Params_Out.G_ece1_sched(1);
+        Params_Out.G_ECE_2                  = Params_Out.G_ece2_sched(1);
+        Params_Out.YouthGrant               = Params_Out.YouthGrant_sched(1);
+        Params_Out.delta_hc_mult            = 1.000;
+        def_zf = [0.70, 0.75, 0.83, 0.90; 1.15, 1.28, 1.50, 1.75];
+        for r_i = 1:4
+            fn_z = ['z_f_', Regions{r_i}];
+            ft_z = Firm_Names_4{r_i};
+            if isfield(Params_Out, 'z_f_grid') && isfield(Params_Out.z_f_grid, ft_z)
+                Params_Out.(fn_z) = Params_Out.z_f_grid.(ft_z)(:)';
+            else
+                Params_Out.(fn_z) = def_zf(:, r_i)';
+            end
+        end
+        Params_Out.zh_ref_base_row = cellfun(@(r) Params_Out.(['z_f_', r])(2), Regions);
+    end
 
     [Params_Out, BundleMeta, z_grid_Out] = sync_and_diagnose(Params_Out, Regions, BundleMeta, z_grid_Out, true);
     return;
@@ -159,13 +195,13 @@ zh_reg_0  = get_def(Params_Out, 'Z_h_reg_mult',             [1.0, 1.0, 1.0, 1.0]
 v_abr_r_0 = get_def(Params_Out, 'V_Abroad_Reg_Shift',       [0.0, 0.0, 0.0, 0.0]);
 coh_0     = get_def(Params_Out, 'Cohesion_Shock_Pts',       0.000);
 rspr_0    = get_def(Params_Out, 'r_sov_spread',             0.000);
-ndc_dr_0  = get_def(Params_Out, 'Offshore_NDC_Drain_BNZD',  0.000);
+ndc_dr_0  = get_def(Params_Out, 'Offshore_NDC_Drain_BCurr', get_def(Params_Out, 'Offshore_NDC_Drain_BNZD', 0.000));
 eps_e_0   = get_def(Params_Out, 'eps_h_energy',             0.350);
 
 zf_R_0 = get_def(Params_Out, 'z_f_Rural',    [0.70, 1.15]);
 zf_S_0 = get_def(Params_Out, 'z_f_Small',    [0.75, 1.28]);
 zf_L_0 = get_def(Params_Out, 'z_f_Large',    [0.83, 1.50]);
-zf_A_0 = get_def(Params_Out, 'z_f_Auckland', [0.90, 1.75]);
+zf_A_0 = get_def(Params_Out, zf4_field,      get_def(Params_Out, 'z_f_Auckland', [0.90, 1.75]));
 
 % Commutative sum & product accumulators:
 debt_add   = 0.0; tau_l_add  = 0.0; tau_k_add  = 0.0; tau_a_add = 0.0; tau_b_add = 0.0;
@@ -558,7 +594,7 @@ Params_Out.psi_unemp_adol           = adol_0 * adol_mult;
 Params_Out.z_f_Rural                = [zf_R_0(1) * zfl_mult(1), zf_R_0(2) * zfh_mult(1)];
 Params_Out.z_f_Small                = [zf_S_0(1) * zfl_mult(2), zf_S_0(2) * zfh_mult(2)];
 Params_Out.z_f_Large                = [zf_L_0(1) * zfl_mult(3), zf_L_0(2) * zfh_mult(3)];
-Params_Out.z_f_Auckland             = [zf_A_0(1) * zfl_mult(4), zf_A_0(2) * zfh_mult(4)];
+Params_Out.(zf4_field)              = [zf_A_0(1) * zfl_mult(4), zf_A_0(2) * zfh_mult(4)];
 
 Params_Out.lambda_psy_vec           = min(0.65, max(0.16, lam_psy_0 .* lam_psy_mult));
 Params_Out.psi_club_buffer_vec      = club_0   .* club_mult;
@@ -566,6 +602,7 @@ Params_Out.Z_h_reg_mult             = zh_reg_0 .* zh_reg_mult;
 Params_Out.V_Abroad_Reg_Shift       = v_abr_r_0 + v_abr_r_add;
 Params_Out.Cohesion_Shock_Pts       = coh_0 + coh_add;
 Params_Out.r_sov_spread             = max(-0.015, rspr_0 + rspr_add);
+Params_Out.Offshore_NDC_Drain_BCurr = ndc_dr_0 + ndc_add;
 Params_Out.Offshore_NDC_Drain_BNZD  = ndc_dr_0 + ndc_add;
 Params_Out.eps_h_energy             = min(0.95, max(0.15, eps_e_0 + eps_e_add));
 
@@ -856,23 +893,25 @@ G1_eff_row = ptype_to_row(P.G_ECE_1_eff,  HH_Names, repmat(g1_sched0, 1, 4));
 Q_reg_row  = ptype_to_row(P.Q_reg,        HH_Names, Q_base_row);
 v_abr_row  = ptype_to_row(P.V_Abroad_Add, HH_Names, zeros(1, 4));
 zh_now_row = cellfun(@(f) P.z_f_grid.(f)(2), Firm_Names);
-zh_ref_row = [1.15, 1.28, 1.50, 1.75];
+zh_ref_row = get_def(P, 'zh_ref_base_row', [1.15, 1.28, 1.50, 1.75]);
 
-tau_l_now   = get_def(P, 'tau_l', 0.220);
-tau_k_now   = get_def(P, 'tau_k', 0.250);
+tau_l_ref   = get_def(P, 'tau_l_base_anchor', 0.220);
+tau_k_ref   = get_def(P, 'tau_k_base_anchor', 0.250);
+tau_l_now   = get_def(P, 'tau_l', tau_l_ref);
+tau_k_now   = get_def(P, 'tau_k', tau_k_ref);
 v_abroad_sc = get_def(P, 'V_Abroad_SkillPrem_Shift', 0.0);
 y_grant     = get_def(P, 'YouthGrant', ygr_sched0);
 coh_direct  = get_def(P, 'Cohesion_Shock_Pts', 0.0);
 
 d_Strug_row = max(-0.205, -0.38 * (G1_eff_row - g1_sched0) ...
     + 0.045 * (Q_reg_row - Q_base_row) ...
-    + 0.15  * (tau_l_now - 0.220));
+    + 0.15  * (tau_l_now - tau_l_ref));
 
 d_Emig_row  = max(-0.050,  0.32  * (v_abroad_sc + v_abr_row) ...
     + 0.042 * (Q_reg_row  - Q_base_row) ...
     - 0.45  * (y_grant    - ygr_sched0) ...
-    + 0.35  * (tau_l_now  - 0.220) ...
-    + 0.18  * (tau_k_now  - 0.250) ...
+    + 0.35  * (tau_l_now  - tau_l_ref) ...
+    + 0.18  * (tau_k_now  - tau_k_ref) ...
     - 0.06  * (zh_now_row - zh_ref_row));
 d_Churn_row = max(0.0, 0.65 * d_Emig_row);
 
@@ -888,13 +927,15 @@ base_emig_nat  = get_def(P, 'Base_Emig_Share', base_emig_row * w_hh_col);
 civic_norm_row = [0.75, 0.85, 2.10, 1.35] / ([0.75, 0.85, 2.10, 1.35] * w_hh_col);
 St_reg_row     = 100.0 - 125.0 * d_Strug_row - 160.0 * d_Emig_row - 85.0 * d_Churn_row + coh_direct * civic_norm_row;
 
-Meta.Struggling_By_PType     = row_to_ptype(base_strug_row + d_Strug_row, HH_Names);
-Meta.Emig_By_PType           = row_to_ptype(base_emig_row  + d_Emig_row,  HH_Names);
-Meta.Cohesion_St_By_PType    = row_to_ptype(St_reg_row,                   HH_Names);
-Meta.Frac_Struggling_Imputed = (base_strug_row + d_Strug_row) * w_hh_col;
-Meta.Emig_Nat_Imputed        = base_emig_nat + (d_Emig_row * w_hh_col);
+strug_bounded_row            = max(0.005, base_strug_row + d_Strug_row);
+emig_bounded_row             = max(0.005, base_emig_row  + d_Emig_row);
+Meta.Struggling_By_PType     = row_to_ptype(strug_bounded_row, HH_Names);
+Meta.Emig_By_PType           = row_to_ptype(emig_bounded_row,  HH_Names);
+Meta.Cohesion_St_By_PType    = row_to_ptype(St_reg_row,        HH_Names);
+Meta.Frac_Struggling_Imputed = strug_bounded_row * w_hh_col;
+Meta.Emig_Nat_Imputed        = emig_bounded_row  * w_hh_col;
 Meta.Social_Cohesion_St      = St_reg_row * w_hh_col;
-Meta.TI_Social_Credit_CPI    = 81.0 + 0.423 * (Meta.Social_Cohesion_St - 100.0);
+Meta.TI_Social_Credit_CPI    = min(100.0, 81.0 + 0.423 * (Meta.Social_Cohesion_St - 100.0));
 end
 
 function [P, z_grid_Out] = sync_regional_ptypes(P, Regions, HH_Names, Firm_Names, Q_base_row, Q_vec, scale_dt, z_grid_Out, is_reanchor)
@@ -911,8 +952,9 @@ lam_psy_vec  = get_def(P, 'lambda_psy_vec',     [0.38, 0.38, 0.38, 0.38]);
 club_vec     = get_def(P, 'psi_club_buffer_vec',[1, 1, 1, 1]);
 
 def_zf_mat    = [0.70, 0.75, 0.83, 0.90; 1.15, 1.28, 1.50, 1.75];
-zh_ref_vec    = [1.15, 1.28, 1.50, 1.75];
-tau_k_delta   = get_def(P, 'tau_k', 0.250)      - 0.250;
+zh_ref_vec    = get_def(P, 'zh_ref_base_row', [1.15, 1.28, 1.50, 1.75]);
+tau_k_ref     = get_def(P, 'tau_k_base_anchor', 0.250);
+tau_k_delta   = get_def(P, 'tau_k', tau_k_ref)  - tau_k_ref;
 lam_col_delta = get_def(P, 'lambda_col', 1.800) - 1.800;
 r_spread_ann  = get_def(P, 'r_sov_spread', 0.0);
 w_ge_vec      = w_direct_vec;

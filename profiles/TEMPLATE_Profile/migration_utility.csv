@@ -1,0 +1,6 @@
+# Canonical 4x5 Gumbel Migration Utility Matrix u_target_4x5 [Origin x (Rural, Small, Large, Auckland, Abroad)]
+Origin_ID,To_Rural,To_Small,To_Large,To_Auckland,To_External
+Rural,2.85,1.15,0.65,0.15,-0.82
+Small,0.55,2.45,1.05,0.45,0.65
+Large,-0.25,0.45,2.15,1.05,1.45
+Auckland,-0.45,0.15,0.65,2.55,0.16

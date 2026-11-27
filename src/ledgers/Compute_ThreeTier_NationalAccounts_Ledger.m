@@ -41,7 +41,11 @@ for r = 1:nR
 
     % Imputed Waring shadow value of unpaid household + civic volunteer care (BNZD/yr):
     % Calibrated so 79.0 kFTE civic volunteers = NZD 6.70B/yr at 2026 baseline (JBWere 2026)!
-    bnzd_per_vol_kfte = (6.70 / 79.0) * Eq.Wage_Index_t;
+    curr_scale_vol = 1.0;
+    if isfield(Params, 'Currency_Base_Scale') && ~strncmpi(Params.Profile_ID, 'NZ_', 3)
+        curr_scale_vol = Params.Currency_Base_Scale / 95.0;
+    end
+    bnzd_per_vol_kfte = (6.70 / 79.0) * curr_scale_vol * Eq.Wage_Index_t;
     Imputed_Civic_BNZD_t = Eq.Vol_Civic_kFTE_t .* bnzd_per_vol_kfte;
     Imputed_Home_BNZD_t  = Eq.Care_Home_kFTE_t .* (SOE_waring_mult(Sec) * bnzd_per_vol_kfte);
     Total_Unpaid_Care_t  = Imputed_Civic_BNZD_t + Imputed_Home_BNZD_t;

@@ -18,8 +18,8 @@ if isfield(Params, 'tau_l') && ~isempty(Params.tau_l)
 else
     tau_l_base = 0.220;
 end
-if isfield(Params, 'super_age_SS2') && ~isempty(Params.super_age_SS2)
-    super_age_ss2_target = Params.super_age_SS2;
+if isfield(Params, 'Super_Age_SS2') && ~isempty(Params.Super_Age_SS2)
+    super_age_ss2_target = Params.Super_Age_SS2;
 elseif isfield(Params, 'super_age') && ~isempty(Params.super_age)
     super_age_ss2_target = Params.super_age;
 else

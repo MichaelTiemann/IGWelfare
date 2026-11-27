@@ -1,0 +1,25 @@
+# Implementation Friction, Workforce Bottleneck, & Inter-Wave Learning Parameters (PR #18)
+tau_friction_0: 0.280
+tau_friction_floor: 0.035
+gamma_learning: 0.450
+phi_adj_bottleneck: 0.180
+delta_adopt_ece: 0.220
+lambda_adopt_ece: 0.350
+T_ramp_LVT_yrs: 10.0
+T_ramp_CGT_Est_yrs: 3.0
+T_ramp_CorpCut_yrs: 10.0
+
+TeKahuiWaka:
+  Schedule_CSV: "te_kahui_waka_13yr.csv"
+  eta_delivery_SS1: [0.955, 0.955, 0.962, 0.968]
+  eta_delivery_SS2: [0.985, 0.985, 0.988, 0.990]
+
+SingleShot:
+  Schedule_CSV: "single_shot.csv"
+  eta_delivery_SS1: [0.835, 0.825, 0.810, 0.795]
+  eta_delivery_SS2: [0.910, 0.905, 0.895, 0.885]
+
+Frictionless_Textbook:
+  Schedule_CSV: "single_shot.csv"
+  eta_delivery_SS1: [1.000, 1.000, 1.000, 1.000]
+  eta_delivery_SS2: [1.000, 1.000, 1.000, 1.000]

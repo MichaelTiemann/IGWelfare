@@ -39,6 +39,16 @@ if isempty(pol_dir)
 end
 
 CatTable   = Read_IGW_CSV(fullfile(pol_dir, 'commitment_catalog.csv'));
+if isfield(CatTable, 'Claimed_4Yr_BCurr') && ~isfield(CatTable, 'Claimed_4Yr_BNZD')
+    CatTable.Claimed_4Yr_BNZD = CatTable.Claimed_4Yr_BCurr;
+elseif isfield(CatTable, 'Claimed_4Yr_BNZD') && ~isfield(CatTable, 'Claimed_4Yr_BCurr')
+    CatTable.Claimed_4Yr_BCurr = CatTable.Claimed_4Yr_BNZD;
+end
+if isfield(CatTable, 'Claimed_Pos_4Yr_BCurr') && ~isfield(CatTable, 'Claimed_Pos_4Yr_BNZD')
+    CatTable.Claimed_Pos_4Yr_BNZD = CatTable.Claimed_Pos_4Yr_BCurr;
+elseif isfield(CatTable, 'Claimed_Pos_4Yr_BNZD') && ~isfield(CatTable, 'Claimed_Pos_4Yr_BCurr')
+    CatTable.Claimed_Pos_4Yr_BCurr = CatTable.Claimed_Pos_4Yr_BNZD;
+end
 BundleSpec = Read_IGW_YAML(fullfile(pol_dir, 'policy_bundles.yaml'));
 
 cids    = CatTable.Commitment_ID(:);

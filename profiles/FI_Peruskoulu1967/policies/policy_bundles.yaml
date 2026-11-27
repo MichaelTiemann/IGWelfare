@@ -1,0 +1,287 @@
+Metadata:
+  Schema_Version: "1.1"
+  Catalog_File: "commitment_catalog.csv"
+  Convention: "Convention_2_Ongoing_Institutional_Commitments"
+  Default_Core13_PassThrough: 0.5915
+
+baseline_2023:
+  Label: "0. Pre-Shock 2023 Baseline Anchor (SS0_2023)"
+  Reanchor_2023: true
+
+retrenchment_and_tenure_10:
+  Label: "1. Central Retrenchment & Rental Tax Deductibility (10 Commitments)"
+  Legacy_Alias: "austerity_landlord_only"
+  C01_tenure_tax_neutrality: -1.0
+  C02_public_rd_and_science_capacity: -1.0
+  C03_core_public_service_workforce: -1.0
+  C04_interisland_rail_ferry_corridor: -1.0
+  C05_acute_hospital_and_clinical_capacity: -1.0
+  C06_early_years_and_care_pay_equity: -1.0
+  C07_tertiary_access_and_adult_upskilling: -1.0
+  C08_smokefree_public_health_excise: -1.0
+  C12_educator_real_remuneration_parity: -1.0
+  C13_retirement_match_and_social_rent_buffer: -1.0
+
+tax_visa_expensing_3:
+  Label: "2. Personal Tax Relief, Investor Visa & 20% Asset Expensing (3 Commitments)"
+  Legacy_Alias: "pro_growth_only"
+  C09_working_age_tax_threshold_relief: 1.0
+  C10_investor_visa_capital_inflow: 1.0
+  C11_accelerated_business_asset_expensing: 1.0
+
+combined_13_commitments:
+  Label: "3A. Combined 13 Central Commitments (Retrenchment + Tax/Visa/Expensing)"
+  Legacy_Alias: "first_13_shocks"
+  C01_tenure_tax_neutrality: -1.0
+  C02_public_rd_and_science_capacity: -1.0
+  C03_core_public_service_workforce: -1.0
+  C04_interisland_rail_ferry_corridor: -1.0
+  C05_acute_hospital_and_clinical_capacity: -1.0
+  C06_early_years_and_care_pay_equity: -1.0
+  C07_tertiary_access_and_adult_upskilling: -1.0
+  C08_smokefree_public_health_excise: -1.0
+  C09_working_age_tax_threshold_relief: 1.0
+  C10_investor_visa_capital_inflow: 1.0
+  C11_accelerated_business_asset_expensing: 1.0
+  C12_educator_real_remuneration_parity: -1.0
+  C13_retirement_match_and_social_rent_buffer: -1.0
+
+water_stewardship_shift:
+  Label: "4. Municipal Water Balance-Sheet Shift & Rates Cap Alone (C14 = -1)"
+  Legacy_Alias: "rates_cap_3_waters"
+  C14_national_water_balance_sheet_stewardship: -1.0
+
+civic_commons_contraction:
+  Label: "5A. Cultural, Youth-Sport & Municipal Civic Contraction Alone (C15 = -1)"
+  Legacy_Alias: "arts_and_civic_cuts"
+  C15_grassroots_arts_sport_and_civic_commons: -1.0
+
+civic_commons_expansion_doc1e:
+  Label: "5B. Document 1E Grassroots Civic & Creative Co-Investment Alone (C15 = +1)"
+  Legacy_Alias: "arts_and_civic_investment"
+  C15_grassroots_arts_sport_and_civic_commons: 1.0
+
+domestic_15_bundle:
+  Label: "3B. Full 15 Domestic Commitments (Central 13 + Water Shift + Civic Contraction)"
+  Legacy_Alias: "all_but_ndc"
+  C01_tenure_tax_neutrality: -1.0
+  C02_public_rd_and_science_capacity: -1.0
+  C03_core_public_service_workforce: -1.0
+  C04_interisland_rail_ferry_corridor: -1.0
+  C05_acute_hospital_and_clinical_capacity: -1.0
+  C06_early_years_and_care_pay_equity: -1.0
+  C07_tertiary_access_and_adult_upskilling: -1.0
+  C08_smokefree_public_health_excise: -1.0
+  C09_working_age_tax_threshold_relief: 1.0
+  C10_investor_visa_capital_inflow: 1.0
+  C11_accelerated_business_asset_expensing: 1.0
+  C12_educator_real_remuneration_parity: -1.0
+  C13_retirement_match_and_social_rent_buffer: -1.0
+  C14_national_water_balance_sheet_stewardship: -1.0
+  C15_grassroots_arts_sport_and_civic_commons: -1.0
+
+ndc_clean_energy_rollback:
+  Label: "6A. Paris NDC Shortfall & Clean-Car Rollback Alone (C16 = -1)"
+  Legacy_Alias: "ndc"
+  C16_paris_ndc_and_clean_energy_transition: -1.0
+
+ndc_clean_exergy_upgrade:
+  Label: "6B. CERF Electrification, Spatial Carbon Rebate & Clean-Green Upgrade (C16 = +1)"
+  Legacy_Alias: "ndc_clean_green"
+  C16_paris_ndc_and_clean_energy_transition: 1.0
+
+full_16_commitments:
+  Label: "3C. Full 16-Commitment 2024-2026 Vector (Domestic 15 + NDC/EV Rollback)"
+  Legacy_Alias: "full_16_shocks"
+  C01_tenure_tax_neutrality: -1.0
+  C02_public_rd_and_science_capacity: -1.0
+  C03_core_public_service_workforce: -1.0
+  C04_interisland_rail_ferry_corridor: -1.0
+  C05_acute_hospital_and_clinical_capacity: -1.0
+  C06_early_years_and_care_pay_equity: -1.0
+  C07_tertiary_access_and_adult_upskilling: -1.0
+  C08_smokefree_public_health_excise: -1.0
+  C09_working_age_tax_threshold_relief: 1.0
+  C10_investor_visa_capital_inflow: 1.0
+  C11_accelerated_business_asset_expensing: 1.0
+  C12_educator_real_remuneration_parity: -1.0
+  C13_retirement_match_and_social_rent_buffer: -1.0
+  C14_national_water_balance_sheet_stewardship: -1.0
+  C15_grassroots_arts_sport_and_civic_commons: -1.0
+  C16_paris_ndc_and_clean_energy_transition: -1.0
+
+public_asset_privatization:
+  Label: "7A. Distressed Public Network/Grid Privatization (C17 = -1)"
+  C17_public_network_asset_stewardship: -1.0
+
+public_asset_governance_reform:
+  Label: "7B. Ostrom & Commercial-Board Public Asset Turnaround (C17 = +1)"
+  C17_public_network_asset_stewardship: 1.0
+
+defence_3pct_gdp_posture:
+  Label: "8. Sovereign Defence Capability Uplift to 3.0% of GDP (C18 = +1)"
+  C18_sovereign_defence_capability_posture: 1.0
+
+# ==============================================================================
+# CONSTRUCTIVE SS1 & SS2 PILLARS, SYNERGY WEDGES & POST-2024 RECOVERY BUNDLES
+# (Sparse Codes C21..C28; C19..C20 and C29+ remain unallocated outside ndc branch)
+# ==============================================================================
+
+wedge1_dualgate_hc:
+  Label: "9A. Cunha-Heckman Dual-Gate Human Capital Stack (C21 + C22 -> Wedge 1)"
+  Legacy_Alias: "wedge1"
+  C21_ss1_first_2000_days_universal_ece: 1.0
+  C22_ss1_adolescent_tuakana_mentoring: 1.0
+
+wedge2_lvr_whanau_spatial:
+  Label: "9B. Land/Estate Rebalance, Youth Grant & Geo Bridge (C23..C25 -> Wedge 2)"
+  Legacy_Alias: "wedge2"
+  C23_ss1_land_estate_fiscal_rebalance: 1.0
+  C24_ss1_age20_youth_capital_grant: 1.0
+  C25_ss1_income_geography_bridge: 1.0
+
+ss1_clean_base:
+  Label: "10A. Phase-1 Generational Foundation on Clean 2023 Base (SS1: +C21..C26)"
+  Legacy_Alias: "ss1"
+  C21_ss1_first_2000_days_universal_ece: 1.0
+  C22_ss1_adolescent_tuakana_mentoring: 1.0
+  C23_ss1_land_estate_fiscal_rebalance: 1.0
+  C24_ss1_age20_youth_capital_grant: 1.0
+  C25_ss1_income_geography_bridge: 1.0
+  C26_ss1_productive_zh_firm_and_foodhubs: 1.0
+
+ss2_clean_base:
+  Label: "10B. Full Unified 4-Coalition Compact on Clean 2023 Base (SS1->SS2: +C21..C28)"
+  Legacy_Alias: "ss2"
+  C21_ss1_first_2000_days_universal_ece: 1.0
+  C22_ss1_adolescent_tuakana_mentoring: 1.0
+  C23_ss1_land_estate_fiscal_rebalance: 1.0
+  C24_ss1_age20_youth_capital_grant: 1.0
+  C25_ss1_income_geography_bridge: 1.0
+  C26_ss1_productive_zh_firm_and_foodhubs: 1.0
+  C27_ss2_sovereign_debt_sinking_and_infra: 1.0
+  C28_ss2_paye_cut_and_super64_kuia_care: 1.0
+
+solve_debt_first_super70:
+  Label: "10C. Solve-Debt-First Early Austerity Trap (Cut ECE/Kaiako & Super Age 70)"
+  Legacy_Alias: "debtfirst"
+  C06_early_years_and_care_pay_equity: -1.0
+  C12_educator_real_remuneration_parity: -1.0
+  C28_ss2_paye_cut_and_super64_kuia_care: -1.0
+
+hole_2024_plus_ss1:
+  Label: "11A. Digging Out of the 2024 Hole: SS1 Enacted Atop Full-16 Shocks"
+  Legacy_Alias: "hole_ss1"
+  C01_tenure_tax_neutrality: -1.0
+  C02_public_rd_and_science_capacity: -1.0
+  C03_core_public_service_workforce: -1.0
+  C04_interisland_rail_ferry_corridor: -1.0
+  C05_acute_hospital_and_clinical_capacity: -1.0
+  C06_early_years_and_care_pay_equity: -1.0
+  C07_tertiary_access_and_adult_upskilling: -1.0
+  C08_smokefree_public_health_excise: -1.0
+  C09_working_age_tax_threshold_relief: 1.0
+  C10_investor_visa_capital_inflow: 1.0
+  C11_accelerated_business_asset_expensing: 1.0
+  C12_educator_real_remuneration_parity: -1.0
+  C13_retirement_match_and_social_rent_buffer: -1.0
+  C14_national_water_balance_sheet_stewardship: -1.0
+  C15_grassroots_arts_sport_and_civic_commons: -1.0
+  C16_paris_ndc_and_clean_energy_transition: -1.0
+  C21_ss1_first_2000_days_universal_ece: 1.0
+  C22_ss1_adolescent_tuakana_mentoring: 1.0
+  C23_ss1_land_estate_fiscal_rebalance: 1.0
+  C24_ss1_age20_youth_capital_grant: 1.0
+  C25_ss1_income_geography_bridge: 1.0
+  C26_ss1_productive_zh_firm_and_foodhubs: 1.0
+
+hole_2024_plus_ss2:
+  Label: "11B. Digging Out of the 2024 Hole: Full SS1->SS2 Compact Atop Full-16 Shocks"
+  Legacy_Alias: "hole_ss2"
+  C01_tenure_tax_neutrality: -1.0
+  C02_public_rd_and_science_capacity: -1.0
+  C03_core_public_service_workforce: -1.0
+  C04_interisland_rail_ferry_corridor: -1.0
+  C05_acute_hospital_and_clinical_capacity: -1.0
+  C06_early_years_and_care_pay_equity: -1.0
+  C07_tertiary_access_and_adult_upskilling: -1.0
+  C08_smokefree_public_health_excise: -1.0
+  C09_working_age_tax_threshold_relief: 1.0
+  C10_investor_visa_capital_inflow: 1.0
+  C11_accelerated_business_asset_expensing: 1.0
+  C12_educator_real_remuneration_parity: -1.0
+  C13_retirement_match_and_social_rent_buffer: -1.0
+  C14_national_water_balance_sheet_stewardship: -1.0
+  C15_grassroots_arts_sport_and_civic_commons: -1.0
+  C16_paris_ndc_and_clean_energy_transition: -1.0
+  C21_ss1_first_2000_days_universal_ece: 1.0
+  C22_ss1_adolescent_tuakana_mentoring: 1.0
+  C23_ss1_land_estate_fiscal_rebalance: 1.0
+  C24_ss1_age20_youth_capital_grant: 1.0
+  C25_ss1_income_geography_bridge: 1.0
+  C26_ss1_productive_zh_firm_and_foodhubs: 1.0
+  C27_ss2_sovereign_debt_sinking_and_infra: 1.0
+  C28_ss2_paye_cut_and_super64_kuia_care: 1.0
+
+
+# ==============================================================================
+# FINLAND HISTORICAL WAVE & COMPOSABLE COUNTERFACTUAL BUNDLES (1967 -> 2025+)
+# ==============================================================================
+
+fi_wave1_peruskoulu_ecec_1970s:
+  Label: "FI-W1. 1968-1979 Peruskoulu (Rural->Helsinki) + 1973 Municipal ECEC Alone"
+  C21_ss1_first_2000_days_universal_ece: 0.78
+  C22_ss1_adolescent_tuakana_mentoring: 1.00
+  C25_ss1_income_geography_bridge: 0.65
+
+fi_wave1_to_3_with_kotihoidontuki_drag:
+  Label: "FI-W2/3. Observed 1972-2013 Buildout (Peruskoulu + Housing First + Tekes, WITH 1985 Kotihoidontuki Drag)"
+  C21_ss1_first_2000_days_universal_ece: 0.78
+  C06_early_years_and_care_pay_equity: -0.50
+  C22_ss1_adolescent_tuakana_mentoring: 1.00
+  C25_ss1_income_geography_bridge: 1.00
+  C26_ss1_productive_zh_firm_and_foodhubs: 0.65
+
+fi_wave4_disinfo_and_age18_2014_2023:
+  Label: "FI-W4. Observed 2023 Finnish Steady State (+2016 Multiliteracy/Disinfo Defense & 2021 Age-18 Schooling)"
+  C21_ss1_first_2000_days_universal_ece: 0.82
+  C06_early_years_and_care_pay_equity: -0.45
+  C22_ss1_adolescent_tuakana_mentoring: 1.00
+  C15_grassroots_arts_sport_and_civic_commons: 1.00
+  C25_ss1_income_geography_bridge: 1.00
+  C26_ss1_productive_zh_firm_and_foodhubs: 0.60
+
+fi_disinfo_without_peruskoulu_test:
+  Label: "FI-CF1. Epistemic Test: 2016 Disinformation Curriculum WITHOUT Peruskoulu/ECEC Foundation"
+  C15_grassroots_arts_sport_and_civic_commons: 1.00
+
+fi_remove_kotihoidontuki_unlock:
+  Label: "FI-CF2. Observed Finland + Repeal 1985 Kotihoidontuki Trap (<3y ECEC -> 70%)"
+  C21_ss1_first_2000_days_universal_ece: 1.00
+  C06_early_years_and_care_pay_equity: 1.00
+  C22_ss1_adolescent_tuakana_mentoring: 1.00
+  C15_grassroots_arts_sport_and_civic_commons: 1.00
+  C25_ss1_income_geography_bridge: 1.00
+  C26_ss1_productive_zh_firm_and_foodhubs: 0.60
+
+fi_2024_2026_austerity_plus_nato:
+  Label: "FI-CF3. 2024-2026 Orpo-Purra Austerity Cuts (Asumistuki/AdultEd/Sote) + NATO Defence Lift"
+  C03_core_public_service_workforce: -1.00
+  C05_acute_hospital_and_clinical_capacity: -1.00
+  C07_tertiary_access_and_adult_upskilling: -1.00
+  C13_retirement_match_and_social_rent_buffer: -1.00
+  C15_grassroots_arts_sport_and_civic_commons: -0.50
+  C18_sovereign_defence_capability_posture: 0.85
+
+fi_full_ss2_aspect123_compact:
+  Label: "FI-SS2. Complete Finnish Aspect 1+2+3 Compact (Add LVT Rotation, Youth Grant, z_h Renewal & Age-64 Care)"
+  C21_ss1_first_2000_days_universal_ece: 1.00
+  C06_early_years_and_care_pay_equity: 1.00
+  C22_ss1_adolescent_tuakana_mentoring: 1.00
+  C15_grassroots_arts_sport_and_civic_commons: 1.00
+  C23_ss1_land_estate_fiscal_rebalance: 1.00
+  C24_ss1_age20_youth_capital_grant: 1.00
+  C25_ss1_income_geography_bridge: 1.00
+  C26_ss1_productive_zh_firm_and_foodhubs: 1.00
+  C27_ss2_sovereign_debt_sinking_and_infra: 1.00
+  C28_ss2_paye_cut_and_super64_kuia_care: 1.00

@@ -1,0 +1,12 @@
+# Empirical Target Moments for SMM Calibration: Finland 1967 Pre-Peruskoulu Two-Track Equilibrium
+Moment_ID,Target_Val,Weight,Description
+Struggling_Launch_Share,0.235,2.5,"National share of youth launching in h1-h2 skill-gap bins pre-peruskoulu (oppikoulu filter at age 10-11)"
+Zero_ChildInv_Share,0.260,1.5,"Share of fertile households constrained at zero private ECE/oppikoulu tuition investment in 1967"
+ChildInv_Q5_Q1_Ratio,3.100,1.5,"Q5/Q1 early & grammar-school investment ratio in Greater Helsinki prior to 1973/1977 reforms"
+Labor_FTE_Share,0.695,1.0,"Working-age full-time equivalent employment share (high agrarian + industrial participation)"
+Labor_PT_Share,0.085,1.0,"Working-age part-time employment share (Finland historically full-time female employment norm)"
+LateCareer_Wage_Drop,-0.155,1.0,"Log mean human-capital/earnings drop from age bin j=7 to j=9 (high 1960s male morbidity)"
+Homeowner_Young_Share,0.360,1.5,"Young household (j=2) homeownership share (post-war Arava/ARA & rural smallholder stock)"
+Homeowner_Retiree_Share,0.760,1.0,"Retiree household (j=10) homeownership share"
+Homeowner_Agg_Share,0.660,1.5,"Aggregate household homeownership rate (~65-68% in late-1960s Census; 69% owner/ARA norm)"
+Estate_To_GDP_Ratio,0.042,1.0,"Annual aggregate bequest flow relative to GDP proxy (post-war capital-scarce base)"

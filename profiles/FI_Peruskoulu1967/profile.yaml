@@ -1,0 +1,58 @@
+# Empirical Data & Country Profile Contract: Finland (1967 Pre-Peruskoulu Baseline -> 2025 Steady State)
+Profile_ID: FI_Peruskoulu1967
+Legacy_Alias: Finland_67
+Cohort_Label: "Northern Finland Birth Cohort 1966 (NFBC1966) & 1967 Pre-Peruskoulu Two-Track Baseline"
+Country_Name: "Finland"
+External_Dest_Label: "Abroad"
+Primate_Region_ID: "Helsinki"
+Representative_Urban_ID: "Large"
+
+Monetary:
+  Currency_ISO: "EUR"
+  Currency_Symbol: "€"
+  Currency_Unit_Billions: "EUR (Billions, Real 2025€)"
+  Base_Year: 2025
+  Currency_Base_Scale: 62.0
+  CE_Monetary_Scale_Nat: 2.80
+  GDP_Base_Billions: 281.78
+
+Institutions:
+  tau_l: 0.235
+  tau_c: 0.110
+  tau_k: 0.280
+  tau_a: 0.0020
+  tau_b: 0.110
+  p_super: 0.150
+  s_sub: 0.050
+  Super_Age_Base: 65.0
+  Super_Age_SS1: 65.0
+  Super_Age_SS2: 64.0
+  Dep_Ratio_Anchor: 23.80
+  Estate_Exemption: 1.20
+  Target_NetMig_Rate: 0.0086
+  w_External: 1.26
+  Q_External: 1.95
+
+Regime_Schedules:
+  # Wave 0 (Neuvola 1949 + School Meals 1948) lifts baseline above NZ SS0;
+  # SS1 = 1973 Municipal ECEC (damped ~20% by 1985 kotihoidontuki) + Peruskoulu + Erityisopetus;
+  # SS2 = Full under-3 ECEC parity (remove A2 cash-for-care trap) + Youth Grant + Builder Rotation.
+  G_ece1_sched: [0.052, 0.102, 0.132]
+  G_ece2_sched: [0.058, 0.098, 0.112]
+  YouthGrant_sched: [0.025, 0.040, 0.080]
+
+Actuarial:
+  Sav_Multiplier: 1.40
+  GDP_Wave_Multiplier: 1.18
+  H_Window_Yrs: 25
+  Attribution_Haircut: 0.30
+  Real_Cost_Growth: 0.015
+  Discount_Central: 0.020
+  Discount_Sensitivity: 0.080
+
+Files:
+  Regions_CSV: "regions.csv"
+  Demography_CSV: "demography_5yr.csv"
+  Migration_CSV: "migration_utility.csv"
+  Moments_CSV: "target_moments.csv"
+  Trans_Sorting_CSV: "transition_sorting.csv"

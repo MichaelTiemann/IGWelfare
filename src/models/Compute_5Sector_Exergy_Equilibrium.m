@@ -74,7 +74,7 @@ w_def   = def_s   * (1.0 - exp(-t_col / 4.5));
 % 1. Biophysical Exergy & Domestic Renewable Grid Capacity (K_N,t, M_olig,t, e_N vs e_F)
 e_N     = Ex.e_N_elec;
 e_F     = Ex.e_F_fossil;
-K_N_t   = Ex.K_N_Grid_Init_BNZD * (1.0 + 1.15 * w_clean + 0.25 * w_ref ...
+K_N_t   = Ex.K_N_Grid_Init_BCurr * (1.0 + 1.15 * w_clean + 0.25 * w_ref ...
         + 0.18 * stab_on * min(1.5, s_hydro + s_oil) * w_p1 - 0.18 * max(0, -priv_s) * w_p1);
 
 m_grid0 = Ex.M_olig_grid_schedule(1);
@@ -92,11 +92,15 @@ exergy_gain_t  = max(0.72, 1.0 + 0.16 * ((e_N / e_F - 1.0) * elec_share_inc) ./ 
 dry_share_t    = (Ex.DryYear_Thermal_Share_SS0 * (1.0 - min(1.0, w_clean)) + Ex.DryYear_Thermal_Share_SS2 * min(1.0, w_clean)) ...
                .* (1.0 + 1.35 * hydro_pulse);
 p_F_mult_t     = 1.0 + 0.60 * oil_pulse;
-Fossil_Bill_t  = Ex.Fossil_Import_Bill_SS0_BNZD * p_F_mult_t .* fossil_mult_t .* (1.0 + 0.45 * dry_share_t);
+Fossil_Bill_t  = Ex.Fossil_Import_Bill_SS0_BCurr * p_F_mult_t .* fossil_mult_t .* (1.0 + 0.45 * dry_share_t);
 
 % 2. Paris NDC Net Emissions, Pine Saturation Cliff (Yr 25), & Clean-Green vs CBAM Terms-of-Trade
-E_NDC_cap_t = 1.00 - 0.35 * (1.0 - exp(-t_col / 8.0)) - 0.43 * (t_col >= 10.0) .* (1.0 - exp(-max(0, t_col - 10.0) / 12.0));
-kappa_pine  = max(0.0, 1.0 - 0.75 * min(1.0, w_clean) - 0.25 * w_p2);
+e_ndc_1     = NDC.E_NDC_schedule(2);
+e_ndc_2     = NDC.E_NDC_schedule(3);
+E_NDC_cap_t = 1.00 - (1.00 - e_ndc_1) * (1.0 - exp(-t_col / 8.0)) ...
+            - (e_ndc_1 - e_ndc_2) * (t_col >= 10.0) .* (1.0 - exp(-max(0, t_col - 10.0) / 12.0));
+kp0         = NDC.kappa_pine_schedule(1);
+kappa_pine  = max(0.0, kp0 * (1.0 - 0.75 * min(1.0, w_clean) - 0.25 * w_p2));
 S_pine_t    = 0.18 * kappa_pine .* exp(-0.085 * max(0.0, t_col - 25.0));
 S_native_t  = (0.14 * min(1.0, w_clean) + 0.06 * max(0, civic_s) * w_p1) .* min(1.0, t_col / 22.0);
 E_gross_t   = 1.00 * (0.35 + 0.65 * fossil_mult_t) .* (1.0 - 0.22 * min(1.0, w_clean)) + 0.05 * hydro_pulse;
@@ -108,17 +112,18 @@ Pi_trade_Tx4 = max(0.68, 1.0 + theta_ag_t * NDC.pi_green_reg - ndc_gap_t * NDC.c
              - tot_pulse * [0.120, 0.095, 0.045, 0.030]);
 Pi_trade_S1  = Pi_trade_Tx4 * [0.46; 0.30; 0.14; 0.10];
 
-NDC_Outflow_BNZD_t = 67.5 * ndc_gap_t .* (NDC.p_NDC_intl_BNZD_per_Mt * (1.012 .^ t_col));
+mt_base_tot        = sum(NDC.MtCO2e_2025_reg);
+NDC_Outflow_BNZD_t = mt_base_tot * ndc_gap_t .* (NDC.p_NDC_intl_BCurr_per_Mt * (1.012 .^ t_col));
 
 % 3. Five-Sector Labor Reallocation (Internal Sector 4A Reactive -> Capacitating Release!) & Output [T x 6]
 L0_row = MT.Paid_kFTE(:)';
-Y0_row = MT.Annual_Spend_BNZD(:)';
+Y0_row = MT.Annual_Spend_BCurr(:)';
 
 ST        = SecSpec.SubSector_Table;
 idx_hlth  = find(strcmp(ST.SubSector_ID, 'S4A1_Health_SocialCare'), 1);
 idx_just  = find(strcmp(ST.SubSector_ID, 'S4A4_Justice_OT_Remed'),  1);
 L_rem_0   = ST.Paid_Workforce_kFTE(idx_just) + SOE.Health_Reactive_Share_SS0 * ST.Paid_Workforce_kFTE(idx_hlth);
-Y_rem_0   = ST.Annual_Spend_BNZD(idx_just)   + SOE.Health_Reactive_Share_SS0 * ST.Annual_Spend_BNZD(idx_hlth);
+Y_rem_0   = ST.Annual_Spend_BCurr(idx_just)  + SOE.Health_Reactive_Share_SS0 * ST.Annual_Spend_BCurr(idx_hlth);
 
 rem_compress_t  = min(1.35, max(0.22, 1.0 - 0.76 * w_ref ./ (1.0 + 0.28 * eff_hc + 0.22 * eff_staff) + 0.28 * aust_s * tau_60));
 L_S4A_rem_t     = L_rem_0 * rem_compress_t;
@@ -161,7 +166,8 @@ Y_S4B_SNA_t   = Y0_row(5) * (L_S4B_t / L0_row(5)) .* wage_idx_t .* (1.0 + 0.15 *
 Y_S5_SNA_t    = Y0_row(6) * (1.0 + 1.50 * w_def) .* (1.0 + 0.12 * w_ref);
 
 Y_Sector_SNA_Tx6 = [Y_S1_t, Y_S2_t, Y_S3_t, Y_S4A_SNA_t, Y_S4B_SNA_t, Y_S5_SNA_t];
-sna_scale        = Params.GDP_2026_BNZD / sum(Y_Sector_SNA_Tx6(1, :));
+gdp_26_bcurr     = get_val(Params, 'GDP_2026_BCurr', get_val(Params, 'GDP_2026_BNZD', 430.0));
+sna_scale        = gdp_26_bcurr / sum(Y_Sector_SNA_Tx6(1, :));
 Y_Sector_SNA_Tx6 = Y_Sector_SNA_Tx6 * sna_scale;
 Y_SNA_t          = sum(Y_Sector_SNA_Tx6, 2);
 
@@ -198,16 +204,24 @@ Out.Care_Home_kFTE_t     = Care_Home_kFTE_t;
 Out.L_S4A_Released_kFTE  = L_released_t;
 Out.Reactive_Compress_Pct= 100.0 * (1.0 - rem_compress_t);
 Out.Y_Sector_SNA_Tx6     = Y_Sector_SNA_Tx6;
+Out.Currency_ISO         = SecSpec.Currency_ISO;
+Out.Y_SNA_BCurr_t        = Y_SNA_t;
 Out.Y_SNA_BNZD_t         = Y_SNA_t;
 Out.Y_S4A_Cap_Outcome_t  = Y_S4A_Cap_Outcome_t;
 Out.Y_S4A_Rem_Regret_t   = Y_S4A_Rem_Regret_t;
+Out.K_N_Grid_BCurr_t     = K_N_t;
 Out.K_N_Grid_BNZD_t      = K_N_t;
 Out.M_Olig_Grid_t        = M_olig_t;
 Out.Exergy_Gain_Mult_t   = exergy_gain_t;
+Out.Fossil_Import_BCurr_t= Fossil_Bill_t;
 Out.Fossil_Import_BNZD_t = Fossil_Bill_t;
+Out.Def_Imports_BCurr_t  = Def_Imports_BNZD_t;
 Out.Def_Imports_BNZD_t   = Def_Imports_BNZD_t;
+Out.NDC_Outflow_BCurr_t  = NDC_Outflow_BNZD_t;
 Out.NDC_Outflow_BNZD_t   = NDC_Outflow_BNZD_t;
+Out.Exports_BCurr_t      = Exports_BNZD_t;
 Out.Exports_BNZD_t       = Exports_BNZD_t;
+Out.Trade_Balance_BCurr_t= Trade_Bal_BNZD_t;
 Out.Trade_Balance_BNZD_t = Trade_Bal_BNZD_t;
 Out.NFA_to_GDP_t         = NFA_to_GDP_t;
 Out.r_Sovereign_t        = r_dom_t;

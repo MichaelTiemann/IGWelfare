@@ -40,11 +40,11 @@ end
 reg_match_idx = find(strcmpi(regions, opt_clean), 1, 'first');
 
 if strcmp(opt_clean, 'national')
-    plot_two_panel_ledger(Out, sprintf('National Aggregate (All %d Regions)', N_reg), 'National', AnchorTag, OutputDir);
+    plot_two_panel_ledger(Out, sprintf('National Aggregate (All %d Regions)', N_reg), 'National', AnchorTag, OutputDir, Out);
 elseif ~isempty(reg_match_idx)
     r_name = regions{reg_match_idx};
     r_pct  = 100 * Out.Pop_Shares(reg_match_idx);
-    plot_two_panel_ledger(Out.Reg.(r_name), sprintf('%s Region (%.1f%% Base Pop)', r_name, r_pct), r_name, AnchorTag, OutputDir);
+    plot_two_panel_ledger(Out.Reg.(r_name), sprintf('%s Region (%.1f%% Base Pop)', r_name, r_pct), r_name, AnchorTag, OutputDir, Out);
 else
     plot_all4_regions_dashboard(Out, regions, AnchorTag, OutputDir);
     plot_year5_regional_bar_breakdown(Out, regions, AnchorTag, OutputDir);
@@ -56,7 +56,11 @@ end
 %% ========================================================================
 %  HELPER 1: 2-PANEL & STANDALONE SINGLE-PANEL PUBLICATION PLOTTER
 %  ========================================================================
-function plot_two_panel_ledger(L, TitleLabel, ShortTag, AnchorTag, OutputDir)
+function plot_two_panel_ledger(L, TitleLabel, ShortTag, AnchorTag, OutputDir, MetaCurr)
+curr_iso_act = 'NZD'; curr_sym_act = '$'; curr_yr_act = 2025;
+if nargin >= 6 && isstruct(MetaCurr) && isfield(MetaCurr, 'Currency_ISO')
+    curr_iso_act = MetaCurr.Currency_ISO; curr_sym_act = MetaCurr.Currency_Symbol; curr_yr_act = MetaCurr.Currency_Base_Year;
+end
 if nargin < 4 || isempty(AnchorTag)
     if isfield(L, 'Calibration_Anchor')
         AnchorTag = L.Calibration_Anchor;
@@ -113,12 +117,13 @@ y5_bk8  = L.Booked_Fisc_8pct(idx_y5);
 y5_sav2 = L.Booked_Sav_2pct(idx_y5);
 
 msg_A = sprintf(['Year %d Audit (%s):\n', ...
-    '• Outlay: $%.2fB | Cash Return: $%.2fB\n', ...
-    '• Booked Return (2%%): $%.2fB (%.2fx Outlay)\n', ...
-    '• Booked Return (8%%): $%.2fB (%.2fx Outlay)\n', ...
-    '• Booked Cost Avoidance Alone (2%%): $%.2fB'], ...
-    years(idx_y5), ShortTag, y5_inv, y5_cash, y5_bk2, y5_bk2/max(1e-6,y5_inv), ...
-    y5_bk8, y5_bk8/max(1e-6,y5_inv), y5_sav2);
+    '• Outlay: %s%.2fB | Cash Return: %s%.2fB\n', ...
+    '• Booked Return (2%%): %s%.2fB (%.2fx Outlay)\n', ...
+    '• Booked Return (8%%): %s%.2fB (%.2fx Outlay)\n', ...
+    '• Booked Cost Avoidance Alone (2%%): %s%.2fB'], ...
+    years(idx_y5), ShortTag, curr_sym_act, y5_inv, curr_sym_act, y5_cash, ...
+    curr_sym_act, y5_bk2, y5_bk2/max(1e-6,y5_inv), ...
+    curr_sym_act, y5_bk8, y5_bk8/max(1e-6,y5_inv), curr_sym_act, y5_sav2);
 
 y_max_A = max(L.Booked_Fisc_2pct);
 xlim(ax1, [-1.5, max(years) + 2.5]);
@@ -130,7 +135,7 @@ text(ax1, years(idx_y5) + 2.0, 0.57 * y_max_A, msg_A, ...
 
 grid(ax1, 'on'); box(ax1, 'on');
 xlabel(ax1, 'Transition Horizon (Years from Policy Introduction)', 'FontSize', 10.5, 'FontWeight', 'bold');
-ylabel(ax1, 'Cumulative / Recognised NZD (Billions, Real 2025$)', 'FontSize', 10.5, 'FontWeight', 'bold');
+ylabel(ax1, sprintf('Cumulative / Recognised %s (Billions, Real %d%s)', curr_iso_act, curr_yr_act, curr_sym_act), 'FontSize', 10.5, 'FontWeight', 'bold');
 title(ax1, ['A. Fiscal Ledger: ', TitleLabel], 'FontSize', 10.5, 'FontWeight', 'bold');
 lgd1 = legend(ax1, 'Location', 'northwest', 'FontSize', 7.8);
 IGW_UI_Style('legend_alpha', lgd1, 0.92);
@@ -152,10 +157,11 @@ plot(ax2, years, L.Booked_GDP_8pct, '--', 'Color', [0.25 0.67 0.36], 'Marker', '
 xline(ax2, years(idx_y5), '--', 'Color', [0.00 0.43 0.17], 'LineWidth', 1.4, 'HandleVisibility', 'off');
 
 msg_B = sprintf(['Year %d Recognised GDP Prize (%s):\n', ...
-    '• Realized Cash GDP Gain: $%.2fB\n', ...
-    '• Booked 25-Yr GDP Prize (2%%): $%.2fB\n', ...
-    '• Booked 25-Yr GDP Prize (8%%): $%.2fB'], ...
-    years(idx_y5), ShortTag, L.Cum_dGDP(idx_y5), L.Booked_GDP_2pct(idx_y5), L.Booked_GDP_8pct(idx_y5));
+    '• Realized Cash GDP Gain: %s%.2fB\n', ...
+    '• Booked 25-Yr GDP Prize (2%%): %s%.2fB\n', ...
+    '• Booked 25-Yr GDP Prize (8%%): %s%.2fB'], ...
+    years(idx_y5), ShortTag, curr_sym_act, L.Cum_dGDP(idx_y5), ...
+    curr_sym_act, L.Booked_GDP_2pct(idx_y5), curr_sym_act, L.Booked_GDP_8pct(idx_y5));
 
 y_max_B = max(L.Booked_GDP_2pct);
 % Pad left xlim to -1.5 so the Year-0 marker & Year-5 vertical line have breathing
@@ -171,7 +177,7 @@ text(ax2, years(idx_y5) + 1.8, 0.63 * y_max_B, msg_B, ...
 
 grid(ax2, 'on'); box(ax2, 'on');
 xlabel(ax2, 'Transition Horizon (Years from Policy Introduction)', 'FontSize', 10.5, 'FontWeight', 'bold');
-ylabel(ax2, 'Cumulative / Recognised NZD (Billions, Real 2025$)', 'FontSize', 10.5, 'FontWeight', 'bold');
+ylabel(ax2, sprintf('Cumulative / Recognised %s (Billions, Real %d%s)', curr_iso_act, curr_yr_act, curr_sym_act), 'FontSize', 10.5, 'FontWeight', 'bold');
 title(ax2, ['B. Economy-Wide GDP Prize: ', TitleLabel], 'FontSize', 10.5, 'FontWeight', 'bold');
 lgd2 = legend(ax2, 'Location', 'northwest', 'FontSize', 7.9);
 IGW_UI_Style('legend_alpha', lgd2, 0.92);
@@ -236,10 +242,10 @@ for r = 1:n_r
     xline(years(idx_y5), '--', 'Color', [0.4 0.4 0.4]);
 
     title(sprintf('%s (%s): Fiscal Ledger', reg, pop_labels{r}), 'FontSize', 10, 'FontWeight', 'bold');
-    ylabel('NZD ($B, Real)'); grid on; box on;
+    ylabel(sprintf('%s (%sB, Real)', Out.Currency_ISO, Out.Currency_Symbol)); grid on; box on;
     text(years(idx_y5)+2, 0.62*max(L.Booked_Fisc_2pct), ...
-        sprintf('Yr 5 Audit:\nInv: $%.2fB\nBooked (2%%): $%.2fB\nCost Avoid: $%.2fB', ...
-        L.Cum_Inv(idx_y5), L.Booked_Fisc_2pct(idx_y5), L.Booked_Sav_2pct(idx_y5)), ...
+        sprintf('Yr 5 Audit:\nInv: %s%.2fB\nBooked (2%%): %s%.2fB\nCost Avoid: %s%.2fB', ...
+        Out.Currency_Symbol, L.Cum_Inv(idx_y5), Out.Currency_Symbol, L.Booked_Fisc_2pct(idx_y5), Out.Currency_Symbol, L.Booked_Sav_2pct(idx_y5)), ...
         'FontSize', 7.5, 'BackgroundColor', [0.95 0.99 0.96], 'EdgeColor', [0.00 0.43 0.17]);
     if r == 1
         legend({'8%-2% Band','Cum Inv','Cash Sav','Cash Fisc','Booked Sav (2%)','Booked Fisc (2%)'}, ...
@@ -257,10 +263,10 @@ for r = 1:n_r
     xline(years(idx_y5), '--', 'Color', [0.4 0.4 0.4]);
 
     title(sprintf('%s: Economy-Wide GDP Prize', reg), 'FontSize', 10, 'FontWeight', 'bold');
-    xlabel('Transition Years'); ylabel('NZD ($B, Real)'); grid on; box on;
+    xlabel('Transition Years'); ylabel(sprintf('%s (%sB, Real)', Out.Currency_ISO, Out.Currency_Symbol)); grid on; box on;
     text(years(idx_y5)+2, 0.65*max(L.Booked_GDP_2pct), ...
-        sprintf('Yr 5 GDP Prize:\nCash: $%.2fB\nBooked (2%%): $%.2fB\nBooked (8%%): $%.2fB', ...
-        L.Cum_dGDP(idx_y5), L.Booked_GDP_2pct(idx_y5), L.Booked_GDP_8pct(idx_y5)), ...
+        sprintf('Yr 5 GDP Prize:\nCash: %s%.2fB\nBooked (2%%): %s%.2fB\nBooked (8%%): %s%.2fB', ...
+        Out.Currency_Symbol, L.Cum_dGDP(idx_y5), Out.Currency_Symbol, L.Booked_GDP_2pct(idx_y5), Out.Currency_Symbol, L.Booked_GDP_8pct(idx_y5)), ...
         'FontSize', 7.5, 'BackgroundColor', [0.95 0.99 0.96], 'EdgeColor', [0.00 0.43 0.17]);
     if r == 1
         legend({'8%-2% Band','Cum Inv','Cash GDP','Booked GDP (2%)','Booked GDP (8%)'}, ...
@@ -305,7 +311,7 @@ set(b1(2), 'FaceColor', [0.60 0.80 0.60]);
 set(b1(3), 'FaceColor', [0.12 0.47 0.71]);
 set(b1(4), 'FaceColor', [0.25 0.67 0.36]);
 set(b1(5), 'FaceColor', [0.00 0.43 0.17]);
-ylabel('NZD (Billions, Real 2025$)');
+ylabel(Out.Currency_Unit);
 title('A. Year 5 Fiscal Audit by Region: Cash vs. Booked Return');
 legend({'Cum Outlay', 'Cash Fiscal Return', 'Booked Cost Avoidance Alone (2%)', ...
     'Booked Total Fiscal (8% Sens.)', 'Booked Total Fiscal (2% Central)'}, 'Location', 'northwest', 'FontSize', 8.2);
@@ -317,7 +323,7 @@ set(b2(1), 'FaceColor', [0.84 0.15 0.16]);
 set(b2(2), 'FaceColor', [0.60 0.80 0.60]);
 set(b2(3), 'FaceColor', [0.25 0.67 0.36]);
 set(b2(4), 'FaceColor', [0.00 0.43 0.17]);
-ylabel('NZD (Billions, Real 2025$)');
+ylabel(Out.Currency_Unit);
 title('B. Year 5 Economy-Wide GDP Prize by Region');
 legend({'Cum Outlay', 'Realized Cash GDP Gain', 'Booked 25-Yr GDP Prize (8% Sens.)', ...
     'Booked 25-Yr GDP Prize (2% Central)'}, 'Location', 'northwest', 'FontSize', 8.5);

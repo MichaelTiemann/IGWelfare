@@ -69,23 +69,16 @@ else
 end
 
 %% 2. STATUTORY TAX, PENSION, RETURN & INSTITUTIONAL BASELINES
-if ~isfield(Params, 'r'),      Params.r      = (1 + 0.20)^scale_dt - 1; end
-if ~isfield(Params, 'tau_l'),  Params.tau_l  = 0.22;  end % Statutory working-age PAYE tax rate
-if ~isfield(Params, 'tau_c'),  Params.tau_c  = 0.15;  end % Statutory GST consumption tax rate
-if ~isfield(Params, 'tau_k'),  Params.tau_k  = 0.20;  end % Baseline capital/profit tax rate
-if ~isfield(Params, 'tau_a'),  Params.tau_a  = 0.005; end % Baseline asset/holding levy
-if ~isfield(Params, 'tau_b'),  Params.tau_b  = 0.15;  end % Baseline estate/bequest tax rate
-if ~isfield(Params, 'p_super'),Params.p_super= 0.18;  end % NZ Superannuation replacement rate
-if ~isfield(Params, 's_sub'),  Params.s_sub  = 0.100; end % Private childcare co-payment subsidy rate
-
-if ~isfield(Params, 'super_age_base'),        Params.super_age_base        = DataSpec.Institutions.Super_Age_Base;   end
-if ~isfield(Params, 'super_age_SS1'),         Params.super_age_SS1         = DataSpec.Institutions.Super_Age_SS1;    end
-if ~isfield(Params, 'super_age_SS2'),         Params.super_age_SS2         = DataSpec.Institutions.Super_Age_SS2;    end
-if ~isfield(Params, 'dep_ratio_2026_anchor'), Params.dep_ratio_2026_anchor = DataSpec.Institutions.Dep_Ratio_Anchor; end
-Params.Estate_Exemption   = DataSpec.Institutions.Estate_Exemption;
-Params.Target_NetMig_Rate = DataSpec.Institutions.Target_NetMig_Rate;
-Params.w_External         = DataSpec.Institutions.w_External;
-Params.Q_External         = DataSpec.Institutions.Q_External;
+% Strict 1-to-1 schema binding from DataSpec.Institutions (validated complete by Load_Empirical_Profile;
+% zero case-translation maps and zero silent defaults; respects explicit caller overrides on Params):
+if ~isfield(Params, 'r'), Params.r = (1 + 0.20)^scale_dt - 1; end
+inst_fields = fieldnames(DataSpec.Institutions);
+for k = 1:numel(inst_fields)
+    fn = inst_fields{k};
+    if ~isfield(Params, fn)
+        Params.(fn) = DataSpec.Institutions.(fn);
+    end
+end
 
 %% 3. SPATIAL TOPOLOGY, MONETARY REPORTING ANCHORS & PTYPE BASELINE GRIDS
 N_reg_ds                    = DataSpec.N_reg;
@@ -115,6 +108,8 @@ Params.Currency_Base_Year     = DataSpec.Monetary.Base_Year;
 Params.Currency_Base_Scale    = DataSpec.Monetary.Currency_Base_Scale;
 Params.CE_Monetary_Scale_Nat  = DataSpec.Monetary.CE_Monetary_Scale_Nat;
 Params.GDP_Base_Billions      = DataSpec.Monetary.GDP_Base_Billions;
+Params.Curr_Per_CE_Nat        = Params.CE_Monetary_Scale_Nat;
+Params.GDP_2026_BCurr         = Params.GDP_Base_Billions;
 Params.NZD_Per_CE_Nat         = Params.CE_Monetary_Scale_Nat;
 Params.GDP_2026_BNZD          = Params.GDP_Base_Billions;
 

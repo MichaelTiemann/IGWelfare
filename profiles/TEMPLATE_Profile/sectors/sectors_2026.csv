@@ -1,4 +1,4 @@
-SubSector_ID,Macro_Sector,Structural_Role,Annual_Spend_BNZD,Paid_Workforce_kFTE,Unpaid_Volunteer_kFTE,Capital_Stock_BNZD,Import_FX_Share,Exergy_Intensity,Fossil_Share_Base,Skill_High_Share
+SubSector_ID,Macro_Sector,Structural_Role,Annual_Spend_BCurr,Paid_Workforce_kFTE,Unpaid_Volunteer_kFTE,Capital_Stock_BCurr,Import_FX_Share,Exergy_Intensity,Fossil_Share_Base,Skill_High_Share
 S1_Primary_Tradable,Sector_1_Primary,Tradable_Land,38.5,148.0,2.5,165.0,0.18,0.115,0.68,0.24
 S2_Weightless_Knowledge,Sector_2_Knowledge,Tradable_Knowledge,54.0,305.0,1.5,92.0,0.12,0.022,0.16,0.72
 S3_Private_NonTradable_Grid,Sector_3_Market_NonTrad,Market_NonTradable,211.0,1352.0,4.0,640.0,0.20,0.058,0.44,0.36

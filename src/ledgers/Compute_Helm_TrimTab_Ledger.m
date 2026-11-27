@@ -47,15 +47,23 @@ t_as_rel  = AssetL.Years(:) - AssetL.Years(1);
 Crown_4_t = interp1(t_as_rel, AssetL.Crown_Flows_BNZD_Tx4,    t_rel, 'pchip', 'extrap');
 Soc_4_t   = interp1(t_as_rel, AssetL.Societal_Flows_BNZD_Tx4, t_rel, 'pchip', 'extrap');
 
-% --- 1. Counter-Steering Signals & Tactical Turn Coordinates (BNZD/yr vs SS0) ---
+% --- 1. Counter-Steering Signals & Tactical Turn Coordinates (BCurr/yr vs SS0) ---
+gdp_sc_helm = 1.0;
+curr_iso_h  = 'NZD';
+ce_sc_helm  = 2.38;
+if isfield(Params, 'GDP_Base_Billions') && ~strncmpi(Params.Profile_ID, 'NZ_', 3)
+    gdp_sc_helm = Params.GDP_Base_Billions / 430.0;
+    curr_iso_h  = Params.Currency_ISO;
+    ce_sc_helm  = Params.CE_Monetary_Scale_Nat * gdp_sc_helm;
+end
 dY_SNA_Market_t = Y_SNA_P2 - Y_SNA_SS0;
 dY_Rem_Shrink_t = Y_Rem_P2 - Y_Rem_SS0; % Negative as acute reactive firefighting contracts!
 
 % Trailing-edge Trim-Tab seed actuation (front-loaded Yrs 1-8, tapers to -2.88B/yr steady state):
-TrimTab_Seed_t  = -(2.88 + 3.60 * exp(-max(0.0, t_rel - 2.2) / 5.2) .* (1.0 - exp(-t_rel / 0.9)));
+TrimTab_Seed_t  = -gdp_sc_helm * (2.88 + 3.60 * exp(-max(0.0, t_rel - 2.2) / 5.2) .* (1.0 - exp(-t_rel / 0.9)));
 s_fisc0         = 1.0 / (1.0 + exp(20.6 / 3.5));
-fisc_harvest_t  = 29.5 * max(0.0, (1.0 ./ (1.0 + exp(-(t_rel - 20.6) / 3.5))) - s_fisc0) / (1.0 - s_fisc0);
-OBEGAL_Reform_t = fisc_harvest_t + TrimTab_Seed_t - 2.80 * exp(-t_rel / 8.5) ...
+fisc_harvest_t  = (29.5 * gdp_sc_helm) * max(0.0, (1.0 ./ (1.0 + exp(-(t_rel - 20.6) / 3.5))) - s_fisc0) / (1.0 - s_fisc0);
+OBEGAL_Reform_t = fisc_harvest_t + TrimTab_Seed_t - (2.80 * gdp_sc_helm) * exp(-t_rel / 8.5) ...
                 + 0.22 * (Crown_4_t(:, 4) - Crown_4_t(:, 3));
 
 % Conventional Short-Term Radar (OBEGAL Cash + Firefighting-Inflated SNA Impulse):
@@ -63,7 +71,7 @@ OBEGAL_Reform_t = fisc_harvest_t + TrimTab_Seed_t - 2.80 * exp(-t_rel / 8.5) ...
 Radar_Reform_t  = OBEGAL_Reform_t + 0.55 * dY_Rem_Shrink_t;
 
 % True Intergenerational Hull Heading (Atkinson-Waring ΔY_AW + FX Savings + S4B Turnaround):
-val_vol_care_t  = 0.068 * (Vol_Diff + Care_Diff);
+val_vol_care_t  = (0.068 * gdp_sc_helm) * (Vol_Diff + Care_Diff);
 s4b_turn_div_t  = (Soc_4_t(:, 4) - Soc_4_t(:, 3)) + 0.35 * (Soc_4_t(:, 3) - Soc_4_t(:, 1));
 True_Heading_t  = 0.52 * dY_SNA_Market_t + (-dY_Rem_Shrink_t) + val_vol_care_t + FX_Save_t + s4b_turn_div_t;
 True_Net_Flow_t = OBEGAL_Reform_t + FX_Save_t + (-0.70 * dY_Rem_Shrink_t) + 0.50 * val_vol_care_t;
@@ -102,29 +110,28 @@ BruteForce_Stall_t     = 0.34 * True_Heading_t - 3.2 * (1.0 - exp(-t_rel / 4.0))
 % Zero-anchored sigmoids guarantee exact t=0 seed outlays [-0.33, -2.20, -1.50, -0.25] < 0 and exact SS2 harvest:
 s0_fn = @(tv, t0, tau) max(0.0, (1.0 ./ (1.0 + exp(-(tv - t0) / tau))) - (1.0 / (1.0 + exp(t0 / tau)))) ...
                        / (1.0 - (1.0 / (1.0 + exp(t0 / tau))));
-TT1_JCurve_t = -0.33 + 8.42  * (1.0 - exp(-max(0.0, t_rel - 0.4) / 3.2));
-TT2_JCurve_t = -2.20 * exp(-t_rel / 6.0) - 1.45 * (1.0 - exp(-t_rel / 6.0)) + 13.25 * s0_fn(t_rel, 7.5, 2.8);
-TT3_JCurve_t = -1.50 * exp(-t_rel / 5.0) - 0.85 * (1.0 - exp(-t_rel / 5.0)) + 9.70  * s0_fn(t_rel, 6.8, 2.6);
-TT4_JCurve_t = -0.25 + 11.65 * s0_fn(t_rel, 9.2, 3.4);
+TT1_JCurve_t = gdp_sc_helm * (-0.33 + 8.42  * (1.0 - exp(-max(0.0, t_rel - 0.4) / 3.2)));
+TT2_JCurve_t = gdp_sc_helm * (-2.20 * exp(-t_rel / 6.0) - 1.45 * (1.0 - exp(-t_rel / 6.0)) + 13.25 * s0_fn(t_rel, 7.5, 2.8));
+TT3_JCurve_t = gdp_sc_helm * (-1.50 * exp(-t_rel / 5.0) - 0.85 * (1.0 - exp(-t_rel / 5.0)) + 9.70  * s0_fn(t_rel, 6.8, 2.6));
+TT4_JCurve_t = gdp_sc_helm * (-0.25 + 11.65 * s0_fn(t_rel, 9.2, 3.4));
 TT_JCurves_Tx4 = [TT1_JCurve_t, TT2_JCurve_t, TT3_JCurve_t, TT4_JCurve_t];
 
 % --- 4. Summary Tables (TrimTabTable & SeaStateTable) ---
-BNZD_per_CE   = 2.38;
+BNZD_per_CE   = ce_sc_helm;
 TrimTab_ID    = {'TT1_Civic_Joiner_Mycelium'; 'TT2_Clean_Exergy_Firming'; ...
                  'TT3_Ostrom_Asset_Turnaround'; 'TT4_LandToEnterprise_TwoKey'};
 TrimTab_Label = {'1. Joiner Passport & Mycelium'; '2. CERF Clean Exergy Firming'; ...
                  '3. Public-Asset Turnaround';    '4. 1.5% Land->z_h & Two-Key'};
 
-Seed_Input_BNZD   = [0.33; 1.45; 0.85; 0.25];
-Rudder_Swing_BNZD = round([TT1_JCurve_t(end) + 0.33; TT2_JCurve_t(end) + 1.45; ...
-                           TT3_JCurve_t(end) + 0.85; TT4_JCurve_t(end) + 0.25], 2);
+Seed_Input_BNZD   = round(gdp_sc_helm * [0.33; 1.45; 0.85; 0.25], 2);
+Rudder_Swing_BNZD = round([TT1_JCurve_t(end); TT2_JCurve_t(end); TT3_JCurve_t(end); TT4_JCurve_t(end)] + Seed_Input_BNZD, 2);
 Gearing_Ratio_x   = Rudder_Swing_BNZD ./ Seed_Input_BNZD;
 CE_Lift_Pct       = Rudder_Swing_BNZD / BNZD_per_CE;
 
 Main_Rudder_Mechanism = { ...
     sprintf('Mobilizes %.0fk FTE volunteers & frees %.0fk reactive S4A staff', Vol_kFTE_end, S4A_Free_end); ...
-    sprintf('2.93x work yield cuts fossil+NDC FX drain (NZD %.1fB/yr) & -%.0f bps spread', FX_Save_t(end), Spread_bps_end); ...
-    sprintf('Avoids +24%% private monopoly markup & saves NZD %.1fB (2%% PV)', abs(AssetL.Opportunity_Loss_2pct_B)); ...
+    sprintf('2.93x work yield cuts fossil+NDC FX drain (%s %.1fB/yr) & -%.0f bps spread', curr_iso_h, FX_Save_t(end), Spread_bps_end); ...
+    sprintf('Avoids +24%% private monopoly markup & saves %s %.1fB (2%% PV)', curr_iso_h, abs(AssetL.Opportunity_Loss_2pct_B)); ...
     'Flips top talent 61% z_l -> 88% z_h exports & locks out 6-yr Stop-Go'};
 
 TrimTabTable = table(TrimTab_ID, TrimTab_Label, Seed_Input_BNZD, Rudder_Swing_BNZD, Gearing_Ratio_x, CE_Lift_Pct, Main_Rudder_Mechanism);

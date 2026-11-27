@@ -1,0 +1,29 @@
+# Derived Empirical Profile: Modern Finland (THL FBC-1987 / FBC-1997 & 2025 Observed Steady State)
+Profile_ID: FI_FBC1987
+Inherits_From: FI_Peruskoulu1967
+Legacy_Alias: Finland_2025
+Cohort_Label: "THL 1987 & 1997 Finnish Birth Cohorts (Observed Post-Peruskoulu Steady State, 28.7% Greater Helsinki)"
+Country_Name: "Finland"
+Primate_Region_ID: "Helsinki"
+
+Institutions:
+  tau_l: 0.325
+  tau_c: 0.220
+  tau_k: 0.200
+  tau_a: 0.0035
+  tau_b: 0.130
+  p_super: 0.215
+  s_sub: 0.480
+  Super_Age_Base: 65.0
+  Super_Age_SS1: 65.0
+  Super_Age_SS2: 64.0
+  Dep_Ratio_Anchor: 38.45
+
+Regime_Schedules:
+  G_ece1_sched: [0.102, 0.125, 0.135]
+  G_ece2_sched: [0.098, 0.108, 0.115]
+  YouthGrant_sched: [0.035, 0.065, 0.080]
+
+Actuarial:
+  Sav_Multiplier: 0.43
+  GDP_Wave_Multiplier: 0.72

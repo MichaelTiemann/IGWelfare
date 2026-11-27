@@ -1,0 +1,13 @@
+# Layer 3 Fixed-Calendar Benchmark Policy (Reproduces Exact Legacy T_phase2_yr = 25 Trajectory)
+Policy_ID: Fixed_Calendar_2050
+Default_Rollout_Mode: TeKahuiWaka
+SS2_Track_CSV: "ss2_dividend_harvest.csv"
+Announcement_Mode: PreAnnounced
+Default_SS2_Fallback_Year: 25
+
+Gates:
+  - Gate_ID: Unlock_SS2_Dividend_Harvest
+    Target_Track: SS2_Transition
+    Min_Year: 25
+    Fallback_Year: 25
+    Logic: calendar_only
