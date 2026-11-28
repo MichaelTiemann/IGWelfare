@@ -3,13 +3,13 @@
 
 *Author:* Michael Tiemann (mdtiemann@gmail.com)  
 *Date:* November 2026 | *Code & Replication Repository:* [github.com/MichaelTiemann/IGWelfare](https://github.com/MichaelTiemann/IGWelfare)  
-*Companion to [Document 2A](Document%202A.md) and [Document 2B](Document%202B.md) (Technical Specification Guide), [Document 1A](Document%201A.md) (Strategic Monograph), [Document 1B](Document%201B.md) (Strategy & Policy Answer Key), [Document 1C](Document%201C.md) (Executive Brief), [Document 1F](Document%201F.md) (Citizens' Assembly Compact), and [Document 3](Document%203.md) (Coalition Architecture & Public Synthesis)*
+*Companion to [Document 2A](Document%202A.md), [Document 2B](Document%202B.md), and [Document 2C](Document%202C.md) (3-Volume Technical Specification Guide, Sections 1–12; this standalone tutorial uses the `T1`–`T7` section namespace), [Document 1A](Document%201A.md) (Strategic Monograph), [Document 1B](Document%201B.md) (Strategy & Policy Answer Key), [Document 1C](Document%201C.md) (Executive Brief), [Document 1F](Document%201F.md) (Citizens' Assembly Compact), and [Document 3](Document%203.md) (Coalition Architecture & Public Synthesis)*
 
 **Disclaimer:** No people nor organizations mentioned herein have endorsed this work unless stated otherwise. This is the work of the author, and all errors and omissions are his alone.
 
 ---
 
-## 1. Pedagogical Motivation: Why "Thin" Spreadsheet Numbers Miss the Real Policy Story
+## T1. Pedagogical Motivation: Why "Thin" Spreadsheet Numbers Miss the Real Policy Story
 
 A recurring question in public-finance modeling is why a dynamic stochastic Overlapping Generations (OLG) model solved on the GPU via the Value Function Iteration (VFI) Toolkit yields starkly different policy conclusions from a deterministic spreadsheet projection—even when both models are calibrated to the exact same national averages.
 
@@ -33,11 +33,11 @@ $$
 
 In a deterministic spreadsheet, an average child with average family income $`\bar{z} = 1.0`$, average public wraparound $`G_{\mathrm{ece},2} = 0.065`$, and average extended *whānau* support $`\bar{K}_{\mathrm{wh\bar{a}nau}} = 0.35`$ smoothly clears the Stage-2 adolescent skill gate with zero skill erosion. In the real world—and in our VFI distribution—early skill erosion into the struggling launch tier ($`h_1\text{--}h_2`$), state-care entry (Exit 1), acute hospitalisation (Exit 2), and trans-Tasman brain drain are driven by **interacting tail states** (such as a household in $`z_1`$ unemployment simultaneously hitting the `a = 0` rental-stress boundary and the `i_c = 0` child-investment corner).
 
-Beyond static distributional accuracy, preserving these interacting tail states across lifecycle stages is what makes **nonlinear policy composition** ([Document 2B, Sections 7.4 & 7.7](Document%202B.md)) and **multi-party Citizens' Assembly contract clearing** ([Document 1F](Document%201F.md)) mathematically possible: where "thin" scalar spreadsheets force policymakers into zero-sum budget horse-trading and brittle point forecasts, "thick" state-contingent distributions reveal **Topkis supermodular bundling wedges**, **non-commuting rollout sequences**, and **self-stabilizing Green/Amber/Red shock frontiers** (Sections 5–6).
+Beyond static distributional accuracy, preserving these interacting tail states across lifecycle stages is what makes **nonlinear policy composition** ([Document 2B, Section 7.4](Document%202B.md) & [Document 2C, Section 8](Document%202C.md)) and **multi-party Citizens' Assembly contract clearing** ([Document 1F](Document%201F.md)) mathematically possible: where "thin" scalar spreadsheets force policymakers into zero-sum budget horse-trading and brittle point forecasts, "thick" state-contingent distributions reveal **Topkis supermodular bundling wedges**, **non-commuting rollout sequences**, and **self-stabilizing Green/Amber/Red shock frontiers** (Sections T5–T6).
 
 ---
 
-## 2. The Curse of Dimensionality Trap vs. Zero-Cost State Conditioning
+## T2. The Curse of Dimensionality Trap vs. Zero-Cost State Conditioning
 
 When researchers realize that regional parameters like extended *whānau* support (`K_whanau_base`), housing user costs (`Q_reg_base`), and public wraparound effectiveness (`G_ece`) vary across households, their first instinct is often to add new exogenous shock dimensions—for example, expanding `n_z` from a 1D vector of 7 states to a 3D tensor `n_z = [7, 3, 3]` (63 exogenous states per grid point).
 
@@ -49,7 +49,7 @@ Adding orthogonal *z*-dimensions is both computationally wasteful and economical
 
 ---
 
-## 3. Audit of the Four State-Contingent Structural Operators (Uniting the MBA and MPP Lenses Across Thick and Thin)
+## T3. Audit of the Four State-Contingent Structural Operators (Uniting the MBA and MPP Lenses Across Thick and Thin)
 
 Evaluating the model simultaneously through a **Long-Horizon Sovereign Turnaround (MBA) Lens** (focused on off-balance-sheet assets, Theory of Constraints bottlenecks, and R&D talent walkouts) and a **Master of Public Policy (MPP) Lens** (focused on actuarial equity, sandwich-generation care burdens, institutional trust, and workforce capacity) reveals four exact mechanisms where scalar approximations must be replaced with **dimension-free state-contingent parameterizations** and **comonotonic tail-risk coupling**:
 
@@ -62,9 +62,9 @@ Evaluating the model simultaneously through a **Long-Horizon Sovereign Turnaroun
 
 ---
 
-## 4. Mathematical Specification of the Four State-Contingent Operators
+## T4. Mathematical Specification of the Four State-Contingent Operators
 
-### 4.1 State-Contingent Extended Whānau Care ($`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}`$): Comonotonic Sandwich-Generation Reversal & Trust-Gated Mentoring
+### T4.1 State-Contingent Extended Whānau Care ($`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}`$): Comonotonic Sandwich-Generation Reversal & Trust-Gated Mentoring
 
 In a scalar parameterization, extended *whānau* support (grandmothers, *kuia*, aunties, and *kaumātua* aged 55–72) is represented as a static regional constant $`K_{\mathrm{whanau,base},k} \in \lbrack 0.42, 0.38, 0.32, 0.28 \rbrack`$ (Rural, Small, Large, Auckland). Under that deterministic scalar view, raising the New Zealand Superannuation eligibility age from 65 to 67 or 70 simply trims the regional constant by 36.2% to `[0.27, 0.24, 0.20, 0.18]` as elders are forced back into market labor.
 
@@ -107,7 +107,7 @@ Notice the mathematical consequence of evaluating this **comonotonically coupled
 
 ---
 
-### 4.2 Price-Manifold Conditioned Public Wraparound ($`G_{\mathrm{ece}}^{\mathrm{eff}}`$): The Kaiako Housing-Affordability Supply Deflator
+### T4.2 Price-Manifold Conditioned Public Wraparound ($`G_{\mathrm{ece}}^{\mathrm{eff}}`$): The Kaiako Housing-Affordability Supply Deflator
 
 In public administration, scaling nominal early-childhood expenditure `G_ece_stage1` and adolescent wraparound `G_ece_stage2` encounters a severe spatial labor-supply friction: when metropolitan house prices `Q_k` (`Params.Q_reg`) in Auckland (3.10) and Large regional cities (2.05) are inflated by speculative land hoarding, qualified early-childhood *Kaiako*, Montessori guides, and speech-language therapists are priced out of the high-deprivation suburbs where disadvantaged children live.
 
@@ -121,7 +121,7 @@ This functional conditioning generates an endogenous **Cross-Cohort Dynamic Comp
 
 ---
 
-### 4.3 Sub-Manifold Conditioned Housing User Costs ($`p_H`$): The 61-Point Asset-Grid LVR Hurdle & Comonotonic Eviction Tail
+### T4.3 Sub-Manifold Conditioned Housing User Costs ($`p_H`$): The 61-Point Asset-Grid LVR Hurdle & Comonotonic Eviction Tail
 
 Adapted from Kiyotaki, Michaelides, and Nikolov (2024), the baseline regional ownership benchmark $`\xi_{\mathrm{reg},k} = \min\lbrace 1, \frac{1}{\bar{\chi}}(rr_k / rh_k)\rbrace`$ is a single regional scalar per region *k* (where $`rr_k`$ and $`rh_k`$ denote floored rental and owner user costs at annualized gross return $`R_{\mathrm{ann}} = (1 + r)^{1/\Delta t}`$). If applied uniformly across all households in region *k*, an asset-poor family at `a = 0` and a wealthy household at `a = 15` face the exact same blended housing price $`p_H`$.
 
@@ -149,7 +149,7 @@ Projecting working-age $`p_H`$ onto the `(a, h, z)` sub-manifold expands housing
 
 ---
 
-### 4.4 Skill-Manifold Conditioned Survival and Late-Life Labor Disutility ($`sj_{\text{eff}}`$): Capturing Actuarial Regressivity
+### T4.4 Skill-Manifold Conditioned Survival and Late-Life Labor Disutility ($`sj_{\text{eff}}`$): Capturing Actuarial Regressivity
 
 Finally, to capture the MPP's warning regarding **differential mortality and physical wear-and-tear**, we condition late-life labor disutility and mortality hazard on the household's 7-point adult human-capital / occupational sub-manifold `h` in `[0.45, 0.65, 0.85, 1.00, 1.20, 1.45, 1.80]`:
 
@@ -165,7 +165,7 @@ When a policy simulation raises the NZ Superannuation eligibility age (`Jr`) abo
 
 ---
 
-### 4.5 Rouwenhorst Markov Drift Conditioning (`z_mean_shift`): Regional Low-to-High Productivity Job Upgrading & Endogenous 85% Transfer Retirement
+### T4.5 Rouwenhorst Markov Drift Conditioning (`z_mean_shift`): Regional Low-to-High Productivity Job Upgrading & Endogenous 85% Transfer Retirement
 
 In a deterministic spreadsheet, a regional household transfer ($`T_k`$) is treated as a permanent fiscal subsidy against a static average wage $`\bar{w}_k`$. Under our 7-point Rouwenhorst Markov discretization (`n_z = 7`), breaking wholesale farm-gate monopsony and retail duopoly markups [Ref 49] while anchoring `1.60x–2.16x` local food-hub procurement multipliers [Ref 56] applies a dimension-free upward drift $`\Delta \mu_{z,k} = \lbrack +0.0408, +0.0307, +0.0170, +0.0102 \rbrack`$ directly to the regional Rouwenhorst grid `z_grid_k`:
 
@@ -175,21 +175,21 @@ Because the Labrousse–Perdereau transfer schedule is concentrated in the lower
 
 ---
 
-## 5. From Static Tail Risks to Policy Composition: How Stage-Contingent "Thick" Numbers Power Topkis Bundling and Non-Commuting Sequencing
+## T5. From Static Tail Risks to Policy Composition: How Stage-Contingent "Thick" Numbers Power Topkis Bundling and Non-Commuting Sequencing
 
-Sections 1–4 demonstrated why "thin" deterministic averages fail **Jensen's Inequality** inside a single policy regime: evaluating concave or kinked laws of motion at scalar means conceals comonotonic tail damage. Yet an equally consequential failure occurs when policymakers compare **isolated silos** against **coupled policy bundles** and **phased rollout sequences** (formalized in [Document 2B, Sections 7.4 and 7.7](Document%202B.md)).
+Sections T1–T4 demonstrated why "thin" deterministic averages fail **Jensen's Inequality** inside a single policy regime: evaluating concave or kinked laws of motion at scalar means conceals comonotonic tail damage. Yet an equally consequential failure occurs when policymakers compare **isolated silos** against **coupled policy bundles** and **phased rollout sequences** (formalized in [Document 2B, Section 7.4](Document%202B.md) and [Document 2C, Section 8](Document%202C.md)).
 
 Conventional cost-benefit spreadsheets (`CBAx` scorecards and linear fiscal trackers) treat policy levers as **additive scalars**: if Reform $`A`$ yields `+2.5%` and Reform $`B`$ yields `+1.6%`, a linear spreadsheet predicts their combination yields `+4.1%` regardless of whether they are enacted together, enacted ten years apart, or enacted in reverse order. In our 4-region OLG general equilibrium, **54.5% of total national welfare gains (`+13.47 pp CE` out of `+24.70 pp CE` in `SS2`)** arise not from isolated policy main effects (`+11.23 pp CE`), but from **non-linear policy composition**—governed by two distinct mathematical structures that exist *only* because our operators are stage- and state-contingent across the 26,901-point distribution $`\mu_k(a, h, \theta_c, z, j)`$:
 
-### 5.1 Symmetric Bundling: Why Topkis (1998) Supermodularity Vanishes Under "Thin" Means
+### T5.1 Symmetric Bundling: Why Topkis (1998) Supermodularity Vanishes Under "Thin" Means
 
-Let $`\mathbf{u} = (u_c)_{c \in \mathcal{C}}`$ denote the sparse signed policy commitment vector over the 26-code institutional catalog $`\mathcal{C}`$ (`Compose_Policy_Bundle.m`: two-sided commitments `C01`–`C18` in $`\lbrack -1, +1 \rbrack`$ plus constructive `SS1`/`SS2` pillars `C21`–`C28` in $`\lbrack 0, +1 \rbrack`$, with `C19`–`C20` and `C29+` reserved). Under **Convention 2**, `u_c = 0` represents the baseline status quo, `u_c > 0` strengthens public capability/civic/stewardship commitments (`C01`–`C08`, `C12`–`C17`, `C21`–`C28`) while `u_c < 0` retrenches them (and on the four tax-cut/visa/expensing/defence-lift dials `C09`–`C11` and `C18`, `u_c = +1` enacts the 2024 expansion/shock direction while `u_c < 0` tightens screening or shifts procurement onshore; [Document 2B, Section 7.7.1–7.7.2](Document%202B.md)). By **Topkis's (1998) Lattice Supermodularity Theorem**, a welfare functional $`W_k(\mathbf{u})`$ exhibits strictly increasing differences (positive bundling synergies) between policy sub-vectors $`\mathbf{u}_A`$ and $`\mathbf{u}_B`$ if and only if the off-diagonal cross-partial Hessian block $`\mathbf{H}_{AB} = \frac{\partial^2 W_k}{\partial \mathbf{u}_A \partial \mathbf{u}_B}`$ is strictly positive:
+Let $`\mathbf{u} = (u_c)_{c \in \mathcal{C}}`$ denote the sparse signed policy commitment vector over the 26-code institutional catalog $`\mathcal{C}`$ (`Compose_Policy_Bundle.m`: two-sided commitments `C01`–`C18` in $`\lbrack -1, +1 \rbrack`$ plus constructive `SS1`/`SS2` pillars `C21`–`C28` in $`\lbrack 0, +1 \rbrack`$, with `C19`–`C20` and `C29+` reserved). Under **Convention 2**, `u_c = 0` represents the baseline status quo, `u_c > 0` strengthens public capability/civic/stewardship commitments (`C01`–`C08`, `C12`–`C17`, `C21`–`C28`) while `u_c < 0` retrenches them (and on the four tax-cut/visa/expensing/defence-lift dials `C09`–`C11` and `C18`, `u_c = +1` enacts the 2024 expansion/shock direction while `u_c < 0` tightens screening or shifts procurement onshore; [Document 2C, Sections 8.1–8.2](Document%202C.md)). By **Topkis's (1998) Lattice Supermodularity Theorem**, a welfare functional $`W_k(\mathbf{u})`$ exhibits strictly increasing differences (positive bundling synergies) between policy sub-vectors $`\mathbf{u}_A`$ and $`\mathbf{u}_B`$ if and only if the off-diagonal cross-partial Hessian block $`\mathbf{H}_{AB} = \frac{\partial^2 W_k}{\partial \mathbf{u}_A \partial \mathbf{u}_B}`$ is strictly positive:
 
 $$
 \Delta W_k\left(\mathbf{u}_A \oplus \mathbf{u}_B\right) - \Delta W_k\left(\mathbf{u}_A\right) - \Delta W_k\left(\mathbf{u}_B\right) = \mathbf{u}_A^{\top} \mathbf{H}_{AB} \mathbf{u}_B > 0
 $$
 
-Why does a "thin" representative-agent model miss $`\mathbf{H}_{AB}`$ almost entirely? Consider a kinked or threshold-gated micro operator $`g(s; u_A, u_B)`$ such as the 20% LVR homeownership gate $`\mathbb{I}\left(a_1 + E(u_A) \ge 0.20 Q_k(u_B)\right)`$ in Section 4.3 or the distress corner $`\mathbb{I}\left(i_c > 0\right)`$ in Section 4.1:
+Why does a "thin" representative-agent model miss $`\mathbf{H}_{AB}`$ almost entirely? Consider a kinked or threshold-gated micro operator $`g(s; u_A, u_B)`$ such as the 20% LVR homeownership gate $`\mathbb{I}\left(a_1 + E(u_A) \ge 0.20 Q_k(u_B)\right)`$ in Section T4.3 or the distress corner $`\mathbb{I}\left(i_c > 0\right)`$ in Section T4.1:
 
 * **At Scalar Means ("Thin" Evaluation):** A spreadsheet evaluates $`g(\bar{s}; u_A, u_B)`$ at a single average state $`\bar{s} = (\bar{a}, \bar{h}, \bar{\theta}_c, \bar{z})`$. Away from the threshold boundary, an indicator step or piecewise-linear `min`/`max` kink is **locally flat**—its second cross-derivative at $`\bar{s}`$ is identically zero! Even where smooth CES curvature exists, an average household already sitting above the subsistence floor ($`\bar{a} > 0.20 Q_k`$, $`\bar{i}_c > 0`$) operates on the flat interior of the production surface, causing `CBAx` spreadsheets to conclude that housing tax reform, early childhood wraparound, and youth endowments are separable budget line items.
 * **Integrated Over the State Tensor ("Thick" Evaluation):** When integrated against the thick probability density $`\mu_k(s; \mathbf{u})`$, expectation smooths micro-level indicator gates into cumulative distribution hazards (**aggregation smoothing**). Differentiating the expected cohort payoff $`W_k(\mathbf{u}) = \int v(s; \mathbf{u}) \, d\mu_k(s; \mathbf{u})`$ with respect to $`(u_A, u_B)`$ exposes **three distinct channels of Topkis supermodularity**:
@@ -198,20 +198,20 @@ $$
 \frac{\partial^2 W_k}{\partial u_A \partial u_B} = \underbrace{\int \frac{\partial^2 v(s; \mathbf{u})}{\partial u_A \partial u_B} d\mu_k(s)}_{\mathrm{(i)\ Direct\ Micro-Curvature}} + \underbrace{\int \left( \frac{\partial v}{\partial u_A} \frac{\partial d\mu_k}{\partial u_B} + \frac{\partial v}{\partial u_B} \frac{\partial d\mu_k}{\partial u_A} \right)}_{\mathrm{(ii)\ Threshold\ Mass-Shift\ Coupling}} + \underbrace{\int v(s; \mathbf{u}) \frac{\partial^2 d\mu_k(s; \mathbf{u})}{\partial u_A \partial u_B}}_{\mathrm{(iii)\ Comonotonic\ Tail\ Clearing}} > 0
 $$
 
-Every one of the **Four Dynamic Complementarity Wedges (`+13.47 pp CE` in [Document 2B, Section 7.4](Document%202B.md))** is generated directly by the dimension-free state-contingent operators specified in Section 4 of this tutorial:
+Every one of the **Four Dynamic Complementarity Wedges (`+13.47 pp CE` in [Document 2B, Section 7.4](Document%202B.md))** is generated directly by the dimension-free state-contingent operators specified in Section T4 of this tutorial:
 
 | Supermodular Wedge ([Doc 2B, Table 19](Document%202B.md)) | National Synergy (`SS2`) | Underlying Stage-Contingent "Thick" Operator in `Document 2T` | Why "Thin" Scalar Averages Miss the Synergy ($`\mathbf{H}_{AB} \to 0`$) |
 | :--- | :---: | :--- | :--- |
-| **`Wedge 1`: Dual-Gate Human Capital** (`Gate 1 ECE` $`\oplus`$ `Gate 2 Mentoring`) | **`+3.32 pp CE`**<br>*(13.4% share)* | **Sec. 4.1:** Trust-gated mentoring $`M_{\mathrm{trust}}(K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}, M_{\mathrm{mentor}})`$ inside Stage-2 $`\varphi_2 = -0.95`$ CES bottleneck. | A thin mean child never hits the **25.79%** $`i_c = 0`$ birth corner or the $`z_1`$ adolescent stress-erosion trap; in the thick tensor, Gate 1 lifts mass out of $`i_c = 0`$ so Gate 2 banks gains instead of remediating deficits. |
-| **`Wedge 2`: Spatial, LVR & Whānau** (`Tax Shift` $`\oplus`$ `Grant E` $`\oplus`$ `Transfer T_k`) | **`+2.33 pp CE`**<br>*(9.4% share)* | **Sec. 4.3:** 61-point asset-grid LVR hurdle $`\xi_{\mathrm{hh}}(a, Q_k)`$ and comonotonic eviction tail $`p_H(a, z, Q_k, j)`$. | In Auckland ($`Q_k = 3.10`$), `Grant E` alone leaves low-$`a_1`$ youth below $`0.20 Q_k = 0.620`$, while cooling $`Q_k`$ by `-10.5%` alone leaves cash-poor renters without seed equity; only $`E \oplus \Delta Q_k`$ pushes cohort mass across the LVR cliff. |
-| **`Wedge 3`: Cross-Stack HC $`\times`$ Spatial** (`Dual-Gate HC` $`\oplus`$ `Enterprise/Land`) | **`+5.20 pp CE`**<br>*(21.1% share)* | **Sec. 4.2 & 4.5:** *Kaiako* housing deflator $`G_{\mathrm{ece},s}^{\mathrm{eff}}(Q_k)`$ + Rouwenhorst drift $`\Delta \mu_{z,k}`$ (`85%` $`T_k`$ retirement). | Thin scalars treat nominal `G_ece` and regional transfers `T_k` as fixed budget lines; price- and Markov-manifold conditioning means cooling $`Q_k`$ expands real *kaiako* staffing per dollar while $`z_l \to z_h`$ job upgrading self-retires `85%` of Phase-1 transfers. |
-| **`Wedge 4`: Fiscal, Super-64 & 2nd-Gen** (`Debt Sink` $`\oplus`$ `PAYE Cut` $`\oplus`$ `Super-64`) | **`+2.62 pp CE`**<br>*(10.6% share)* | **Sec. 4.1 & 4.4:** Avoiding sandwich reversal $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}} < 0`$ & wear/mortality $`s_j^{\mathrm{eff}}(h, j)`$ + *Kuia* boost. | Raising Super to 67/70 triggers comonotonic sandwich drag and `38%–52%` disability substitution in $`h_1\text{--}h_2`$; Super-64 releases `+8.1%` *kuia* care time that compounds with universal ECE to lift TFR (`1.66 -> 1.87`) and 2nd-gen $`T_{\mathrm{IG}}`$. |
+| **`Wedge 1`: Dual-Gate Human Capital** (`Gate 1 ECE` $`\oplus`$ `Gate 2 Mentoring`) | **`+3.32 pp CE`**<br>*(13.4% share)* | **Sec. T4.1:** Trust-gated mentoring $`M_{\mathrm{trust}}(K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}, M_{\mathrm{mentor}})`$ inside Stage-2 $`\varphi_2 = -0.95`$ CES bottleneck. | A thin mean child never hits the **25.79%** $`i_c = 0`$ birth corner or the $`z_1`$ adolescent stress-erosion trap; in the thick tensor, Gate 1 lifts mass out of $`i_c = 0`$ so Gate 2 banks gains instead of remediating deficits. |
+| **`Wedge 2`: Spatial, LVR & Whānau** (`Tax Shift` $`\oplus`$ `Grant E` $`\oplus`$ `Transfer T_k`) | **`+2.33 pp CE`**<br>*(9.4% share)* | **Sec. T4.3:** 61-point asset-grid LVR hurdle $`\xi_{\mathrm{hh}}(a, Q_k)`$ and comonotonic eviction tail $`p_H(a, z, Q_k, j)`$. | In Auckland ($`Q_k = 3.10`$), `Grant E` alone leaves low-$`a_1`$ youth below $`0.20 Q_k = 0.620`$, while cooling $`Q_k`$ by `-10.5%` alone leaves cash-poor renters without seed equity; only $`E \oplus \Delta Q_k`$ pushes cohort mass across the LVR cliff. |
+| **`Wedge 3`: Cross-Stack HC $`\times`$ Spatial** (`Dual-Gate HC` $`\oplus`$ `Enterprise/Land`) | **`+5.20 pp CE`**<br>*(21.1% share)* | **Sec. T4.2 & T4.5:** *Kaiako* housing deflator $`G_{\mathrm{ece},s}^{\mathrm{eff}}(Q_k)`$ + Rouwenhorst drift $`\Delta \mu_{z,k}`$ (`85%` $`T_k`$ retirement). | Thin scalars treat nominal `G_ece` and regional transfers `T_k` as fixed budget lines; price- and Markov-manifold conditioning means cooling $`Q_k`$ expands real *kaiako* staffing per dollar while $`z_l \to z_h`$ job upgrading self-retires `85%` of Phase-1 transfers. |
+| **`Wedge 4`: Fiscal, Super-64 & 2nd-Gen** (`Debt Sink` $`\oplus`$ `PAYE Cut` $`\oplus`$ `Super-64`) | **`+2.62 pp CE`**<br>*(10.6% share)* | **Sec. T4.1 & T4.4:** Avoiding sandwich reversal $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}} < 0`$ & wear/mortality $`s_j^{\mathrm{eff}}(h, j)`$ + *Kuia* boost. | Raising Super to 67/70 triggers comonotonic sandwich drag and `38%–52%` disability substitution in $`h_1\text{--}h_2`$; Super-64 releases `+8.1%` *kuia* care time that compounds with universal ECE to lift TFR (`1.66 -> 1.87`) and 2nd-gen $`T_{\mathrm{IG}}`$. |
 
-Notice the **sign symmetry of quadratic forms** emphasized in [Document 2B, Section 7.7.1](Document%202B.md): because $`\mathbf{H}_{AB}`$ is strictly positive across these coupled capability and civic state sub-manifolds (`C01`–`C08`, `C12`–`C17`, `C21`–`C28`), simultaneous disinvestment ($`\mathbf{u}_A < \mathbf{0}, \mathbf{u}_B < \mathbf{0}`$—such as retrenching adolescent mentoring *while* deferring water-infrastructure renewal or cutting public/civic capacity, as in Wellington's `-40%` compound shock in `coalition_2024_shocks`) still produces $`\mathbf{u}_A^{\top} \mathbf{H}_{AB} \mathbf{u}_B > 0`$ **in compounded tail damage**. Thin fiscal spreadsheets systematically underestimate both the dividend of coordinated investment and the fiscal sinkhole of siloed austerity.
+Notice the **sign symmetry of quadratic forms** emphasized in [Document 2C, Section 8.1](Document%202C.md): because $`\mathbf{H}_{AB}`$ is strictly positive across these coupled capability and civic state sub-manifolds (`C01`–`C08`, `C12`–`C17`, `C21`–`C28`), simultaneous disinvestment ($`\mathbf{u}_A < \mathbf{0}, \mathbf{u}_B < \mathbf{0}`$—such as retrenching adolescent mentoring *while* deferring water-infrastructure renewal or cutting public/civic capacity, as in Wellington's `-40%` compound shock in `coalition_2024_shocks`) still produces $`\mathbf{u}_A^{\top} \mathbf{H}_{AB} \mathbf{u}_B > 0`$ **in compounded tail damage**. Thin fiscal spreadsheets systematically underestimate both the dividend of coordinated investment and the fiscal sinkhole of siloed austerity.
 
 ---
 
-### 5.2 Antisymmetric Sequencing: Non-Commuting Stage Propagators and the Baker–Campbell–Hausdorff (`BCH`) Wedge
+### T5.2 Antisymmetric Sequencing: Non-Commuting Stage Propagators and the Baker–Campbell–Hausdorff (`BCH`) Wedge
 
 While Topkis supermodularity ($`\mathbf{H}_{AB}`$) is **symmetric** and answers *which policies belong in the same compact*, stage-contingent thick numbers are inherently **directional across lifecycle age $`j`$ and transition time $`t`$**, answering *in what sequence reforms must launch*.
 
@@ -233,7 +233,7 @@ In a "thin" spreadsheet where policies add scalar percentages to aggregate GDP, 
 
 ---
 
-## 6. Deliberative Mechanism Design: How "Thick" Numbers Transform the Five-Assembly Clearinghouse into a Supermodular Combinatorial Auction and Shock-Resilient Dashboard
+## T6. Deliberative Mechanism Design: How "Thick" Numbers Transform the Five-Assembly Clearinghouse into a Supermodular Combinatorial Auction and Shock-Resilient Dashboard
 
 In [Document 1F](Document%201F.md) and `Run_Contingency_Suite.m` (`Compute_Assembly_Clearinghouse_Ledger.m` and `Compute_Contract_Shock_Sensitivity_Ledger.m`), national policy coordination is partitioned across **Five Parallel Citizens' Assemblies** (`m` in `{1..5}`), linked by **15 bilateral contingent contracts** (`K01`–`K15` in `citizens_assembly_contracts.csv`). Each Assembly submits a **ranged contingent bid**:
 
@@ -241,7 +241,7 @@ $$\mathrm{Bid}_m : \quad \mathrm{Provided\ Inputs}\ \mathbf{X}_m \in \left\lbrac
 
 In economic mechanism design (Milgrom, 2004; Cramton, Shoham, & Steinberg, 2006), reconciling five assembly mandates on a shared national balance sheet is formally a **multi-party combinatorial contract auction**. Whether that auction deadlocks in partisan austerity or discovers a shock-resilient positive-sum core depends entirely on whether the clearinghouse runs on **thin spreadsheet numbers** or **thick state-contingent numbers**:
 
-### 6.1 Thin-Spreadsheet Double Auction vs. Thick Supermodular Combinatorial Clearinghouse
+### T6.1 Thin-Spreadsheet Double Auction vs. Thick Supermodular Combinatorial Clearinghouse
 
 | Mechanism & Telemetry Feature | "Thin" Scalar Spreadsheet Auction (`CBAx` / 3-Yr Cash `OBEGAL`) | "Thick" State-Contingent Clearinghouse (`IGWelfare` 26,901-State Tensor) |
 | :--- | :--- | :--- |
@@ -249,7 +249,7 @@ In economic mechanism design (Milgrom, 2004; Cramton, Shoham, & Steinberg, 2006)
 | **2. Thresholds & The "Exposure Problem"** | **"Splitting the Difference" Exposure Trap:** Clearing scalar budgets by funding `50%` of `Grant E` or `50%` of `LVT` leaves cohorts short of the `0.20 Q_k` LVR cliff and inside the $`\varphi_2 = -0.95`$ bottleneck, destroying **54.5%–84.2%** of welfare gains. | **Sub-Manifold Match Discovery:** Evaluates exact cohort mass crossing kinks. Discovers targeted sub-manifold matches like the **Early-Adopter Bridge** (funding the `17.3%` already-mentored youth in `Waves 1–6` before universal `Waves 7–13`, saving **`NZD 3.8B`** in commutator waste). |
 | **3. Shock Testing & `Green`/`Amber`/`Red` Dials** | **Orthogonal Scalar Sliders:** Perturbs means one-at-a-time; blind to comonotonic tail clustering (**False Greens** before burst-pipe or eviction cascades) and panics during the `10.6-yr` cash `OBEGAL` J-curve lag (**Hair-Trigger Reds**). | **Comonotonic SOE Shock Manifolds & State-Contingent Stabilizers:** Propagates correlated open-economy shocks across all 5 sectors and 26,901 states, pricing exact breaking points ($`\lambda^{\ast}_{\mathrm{Rigid}} < \lambda^{\ast}_{\mathrm{Cont}}`$) and targeted `Amber` auto-remedies without reopening the compact. |
 
-### 6.2 How Thick Numbers Expand the `Green` and `Amber` Resilience Bands Against Real-World Shocks
+### T6.2 How Thick Numbers Expand the `Green` and `Amber` Resilience Bands Against Real-World Shocks
 
 Why does a thick-number clearinghouse produce a dramatically wider, higher-trust **`Green` / `Amber` / `Red`** governance dashboard (`Fig_Doc1F_SOE_Shock_Contract_Frontiers_Dunedin_22.png`) than a spreadsheet risk matrix? Because real-world shocks hit **specific sub-manifolds** and move along **correlated Small-Open-Economy (`SOE`) channels** (`Compute_Contract_Shock_Sensitivity_Ledger.m`):
 
@@ -267,7 +267,7 @@ Why does a thick-number clearinghouse produce a dramatically wider, higher-trust
 
 ---
 
-### 6.3 The 1972-to-2026 Backlog Bifurcation: Why Scalar Compromise Worked in 1972, Why Cash-Basis Mirages Spiral Today, and Epistemic Stress-Testing (`Run_ThickVsThin_Auction_Demo.m`)
+### T6.3 The 1972-to-2026 Backlog Bifurcation: Why Scalar Compromise Worked in 1972, Why Cash-Basis Mirages Spiral Today, and Epistemic Stress-Testing (`Run_ThickVsThin_Auction_Demo.m`)
 
 A natural skepticism confronts any institutional reform claiming near-universal clearing (`15/15` contracts) where status-quo bargaining deadlocks: *Why did conventional Westminster budget negotiation work reasonably well two generations ago, and how do we know our "thick" clearinghouse is not merely assuming overly optimistic synergies?*
 
@@ -288,9 +288,9 @@ The four panels of `Fig_Doc2T_ThickVsThin_Assembly_Auction_Dunedin_22.png` estab
 
 ---
 
-## 7. Companion Codebase & Suite Navigation
+## T7. Companion Codebase & Suite Navigation
 
-* **For the Full 8-PType Mixed-Horizon Bellman Specification, 11-Layer Supermodular Attribution, & Combinatorial Clearinghouse Equations:** See **[Document 2A](Document%202A.md) and [Document 2B](Document%202B.md) (*Technical Documentation & Model Specification Guides*, especially Sections 7.4 & 7.7)**.
+* **For the Full 8-PType Mixed-Horizon Bellman Specification, 11-Layer Supermodular Attribution, & Combinatorial Clearinghouse Equations:** See **[Document 2A](Document%202A.md) (`Sections 1–4`), [Document 2B](Document%202B.md) (`Sections 5–7`, esp. §5.7 & §7.4), and [Document 2C](Document%202C.md) (`Sections 8–12`, esp. §§8–9)**.
 * **For the Five-Assembly Deliberative Architecture, Contingent Endorsements, & `Green`/`Amber`/`Red` Shock Governance:** See **[Document 1F: Polycentric Democracy, Contingent Endorsements, and the Citizens' Assembly Compact](Document%201F.md)**.
 * **For the Policy & Coalition Implications of "Thick" vs. "Thin" Operators (Perishability, Two-Term "Stop-Go" Pendulums, & The $`4 \times 4`$ Coalition Matrix):** See **[Document 3: Leaving Our Silos, Lifting All Boats](Document%203.md)** (*Part IV* and *Table 4.1*).
 * **For the Strategic Monograph, Line-Item Answer Key, Rollout Sequencing, & Executive Brief:** See **[Document 1A](Document%201A.md)**, **[Document 1B](Document%201B.md)**, **[Document 1C](Document%201C.md)**, **[Document 1D](Document%201D.md)**, and **[Document 1E](Document%201E.md)**.

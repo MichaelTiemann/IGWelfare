@@ -98,9 +98,14 @@ end
 
 %% 1. EVALUATE THE 6 DISCRETE BENCHMARK SCENARIOS
 % Construct canonical SS0, SS1, and SS2 regional parameter structs via Apply_Policy_Regime:
-P_SS0 = Apply_Policy_Regime(Params, 'SS0');
-P_SS1 = Apply_Policy_Regime(Params, 'SS1');
-P_SS2 = Apply_Policy_Regime(Params, 'SS2');
+P_SS0      = Apply_Policy_Regime(Params, 'SS0');
+P_SS1      = Apply_Policy_Regime(Params, 'SS1');
+P_SS2      = Apply_Policy_Regime(Params, 'SS2');
+Specs_Fert = Default_Reform_Phase_Specs(Params, true);
+GE_Fert1   = Solve_Spatial_GE_Loop(Params, Specs_Fert(1), struct('PhaseIdx', 1));
+GE_Fert2   = Solve_Spatial_GE_Loop(Params, Specs_Fert(2), struct('PhaseIdx', 2));
+Q_mult_endog_SS1 = GE_Fert1.Q_mult_vec;
+Q_mult_endog_SS2 = GE_Fert2.Q_mult_vec;
 
 for s_idx = 1:N_scen
     super_age_s = A_base;
@@ -130,7 +135,7 @@ for s_idx = 1:N_scen
             chi_f_pen = 0.145;
             G_ece1_s  = P_SS1.G_ece_stage1;
             G_ece2_s  = P_SS1.G_ece_stage2;
-            Q_mult    = Params.Q_mult_SS1;
+            Q_mult    = Q_mult_endog_SS1;
         case 5 % Fiscal Austerity Alternative: Raise NZ Super Age to 70 under Status Quo (SS0)
             beta_hyp    = 1.00;
             chi_f_pen   = 0.24;
@@ -142,7 +147,7 @@ for s_idx = 1:N_scen
             chi_f_pen   = 0.132;
             G_ece1_s    = P_SS2.G_ece_stage1;
             G_ece2_s    = P_SS2.G_ece_stage2;
-            Q_mult      = Params.Q_mult_SS2;
+            Q_mult      = Q_mult_endog_SS2;
             super_age_s = super_age_ss2_target;
             is_ss2_flag = true;
     end
@@ -190,7 +195,7 @@ for u_i = 1:n_ug
 
     % 1) Phase 2 (SS2) Harvest Package across Super Age 60..75:
     [tfr_u, ~, stn_u, dep_u, tax_u] = eval_super_age_point(a_u, 1.00, 0.132, P_SS2.G_ece_stage1, P_SS2.G_ece_stage2, ...
-        Params.Q_mult_SS2, Params.p_super, true, ...
+        Q_mult_endog_SS2, Params.p_super, true, ...
         Params, Dist_Reg_Cell, w_Reg_Vec, Q_Base_Vec, K_base_vec, base_struggle_vec, sj_ref, Reg_HH_Shares, h_vec, j_fert_vec, base_struggle_mean);
     Tax_UCurve_SS2(u_i) = tax_u;
     Dep_UCurve_SS2(u_i) = dep_u;

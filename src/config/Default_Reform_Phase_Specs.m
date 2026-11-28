@@ -22,19 +22,26 @@ Reform_Phase_Specs(1).G_ece_stage2    = Params_SS0.G_ece2_sched(2);
 Reform_Phase_Specs(1).G_ece           = Params_SS0.G_ece1_sched(2);
 Reform_Phase_Specs(1).YouthGrant      = Params_SS0.YouthGrant_sched(2);
 Reform_Phase_Specs(1).tau_a           = Params_SS0.tau_a;
+Reform_Phase_Specs(1).tau_a_firm      = 0.015;
+Reform_Phase_Specs(1).tau_k_firm      = 0.120;
+Reform_Phase_Specs(1).lambda_col_firm = 2.150;
 Reform_Phase_Specs(1).tau_b           = 0.180;
 Reform_Phase_Specs(1).tau_l_delta     = 0.000;
 Reform_Phase_Specs(1).r_delta         = -0.004;
-Reform_Phase_Specs(1).w_mult_vs_SS0   = Params_SS0.w_mult_SS1;
-Reform_Phase_Specs(1).Q_mult_vs_SS0   = Params_SS0.Q_mult_SS1;
+Reform_Phase_Specs(1).w_mult_vs_SS0   = []; % Solved endogenously via Solve_Spatial_GE_Loop
+Reform_Phase_Specs(1).Q_mult_vs_SS0   = []; % Solved endogenously via Solve_Spatial_GE_Loop
 Reform_Phase_Specs(1).Frac_struggling = 0.045;
 Reform_Phase_Specs(1).S_cohesion      = 112.0;
 
-t1_mult_def = [1.52, 1.55, 1.5625, 2.00];
-t_geo_ss1   = struct();
+% Endogenous Labrousse-Perdereau Income x Geography bridge indexed to regional energy & rent pressure:
+t_geo_ss1 = struct();
+Q_nat_ref = mean(cellfun(@(r) Params_SS0.Q_reg.(['HH_', r]), Regions));
+e_nat_ref = mean(cellfun(@(r) Params_SS0.ebar_energy.(['HH_', r]), Regions));
 for r_tg = 1:N_reg
     hk_tg = ['HH_', Regions{r_tg}];
-    m_tg  = t1_mult_def(min(r_tg, numel(t1_mult_def)));
+    q_rel = Params_SS0.Q_reg.(hk_tg)       / max(1e-4, Q_nat_ref);
+    e_rel = Params_SS0.ebar_energy.(hk_tg) / max(1e-4, e_nat_ref);
+    m_tg  = 1.38 + 0.10 * e_rel + 0.32 * max(0.0, q_rel - 0.80);
     t_geo_ss1.(hk_tg) = round(Params_SS0.Transfer_Geo.(hk_tg) * m_tg, 4);
 end
 Reform_Phase_Specs(1).Transfer_Geo = t_geo_ss1;
@@ -50,10 +57,13 @@ if Enable_SS2_Phase
     Reform_Phase_Specs(2).G_ece           = Params_SS0.G_ece1_sched(3);
     Reform_Phase_Specs(2).YouthGrant      = Params_SS0.YouthGrant_sched(3);
     Reform_Phase_Specs(2).tau_a           = Params_SS0.tau_a;
+    Reform_Phase_Specs(2).tau_a_firm      = 0.015;
+    Reform_Phase_Specs(2).tau_k_firm      = 0.120;
+    Reform_Phase_Specs(2).lambda_col_firm = 2.500;
     Reform_Phase_Specs(2).tau_b           = 0.180;
     Reform_Phase_Specs(2).r_delta         = -0.006;
-    Reform_Phase_Specs(2).w_mult_vs_SS0   = Params_SS0.w_mult_SS2;
-    Reform_Phase_Specs(2).Q_mult_vs_SS0   = Params_SS0.Q_mult_SS2;
+    Reform_Phase_Specs(2).w_mult_vs_SS0   = []; % Solved endogenously via Solve_Spatial_GE_Loop
+    Reform_Phase_Specs(2).Q_mult_vs_SS0   = []; % Solved endogenously via Solve_Spatial_GE_Loop
     Reform_Phase_Specs(2).Frac_struggling = 0.015;
     Reform_Phase_Specs(2).S_cohesion      = 126.0;
 

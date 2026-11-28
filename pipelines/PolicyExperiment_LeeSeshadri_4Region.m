@@ -97,7 +97,7 @@ if ~exist('Export_Tables_Figures', 'var') || logical(Export_Tables_Figures)
     writetable(T_IGE,     fullfile(OutputDir, 'Table4_4Region_LeeSeshadri_IGE.csv'), 'WriteRowNames', true);
     writetable(T_Out,     fullfile(OutputDir, 'Table5_4Region_LeeSeshadri_Output_Welfare.csv'), 'WriteRowNames', true);
     writetable(T_VarExpl, fullfile(OutputDir, 'Table6_4Region_LeeSeshadri_Table12_VarianceExplained.csv'), 'WriteRowNames', true);
-    writetable(T_IGE,     fullfile(OutputDir, 'Table12A_LeeSeshadri_4Region_IGE.csv'), 'WriteRowNames', true);
-    writetable(T_VarExpl, fullfile(OutputDir, 'Table12B_LeeSeshadri_4Region_VarExpl.csv'), 'WriteRowNames', true);
-    writetable(T_Out,     fullfile(OutputDir, 'Table12C_LeeSeshadri_4Region_Welfare.csv'), 'WriteRowNames', true);
+    writetable(T_IGE,     fullfile(OutputDir, 'Table4_4Region_LeeSeshadri_IGE.csv'), 'WriteRowNames', true);
+    writetable(T_VarExpl, fullfile(OutputDir, 'Table6_4Region_LeeSeshadri_Table12_VarianceExplained.csv'), 'WriteRowNames', true);
+    writetable(T_Out,     fullfile(OutputDir, 'Table5_4Region_LeeSeshadri_Output_Welfare.csv'), 'WriteRowNames', true);
 end

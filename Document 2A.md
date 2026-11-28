@@ -3,7 +3,7 @@
 
 **Author:** Michael Tiemann ([mdtiemann@gmail.com](mailto:mdtiemann@gmail.com))  
 **Date:** November 2026 | **Code & Replication Repository:** [github.com/MichaelTiemann/IGWelfare](https://github.com/MichaelTiemann/IGWelfare)  
-*Companion to [Document 1A](Document%201A.md) (Strategic Monograph), [Document 1B](Document%201B.md) (Strategy & Policy Answer Key), [Document 1C](Document%201C.md) (Executive Brief), [Document 2B](Document%202B.md) (Part B: Coupled General-Equilibrium Synthesis, Calibration, Transition Dynamics, & Supermodular Attribution, Sections 5–10), [Document 2T](Document%202T.md) ("Thick" vs. "Thin" Numbers Tutorial), and [Document 3](Document%203.md) (Leaving Our Silos, Lifting All Boats)*
+*Companion to [Document 1A](Document%201A.md) (Strategic Monograph), [Document 1B](Document%201B.md) (Strategy & Policy Answer Key), [Document 1C](Document%201C.md) (Executive Brief), [Document 2B](Document%202B.md) (Part B: Coupled General-Equilibrium Synthesis, Fiscal/Fertility Incidence, SMM Calibration, Transition Dynamics, & Supermodular Attribution, Sections 5–7), [Document 2C](Document%202C.md) (Part C: Compositional Policy Algebra, Combinatorial Citizens' Assembly Clearinghouse, Cross-Country Validation, & Master Annexes, Sections 8–12), [Document 2T](Document%202T.md) ("Thick" vs. "Thin" Numbers Tutorial), and [Document 3](Document%203.md) (Leaving Our Silos, Lifting All Boats)*
 
 *Disclaimer:* No people nor organizations mentioned herein have endorsed this work unless stated otherwise. This is the work of the author, and all errors and omissions are his alone.
 
@@ -76,6 +76,34 @@ V_{F,k}\left(a_f, z_f\right) = \max_{a_f^{\prime} \in \left\lbrack 0,  R_k\left(
 $$
 
 Replacing distortionary capital income taxation ($`\tau_k`$) with a book-value wealth/land tax ($`\tau_a = 0.015`$) penalizes low-productivity land-banking firms ($`z_{\ell,k}`$) while leaving high-productivity firms ($`z_{h,k}`$) with a higher marginal saving propensity, shifting the stationary equity distribution $`\Gamma_k\left(a_f, z_f\right)`$ toward $`z_{h,k}`$ and raising endogenous regional total factor productivity (reinforced in Rural and Small regions by breaking farm-gate wholesale monopsony and retail duopoly markups [Ref 49] and anchoring 1.60x–2.16x local food-hub procurement multipliers [Ref 56] that shift household labor draws from `z_l` toward `z_h`, $`\Delta \mu_{z,\mathrm{SS2}} = \lbrack +0.0408, +0.0307, +0.0170, +0.0102 \rbrack`$) $`Z_k(\Gamma_k)`$.
+
+#### 2.2.1 Endogenous Spatial General-Equilibrium Price, Wage, & Competition Clearing (`Solve_Spatial_GE_Loop.m`)
+
+Rather than imposing exogenous regional wage multipliers (`w_mult_SS1/2`), house-price schedules (`Q_mult_SS1/2`), or fixed Markov transition shifts, `Solve_Spatial_GE_Loop.m` solves four coupled regional equilibrium conditions simultaneously across $`k \in \lbrace 1, \dots, N_{\mathrm{reg}} \rbrace`$ in vectorized CPU arithmetic (`< 3 ms`, zero extra household state dimensions):
+
+1. **Guvenen Firm Stationary Distribution & Effective TFP ($`Z_k(\Gamma_k)`$):** Under the reform corporate-to-land tax rotation ($`\tau_{a,\mathrm{firm}} = 0.015`$, $`\tau_{k,\mathrm{firm}} = 0.120`$, and expanded collateral multiplier $`\lambda_{\mathrm{col},m}`$), solving the `41 x 2` infinite-horizon firm Bellman operator and its exact Markov eigenvector $`\Gamma_{k,m}(a_f, z_f)`$ yields regional entrepreneurial equity share $`s_{z_h,k} = \int a_f \, d\Gamma_k(a_f, z_{h,k}) / \int a_f \, d\Gamma_k`$ and effective TFP:
+
+$$
+Z_k\left(\Gamma_{k,m}\right) = \left( \frac{\sum_{z_f \in \lbrace z_{\ell,k}, z_{h,k} \rbrace} \left(\int a_f \, d\Gamma_{k,m}(a_f, z_f)\right) z_f^{1 / \alpha_k}}{\int a_f \, d\Gamma_{k,m}(a_f, z_f)} \right)^{\alpha_k}
+$$
+
+2. **Damped Fixed-Point Regional Wage Clearing ($`w_{k,m}`$):** With span-of-control parameter $`\nu_{\mathrm{span}} = 0.15`$ ($`\alpha_{\mathrm{eff}} = \alpha_k (1 - \nu_{\mathrm{span}})`$), small-open-economy sovereign spread compression ($`r_{\mathrm{ann},m} = r_{\mathrm{ann},0} + \Delta r_m`$), Sector-2 Arrow learning-by-doing spillover ($`\eta_{\mathrm{Arrow}} = 0.140`$ weighted by observable regional productivity dispersion $`\max(0, z_{h,k}/z_{\ell,k} - 1.50)`$), and `Sector 4B` / exergy infrastructure lift $`\mathcal{I}_{\mathrm{infra},k,m}`$, competitive labor-market clearing solves the fixed point $`w_{k,m} = \mathcal{T}_{w,k}(w_{k,m})`$:
+
+$$
+\frac{w_{k,m}}{w_{k,0}} = \left(\frac{Z_k\left(\Gamma_{k,m}(w_{k,m})\right)}{Z_k\left(\Gamma_{k,0}(w_{k,0})\right)}\right)^{0.38} \left(\frac{r_{\mathrm{ann},0} + \delta_k}{r_{\mathrm{ann},m} + \delta_k}\right)^{\frac{\alpha_{\mathrm{eff}}}{1 - \alpha_{\mathrm{eff}}}} \left\lbrack 1 + 0.54 \eta_{\mathrm{Arrow}} s_{2,k} \Phi_m \left(1 + 2 \Delta s_{z_h,k}^{+}\right) \right\rbrack \left(1 + \mathcal{I}_{\mathrm{infra},k,m}\right)
+$$
+
+3. **Hirano–Toda (2025) & Supply-Elasticity ($`\delta_{H,k}`$) Regional Housing Capitalization ($`Q_{k,m} / Q_{k,0}`$):** Decomposing baseline dwelling value into elastic structure replacement and location land share $`\theta_{\mathrm{land},k} = \mathrm{clip}(1 - \kappa_{\mathrm{land}} \delta_{H,k}, 0.10, 0.85)`$ ($`\kappa_{\mathrm{land}} = 2.45`$ pinned by empirical supply elasticity `delta_H` in `regions.csv` [Ref 3, 25]), capitalizing the land/holding wedge $`r_{\mathrm{cap},m} = r_{\mathrm{ann},0} + \mu_{\mathrm{maint}} + \tau_{a,m} + \Delta \tau_{b,\mathrm{ann}}`$ against construction supply yields:
+
+$$
+\frac{Q_{k,m}}{Q_{k,0}} = \left( \frac{r_{\mathrm{ann},0} + \mu_{\mathrm{maint}} + \tau_{a,0}}{r_{\mathrm{ann},0} + \mu_{\mathrm{maint}} + \tau_{a,m} + \Delta \tau_{b,\mathrm{ann}}} \right)^{\frac{\theta_{\mathrm{land},k}}{1 + 1.80 \delta_{H,k}}}
+$$
+
+4. **Competition-Driven Household Drift ($`\Delta \mu_{z,k}`$) & Firm Upgrading ($`\Pi_{f,k}`$):** Letting $`\Delta \mathcal{W}_{\mathrm{comp},k} = \eta_{k,m} \left\lbrack (\mu_{\mathrm{monop},k,m} - \mu_{\mathrm{monop},k,0}) + 0.15(M_{\mathrm{olig},k,0} - M_{\mathrm{olig},k,m}) \right\rbrack`$ and $`\Delta \phi_{\mathrm{loc},k} = \eta_{k,m}(\phi_{\mathrm{local},k,m} - \phi_{\mathrm{local},k,0})`$ measure realized wholesale monopsony, retail/grid oligopoly, and local food-hub procurement relief [Ref 49, 56], household Rouwenhorst drift and firm transition hazards update endogenously without region-index constants:
+
+$$
+\Delta \mu_{z,k} = 0.36 \Delta \mathcal{W}_{\mathrm{comp},k} + 0.008 \Delta \phi_{\mathrm{loc},k}\left(1 - 0.50 \theta_{\mathrm{land},k}\right), \qquad p_{z_\ell \to z_h,k} = \min\left(0.45, 0.15 + 0.55 \Delta \mathcal{W}_{\mathrm{comp},k} + 0.015 \Delta \phi_{\mathrm{loc},k}\right)
+$$
 
 ### 2.3 Five-Sector Small-Open-Economy Macroeconomic Closure
 
@@ -584,6 +612,7 @@ $$
 
 ---
 
-### Navigation to Part B & Companion Tutorial
-* **Continue to [Document 2B (Sections 5–10)](Document%202B.md):** *Part B — Coupled General-Equilibrium Synthesis, 6-Gate Fiscal Sankey, 2050 Debt-Sinking Protocol, Fertility & Super-Age U-Curve, SMM Calibration, Actuarial Continuation Valuation, 11-Layer Supermodular Attribution, Code Manifest, & Master Reference Library.*
-* **Companion Tutorial [Document 2T](Document%202T.md):** *"Thick" vs. "Thin" Numbers in Quantitative Public Policy — Why Dimension-Free State-Contingent Conditioning Captures Comonotonic Tail Risks Without Expanding GPU Grid Dimensions.*
+### Navigation to Parts B, C, & Companion Tutorial
+* **Continue to [Document 2B (Sections 5–7)](Document%202B.md):** *Part B — Coupled General-Equilibrium Synthesis, 6-Gate Fiscal Sankey, 2050 Debt-Sinking Protocol, Fertility & Super-Age U-Curve, Horizon-Normalized 5D Distributional Integrals (`T1`–`T3`), SMM Calibration, Transition Dynamics, & 11-Layer Supermodular Attribution.*
+* **Continue to [Document 2C (Sections 8–12)](Document%202C.md):** *Part C — Compositional Policy Algebra, Non-Minimum-Phase Trim-Tab Control, Milgrom–Topkis Combinatorial Citizens' Assembly Clearinghouse, Cross-Country & Finnish Twin Validation, Codebase Manifest, & Master Reference Library.*
+* **Companion Tutorial [Document 2T (Sections T1–T7)](Document%202T.md):** *"Thick" vs. "Thin" Numbers in Quantitative Public Policy — Why Dimension-Free State-Contingent Conditioning Captures Comonotonic Tail Risks Without Expanding GPU Grid Dimensions.*

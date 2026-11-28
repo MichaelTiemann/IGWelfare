@@ -379,22 +379,16 @@ if Export_Tables_Figures
         writetable(T_IGE,     fullfile(OutputDir, 'Table4_4Region_LeeSeshadri_IGE.csv'), 'WriteRowNames', true);
         writetable(T_Out,     fullfile(OutputDir, 'Table5_4Region_LeeSeshadri_Output_Welfare.csv'), 'WriteRowNames', true);
         writetable(T_VarExpl, fullfile(OutputDir, 'Table6_4Region_LeeSeshadri_Table12_VarianceExplained.csv'), 'WriteRowNames', true);
-        writetable(T_IGE,     fullfile(OutputDir, 'Table12A_LeeSeshadri_4Region_IGE.csv'), 'WriteRowNames', true);
-        writetable(T_VarExpl, fullfile(OutputDir, 'Table12B_LeeSeshadri_4Region_VarExpl.csv'), 'WriteRowNames', true);
-        writetable(T_Out,     fullfile(OutputDir, 'Table12C_LeeSeshadri_4Region_Welfare.csv'), 'WriteRowNames', true);
     end
     if exist('T_Fert1', 'var')
-        writetable(T_Fert1, fullfile(OutputDir, 'Table7_4Region_Endogenous_TFR_DiffFertility.csv'), 'WriteRowNames', true);
+        writetable(T_Fert1, fullfile(OutputDir, 'Table7_4Region_Fertility_Bargaining_TFR.csv'), 'WriteRowNames', true);
         writetable(T_Fert2, fullfile(OutputDir, 'Table8_4Region_Fertility_Struggling_NZSuperTax.csv'), 'WriteRowNames', true);
-        writetable(T_Fert1, fullfile(OutputDir, 'Table_Fert1_4Region_TFR_DiffFertility.csv'), 'WriteRowNames', true);
-        writetable(T_Fert2, fullfile(OutputDir, 'Table_Fert2_4Region_Hardship_NZSuper.csv'), 'WriteRowNames', true);
     end
     if exist('T_CohortWelfare', 'var')
         writetable(T_CohortWelfare, fullfile(OutputDir, 'Table_Trans1_Daruich_Cohort_Welfare_4Region.csv'));
     end
     if exist('T_PopShares', 'var')
         writetable(T_PopShares, fullfile(OutputDir, 'Table9_4Region_Dynamic_Population_Shares.csv'));
-        writetable(T_PopShares, fullfile(OutputDir, 'Table_Trans2_Kiyotaki_Housing_PopShares_4Region.csv'));
     end
     if exist('Emig_path', 'var') && exist('Years_grid', 'var')
         emig_reg_cols = cellfun(@(r) ['Emig_', r, '_Pct'], Regions, 'UniformOutput', false);
@@ -402,7 +396,6 @@ if Export_Tables_Figures
         T_BrainDrain  = array2table([Years_grid, Emig_path, Nat_Emig_path, Cohesion_St], ...
             'VariableNames', [{'Year'}, emig_reg_cols, {nat_emig_col, 'Social_Cohesion_Index_St'}]);
         writetable(T_BrainDrain, fullfile(OutputDir, 'Table10_4Region_Abroad_BrainDrain_Cohesion.csv'));
-        writetable(T_BrainDrain, fullfile(OutputDir, 'Table_Trans3_BrainDrain_Cohesion_4Region.csv'));
     end
     old_warn = warning('query', 'all');
     warning('off', 'all');

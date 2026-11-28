@@ -12,17 +12,32 @@ N_reg  = length(Regions);
 V      = struct();
 Policy = struct();
 
-%% 1. SOLVE 4 INFINITE-HORIZON FIRMS VIA EXISTING TOOLKIT DISPATCH
+reuse_post = isstruct(vfoptions) && isfield(vfoptions, 'ReusePostParenting') ...
+    && isstruct(vfoptions.ReusePostParenting) && isfield(vfoptions.ReusePostParenting, 'V');
+vfo_clean = vfoptions;
+if isstruct(vfo_clean) && isfield(vfo_clean, 'ReusePostParenting')
+    vfo_clean = rmfield(vfo_clean, 'ReusePostParenting');
+end
+
+%% 1. SOLVE (OR REUSE) 4 INFINITE-HORIZON FIRMS VIA EXISTING TOOLKIT DISPATCH
 Names_Firm = cell(1, N_reg);
 for r_idx = 1:N_reg
     Names_Firm{r_idx} = ['Firm_', Regions{r_idx}];
 end
-[V_firm, Pol_firm] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_Firm, ...
-    d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, DiscountFactorParamNames, vfoptions);
-for r_idx = 1:N_reg
-    ft = Names_Firm{r_idx};
-    V.(ft)      = V_firm.(ft);
-    Policy.(ft) = Pol_firm.(ft);
+if reuse_post && isfield(vfoptions.ReusePostParenting.V, Names_Firm{1})
+    for r_idx = 1:N_reg
+        ft = Names_Firm{r_idx};
+        V.(ft)      = vfoptions.ReusePostParenting.V.(ft);
+        Policy.(ft) = vfoptions.ReusePostParenting.Policy.(ft);
+    end
+else
+    [V_firm, Pol_firm] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_Firm, ...
+        d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, DiscountFactorParamNames, vfo_clean);
+    for r_idx = 1:N_reg
+        ft = Names_Firm{r_idx};
+        V.(ft)      = V_firm.(ft);
+        Policy.(ft) = Pol_firm.(ft);
+    end
 end
 
 Names_HH = cell(1, N_reg);
@@ -121,56 +136,67 @@ end
 
 %% 4. BACKWARD PHASE HANDOFF ACROSS ALL 4 REGIONS CONCURRENTLY
 V_next_4d = struct();
-% ---- PHASE 4: RETIREMENT (Jr_int : J) — 2-State [a, h] Case1, n_d = [1,1,1] ----
-if ~isempty(j_p4)
-    vfo_4 = struct('verbose', 0, 'experienceasset', 0, 'vectorized', 1);
-    P_p4  = slice_age_params_ptype(Params, Names_HH, j_p4, J);
-    [V_p4, Pol_p4] = ValueFnIter_MixHorz_PType(nd_p4, na_2d, n_z, nj_p4, Names_HH, ...
-        dg_p4, ag_2d, z_grid, pi_z, ReturnFn_2d, P_p4, DiscountFactorParamNames, vfo_4);
-
+j_post    = [j_p3, j_p4];
+if reuse_post && ~isempty(j_post)
     for r_idx = 1:N_reg
         hh_type  = Names_HH{r_idx};
         n_a_full = n_a.(hh_type);
-        n_a1 = n_a_full(1); n_h = n_a_full(2); n_th = n_a_full(3);
+        n_a1 = n_a_full(1); n_h = n_a_full(2);
         N_z  = prod(n_z.(hh_type));
-        len4 = length(j_p4);
-
-        V.(hh_type)(:, :, :, :, j_p4) = repmat(reshape(V_p4.(hh_type), [n_a1, n_h, 1, N_z, len4]), [1, 1, n_th, 1, 1]);
-        % Pol_p4 has 5 rows: [d1=1; d2=1; d3=1; aprime_idx; hprime_idx]. Extract rows 4:5:
-        Pol_p4_ah = Pol_p4.(hh_type)(4:5, :, :, :, :);
-        Policy.(hh_type)(4:5, :, :, :, :, j_p4) = repmat(reshape(Pol_p4_ah, [2, n_a1, n_h, 1, N_z, len4]), [1, 1, 1, n_th, 1, 1]);
-        V_next_4d.(hh_type) = reshape(V_p4.(hh_type)(:, :, :, 1), [n_a1, n_h, 1, N_z]);
+        V.(hh_type)(:, :, :, :, j_post)         = vfoptions.ReusePostParenting.V.(hh_type)(:, :, :, :, j_post);
+        Policy.(hh_type)(:, :, :, :, :, j_post) = vfoptions.ReusePostParenting.Policy.(hh_type)(:, :, :, :, :, j_post);
+        V_next_4d.(hh_type) = reshape(V.(hh_type)(:, :, 1, :, j_post(1)), [n_a1, n_h, 1, N_z]);
     end
-end
+else
+    % ---- PHASE 4: RETIREMENT (Jr_int : J) — 2-State [a, h] Case1, n_d = [1,1,1] ----
+    if ~isempty(j_p4)
+        vfo_4 = struct('verbose', 0, 'experienceasset', 0, 'vectorized', 1);
+        P_p4  = slice_age_params_ptype(Params, Names_HH, j_p4, J);
+        [V_p4, Pol_p4] = ValueFnIter_MixHorz_PType(nd_p4, na_2d, n_z, nj_p4, Names_HH, ...
+            dg_p4, ag_2d, z_grid, pi_z, ReturnFn_2d, P_p4, DiscountFactorParamNames, vfo_4);
 
-% ---- PHASE 3: POST-PARENTING (j_s2_end+1 : Jr_int-1) — 2-State [a, h] Case1, n_d = [4, 3, 1] ----
-if ~isempty(j_p3)
-    vfo_3 = struct('verbose', 0, 'experienceasset', 0, 'vectorized', 1);
-    if ~isempty(fieldnames(V_next_4d))
-        vfo_3_vj = struct();
         for r_idx = 1:N_reg
-            ht = Names_HH{r_idx};
-            na = na_2d.(ht); Nz = prod(n_z.(ht));
-            vfo_3_vj.(ht) = reshape(V_next_4d.(ht), [na(1), na(2), Nz]);
+            hh_type  = Names_HH{r_idx};
+            n_a_full = n_a.(hh_type);
+            n_a1 = n_a_full(1); n_h = n_a_full(2); n_th = n_a_full(3);
+            N_z  = prod(n_z.(hh_type));
+            len4 = length(j_p4);
+
+            V.(hh_type)(:, :, :, :, j_p4) = repmat(reshape(V_p4.(hh_type), [n_a1, n_h, 1, N_z, len4]), [1, 1, n_th, 1, 1]);
+            Pol_p4_ah = Pol_p4.(hh_type)(4:5, :, :, :, :);
+            Policy.(hh_type)(4:5, :, :, :, :, j_p4) = repmat(reshape(Pol_p4_ah, [2, n_a1, n_h, 1, N_z, len4]), [1, 1, 1, n_th, 1, 1]);
+            V_next_4d.(hh_type) = reshape(V_p4.(hh_type)(:, :, :, 1), [n_a1, n_h, 1, N_z]);
         end
-        vfo_3.V_Jplus1 = vfo_3_vj;
     end
-    P_p3 = slice_age_params_ptype(Params, Names_HH, j_p3, J);
-    [V_p3, Pol_p3] = ValueFnIter_MixHorz_PType(nd_p3, na_2d, n_z, nj_p3, Names_HH, ...
-        dg_p3, ag_2d, z_grid, pi_z, ReturnFn_2d, P_p3, DiscountFactorParamNames, vfo_3);
 
-    for r_idx = 1:N_reg
-        hh_type  = Names_HH{r_idx};
-        n_a_full = n_a.(hh_type);
-        n_a1 = n_a_full(1); n_h = n_a_full(2); n_th = n_a_full(3);
-        N_z  = prod(n_z.(hh_type));
-        len3 = length(j_p3);
+    % ---- PHASE 3: POST-PARENTING (j_s2_end+1 : Jr_int-1) — 2-State [a, h] Case1, n_d = [4, 3, 1] ----
+    if ~isempty(j_p3)
+        vfo_3 = struct('verbose', 0, 'experienceasset', 0, 'vectorized', 1);
+        if ~isempty(fieldnames(V_next_4d))
+            vfo_3_vj = struct();
+            for r_idx = 1:N_reg
+                ht = Names_HH{r_idx};
+                na = na_2d.(ht); Nz = prod(n_z.(ht));
+                vfo_3_vj.(ht) = reshape(V_next_4d.(ht), [na(1), na(2), Nz]);
+            end
+            vfo_3.V_Jplus1 = vfo_3_vj;
+        end
+        P_p3 = slice_age_params_ptype(Params, Names_HH, j_p3, J);
+        [V_p3, Pol_p3] = ValueFnIter_MixHorz_PType(nd_p3, na_2d, n_z, nj_p3, Names_HH, ...
+            dg_p3, ag_2d, z_grid, pi_z, ReturnFn_2d, P_p3, DiscountFactorParamNames, vfo_3);
 
-        V.(hh_type)(:, :, :, :, j_p3) = repmat(reshape(V_p3.(hh_type), [n_a1, n_h, 1, N_z, len3]), [1, 1, n_th, 1, 1]);
-        % Pol_p3 has 5 rows: [l_idx; Ih_idx; ic_idx=1; aprime_idx; hprime_idx]. Extract [1,2,4,5]:
-        Pol_p3_sub = Pol_p3.(hh_type)([1, 2, 4, 5], :, :, :, :);
-        Policy.(hh_type)([1, 2, 4, 5], :, :, :, :, j_p3) = repmat(reshape(Pol_p3_sub, [4, n_a1, n_h, 1, N_z, len3]), [1, 1, 1, n_th, 1, 1]);
-        V_next_4d.(hh_type) = reshape(V_p3.(hh_type)(:, :, :, 1), [n_a1, n_h, 1, N_z]);
+        for r_idx = 1:N_reg
+            hh_type  = Names_HH{r_idx};
+            n_a_full = n_a.(hh_type);
+            n_a1 = n_a_full(1); n_h = n_a_full(2); n_th = n_a_full(3);
+            N_z  = prod(n_z.(hh_type));
+            len3 = length(j_p3);
+
+            V.(hh_type)(:, :, :, :, j_p3) = repmat(reshape(V_p3.(hh_type), [n_a1, n_h, 1, N_z, len3]), [1, 1, n_th, 1, 1]);
+            Pol_p3_sub = Pol_p3.(hh_type)([1, 2, 4, 5], :, :, :, :);
+            Policy.(hh_type)([1, 2, 4, 5], :, :, :, :, j_p3) = repmat(reshape(Pol_p3_sub, [4, n_a1, n_h, 1, N_z, len3]), [1, 1, 1, n_th, 1, 1]);
+            V_next_4d.(hh_type) = reshape(V_p3.(hh_type)(:, :, :, 1), [n_a1, n_h, 1, N_z]);
+        end
     end
 end
 
@@ -184,7 +210,7 @@ for r_idx = 1:N_reg
 end
 
 % ---- PHASE 2: ACTIVE PARENTING (j_s1_start : j_s2_end) — Full 5D Experience Asset ----
-vfo_2 = vfoptions;
+vfo_2 = vfo_clean;
 vfo_2.verbose    = 0;
 vfo_2.vectorized = 1;
 vfo_2.V_Jplus1   = V_next_5d;
@@ -207,7 +233,7 @@ end
 % ---- PHASE 1: PRE-PARENTING YOUTH (1 : j_s1_start-1) — 5D Experience Asset, n_d = [4, 3, 1] ----
 % Must stay 5D because V_next_5d at j_s1_start depends on inherited theta_c!
 if ~isempty(j_p1)
-    vfo_1 = vfoptions;
+    vfo_1 = vfo_clean;
     vfo_1.verbose    = 0;
     vfo_1.vectorized = 1;
     vfo_1.V_Jplus1   = V_next_5d;

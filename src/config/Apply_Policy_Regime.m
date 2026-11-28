@@ -79,10 +79,13 @@ if ischar(RegimeSpec) || isstring(RegimeSpec)
             Params.G_ece_stage2_base    = max(0.010, Params.G_ece2_sched(1) - 0.025);
 
         case 'P0_Plus_GrantE'
-            Params.G_ece_stage1_base    = Params.G_ece1_sched(2);
-            Params.G_ece_base           = Params.G_ece_stage1_base;
-            Params.YouthGrant           = Params.YouthGrant_sched(2);
-            Params.tau_b                = 0.250;
+            Params.G_ece_stage1_base = Params.G_ece1_sched(2);
+            Params.G_ece_base        = Params.G_ece_stage1_base;
+            Params.YouthGrant        = Params.YouthGrant_sched(2);
+            Params.tau_b             = 0.250;
+            spec_p0e = struct('Code', 'SS1', 'tau_a_firm', 0.015, 'tau_k_firm', 0.120, ...
+                'lambda_col_firm', 2.150, 'tau_b', 0.250, 'r_delta', -0.004);
+            GE_p0e   = Solve_Spatial_GE_Loop(Params, spec_p0e, struct('PhaseIdx', 1));
             tau_a_hh = scalar_or_hh(Params.tau_a, Reg_Names{1});
             tau_k_hh = scalar_or_hh(Params.tau_k, Reg_Names{1});
             Params.tau_a = struct();
@@ -90,12 +93,12 @@ if ischar(RegimeSpec) || isstring(RegimeSpec)
             for rr = 1:N_reg
                 rn = Reg_Names{rr};
                 Params.tau_a.(['HH_', rn])   = tau_a_hh;
-                Params.tau_a.(['Firm_', rn]) = 0.015;
+                Params.tau_a.(['Firm_', rn]) = GE_p0e.tau_a_firm;
                 Params.tau_k.(['HH_', rn])   = tau_k_hh;
-                Params.tau_k.(['Firm_', rn]) = 0.120;
-                Params.w_reg.(['HH_', rn])   = Params.w_reg.(['HH_', rn])   * Params.w_mult_SS1(rr);
-                Params.w_reg.(['Firm_', rn]) = Params.w_reg.(['Firm_', rn]) * Params.w_mult_SS1(rr);
-                Params.Q_reg.(['HH_', rn])   = Params.Q_reg.(['HH_', rn])   * Params.Q_mult_SS1(rr);
+                Params.tau_k.(['Firm_', rn]) = GE_p0e.tau_k_firm;
+                Params.w_reg.(['HH_', rn])   = Params.w_reg.(['HH_', rn])   * GE_p0e.w_mult_vec(rr);
+                Params.w_reg.(['Firm_', rn]) = Params.w_reg.(['Firm_', rn]) * GE_p0e.w_mult_vec(rr);
+                Params.Q_reg.(['HH_', rn])   = Params.Q_reg.(['HH_', rn])   * GE_p0e.Q_mult_vec(rr);
             end
 
         case 'SS1'
@@ -247,32 +250,56 @@ else
 end
 P_GE = sync_regional_policy_structs(P_GE);
 
+% Solve endogenous regional wages w_k, housing user-cost capitalization Q_k, firm taxes, & competition drift:
+GE_sol = Solve_Spatial_GE_Loop(Params_SS0, spec, struct('PhaseIdx', m_idx));
+if isfield(spec, 'w_mult_vs_SS0') && ~isempty(spec.w_mult_vs_SS0)
+    w_mult_use = spec.w_mult_vs_SS0;
+else
+    w_mult_use = GE_sol.w_mult_vec;
+end
+if isfield(spec, 'Q_mult_vs_SS0') && ~isempty(spec.Q_mult_vs_SS0)
+    Q_mult_use = spec.Q_mult_vs_SS0;
+else
+    Q_mult_use = GE_sol.Q_mult_vec;
+end
+
+tau_a_hh0 = scalar_or_hh(P_GE.tau_a, Reg_Names{1});
+tau_k_hh0 = scalar_or_hh(P_GE.tau_k, Reg_Names{1});
+P_GE.tau_a      = struct();
+P_GE.tau_k      = struct();
+P_GE.lambda_col = GE_sol.lambda_col_firm;
+
 has_z = isstruct(z_grid_in) && ~isempty(fieldnames(z_grid_in));
 has_p = isstruct(pi_z_in)   && ~isempty(fieldnames(pi_z_in));
 for r_idx = 1:N_reg
     reg       = Reg_Names{r_idx};
     hh_type   = ['HH_', reg];
     firm_type = ['Firm_', reg];
-    P_GE.w_reg.(hh_type)   = Params_SS0.w_reg.(hh_type)   * spec.w_mult_vs_SS0(r_idx);
-    P_GE.w_reg.(firm_type) = Params_SS0.w_reg.(firm_type) * spec.w_mult_vs_SS0(r_idx);
-    P_GE.Q_reg.(hh_type)   = Params_SS0.Q_reg.(hh_type)   * spec.Q_mult_vs_SS0(r_idx);
-    elder_home_mult        = min(1.25, max(0.50, (1.0 / spec.Q_mult_vs_SS0(r_idx)) ^ 0.35));
+    P_GE.tau_a.(hh_type)   = tau_a_hh0;
+    P_GE.tau_a.(firm_type) = GE_sol.tau_a_firm;
+    P_GE.tau_k.(hh_type)   = tau_k_hh0;
+    P_GE.tau_k.(firm_type) = GE_sol.tau_k_firm;
+
+    P_GE.w_reg.(hh_type)   = Params_SS0.w_reg.(hh_type)   * w_mult_use(r_idx);
+    P_GE.w_reg.(firm_type) = Params_SS0.w_reg.(firm_type) * w_mult_use(r_idx);
+    P_GE.Q_reg.(hh_type)   = Params_SS0.Q_reg.(hh_type)   * Q_mult_use(r_idx);
+    elder_home_mult        = min(1.25, max(0.50, (1.0 / Q_mult_use(r_idx)) ^ 0.35));
     P_GE.K_whanau.(hh_type)= Params_SS0.K_whanau_base.(hh_type) * elder_home_mult * elder_time_mult;
 
     elec_comp = P_GE.s_active_elec_vec(r_idx) * P_GE.eta_deliv_vec(r_idx) * Params_SS0.ebar_elec_relief_share(r_idx);
     P_GE.ebar_energy.(hh_type) = Params_SS0.ebar_energy.(hh_type) * (1.0 - elec_comp);
 
     if has_z && isfield(z_grid_in, hh_type)
-        d_mu_z_r           = P_GE.mu_z_reg_vec(r_idx) - Params_SS0.mu_z_SS0(r_idx);
-        z_grid_m.(hh_type) = z_grid_in.(hh_type) * exp(d_mu_z_r);
+        z_grid_m.(hh_type) = z_grid_in.(hh_type) * exp(GE_sol.d_mu_z_vec(r_idx));
     end
     if has_p && isfield(pi_z_in, firm_type)
-        p_up_m             = P_GE.p_zh_upgrade_vec(r_idx);
-        p_dn_m             = P_GE.p_zl_downgrade_v(r_idx);
+        p_up_m             = GE_sol.p_zh_upgrade_vec(r_idx);
+        p_dn_m             = GE_sol.p_zl_downgrade_v(r_idx);
         pi_z_m.(firm_type) = [1.0 - p_up_m, p_up_m; p_dn_m, 1.0 - p_dn_m];
     end
 end
 P_Out = P_GE;
+endP_Out = P_GE;
 end
 
 function Params = sync_regional_policy_structs(Params)
@@ -336,9 +363,13 @@ ece2_prog = (g2_scalar - Params.G_ece2_sched(1)) / max(1e-4, Params.G_ece2_sched
 phi_prog  = (Params.active_phi_local_vec(1) - Params.phi_local_SS0(1)) / max(1e-4, Params.phi_local_SS2(1) - Params.phi_local_SS0(1));
 Params.kai_upgrade_share = min(1.0, max(0.0, max(0.50 * ece1_prog + 0.50 * ece2_prog, phi_prog)));
 
-Params.mu_z_reg_vec     = Params.mu_z_SS0 + Params.kai_upgrade_share * (Params.mu_z_SS2 - Params.mu_z_SS0);
-Params.p_zh_upgrade_vec = [0.15, 0.15, 0.15, 0.15] + Params.kai_upgrade_share * [0.08, 0.06, 0.03, 0.01];
-Params.p_zl_downgrade_v = [0.15, 0.15, 0.15, 0.15] - Params.kai_upgrade_share * [0.05, 0.04, 0.02, 0.00];
+d_monop_sync            = max(0.0, Params.active_mu_monop_vec - Params.mu_monop_SS0);
+d_olig_sync             = max(0.0, Params.M_olig_SS0 - Params.active_M_olig_vec);
+d_proc_sync             = max(0.0, Params.active_phi_local_vec - Params.phi_local_SS0);
+comp_w_sync             = d_monop_sync + 0.15 * d_olig_sync;
+Params.mu_z_reg_vec     = Params.mu_z_SS0 + 0.36 * comp_w_sync + 0.006 * d_proc_sync;
+Params.p_zh_upgrade_vec = min(0.45, 0.15 + 0.55 * comp_w_sync + 0.015 * d_proc_sync);
+Params.p_zl_downgrade_v = max(0.05, 0.15 - 0.35 * comp_w_sync - 0.010 * d_proc_sync);
 
 N_waves_ro = numel(Params.Waves_13);
 if isfield(Params, 't_wave_yr') && ~isempty(Params.t_wave_yr) && Params.t_wave_yr >= 1 && Params.t_wave_yr <= N_waves_ro

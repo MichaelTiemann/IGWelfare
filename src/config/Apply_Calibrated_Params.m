@@ -68,6 +68,18 @@ if ~isfield(Params, 'beta_exits_skill_div'),    Params.beta_exits_skill_div    =
 if ~isfield(Params, 'ss2_harvest_div_base'),    Params.ss2_harvest_div_base    = 2.070; end
 if ~isfield(Params, 'psi_austerity_tax_drag'),  Params.psi_austerity_tax_drag  = 0.220; end
 
+%% 3B. STATE-CONTINGENT SUB-MANIFOLD & SPATIAL GE ELASTICITIES (DOCUMENT 2A / 2T)
+if ~isfield(Params, 'nu_kaiako_spatial'),     Params.nu_kaiako_spatial     = 0.340; end % Cross-regional rent drag exponent (Q_ref = 1.65)
+if ~isfield(Params, 'nu_kaiako_cooling'),     Params.nu_kaiako_cooling     = 0.350; end % Intertemporal housing-cooling educator elasticity
+if ~isfield(Params, 'psi_evict_transience'),  Params.psi_evict_transience  = 0.040; end % Comonotonic eviction/transience user-cost wedge
+if ~isfield(Params, 'psi_sandwich_reversal'), Params.psi_sandwich_reversal = 0.280; end % Super > 65 sandwich care reversal amplitude
+if ~isfield(Params, 'delta_theta_fade_base'), Params.delta_theta_fade_base = 0.140; end % Unbanked Stage-2 skill fade-out per step (x w2)
+if ~isfield(Params, 'lambda_psy_base'),       Params.lambda_psy_base       = 0.220; end % Adolescent psychosocial hazard base (38% floor = 0.0836)
+if ~isfield(Params, 'eta_mort_skill_grad'),   Params.eta_mort_skill_grad   = 0.050; end % Late-life skill-mortality hazard gradient
+if ~isfield(Params, 'nu_span'),               Params.nu_span               = 0.150; end % Guvenen entrepreneurial span-of-control parameter
+if ~isfield(Params, 'eta_arrow_s2'),          Params.eta_arrow_s2          = 0.140; end % Sector-2 Arrow learning-by-doing spillover elasticity
+if ~isfield(Params, 'kappa_land_dH_slope'),   Params.kappa_land_dH_slope   = 2.450; end % Urban land-value share slope wrt supply elasticity delta_H
+
 %% 4. LOCAL KAI / PROCUREMENT & ENTERPRISE UPGRADING ELASTICITIES
 Params.kappa_olig_schedule = [0.000, 0.700, 1.000];
 Params.G_food_share        = 0.012;
