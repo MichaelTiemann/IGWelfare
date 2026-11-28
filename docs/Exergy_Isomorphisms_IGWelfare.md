@@ -198,7 +198,7 @@ In keeping with `IGWelfare` and `VFIToolkit-matlab` (`MixHorz` / `UFHorz`) desig
 
 1. **Diagnostic Audit Layer (`src/ledgers/Compute_Wedge_Additionality_Table.m`):** Post-processes exported `Table19E`, `Table20`, and `Table5` CSVs across `NZ_Dunedin1972` and `FI_FBC1987` in `<0.2 s` to report scale-free Hulten Leverage Ratios ($`\Lambda_k`$) and regional conversion contrasts.
 2. **Profile & Ledger Teacher-Wage Split (`regions.csv` & `Apply_Policy_Regime.m`):** Decomposes `G_ece_s` into a regional cost-of-living educator wage index ($`W_{\mathrm{teach},k}(Q_k)`$, linked to `nu_col_index`) and real converted mentoring intensity (`fte_intensity_mult`), passing only real converted intensity into `HumanCapital_Lifecycle_aprimeFn.m` / `daruich_mult` while reporting the wage/overhead split in the actuarial tables.
-3. **Outer-Loop 5-Sector Exergy & Household Subsistence Conditioning (`Compute_5Sector_Exergy_Equilibrium.m` & `ReturnFn_SpatialHH_Compact4D.m`):** Evaluates dual-fuel exergy $`X_{s,k}(e_N N_{s,k}, e_F F_{s,k})`$ in the outer general-equilibrium price block and maps household electrification into the regional Stone–Geary subsistence floor $`\bar{e}_k`$ (`1.0x` Bellman state-space multiplier).
+3. **Outer-Loop 5-Sector Exergy & Household Subsistence Conditioning (`Compute_5Sector_Exergy_Equilibrium.m` & `ReturnFn_SpatialHH.m`):** Evaluates dual-fuel exergy $`X_{s,k}(e_N N_{s,k}, e_F F_{s,k})`$ in the outer general-equilibrium price block and maps household electrification into the regional Stone–Geary subsistence floor $`\bar{e}_k`$ (`1.0x` Bellman state-space multiplier).
 
 ---
 

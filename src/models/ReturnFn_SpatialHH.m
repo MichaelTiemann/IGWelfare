@@ -60,9 +60,11 @@ is_distress_z = double(z < 0.80) .* double(a < 0.12 * Q_reg);
 K_whanau_net  = K_whanau - 0.28 .* is_super_cut .* is_distress_z;
 sandwich_drag = max(0.0, -K_whanau_net) .* 0.035;
 
+kaiako_spatial = (1.65 ./ max(0.80, Q_reg)) .^ 0.34;
 kaiako_cooling = (max(0.50, Q_reg_base) ./ max(0.50, Q_reg)) .^ 0.35;
-G_ece1_eff     = G_ece_stage1 * kaiako_cooling;
-G_ece2_eff     = G_ece_stage2 * kaiako_cooling;
+kaiako_prod    = kaiako_spatial .* kaiako_cooling;
+G_ece1_eff     = G_ece_stage1 .* kaiako_prod;
+G_ece2_eff     = G_ece_stage2 .* kaiako_prod;
 M_mentor       = min(1.0, max(0.0, 0.173 + 20.0 * (G_ece2_eff - 0.065)));
 M_trust_gated  = M_mentor .* (0.45 + 0.55 .* min(1.0, max(0.0, K_whanau_net) ./ 0.35));
 
@@ -104,10 +106,10 @@ if is_stage1
     u_child = (omega_ic / max(1, n_stage1_steps)) .* log(max(1e-4, th_2));
 elseif is_stage2
     I_eff2       = 0.55 + 2.50 .* max(1e-4, ic + G_ece2_eff + 0.020 .* max(0.0, K_whanau_net) + gbar_ece);
-    th_3         = (gamma2_self .* (max(1e-4, theta_c) .^ phi2_ces) + gamma2_inv .* (I_eff2 .^ phi2_ces) + gamma2_par .* (h .^ phi2_ces)) .^ (1 / phi2_ces);
-    is_corner_ic = double(ic < 0.01);
-    Psi_perc     = -0.038 .* is_corner_ic .* max(0.0, (1 - 0.55 .* K_whanau_net) .* (1 - 0.80 .* M_trust_gated)) + 0.035 .* max(0.0, M_trust_gated - 0.173);
-    u_child      = (omega_ic / max(1, n_stage2_steps)) .* log(max(1e-4, th_3 .* exp(Psi_perc)));
+    th_3             = (gamma2_self .* (max(1e-4, theta_c) .^ phi2_ces) + gamma2_inv .* (I_eff2 .^ phi2_ces) + gamma2_par .* (h .^ phi2_ces)) .^ (1 / phi2_ces);
+    is_corner_stress = double(ic < 0.005) + 0.55 .* double((ic >= 0.005) & (ic < 0.035));
+    Psi_perc         = -0.038 .* is_corner_stress .* max(0.0, (1 - 0.55 .* K_whanau_net) .* (1 - 0.80 .* M_trust_gated)) + 0.035 .* max(0.0, M_trust_gated - 0.173);
+    u_child          = (omega_ic / max(1, n_stage2_steps)) .* log(max(1e-4, th_3 .* exp(Psi_perc)));
 end
 
 %% 6. END-OF-LIFE WARM-GLOW BEQUEST (WITH SKILL-MANIFOLD MORTALITY GRADIENT sj_eff(h, j))

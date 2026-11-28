@@ -57,7 +57,7 @@ Evaluating the model simultaneously through a **Long-Horizon Sovereign Turnaroun
 | :--- | :--- | :--- | :--- |
 | **1. Extended Whānau Care & Sandwich Reversal** (`K_whanau_base`) | Positive regional scalar $`K_{\mathrm{wh\bar{a}nau},k} > 0`$ that uniformly buffers adolescent stress. | **Sandwich-Generation Care Reversal:** When NZ Super is raised to 67/70, low-*z*, low-*a* elders in poor health do not merely reduce downward childcare ($`K_{\mathrm{wh\bar{a}nau}} \to 0`$); they require *upward caregiving and cash bailouts* from their 35-year-old children ($`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}} < 0`$). | State-contingent net *whānau* transfer $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}(i_c, z, a, J_r, k)`$ that flips negative at the comonotonic distress tail ($`z = z_1`$, $`a < 0.12 Q_k`$) when $`\mathrm{Age}_{\mathrm{Super}} > 65`$. |
 | **2. Non-Fungible Whānau Trust Gating** (`M_mentor` $`\times`$ `K_whanau`) | Multiplicative independent substitutes $`(1 - 0.80 M_{\mathrm{mentor}})(1 - 0.55 K_{\mathrm{wh\bar{a}nau}})`$. | **Institutional Distrust at the Tail:** For trauma-affected or alienated youth ($`z_1`$), school-based mentoring (`M_mentor`) cannot substitute one-for-one for broken family trust; baseline *Whānau Ora* stability is the bridge that unlocks school mentoring engagement. | State-conditioned trust-gated mentoring intensity $`M_{\mathrm{trust}}(K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}, M_{\mathrm{mentor}})`$ where positive *whānau* stability gates school mentoring efficacy. |
-| **3. Kaiako Workforce Housing Deflator** (`G_ece_stage1`, `G_ece_stage2`) | Nominal dollar of Crown `G_ece` buys identical real ECE/mentoring services in Auckland (`Q_reg = 3.10`) and Rural (`Q_reg = 1.05`). | **Educator Supply Bottleneck:** Unaffordable metropolitan rents price early-childhood *Kaiako* and speech therapists out of Auckland and Large cities, eroding real delivery capacity per Crown dollar. | Price-manifold conditioned wraparound capacity $`G_{\mathrm{ece},s}^{\mathrm{eff}}(Q_k) = G_{\mathrm{ece},s} \cdot (Q_{\mathrm{reg,base},k}/Q_k)^{\nu_{\mathrm{kaiako}}}`$, creating an endogenous complementarity wedge when housing cools. |
+| **3. Kaiako Workforce Housing Deflator** (`G_ece_stage1`, `G_ece_stage2`) | Nominal dollar of Crown `G_ece` buys identical real ECE/mentoring services in Auckland (`Q_reg = 3.10`) and Rural (`Q_reg = 1.05`). | **Educator Supply Bottleneck:** Unaffordable metropolitan rents price early-childhood *Kaiako* and speech therapists out of Auckland and Large cities, eroding real delivery capacity per Crown dollar. | Price-manifold conditioned wraparound capacity $`G_{\mathrm{ece},s}^{\mathrm{eff}}(Q_k) = G_{\mathrm{ece},s} (1.65 / \max(0.80, Q_k))^{0.34} (Q_{\mathrm{reg,base},k}/Q_k)^{0.35}`$, capturing both metropolitan rent drag and reform cooling wedges. |
 | **4. LVR Tenure Hurdle & Differential Mortality** (`Q_reg`, `sj`) | Regional scalar tenure share $`\xi_k`$ and uniform age survival vector $`s_j`$ across all skill tiers $`h_1 \dots h_7`$. | **Eviction Tail & Actuarial Regressivity:** Asset-poor renters ($`a < 0.20 Q_k`$) cannot access owner user costs $`rh_k`$ and suffer transience penalties at $`z_1`$; manual/Māori/Pasifika workers in $`h_1\text{--}h_2`$ face steeper late-life health depreciation and shorter retirement horizons. | Asset-manifold gated tenure $`\xi_{\mathrm{hh}}(a, Q_k)`$ with comonotonic tail transience wedge, paired with skill-contingent late-life survival and work disutility $`s_j^{\mathrm{eff}}(h, j)`$. |
 
 ---
@@ -68,24 +68,40 @@ Evaluating the model simultaneously through a **Long-Horizon Sovereign Turnaroun
 
 In a scalar parameterization, extended *whānau* support (grandmothers, *kuia*, aunties, and *kaumātua* aged 55–72) is represented as a static regional constant $`K_{\mathrm{whanau,base},k} \in \lbrack 0.42, 0.38, 0.32, 0.28 \rbrack`$ (Rural, Small, Large, Auckland). Under that deterministic scalar view, raising the New Zealand Superannuation eligibility age from 65 to 67 or 70 simply trims the regional constant by 36.2% to `[0.27, 0.24, 0.20, 0.18]` as elders are forced back into market labor.
 
-Under our **state-contingent parameterization** inside `HumanCapital_Lifecycle_aprimeFn.m` and `ReturnFn_SpatialHH.m`, net extended *whānau* support $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}(i_c, z, a, J_r, k)`$ is conditioned directly on the household's endogenous investment and balance-sheet sub-manifold:
+Under our **state-contingent parameterization** inside `HumanCapital_Lifecycle_aprimeFn.m` and `ReturnFn_SpatialHH.m`, net extended *whānau* support $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}`$ is conditioned directly on the household's endogenous investment and balance-sheet sub-manifold:
 
-$$K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}\left(i_c, z, a, J_r, k\right) = K_{\mathrm{wh\bar{a}nau},k}\left(J_r, Q_k\right) - \psi_{\mathrm{sandwich}} \mathbb{I}_{\mathrm{Super}>65} \cdot \mathbb{I}_{\mathrm{distress}}\left(i_c, z, a\right)$$
+$$
+K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}\left(i_c, z, a, J_r, k\right) = K_{\mathrm{wh\bar{a}nau},k}\left(J_r, Q_k\right) - \psi_{\mathrm{sandwich}} \mathbb{I}_{\mathrm{Super}>65} \cdot \mathcal{D}\left(i_c, z, a\right)
+$$
 
-where $`K_{\mathrm{wh\bar{a}nau},k}(J_r, Q_k)`$ reflects the active regional *whānau* network (`Params.K_whanau`), $`\mathbb{I}_{\mathrm{Super}>65} = \mathbb{I}(20 + (J_r - 1)\Delta t > 65.5)`$ indicates a pension-age hike, $`\mathbb{I}_{\mathrm{distress}}(i_c, z, a) = \mathbb{I}(i_c < 0.01 \lor (z < 0.80 \land a < 0.12 Q_k))`$ isolates households in the comonotonic tail hardship corner, and $`\psi_{\mathrm{sandwich}} = 0.28`$ captures the **Sandwich-Generation Care Reversal**:
+where $`K_{\mathrm{wh\bar{a}nau},k}(J_r, Q_k)`$ reflects the active regional *whānau* network (`Params.K_whanau`), $`\mathbb{I}_{\mathrm{Super}>65} = \mathbb{I}(20 + (J_r - 1)\Delta t > 65.5)`$ indicates a pension-age hike, and $`\psi_{\mathrm{sandwich}} = 0.28`$ captures the **Sandwich-Generation Care Reversal**. Inside the household budget constraint (`ReturnFn_SpatialHH.m`), comonotonic balance-sheet distress is gated by $`\mathcal{D}_{\mathrm{budg}}(z, a) = \mathbb{I}(z < 0.80 \land a < 0.12 Q_k)`$, whereas inside the child skill law of motion (`HumanCapital_Lifecycle_aprimeFn.m`, as well as Stage-2 altruism perception), two-tier child investment vulnerability on the convex power grid `d_grid_ic` distinguishes **Node 1 Severe Material Hardship** ($`i_c < 0.005`$) from **Node 2 Residual AHC Squeeze** ($`0.005 \le i_c < 0.035`$, capturing the first positive rung $`i_{c,2} = 0.0203`$):
 
-* **Unconstrained & Moderate States ($`\mathbb{I}_{\mathrm{distress}} = 0`$):** $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}} > 0`$. Extended *whānau* act as net suppliers of downward childcare and adolescent emotional scaffolding.
-* **Comonotonic Tail Distress States Under Super Age 67/70 ($`\mathbb{I}_{\mathrm{Super}>65} = 1`$ and $`\mathbb{I}_{\mathrm{distress}} = 1`$):** $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}} < 0`$. Denied universal NZ Super at ages 65–69 while experiencing manual health depreciation, vulnerable elders cannot provide free childcare and instead require *upward financial and caregiving support* from their prime-age adult children:
+$$
+\mathcal{D}_{\mathrm{ic}}\left(i_c\right) = \mathbb{I}\left(i_c < 0.005\right) + 0.55 \, \mathbb{I}\left(0.005 \le i_c < 0.035\right)
+$$
 
-$$\mathrm{Drag}_{\mathrm{sandwich}}\left(z, a, J_r, k\right) = 0.035 \max\left(0, -K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}\left(i_c, z, a, J_r, k\right)\right)$$
+* **Unconstrained & Moderate States ($`\mathcal{D} = 0`$):** $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}} > 0`$. Extended *whānau* act as net suppliers of downward childcare (`waring_whanau_s1`) and adolescent emotional scaffolding.
+* **Comonotonic Tail Distress States Under Super Age 67/70 ($`\mathbb{I}_{\mathrm{Super}>65} = 1`$ and $`\mathcal{D} > 0`$):** $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}} < 0`$. Denied universal NZ Super at ages 65–69 while experiencing manual health depreciation, vulnerable elders cannot provide free childcare and instead require *upward financial and caregiving support* from their prime-age adult children:
 
-Simultaneously, rather than treating institutional school mentoring $`M_{\mathrm{mentor}} \in [0, 1]`$ and extended family care $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}`$ as independent substitutes, effective adolescent mentoring is **state-conditioned on positive whānau stability** $`K_{\mathrm{wh\bar{a}nau}}^{+} = \max(0, K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}})`$:
+$$
+\mathrm{Drag}_{\mathrm{sandwich}}\left(z, a, J_r, k\right) = 0.035 \max\left(0, -K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}\left(z, a, J_r, k\right)\right)
+$$
 
-$$M_{\mathrm{trust}}\left(K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}, M_{\mathrm{mentor}}\right) = M_{\mathrm{mentor}} \cdot \left(0.45 + 0.55 \min\left(1.0, \frac{K_{\mathrm{wh\bar{a}nau}}^{+}}{0.35}\right)\right)$$
+Simultaneously, active Stage-2 mentoring reach $`M_{\mathrm{mentor}} = \min\left(1.0, \max\left(0.0, 0.173 + 20.0 (G_{\mathrm{ece},2}^{\mathrm{eff}} - 0.065)\right)\right)`$ expands from New Zealand's `17.3%` vanguard baseline (`Stars` / `Project K` / *Kura*), and effective adolescent mentoring is **state-conditioned on positive whānau stability** $`K_{\mathrm{wh\bar{a}nau}}^{+} = \max(0, K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}})`$:
 
-The resulting Stage-2 adolescent stress-erosion and gain-banking operator $`\Psi_{\mathrm{adolescent}}`$ becomes:
+$$
+M_{\mathrm{trust}}\left(K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}, M_{\mathrm{mentor}}\right) = M_{\mathrm{mentor}} \cdot \left(0.45 + 0.55 \min\left(1.0, \frac{K_{\mathrm{wh\bar{a}nau}}^{+}}{0.35}\right)\right)
+$$
 
-$$\Psi_{\mathrm{adolescent}}\left(i_c, K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}, M_{\mathrm{mentor}}\right) = -\psi_{\mathrm{unemp}} \mathbb{I}\left(i_c < 0.01\right) \max\left(0, \left(1 - 0.55 K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}\right)\left(1 - 0.80 M_{\mathrm{trust}}\right)\right) + \kappa_{\mathrm{up}} M_{\mathrm{trust}}$$
+In `HumanCapital_Lifecycle_aprimeFn.m`, unbanked Stage-1 skill gains above $`\theta_{\mathrm{base}} = 0.78`$ depreciate at rate $`\delta_{\theta,\mathrm{fade}} = 0.14 w_2`$ when unmentored ($`1 - M_{\mathrm{trust}}`$), while the Stage-2 adolescent psychosocial and household distress operator $`\Psi_{\mathrm{adolescent}}`$ couples two-tier household corner stress $`\mathcal{D}_{\mathrm{ic}}(i_c)`$ with the cross-income psychosocial morbidity hazard $`\lambda_{\mathrm{psy}}`$ (retaining a `38%` clinical persistence floor $`0.22 \times 0.38 = 0.0836`$ for acute CAMHS/ACC trauma):
+
+$$
+\lambda_{\mathrm{psy}} = \max\left(0.0836, 0.22 \left(1 - 0.52 M_{\mathrm{trust}}\right)\left(1 - 0.35 \min\left(1.0, \frac{K_{\mathrm{wh\bar{a}nau}}^{+}}{0.38}\right)\right)\right)
+$$
+
+$$
+\Psi_{\mathrm{adolescent}} = -0.033 \left\lbrack \mathcal{D}_{\mathrm{ic}}\left(i_c\right) + \lambda_{\mathrm{psy}}\left(1 + 0.65 \mathcal{D}_{\mathrm{ic}}\left(i_c\right)\right) \right\rbrack \max\left\lbrace 0.38\left(0.35 \mathbb{I}_{i_c < 0.005} + \lambda_{\mathrm{psy}}\right), \max\left(0, \left(1 - 0.55 K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}}\right)\left(1 - 0.80 M_{\mathrm{trust}}\right)\right) \right\rbrace + 0.036 \max\left(0, M_{\mathrm{trust}} - 0.173\right)
+$$
 
 Notice the mathematical consequence of evaluating this **comonotonically coupled operator** inside the Stage-2 CES bottleneck ($`\varphi_2 = -0.95`$) under the Rouwenhorst Markov expectation $`\sum_{z^{\prime}} \pi_{z,k}(z^{\prime}\mid z)`$: when $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}} < 0`$, the amplification factor $`(1 - 0.55 K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}})`$ exceeds `1.0`, magnifying adolescent skill loss at the exact state coordinate where trust-gated school mentoring reach $`M_{\mathrm{trust}}`$ contracts to $`0.45 M_{\mathrm{mentor}}`$. This captures both the MBA's "batch-spoilage bottleneck" and the MPP's "non-fungibility of *whānau* vs. state care" via dimension-free sub-manifold conditioning, without adding a single extra grid axis.
 
@@ -95,9 +111,11 @@ Notice the mathematical consequence of evaluating this **comonotonically coupled
 
 In public administration, scaling nominal early-childhood expenditure `G_ece_stage1` and adolescent wraparound `G_ece_stage2` encounters a severe spatial labor-supply friction: when metropolitan house prices `Q_k` (`Params.Q_reg`) in Auckland (3.10) and Large regional cities (2.05) are inflated by speculative land hoarding, qualified early-childhood *Kaiako*, Montessori guides, and speech-language therapists are priced out of the high-deprivation suburbs where disadvantaged children live.
 
-We replace the spatially invariant scalar `G_ece` with a **price-manifold conditioned operator** by deflating nominal public provision against the immutable `SS0` baseline reference price `Q_reg_base` (`Params.Q_reg_base`) with workforce supply elasticity $`\nu_{\mathrm{kaiako}} = 0.35`$:
+We replace the spatially invariant scalar `G_ece` with a **two-component price-manifold conditioned operator** (`kaiako_prod` in `HumanCapital_Lifecycle_aprimeFn.m` and `ReturnFn_SpatialHH.m`), multiplying the cross-regional metropolitan rent drag (`kaiako_spatial`, anchored at $`Q_{\mathrm{ref}} = 1.65`$ with exponent `0.34`) by the intertemporal reform cooling factor (`kaiako_cooling`, anchored to `Params.Q_reg_base` with elasticity $`\nu_{\mathrm{kaiako}} = 0.35`$):
 
-$$G_{\mathrm{ece},s}^{\mathrm{eff}}\left(Q_k\right) = G_{\mathrm{ece},s} \cdot \left(\frac{Q_{\mathrm{reg,base},k}}{Q_k}\right)^{\nu_{\mathrm{kaiako}}}$$
+$$
+G_{\mathrm{ece},s}^{\mathrm{eff}}\left(Q_k\right) = G_{\mathrm{ece},s} \cdot \underbrace{\left(\frac{1.65}{\max\left(0.80, Q_k\right)}\right)^{0.34}}_{\mathrm{Cross\text{-}Regional\ Rent\ Drag}} \cdot \underbrace{\left(\frac{\max\left(0.50, Q_{\mathrm{reg,base},k}\right)}{\max\left(0.50, Q_k\right)}\right)^{0.35}}_{\mathrm{Intertemporal\ Cooling\ Lift}}
+$$
 
 This functional conditioning generates an endogenous **Cross-Cohort Dynamic Complementarity Wedge** between Aspect 3 (the Guvenen et al. property-to-enterprise tax shift) and Aspect 1 (First-2,000-Days skill formation): when land-tax rebalancing cools Auckland house prices by 7.5% in `SS1` and 10.5% in `SS2` (from 3.10 down to 2.87 and 2.77), every dollar of Crown ECE investment in Auckland automatically gains 2.8% to 4.0% in real *Kaiako* staffing and retention capacity.
 
@@ -105,18 +123,29 @@ This functional conditioning generates an endogenous **Cross-Cohort Dynamic Comp
 
 ### 4.3 Sub-Manifold Conditioned Housing User Costs ($`p_H`$): The 61-Point Asset-Grid LVR Hurdle & Comonotonic Eviction Tail
 
-In Kiyotaki, Michaelides, and Nikolov (2024), the baseline regional ownership share $`\xi_{\mathrm{reg},k} = \min\lbrace 1, (rr_k - rh_k)/\bar{\chi}\rbrace`$ is a single regional scalar. If applied uniformly across all households in region *k*, an asset-poor family at `a = 0` and a wealthy household at `a = 15` face the exact same blended housing price $`p_H`$.
+Adapted from Kiyotaki, Michaelides, and Nikolov (2024), the baseline regional ownership benchmark $`\xi_{\mathrm{reg},k} = \min\lbrace 1, \frac{1}{\bar{\chi}}(rr_k / rh_k)\rbrace`$ is a single regional scalar per region *k* (where $`rr_k`$ and $`rh_k`$ denote floored rental and owner user costs at annualized gross return $`R_{\mathrm{ann}} = (1 + r)^{1/\Delta t}`$). If applied uniformly across all households in region *k*, an asset-poor family at `a = 0` and a wealthy household at `a = 15` face the exact same blended housing price $`p_H`$.
 
-Because household net worth `a` in `[0, 25]` is already tracked on our 61-point cubic asset grid `a_grid_assets`, we apply **dimension-free sub-manifold conditioning** across both endogenous wealth `a` and the 7-point income shock `z` inside `ReturnFn_SpatialHH.m`:
+Because household net worth `a` in `[0, 25]` is already tracked on our 61-point cubic asset grid `a_grid_assets`, we apply **dimension-free sub-manifold conditioning** across endogenous wealth `a`, adult skill `h` (at launch `j = 1`), and the 7-point income shock `z` inside `ReturnFn_SpatialHH.m`:
 
-$$\xi_{\mathrm{hh}}\left(a, Q_k\right) = \xi_{\mathrm{reg},k} \cdot \left(0.25 + 0.75 \min\left(1.0, \frac{a}{0.20 Q_k}\right)\right)$$
+$$
+E_{\mathrm{cap}}\left(h, j\right) = \mathbb{I}\left(j = 1\right) E \cdot \min\left(1.20, \max\left(0.35, h^{0.75}\right)\right), \qquad \ell_{\mathrm{LVR}}\left(a, h, Q_k, j\right) = \min\left(1.0, \max\left(0.0, \frac{a + E_{\mathrm{cap}}\left(h, j\right)}{0.20 Q_k}\right)\right)
+$$
 
-$$p_H\left(a, z, Q_k, j\right) = \left(\xi_{\mathrm{hh}}\left(a, Q_k\right) rh_k + \left(1 - \xi_{\mathrm{hh}}\left(a, Q_k\right)\right) \frac{rr_k}{0.5 \bar{\chi}}\right)\left(1 + 0.12 \mathbb{I}\left(a \lt 0.08 Q_k \land z \lt 0.85\right)\right)$$
+$$
+\xi_{\mathrm{hh}}\left(a, h, Q_k, j\right) = \min\left(1.0, \xi_{\mathrm{reg},k} \cdot \left(0.94 + 0.10 \, \ell_{\mathrm{LVR}}\left(a, h, Q_k, j\right)\right)\right)
+$$
 
-Projecting $`p_H`$ onto the `(a, z)` sub-manifold expands housing user costs from 1 scalar per region into $`61 \times 7 = 427`$ state-contingent values per region:
-1. **The 20% LVR Deposit Gate ($`a \lt 0.20 * Q_k`$):** Young households without sufficient equity to clear the `0.20 * Q_k` deposit hurdle face the unblended rental user cost—explaining why the Age-20 Youth Capital Grant (*E*) and metropolitan house-price cooling (*Q_k* down) interact multiplicatively to lift young-adult homeownership in Auckland from 28.0% to 41.2%.
-2. **Comonotonic Tail Coupling of Eviction & Transience Risk ($`a \lt 0.08 * Q_k`$ and $`z \lt 0.85`$):** Renters with near-zero liquid buffers who simultaneously experience an adverse Rouwenhorst earnings shock face a 12% effective housing cost and transience wedge (forced moves, emergency accommodation, and school disruption).
-3. **Retiree Renter Vulnerability ($`j \ge J_r`$ and $`a \lt 0.20 * Q_k`$):** Elderly households who reach age 65 ($`age_j \ge J_r`$) without home equity remain exposed to rental user costs $`rr_k`$ during retirement.
+$$
+p_H\left(a, h, z, Q_k, j\right) = \begin{cases}
+\left(\xi_{\mathrm{hh}} \, rh_k + \left(1 - \xi_{\mathrm{hh}}\right) \frac{rr_k}{0.5 \bar{\chi}}\right)\left(1 + 0.04 \, \mathbb{I}\left(a < 0.08 Q_k \land z < 0.85\right)\right) & \mathrm{if}\ j < J_r \\
+rh_k & \mathrm{if}\ j \ge J_r
+\end{cases}
+$$
+
+Projecting working-age $`p_H`$ onto the `(a, h, z)` sub-manifold expands housing user costs from 1 scalar per region into state-contingent values across the asset, skill, and income grids:
+1. **Skill-Capitalized 20% LVR Deposit Gate ($`a + E_{\mathrm{cap}} < 0.20 Q_k`$):** At age 20 (`j = 1`), mentored graduates with higher launch skill `h` capitalize a larger share of the Youth Capital Grant (*E*) into effective deposit access $`\ell_{\mathrm{LVR}}`$, explaining why Dual-Gate mentoring, `Grant E`, and metropolitan house-price cooling (*Q_k* down) interact multiplicatively (`Wedges 2 & 3`) to lift young-adult homeownership in Auckland from 28.0% to 41.2%.
+2. **Comonotonic Tail Coupling of Eviction & Transience Risk ($`a < 0.08 Q_k`$ and $`z < 0.85`$):** Working-age renters with near-zero liquid buffers who simultaneously experience an adverse Rouwenhorst earnings shock face a `4%` effective housing cost and transience wedge (`transience_wedge = 1.04`, alongside a `+15%` credit-constrained fossil/exergy lock-in penalty on `ebar_energy` for $`a < 0.12 Q_k`$).
+3. **Post-Retirement Housing User Cost Closure ($`j \ge J_r`$):** Retirees transition onto the owner/social-tenure user-cost schedule $`p_H = rh_k`$ inside `ReturnFn_SpatialHH.m`, while post-hoc tenure-incidence tables (`Table 3` / `Table 18`) track explicit renter vs. owner cohorts across `w_cell` thresholds.
 
 ---
 
@@ -125,11 +154,11 @@ Projecting $`p_H`$ onto the `(a, z)` sub-manifold expands housing user costs fro
 Finally, to capture the MPP's warning regarding **differential mortality and physical wear-and-tear**, we condition late-life labor disutility and mortality hazard on the household's 7-point adult human-capital / occupational sub-manifold `h` in `[0.45, 0.65, 0.85, 1.00, 1.20, 1.45, 1.80]`:
 
 $$
-\psi_{\mathrm{wear}}\left(h, j\right) = 1.0 + 0.35 \mathbb{I}\left(\mathrm{age}_j \ge 65\right)\max\left(0, \frac{1.00 - h}{0.55}\right)
+\psi_{\mathrm{wear}}\left(h, j\right) = 1.0 + 0.35 \mathbb{I}\left(\mathrm{age}_j \ge 65 \land j < J_r\right)\max\left(0, \frac{1.00 - h}{0.55}\right)
 $$
 
 $$
-1 - s_j^{\mathrm{eff}}\left(h, j\right) = \min\left(0.99, \left(1 - s_j\right)\exp\left(0.18\left(1.00 - h\right)\right)\right)
+1 - s_j^{\mathrm{eff}}\left(h, j\right) = \min\left(0.99, \max\left(0.01, \left(1 - s_j\right)\exp\left(0.05\left(1.05 - h\right)\right)\right)\right)
 $$
 
 When a policy simulation raises the NZ Superannuation eligibility age (`Jr`) above 65, manual, rural, and lower-skilled workers (`h_1 = 0.45` and `h_2 = 0.65`, where Māori and Pasifika workers are disproportionately represented due to historical childhood material hardship) face a 22% to 35% higher physical disutility of working past age 65 (`psi_wear > 1`) comonotonically coupled with a higher late-life mortality hazard $`1 - sj_{\text{eff}}(h, j)`$. Consequently, evaluating the Bellman expectation over the stationary distribution $`\mu_k(a, h, \theta_c, z, j)`$ endogenously reproduces both the **38% to 52% disability/hardship benefit substitution leak** and the **regressive life-expectancy penalty** that make raising the pension age fiscally and socially inferior to front-loaded human-capital investment.
@@ -154,7 +183,7 @@ Conventional cost-benefit spreadsheets (`CBAx` scorecards and linear fiscal trac
 
 ### 5.1 Symmetric Bundling: Why Topkis (1998) Supermodularity Vanishes Under "Thin" Means
 
-Let $`\mathbf{u} \in \lbrack -1, +1 \rbrack^{18}`$ denote the signed policy commitment vector over the policy lattice (`Compose_Policy_Bundle.m`), where `+1` represents full capacitating deployment, `0` represents the `SS0` status quo, and `-1` represents active retrenchment. By **Topkis's (1998) Lattice Supermodularity Theorem**, a welfare functional $`W_k(\mathbf{u})`$ exhibits strictly increasing differences (positive bundling synergies) between policy sub-vectors $`\mathbf{u}_A`$ and $`\mathbf{u}_B`$ if and only if the off-diagonal cross-partial Hessian block $`\mathbf{H}_{AB} = \frac{\partial^2 W_k}{\partial \mathbf{u}_A \partial \mathbf{u}_B}`$ is strictly positive:
+Let $`\mathbf{u} = (u_c)_{c \in \mathcal{C}}`$ denote the sparse signed policy commitment vector over the 26-code institutional catalog $`\mathcal{C}`$ (`Compose_Policy_Bundle.m`: two-sided commitments `C01`–`C18` in $`\lbrack -1, +1 \rbrack`$ plus constructive `SS1`/`SS2` pillars `C21`–`C28` in $`\lbrack 0, +1 \rbrack`$, with `C19`–`C20` and `C29+` reserved). Under **Convention 2**, `u_c = 0` represents the baseline status quo, `u_c > 0` strengthens public capability/civic/stewardship commitments (`C01`–`C08`, `C12`–`C17`, `C21`–`C28`) while `u_c < 0` retrenches them (and on the four tax-cut/visa/expensing/defence-lift dials `C09`–`C11` and `C18`, `u_c = +1` enacts the 2024 expansion/shock direction while `u_c < 0` tightens screening or shifts procurement onshore; [Document 2B, Section 7.7.1–7.7.2](Document%202B.md)). By **Topkis's (1998) Lattice Supermodularity Theorem**, a welfare functional $`W_k(\mathbf{u})`$ exhibits strictly increasing differences (positive bundling synergies) between policy sub-vectors $`\mathbf{u}_A`$ and $`\mathbf{u}_B`$ if and only if the off-diagonal cross-partial Hessian block $`\mathbf{H}_{AB} = \frac{\partial^2 W_k}{\partial \mathbf{u}_A \partial \mathbf{u}_B}`$ is strictly positive:
 
 $$
 \Delta W_k\left(\mathbf{u}_A \oplus \mathbf{u}_B\right) - \Delta W_k\left(\mathbf{u}_A\right) - \Delta W_k\left(\mathbf{u}_B\right) = \mathbf{u}_A^{\top} \mathbf{H}_{AB} \mathbf{u}_B > 0
@@ -178,7 +207,7 @@ Every one of the **Four Dynamic Complementarity Wedges (`+13.47 pp CE` in [Docum
 | **`Wedge 3`: Cross-Stack HC $`\times`$ Spatial** (`Dual-Gate HC` $`\oplus`$ `Enterprise/Land`) | **`+5.20 pp CE`**<br>*(21.1% share)* | **Sec. 4.2 & 4.5:** *Kaiako* housing deflator $`G_{\mathrm{ece},s}^{\mathrm{eff}}(Q_k)`$ + Rouwenhorst drift $`\Delta \mu_{z,k}`$ (`85%` $`T_k`$ retirement). | Thin scalars treat nominal `G_ece` and regional transfers `T_k` as fixed budget lines; price- and Markov-manifold conditioning means cooling $`Q_k`$ expands real *kaiako* staffing per dollar while $`z_l \to z_h`$ job upgrading self-retires `85%` of Phase-1 transfers. |
 | **`Wedge 4`: Fiscal, Super-64 & 2nd-Gen** (`Debt Sink` $`\oplus`$ `PAYE Cut` $`\oplus`$ `Super-64`) | **`+2.62 pp CE`**<br>*(10.6% share)* | **Sec. 4.1 & 4.4:** Avoiding sandwich reversal $`K_{\mathrm{wh\bar{a}nau}}^{\mathrm{net}} < 0`$ & wear/mortality $`s_j^{\mathrm{eff}}(h, j)`$ + *Kuia* boost. | Raising Super to 67/70 triggers comonotonic sandwich drag and `38%–52%` disability substitution in $`h_1\text{--}h_2`$; Super-64 releases `+8.1%` *kuia* care time that compounds with universal ECE to lift TFR (`1.66 -> 1.87`) and 2nd-gen $`T_{\mathrm{IG}}`$. |
 
-Notice the **sign symmetry of quadratic forms** emphasized in [Document 2B, Section 7.7.1](Document%202B.md): because $`\mathbf{H}_{AB}`$ is strictly positive across these coupled state sub-manifolds, simultaneous disinvestment ($`\mathbf{u}_A < \mathbf{0}, \mathbf{u}_B < \mathbf{0}`$—such as retrenching adolescent mentoring *while* deferring water-infrastructure renewal or cutting public/civic capacity, as in Wellington's `-40%` compound shock in `coalition_2024_shocks`) still produces $`\mathbf{u}_A^{\top} \mathbf{H}_{AB} \mathbf{u}_B > 0`$ **in compounded tail damage**. Thin fiscal spreadsheets systematically underestimate both the dividend of coordinated investment and the fiscal sinkhole of siloed austerity.
+Notice the **sign symmetry of quadratic forms** emphasized in [Document 2B, Section 7.7.1](Document%202B.md): because $`\mathbf{H}_{AB}`$ is strictly positive across these coupled capability and civic state sub-manifolds (`C01`–`C08`, `C12`–`C17`, `C21`–`C28`), simultaneous disinvestment ($`\mathbf{u}_A < \mathbf{0}, \mathbf{u}_B < \mathbf{0}`$—such as retrenching adolescent mentoring *while* deferring water-infrastructure renewal or cutting public/civic capacity, as in Wellington's `-40%` compound shock in `coalition_2024_shocks`) still produces $`\mathbf{u}_A^{\top} \mathbf{H}_{AB} \mathbf{u}_B > 0`$ **in compounded tail damage**. Thin fiscal spreadsheets systematically underestimate both the dividend of coordinated investment and the fiscal sinkhole of siloed austerity.
 
 ---
 
