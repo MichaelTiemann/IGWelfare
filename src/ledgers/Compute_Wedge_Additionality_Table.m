@@ -4,20 +4,14 @@ function T_Wedge = Compute_Wedge_Additionality_Table(Profile_Name, Write_CSV, Ou
 % (Realized SS2 CE% / Steady-State Gross Mirror Outlay s_B) and regional
 % Lee-Seshadri conversion contrasts across MATLAB and GNU Octave.
 
-    if nargin < 2 || isempty(Write_CSV)
-        Write_CSV = false;
-    end
-    if nargin < 3 || isempty(Out_Dir)
-        Out_Dir = Resolve_IGW_OutputDir(Profile_Name);
-    end
+    if nargin < 2 || isempty(Write_CSV), Write_CSV = false; end
+    if nargin < 3, Out_Dir = ''; end
 
-    d19E = dir(fullfile(Out_Dir, 'Table19E_ArtsEnabled_Synergy_Wedges_*.csv'));
-    d20  = dir(fullfile(Out_Dir, 'Table20_Annual_MirrorInvestments_*.csv'));
-    d5   = dir(fullfile(Out_Dir, 'Table5_4Region_LeeSeshadri_Output_Welfare.csv'));
+    Out_Dir = Resolve_IGW_OutputDir(Out_Dir, Profile_Name);
 
-    f19E = fullfile(Out_Dir, d19E(1).name);
-    f20  = fullfile(Out_Dir, d20(1).name);
-    f5   = fullfile(Out_Dir, d5(1).name);
+    f19E = require_single_csv(Out_Dir, 'Table19E_ArtsEnabled_Synergy_Wedges_*.csv');
+    f20  = require_single_csv(Out_Dir, 'Table20_Annual_MirrorInvestments_*.csv');
+    f5   = require_single_csv(Out_Dir, 'Table5_4Region_LeeSeshadri_Output_Welfare.csv');
 
     % Parse Table 19E (col 1 = Layer_Code, col 7 = SS1_Nat, col 12 = SS2_Nat)
     lines19 = strsplit(strtrim(fileread(f19E)), "\n");
@@ -100,4 +94,13 @@ function T_Wedge = Compute_Wedge_Additionality_Table(Profile_Name, Write_CSV, Ou
         'Ebar_LR_Reg4', Ebar_LR_Reg4, ...
         'CE_LR_Reg1',   CE_LR_Reg1, ...
         'CE_LR_Reg4',   CE_LR_Reg4);
+end
+
+function fpath = require_single_csv(Out_Dir, pattern)
+    d = dir(fullfile(Out_Dir, pattern));
+    if isempty(d)
+        error('IGWelfare:MissingPrerequisiteCSV', ...
+            'Required CSV "%s" not found in "%s".', pattern, Out_Dir);
+    end
+    fpath = fullfile(Out_Dir, d(1).name);
 end
