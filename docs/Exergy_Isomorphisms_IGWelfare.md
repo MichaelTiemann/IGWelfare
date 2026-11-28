@@ -1,151 +1,235 @@
-# Factor Conversion vs. Nominal Outlay: Reading Exergy Effects and Structural Isomorphisms in `IGWelfare`
+# Factor Conversion vs. Nominal Outlay: Exergy Effects, Wedge Additionality, and Structural Isomorphisms in `IGWelfare`
 
-**Status:** Technical Specification & Methodological Synthesis  
-**Companion Routing:** Formal equilibrium proofs are routed to **Document 2A** (Theoretical Foundations); profile schemas, calibration tables, and post-hoc ledger identities are routed to **Document 2B** (Quantitative Calibration & Computational Architecture).
+**Status:** Empirically Grounded Technical Specification & Cross-Country Synthesis (`NZ_Dunedin1972` & `FI_FBC1987`)  
+**Companion Routing:** Formal analytical propositions and proofs are routed to **[Document 2A](../Document%202A.md)** (Sections `2.4.1`, `2.5.1`, and `3.3.1`); supermodular wedge theory, profile schemas, calibration tables, and post-hoc ledger identities are routed to **[Document 2B](../Document%202B.md)** (Section `7.4.1` and `[Ref 9, 33]`).
 
 ---
 
 ## 1. The Core Identification Problem: Nominal Cost Shares vs. Physical Conversion Factors
 
-A pervasive specification error in standard macroeconomic and fiscal policy modeling is the **Price-Deflator vs. Real-Factor Confound**: using nominal expenditure ($P \cdot Q$) or market cost shares as sufficient statistics for productive throughput ($\varepsilon \cdot Q$).
+A pervasive specification error in standard macroeconomic and fiscal policy modeling is the **Price-Deflator vs. Real-Factor Confound**: using nominal expenditure ($`P \cdot Q`$) or market expenditure shares ($`s_B = B / Y`$) as sufficient statistics for productive factor throughput ($`X = \varepsilon \cdot Q`$).
 
-In neoclassical growth accounting, if a factor commands a small share of nominal national expenditure, cost-share theorems assign it a commensurately small output elasticity. Similarly, in conventional public finance ledgers, if nominal spending on a public program rises, fiscal accounting records an expansion of public investment regardless of whether input prices, regional cost-of-living premia, or structural inefficiencies absorbed the outlay before it reached households.
+Under neoclassical growth accounting (Hulten 1978), if competitive markets exhibit unit-elastic substitution ($`\sigma = 1`$) and zero institutional wedges, a factor's output elasticity equals its nominal cost share ($`\eta_X = s_B`$). Under that benchmark, an input commanding a tiny fraction of national expenditure cannot generate large macroeconomic fluctuations, and a public budget line is evaluated symmetrically by its gross fiscal cost.
 
-`IGWelfare` encounters this exact structural problem across two domains that obey identical mathematical accounting:
+`IGWelfare` demonstrates empirically and analytically why this benchmark fails across both physical production and intergenerational human-capital formation:
 
-1. **Biophysical Production (Keen, Ayres & Standish):** Distinguishing **energy price parameters** ($p_E$) and gross primary energy ($E$) from **useful exergy** ($U = \varepsilon E$)—the quality-adjusted physical work actually converted by capital and labor.
-2. **Human Capital & Fiscal Provision (`FI_FBC1987` and `NZ_4Region_Master`):** Distinguishing **nominal public outlays and unit wages** (such as aggregate education spend `G_ece_s` or Accommodation Supplement transfers) from **effective developmental intensity** entering the Cunha–Heckman skill operator and child transition matrices.
+1. **Biophysical Production & `NDC` Transition (`Phase2_5Sector` & Keen, Ayres & Standish):** Distinguishing **energy price parameters** ($`p_E`$), imported fossil-fuel foreign-exchange leakage (`Import_FX_Share`), and gross primary energy ($`E`$) from **useful exergy** ($`U = \varepsilon E`$)—the quality-adjusted physical work actually converted by capital and labor.
+2. **Human Capital & Public Provision (`FI_FBC1987` vs. `NZ_Dunedin1972`):** Distinguishing **nominal public outlays and unit wages** (such as aggregate education spend `G_ece_s` or passive geographic/housing cash transfers) from **effective developmental and mentoring intensity** entering the Cunha–Heckman skill operator (`daruich_mult`) and child transition matrices.
 
-Treating these together requires zero poetic analogy between physics and welfare. Both are strict instances of **omitted conversion efficiency ($\varepsilon$) and non-unitary substitution ($\sigma < 1$)** in multi-stage production and accounting networks.
+Analyzing these together requires zero loose metaphor between physics and welfare. Both are exact mathematical instances of **conversion efficiency ($`\varepsilon`$) loosening a complementary ($`\sigma < 1`$) bottleneck** where market or fiscal prices fail to reflect shadow value.
 
 ---
 
-## 2. Biophysical Foundations: Exergy as a Factor vs. Energy Price as a Parameter
+## 2. Exergy as a Production Factor vs. Energy Price as a Parameter
 
 ### 2.1 The Cost-Share Fallacy in Neoclassical Production
 
-In standard macroeconomic models, energy either is omitted entirely from the value-added production function $Y = A K^\alpha H^{1-\alpha}$ or enters as a separable third input $Y = A K^\alpha H^\beta E^\gamma$ calibrated under competitive factor-pricing assumptions where $\gamma$ equals energy's share of nominal GDP (typically $0.04 \le \gamma \le 0.06$).
+In standard macroeconomic models, energy is either omitted from the value-added production function $`Y = A K^{\alpha} H^{1-\alpha}`$ or enters as a separable third input $`Y = A K^{\alpha} H^{\beta} E^{\gamma}`$ calibrated to energy's nominal GDP share ($`0.04 \le \gamma \le 0.06`$).
 
-Steve Keen, Robert Ayres, and Russell Standish demonstrate why this parameterization fails empirically and analytically:
+Steve Keen, Robert Ayres, and Russell Standish (2019), building on Ayres and Warr (2005, 2009) and Brockway et al. (2021), establish three structural failures in that parameterization:
 
-* **Expenditure Share Misstates Physical Indispensability:** Under $\gamma = 0.05$ and Cobb–Douglas unitary elasticity of substitution ($\sigma = 1$), a $50\%$ reduction in physical energy availability implies an output loss of only $1 - 0.5^{0.05} \approx 3.4\%$. Empirically and physically, capital machinery cannot operate and labor cannot perform work without continuous energy throughput.
-* **Price Shocks vs. Quantity/Efficiency Bottlenecks:** Modeling energy solely via an exogenous price parameter $p_E$ assumes firms and households smoothly substitute capital or labor for energy along a continuous isoquant. When short-run elasticity of substitution is sharply below unity ($\sigma \ll 1$), price-share weights severely underestimate marginal physical productivity during supply constraints, dry-year hydro shortfalls, or decarbonization transitions.
-* **Solow Residual Contamination:** As Ayres and Warr show for historical US and international growth data, what standard growth accounting attributes to exogenous Total Factor Productivity ($A$) largely tracks secular improvements in **aggregate exergy conversion efficiency** ($\varepsilon_t$)—the transition from low-efficiency thermal/mechanical processes to high-efficiency electrification, traction, and industrial control.
+* **Expenditure Share Misstates Physical Indispensability:** Under $`\gamma = 0.05`$ and Cobb–Douglas unitary substitution ($`\sigma = 1`$), a 50% reduction in physical energy availability implies an output loss of only $`1 - 0.5^{0.05} \approx 3.4\%`$. Physically, capital machinery cannot operate and labor cannot perform work without continuous energy throughput.
+* **Price Shocks vs. Physical Conversion Bottlenecks:** Modeling energy solely via an exogenous price parameter $`p_E`$ assumes firms and households smoothly substitute capital or labor for energy along a continuous isoquant. When short-run elasticity of substitution is sharply below unity ($`\sigma_{KL,X} \ll 1`$), cost shares severely understate marginal physical productivity during supply constraints, dry-year hydro shortfalls, or decarbonization transitions (Baqaee & Farhi 2019).
+* **Solow Residual Contamination:** Secular growth attributed by standard growth accounting to exogenous Total Factor Productivity ($`A`$) closely tracks aggregate improvements in **exergy conversion efficiency** ($`\varepsilon_t`$)—the historical shift from low-efficiency thermal/combustion processes to high-efficiency electric traction, heat pumps, and industrial control.
 
 ### 2.2 Capital as an Exergy Conversion Conduit
 
-Keen, Ayres, and Standish reformulate production by recognizing that capital $K$ and labor $H$ do not generate physical output autonomously; rather, physical capital is an engineered structure designed to harness an inflow of **exergy** (available work potential) and direct it into economically useful tasks.
+Keen, Ayres, and Standish reformulate production by recognizing that capital $`K`$ and labor $`H`$ do not generate physical output autonomously; physical capital is an engineered structure that harnesses an inflow of **exergy** (available work potential) and directs it into economically useful tasks.
 
-Let $E_r$ denote gross primary or final energy throughput in region $r$, and let $\varepsilon_r \in (0, 1)$ denote aggregate technical conversion efficiency mapping gross energy into **useful work (exergy)**:
+Let $`E_k`$ denote gross primary or final energy input in region $`k`$, and let $`\varepsilon_k \in (0, 1)`$ denote technical conversion efficiency mapping gross energy into **useful work (exergy)**:
 
-$$U_r = \varepsilon_r E_r$$
+$$
+U_k = \varepsilon_k E_k
+$$
 
-The unrecovered remainder, $(1 - \varepsilon_r) E_r$, dissipates as waste heat or friction without generating economic value. Rather than entering as a minor additive factor, useful exergy $U_r$ activates the regional capital stock $K_r$. In a general equilibrium overlapping-generations (OLG) production block suitable for `NZ_4Region_Master`, effective capital services are governed by a nested constant-elasticity-of-substitution (CES) composite with tight complementarity ($\sigma_{KU} \ll 1$):
+The unrecovered fraction $`(1 - \varepsilon_k) E_k`$ dissipates as waste heat or friction without generating economic value. In `IGWelfare`'s regional general-equilibrium production block (`NZ_4Region_Master.m` and `Compute_5Sector_Exergy_Equilibrium.m`), useful exergy activates the regional capital-labor bundle inside a nested putty-clay CES composite with tight complementarity ($`\sigma_{KL,X} \ll 1`$, proved formally in **Document 2A**, Section `2.4.1`, Proposition `[2A-Prop-Factor1]`):
 
-$$Y_r = \tilde{A}_r \left[ \omega_r \left( K_r^{\alpha} U_r^{1-\alpha} \right)^{\frac{\sigma - 1}{\sigma}} + (1 - \omega_r) H_r^{\frac{\sigma - 1}{\sigma}} \right]^{\frac{\sigma}{\sigma - 1}}$$
+$$
+Y_{s,k} = Z_{s,k} \left\lbrack \left(1 - \omega_{X,s}\right) \left( K_{s,k}^{\alpha_k} H_{s,k}^{1-\alpha_k} \right)^{\frac{\sigma_{KL,X} - 1}{\sigma_{KL,X}}} + \omega_{X,s} X_{s,k}^{\frac{\sigma_{KL,X} - 1}{\sigma_{KL,X}}} \right\rbrack^{\frac{\sigma_{KL,X}}{\sigma_{KL,X} - 1}}
+$$
 
-*(Alternatively, in Keen's strict physical-conduit specification, $U_r = \varepsilon_r \cdot \kappa(K_r) \cdot e_K$, where $e_K$ is utilization-adjusted energy per machine unit, directly tying capital's marginal product to $\varepsilon_r$.)*
+### 2.3 Empirical Macro-Sector & `NDC` Validation in `NZ_Dunedin1972`
 
-### 2.3 Policy Divergence: Changing $p_E$ vs. Changing $\varepsilon_r$
+`IGWelfare`'s Phase 2 five-sector baseline (`Table_Phase2_5Sector_Baseline_Dunedin_22.csv`, anchored to Marilyn Waring's unpaid/volunteer accounting alongside `SNA` capital and foreign-exchange shares) and Nationally Determined Contribution compliance ledger (`Table_Phase2_NDC_Exergy_Compliance_Dunedin_22.csv`) quantify the macroeconomic divergence between price/rollback regimes and physical exergy conversion:
 
-Separating the price parameter $p_E$ from the conversion factor $\varepsilon_r$ reverses standard policy conclusions across New Zealand's regional economies (`Rural`, `Small`, `Large`, `Auckland`) and connects directly to Nationally Determined Contribution (`ndc`) transition liabilities:
+#### Table 2.1: Phase 2 Five-Sector Capital, Volunteer Conversion, and Import-FX Structure (`NZ_Dunedin1972`)
 
-1. **Pure Price / Tax Parameter Shock ($\Delta p_E > 0$, $\Delta \varepsilon_r = 0$):** Raising domestic energy or carbon prices without upgrading conversion capital reduces optimal energy demand $E_r^*(p_E)$. Because $\sigma_{KU} \ll 1$, useful work $U_r$ contracts alongside $E_r$, depressing the marginal product of regional capital ($r$) and effective labor ($w_r$). Regions with lower baseline conversion efficiency or higher process-heat and freight intensity (`Rural` and `Small`) suffer disproportionate real wage compression relative to service-dense `Auckland`.
-2. **Conversion Efficiency Upgrade ($\Delta \varepsilon_r > 0$):** Electrifying industrial heat, deploying high-COP heat pumps ($U_{\text{thermal}} \approx 3.5 E_{\text{elec}}$ vs. $0.95 E_{\text{elec}}$ for resistive heating), or upgrading grid/transport efficiency expands useful work $U_r$ **even as gross energy $E_r$ and nominal energy expenditure $p_E E_r$ fall**. In standard expenditure-based national accounts, falling $p_E E_r$ looks like a shrinking energy sector; in exergy factor accounting, rising $\varepsilon_r E_r$ acts as a structural productivity expansion.
+| Macro Sector | Annual Spend (BNZD) | Paid Labor (kFTE) | Volunteer Labor (kFTE) | Capital Stock (BNZD) | Import / FX Leakage Share | Structural Exergy & Conversion Role |
+|---|---:|---:|---:|---:|---:|---|
+| `Sector_1_Primary` | `38.5` | `148.0` | `2.5` | `165.0` | `18.0%` | High process-heat & freight intensity; rural export base. |
+| `Sector_2_Knowledge` | `54.0` | `305.0` | `1.5` | `92.0` | `12.0%` | High skill intensity $`H_k`$; low physical dissipation & FX leakage. |
+| `Sector_3_Market_NonTrad` | `211.0` | `1,352.0` | `4.0` | `640.0` | `20.0%` | Dominant domestic capital conduit (NZD 640B, housing & commercial). |
+| `Sector_4A_Civic_Human` | `102.3` | `591.0` | **`76.0`** | `148.0` | **`11.0%`** | Core human-capital & Waring civic sector; **87.9% of national volunteer kFTE** and lowest FX leakage. |
+| `Sector_4B_Public_Infra` | `22.8` | `53.5` | `3.0` | `277.0` | `18.6%` | Grid, transport, and public civil capital enabling $`\Delta \varepsilon_k > 0`$. |
+| `Sector_5_Defence` | `6.0` | `15.8` | `1.5` | `22.0` | **`62.0%`** | High external import/FX leakage (`0.62`); minimal domestic factor multiplier. |
 
----
+Pairing this sectoral structure with the `NDC` transition regimes (`Table_Phase2_NDC_Exergy_Compliance_Dunedin_22.csv`) demonstrates why raising domestic conversion efficiency ($`e_N = 0.88`$ vs. $`e_F = 0.30`$, a $`2.93\times`$ useful-work step-change) dominates fossil lock-in and offshore carbon-credit purchases:
 
-## 3. Empirical Validation in `IGWelfare`: The Finland Twin (`FI_FBC1987`) and Teacher Wage Decomposition
+#### Table 2.2: `NDC` Exergy Conversion vs. Rollback & Offshore Credit Liability (`NZ_Dunedin1972`)
 
-The exact confound between nominal factor price and real converted input surfaced independently during the historical validation of `IGWelfare` against Finland's post-1960s institutional reforms (`FI_FBC1987`) and its comparison with New Zealand (`NZ_4Region_Master` / `NZ_Dunedin1972`).
+| `NDC` Policy Regime | `NDC1` Emissions Gap ($`\mathrm{MtCO_2e}`$) | Offshore Liability PV @ 2% (BNZD) | Offshore Liability PV @ 8% (BNZD) | `LTFM`-Anchored National Welfare (% CE) |
+|---|---:|---:|---:|---:|
+| `1_NDC_Rollback_And_Pine_Cliff` | `61.2` | `21.77` | `15.77` | **`-22.57%`** |
+| `2_Phase2_Exergy_CleanGreen` | `18.2` | `4.82` | `3.78` | **`+24.92%`** |
+| `3_Exergy_Plus_Doc1E_Taiao` | `11.7` | `1.85` | `1.71` | **`+28.32%`** |
 
-### 3.1 The `G_ece_s` Legibility Problem
-
-In a baseline fiscal specification, public early-childhood and schooling expenditure in region $k$, denoted $G_{\text{ece\_s}, k}$, enters as a single real-deflated scalar per child. While compact—preserving a lean 4D/5D Bellman state space—this aggregation conflates two economically distinct quantities:
-
-$$\mathrm{Spend}_{\text{edu}, k} = W_{\text{teach}, k} \cdot \mathrm{FTE}_{\text{teach}, k} + \mathrm{Other}_{\text{edu}, k}$$
-
-Here:
-* $W_{\text{teach}, k}$ is the **unit price/wage parameter** required to attract, retain, and compensate educators in region $k$, subject to local housing and cost-of-living pressures (`nu_col_index`).
-* $\mathrm{FTE}_{\text{teach}, k}$ (scaled by pedagogical preparation and institutional autonomy, $\varepsilon_{\text{edu}, k}$) determines **real instructional and mentoring intensity** $I_{\text{edu}, k} = \varepsilon_{\text{edu}, k} \cdot \mathrm{FTE}_{\text{teach}, k}$—the actual factor entering the Cunha–Heckman skill technology.
-* $\mathrm{Other}_{\text{edu}, k}$ spans non-wage outlays, which divide between productive support (targeted special-needs intervention, nutrition) and non-instructional overhead (commercial property leases, administrative compliance).
-
-### 3.2 Why Finland (`FI_FBC1987`) Exposes the Price-vs.-Factor Split
-
-Finland's transition from a two-track system to universal comprehensive schooling (*peruskoulu*) in the 1970s, paired with the late-1970s mandate requiring research-based Master's degrees for primary and secondary teachers, provides an out-of-sample test of how `G_ece_s` operates:
-
-1. **Moderate Statutory Wage Share, High Conversion Efficiency ($\varepsilon_{\text{edu}}$):** Relative to OECD GDP per capita, Finnish statutory teacher salaries have historically been competitive and stable rather than extreme outliers. Finland's compression of variance in $\log(h)$ and drop in intergenerational persistence ($T_{\text{IGE}}$) did not stem from inflating $W_{\text{teach}}$ alone; it stemmed from high pedagogical conversion efficiency $\varepsilon_{\text{edu}}$—professional autonomy, low bureaucratic inspection overhead, small-group early remediation (*erityisopetus*) preventing downward cohort transitions, and low teacher attrition.
-2. **Cost-of-Living Wage Absorption in High-Rent NZ Regions:** In New Zealand (`Auckland` and `Large` metro profiles), severe housing cost inflation (`nu_col_index`) forces nominal $W_{\text{teach}, k}$ and school property charges upward merely to prevent acute teacher vacancies and attrition. If Treasury ledgers or un-decomposed model runs evaluate policy via aggregate nominal `G_ece_s`, a wage adjustment that merely offsets Auckland rent inflation looks identical to an expansion in classroom mentoring intensity—overstating expected human-capital gains unless $W_{\text{teach}, k}$ and real input volume $\mathrm{FTE}_{\text{teach}, k}$ are separated.
-3. **Retention Thresholds as Conduit Maintenance:** Just as capital requires baseline maintenance energy before performing net useful work, $W_{\text{teach}, k}$ relative to regional outside wages and `nu_col_index` governs **turnover dissipation**. Below a retention threshold, high churn degrades $\varepsilon_{\text{edu}, k}$ (loss of institutional continuity and mentoring stability); above that threshold, raising $W_{\text{teach}, k}$ redistributes income and stabilizes retention, whereas expanding $\mathrm{FTE}_{\text{teach}, k}$ or targeted early support directly increases skill formation per cohort.
-
-### 3.3 Methodological Parallel: The `daruich_mult` Parameter-Binding Lesson
-
-Validating `FI_FBC1987` alongside `NZ_Dunedin1972` also exposed a silent structural hazard in `Compute_LeeSeshadri_Counterfactuals.m`: when a conversion multiplier (`daruich_mult`) is improperly bound across regimes or regional profiles, the model silently collapses heterogeneous skill-transmission intensity back into a uniform scalar.
-
-Mathematically, mis-wiring `daruich_mult` in the skill block is identical to burying $\varepsilon_r$ inside an invariant constant in the production block: policy counterfactuals (`Apply_Policy_Regime.m`) then misattribute structural conversion differences across regimes (e.g., Finland's *peruskoulu* vs. NZ baseline) to household preferences or unexplained residuals rather than the institutional transmission channel itself.
+* **Rollback Trap (`-22.57%` CE):** Deferring domestic electrification and relying on exotic pine monocultures leaves New Zealand exposed to a $`61.2\ \mathrm{MtCO_2e}`$ compliance gap (NZD 15.77B–21.77B deadweight offshore transfer) plus imported fuel FX drain (`0.18–0.20` share).
+* **Domestic Exergy Upgrade (`+24.92%` CE to `+28.32%` CE with Taiao/Civic):** Upgrading end-use conversion $`\varepsilon_k`$ (industrial electrification, heat pumps, transport traction) slashes the `NDC1` gap by 70% (`61.2` to `18.2` $`\mathrm{MtCO_2e}`$) while expanding domestic useful work $`X_{s,k}`$. Layering **Document 1E** grassroots ecological and civic stewardship (`Sector_4A_Civic_Human`'s `76.0 kFTE` volunteer conduit) cuts the residual gap to `11.7` $`\mathrm{MtCO_2e}`$ (NZD 1.71B PV @ 8%) and lifts national welfare to **`+28.32%` CE**.
 
 ---
 
-## 4. Audited Structural Isomorphisms Across `IGWelfare`
+## 3. The Wedge Additionality Identity: Theory & Literature Synthesis
 
-With the **Nominal Outlay ($P \cdot Q$) vs. Effective Converted Factor ($\varepsilon \cdot Q$)** identity established in both production theory and the `FI_FBC1987` education ledger, four additional mechanisms inside `IGWelfare` exhibit exact structural isomorphism—each grounded in microeconomic constraints and fiscal accounting rather than loose analogy.
+A central analytical question in `IGWelfare` is why constructive synergy wedges (`Table19` and `Table19E`) generate welfare and output gains an order of magnitude larger than their nominal fiscal budget shares ($`s_B = \Delta B / Y_0`$), whereas passive cash or price-captured subsidies yield near-zero long-run additionality.
 
-| Domain in `IGWelfare` | Nominal Price / Outlay Parameter ($P \cdot Q$) | Conversion Structure ($\varepsilon$) | Effective Factor Input ($\varepsilon \cdot Q$) | Cost-Share / Ledger Fallacy Exposed |
+### 3.1 Formalizing the Wedge Additionality Law
+
+Let policy lever $`k`$ purchase raw input quantity $`Q_k`$ at unit price $`P_k`$, incurring nominal outlay $`B_k = P_k \cdot Q_k`$ (with GDP share $`s_{B,k} = B_k / Y`$). Institutional or physical conversion maps $`Q_k`$ into effective factor throughput $`X_k = \varepsilon_k \cdot Q_k`$, which enters aggregate output or lifecycle human-capital production with structural elasticity $`\eta_k = \frac{\partial \ln Y}{\partial \ln X_k}`$.
+
+Taking log differentials of $`X_k = \varepsilon_k (B_k / P_k)`$ yields the divergence between effective converted factor growth and nominal budget growth:
+
+$$
+d \ln X_k - d \ln B_k = d \ln \varepsilon_k - d \ln P_k
+$$
+
+Evaluating total output (or consumption-equivalent welfare) response relative to nominal outlay yields the **Wedge Additionality Identity** (proved formally in **Document 2B**, Section `7.4.1`, Proposition `[2B-Prop-Wedge1]`):
+
+$$
+\Lambda_k^Y \equiv \frac{d Y}{d B_k} = \left( \frac{\eta_k}{s_{B,k}} \right) \left( 1 + \frac{d \ln \varepsilon_k - d \ln P_k}{d \ln B_k} \right)
+$$
+
+This identity establishes two exact conditions governing policy leverage in `IGWelfare`:
+
+1. **Price-Capture Annihilation ($`d \ln P_k \approx d \ln B_k, \ d \ln \varepsilon_k = 0 \implies \Lambda_k^Y \to 0`$):** When increased nominal spending is absorbed by inelastic supply prices—such as urban landlord rent capture under demand-side housing supplements, Baumol/cost-of-living wage inflation (`Q_k` / `nu_col_index`) without expanded mentoring `FTE`, or uninsulated resistive heating bills—the right-hand factor collapses toward zero regardless of how essential the underlying domain is.
+2. **Super-Unitary Bottleneck Leverage ($`\eta_k \gg s_{B,k}`$ and $`d \ln \varepsilon_k > 0 \implies \Lambda_k^Y \gg 1`$):** Under Hulten's Theorem ($`\sigma = 1`$, frictionless competition), $`\eta_k = s_{B,k}`$, bounding standalone leverage near unity. When complementarity is tight ($`\sigma < 1`$ across capital-exergy or Cunha–Heckman developmental stages) and policy activates a high-efficiency conversion structure ($`\Delta \ln \varepsilon_k > 0`$, such as volunteer civic clubs or dual-gate ECE + mentoring), both terms multiply—producing outsized macro and fiscal additionality from a small nominal budget share.
+
+### 3.2 Position in the Academic Literature
+
+The Wedge Additionality Identity synthesizes three previously separate research programs inside a single general-equilibrium OLG framework:
+
+* **Production Networks & Hulten's Theorem Breakdown (Hulten 1978; Baqaee & Farhi 2019 *Econometrica*):** Baqaee and Farhi prove that in production networks with complementarities ($`\sigma < 1`$) and allocative wedges, microeconomic efficiency shocks generate macroeconomic output effects far exceeding Domar/expenditure weights (applied empirically to energy cutoffs by Bachmann et al. 2022). `IGWelfare` extends this exact network-bottleneck operator to **intergenerational human-capital transitions**.
+* **Biophysical Exergy Growth Accounting (Ayres & Warr 2005, 2009; Keen, Ayres & Standish 2019):** Demonstrates that physical conversion efficiency $`\varepsilon`$ drives secular growth residuals, while `IGWelfare` embeds that mechanism inside household lifecycle optimization and sovereign debt (`LTFM`) accounting.
+* **Baumol Cost Disease & Marginal Value of Public Funds (Baumol 1967; Cunha, Heckman & Schennach 2010; Hendren & Sprung-Keyser 2020 *QJE*):** Hendren and Sprung-Keyser establish empirically that early-childhood health and education investments achieve infinite/self-financing MVPFs while passive adult transfers cluster below `1.0`. `IGWelfare` provides the structural general-equilibrium decomposition explaining *why*: separating unit-price capture ($`d \ln P_k`$) from physical/pedagogical conversion ($`d \ln \varepsilon_k`$) and cross-stage dynamic complementarity.
+
+---
+
+## 4. Cross-Country Empirical Validation: `NZ_Dunedin1972` vs. Finland (`FI_FBC1987`)
+
+Validating `IGWelfare` on Finland's post-1960s institutional reforms (`FI_FBC1987`) alongside New Zealand (`NZ_Dunedin1972`) tests the **Nominal Outlay vs. Converted Factor** framework out of sample.
+
+### 4.1 Teacher Salaries vs. Instructional Intensity (`G_ece_s`)
+
+In baseline fiscal specifications, public early-childhood and schooling expenditure in region $`k`$ (`G_ece_s`) is recorded as a single aggregate outlay. Economically, that budget line decomposes into unit factor price versus converted pedagogical volume (**Document 2A**, Section `3.3.1`, Proposition `[2A-Prop-Factor2]`):
+
+$$
+B_{\mathrm{edu},s,k} = W_{\mathrm{teach},k}(Q_k) \cdot \mathrm{FTE}_{s,k} + \mathrm{Other}_{\mathrm{edu},s,k}
+$$
+
+* **Unit Wage & Regional Cost-of-Living Deflator ($`W_{\mathrm{teach},k}`$):** In high-rent New Zealand regions (`Auckland` and `Large`), housing cost pressure (`Q_k` / `nu_col_index`) absorbs nominal `G_ece_s` merely to maintain baseline educator retention against outside wage options ($`d \ln P_k > 0`$).
+* **Converted Instructional Intensity ($`G_{\mathrm{ECE},s}^{\mathrm{eff}}(k) = \varepsilon_{\mathrm{ped},s,k} \cdot \mathrm{FTE}_{s,k}`$):** Finland's *peruskoulu* reform paired moderate statutory OECD teacher wage ratios with high institutional conversion efficiency $`\varepsilon_{\mathrm{ped}}`$—research-based Master's preparation, classroom autonomy, low inspection/administrative overhead, and immediate small-group learning support (*erityisopetus*) preventing early skill gaps from compounding into long-term hardship.
+* **The `daruich_mult` Parameter-Binding Lesson:** Auditing `FI_FBC1987` exposed why regional and regime skill multipliers (`daruich_mult` in `Compute_LeeSeshadri_Counterfactuals.m`) must bind dynamically rather than collapsing to a static scalar: flattening `daruich_mult` across regimes is mathematically identical to suppressing $`\varepsilon_k`$, misattributing institutional conversion gains to unexplained residuals.
+
+### 4.2 Regional Frontier Saturation & Cost-of-Living Attenuation (`Table5` Audit)
+
+The exported Lee–Seshadri counterfactual matrix (`Table5_4Region_LeeSeshadri_Output_Welfare.csv`) reveals two striking empirical contrasts between New Zealand and Finland that directly confirm concave bottleneck saturation and urban cost-of-living attenuation:
+
+#### Table 4.1: Lee–Seshadri Regional Earnings (`Ebar_LR`) and Welfare (`CE_LR`) Counterfactuals (`NZ_Dunedin1972` vs. `FI_FBC1987`)
+
+| Counterfactual Lever | NZ `Ebar_LR` Rural | NZ `Ebar_LR` Auckland | NZ `CE_LR` Rural | NZ `CE_LR` Auckland | FI `Ebar_LR` Rural | FI `Ebar_LR` Helsinki | FI `CE_LR` Rural | FI `CE_LR` Helsinki |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `P0_Early_0to5` | `+1.474%` | `+0.971%` | **`+0.887%`** | **`+0.830%`** | `+0.577%` | `+0.363%` | **`-0.051%`** | **`-0.040%`** |
+| `P1P2_Late_6to17` | **`+2.043%`** | **`+1.375%`** | `+1.423%` | `+1.610%` | **`+1.758%`** | **`+1.737%`** | `+0.921%` | `+1.456%` |
+| `BN_FrontLoad` | `-0.674%` | `-0.370%` | `-0.606%` | `-0.349%` | `-0.154%` | `-0.258%` | `-0.235%` | `-0.270%` |
+| `P0_Plus_GrantE` | `+3.284%` | `+3.830%` | `+4.932%` | `+6.150%` | `+2.771%` | `+3.275%` | `+3.612%` | `+4.810%` |
+
+1. **Starved Bottleneck (NZ) vs. Frontier Saturation (Finland) in `P0_Early_0to5`:** Expanding `P0` early-childhood investment in New Zealand delivers substantial long-run earnings (`+0.97%` to `+1.47%`) and net welfare gains (`+0.83%` to `+0.89%` CE) because NZ's baseline leaves a wide early-life skill gap (`25.79%` at `i_c = 0`). In Finland (`FI_FBC1987`), universal *neuvola* clinics and Nordic `ECEC` already operate near the concave Stage-1 frontier; adding extra tax-financed `P0` spend at `tau_l = 0.325` encounters diminishing physical returns ($`\Delta \ln \varepsilon \approx 0`$), yielding smaller earnings gains (`+0.36%` to `+0.58%`) and slightly negative net welfare (`-0.04%` to `-0.05%` CE) unless paired with Stage-2 mentoring and `Aspects 2 & 3` tax/land rebalancing (`P0_Plus_GrantE` = `+3.61%` to `+4.81%` CE).
+2. **Auckland Cost-of-Living Compression vs. Helsinki *Peruskoulu* Uniformity in `P1P2_Late_6to17`:** Under `P1P2` schooling expansion, New Zealand's long-run earnings response drops by nearly one-third in `Auckland` (`+1.375%`, with short-run `Ebar_SR = -0.183%`) compared to `Rural` (`+2.043%`), `Small` (`+1.961%`), and `Large` (`+1.962%`), reflecting metropolitan housing and cost-of-living absorption (`Q_Auckland = 3.10`). In Finland, `Ebar_LR` is virtually invariant across space—`+1.758%` in `Rural` versus **`+1.737%` in `Helsinki`**—confirming uniform national pedagogical conversion.
+
+### 4.3 Scale-Free Hulten Leverage Audit (`Table19E` & `Table20` Steady State)
+
+Computing the ratio of realized `SS2` steady-state welfare gains (`Table19E`) to Year-60 steady-state gross mirror-investment outlays $`s_{B,k}`$ (`Table20`, via `src/models/Compute_Wedge_Additionality_Table.m`) quantifies how conversion efficiency and complementarity govern leverage across both twins:
+
+#### Table 4.2: Empirical Hulten Leverage Ratios ($`\Lambda_k = \mathrm{Realized\ SS2\ CE\%} / s_{B,k}`$)
+
+| Policy Lever / Constructive Stack | Gross Outlay $`s_{B,k}`$ (% CE) | NZ `SS2` Gain (% CE) | FI `SS2` Gain (% CE) | NZ Leverage ($`\Lambda_{\mathrm{NZ}}`$) | FI Leverage ($`\Lambda_{\mathrm{FI}}`$) | Structural Conversion Mechanism |
+|---|---:|---:|---:|---:|---:|---|
+| `L03E–L11E` Arts & Civic Seed Cap (`JoinerPassport`) | `0.140%` | `+3.401%` | `+3.366%` | **`24.29x`** | **`24.04x`** | **Extreme Civic Conversion ($`\varepsilon_{\mathrm{civic}} \gg 1`$):** Tiny seed outlay mobilizes `76–79 kFTE` volunteer scaffolding across all 4 synergy gates; net unrecovered outlay reaches `0%` by Year 16. |
+| `L02` Tuakana Mentoring (Isolated) | `0.550%` | `+1.562%` | `+1.535%` | **`2.84x`** | **`2.79x`** | Direct relational mentoring prevents adolescent skill loss with minimal overhead dissipation. |
+| `L01` Universal ECE — First 2000d (Isolated) | `1.350%` | `+2.457%` | `+2.406%` | **`1.82x`** | **`1.78x`** | Relieves early developmental plasticity bottleneck; beats Hulten `1.0x` cost-share bound standalone. |
+| `L01 + L02 + L03_WEDGE1` Dual-Gate HC Stack | `1.900%` | `+7.520%` | `+7.490%` | **`3.96x`** | **`3.94x`** | Cunha–Heckman dynamic complementarity ($`\varphi_2 = -0.95`$): early readiness (`L01`) preserved by adolescent mentoring (`L02`) adds `+3.50%` NZ / `+3.55%` FI pure synergy wedge. |
+| `L05` Age-20 Youth Grant (Isolated) | `0.600%` | `+0.893%` | `+0.872%` | **`1.49x`** | **`1.45x`** | Relieves $`a \ge 0`$ borrowing constraint at adulthood launch; unlocks `+2.46%` `L07_WEDGE2` when paired with LVR/whānau housing reform. |
+| `L06` Passive Geo Income Transfer (vs. Yr 0 $`s_B`$) | `0.417%` | `+0.146%` | `+0.149%` | **`0.35x`** | **`0.36x`** | **Zero Structural Conversion ($`\Delta \ln \varepsilon = 0`$):** Cushions `SS1` hardship (`+0.81%`), but decays in `SS2` (`0.57%` of total package; `1.22x` vs. shrunken `0.12%` Yr-60 outlay). |
+| **Full 7-Segment Package (Base `Table19`/`20`)** | `2.620%` | `+25.449%` | `+25.479%` | **`9.71x`** | **`9.72x`** | **55.9% (NZ) & 56.9% (FI)** of steady-state gain arises strictly from non-linear synergy wedges (`14.22%` vs. `11.23%` isolated sum in NZ). |
+| **Full Arts-Enabled Package (`Table19E`/`20`)** | `2.760%` | `+28.824%` | `+28.820%` | **`10.44x`** | **`10.44x`** | Self-financing in actuarial `CBAx` by **Year 4** (`+1.19%` NZ / `+1.06%` FI); arrests baseline `LTFM` deficit drift (`-6.24%` NZ vs. `-3.48%` FI at Year 60). |
+
+---
+
+## 5. Audited Structural Isomorphisms Across `IGWelfare`
+
+Across every module of `IGWelfare`, separating **nominal budget flow ($`P \cdot Q`$)** from **converted factor throughput ($`\varepsilon \cdot Q`$)** resolves apparent fiscal paradoxes without adding ad-hoc behavioral assumptions:
+
+| Domain in `IGWelfare` | Nominal Outlay / Price Parameter ($`P \cdot Q`$) | Conversion Conduit ($`\varepsilon`$) | Effective Factor Input ($`\varepsilon \cdot Q`$) | Cost-Share / Ledger Fallacy Exposed |
 |---|---|---|---|---|
-| **1. Macro & Regional Production** | Primary energy bill $p_E E_r$; carbon price shock | Industrial electrification, heat-pump COP, freight logistics ($\varepsilon_r$) | Useful physical work $U_r = \varepsilon_r E_r$ complementing $K_r$ | Low GDP energy cost share (~5%) masks severe output & wage sensitivity when $\sigma_{KU} \ll 1$. |
-| **2. Public Education (`G_ece_s`)** | Nominal budget $W_{\text{teach},k}\mathrm{FTE}_k + \mathrm{Other}_k$ | Pedagogical quality, retention stability, low admin overhead ($\varepsilon_{\text{edu},k}$) | Effective mentoring & classroom intensity entering Cunha–Heckman | Rising nominal `G_ece_s` absorbed by `nu_col_index` or leases yields zero gain in child $\theta_{j+1}$. |
-| **3. Housing Transfers & Domestic Thermal Comfort** | Accommodation Supplement (`AS`); household utility spend $p_E e_{\text{heat}}$ | Supply elasticity; building envelope insulation & heating COP ($\varepsilon_{\text{housing}}$) | Tenure stability & indoor thermal floor $u_{\text{heat}} = \varepsilon_{\text{housing}} e_{\text{heat}}$ | Subsidizing rent/bills in leaky, supply-constrained rentals inflates rents and resistive-heat waste while child health hazards persist. |
-| **4. Grassroots Civic, Arts & Sport Infrastructure (`Document 1E`)** | Public seed grants (`Vote Arts`, `Vote Sport`, council civic funds) | Volunteer networks, club infrastructure, mentoring leverage ($\varepsilon_{\text{civic}}$) | Adolescent pro-social engagement & non-cognitive skill protection | Tiny fiscal budget share (<0.5%) makes cuts (`coalition_2024_shocks`) look harmless in static ledgers while destroying high-multiplier preventative capacity. |
-| **5. 6-Gate Fiscal Architecture (`Table14`)** | Aggregate social spending across all 6 fiscal gates | Developmental timing & Cunha–Heckman plasticity window ($\frac{\partial \theta_{j+1}}{\partial i_j}$) | Net addition to adult effective human capital $H_r$ | Static budgets treat $1 of early-childhood investment and $1 of late-stage acute remediation (Care, Health, Justice) as equivalent fiscal outlays. |
+| **1. Macro Production & `NDC` (`Phase2`)** | Fossil energy bill $`p_F^{\ast} F_t`$; offshore carbon credits (`NZD 21.77B` PV) | Electrification ($`e_N = 0.88`$), heat-pump COP, domestic grid/transport (`Sector_4B`) | Useful physical work $`X_{s,k}`$ activating $`K_{s,k}`$ | ~4%–5% GDP energy cost share masks `-22.57%` CE rollback penalty vs. `+28.32%` CE domestic exergy + Taiao gain. |
+| **2. Public Education (`G_ece_s`)** | Nominal spend $`W_{\mathrm{teach},k}\mathrm{FTE}_{s,k} + \mathrm{Other}_{s,k}`$ | Master's autonomy, retention stability, early learning triage ($`\varepsilon_{\mathrm{ped},s,k}`$) | Classroom & mentoring intensity entering Cunha–Heckman | High-COL wage capture (`Q_k` in Auckland `P1P2`: `+1.38%` vs. `+2.04%` Rural) masks flat real mentoring volume. |
+| **3. Housing & Domestic Thermal Comfort** | Accommodation Supplement (`AS`); resistive utility spend $`p_E e_{\mathrm{heat}}`$ | Housing supply elasticity; insulation & heat-pump COP ($`\varepsilon_{\mathrm{housing}}`$) | Tenure stability & Stone–Geary thermal floor $`\bar{e}_k`$ | Subsidizing rent/bills in supply-constrained, leaky rentals inflates landlord rents ($`d\ln P \approx d\ln B`$) while childhood hardship and respiratory hazards persist. |
+| **4. Grassroots Civic, Arts & Sport (`Doc 1E`)** | Seed grants (`JoinerPassport = 0.14%` CE; `Vote Arts` / council funds) | `76–79 kFTE` volunteer network in `Sector_4A_Civic_Human` ($`\varepsilon_{\mathrm{civic}}`$) | Adolescent pro-social belonging, psychosocial resilience & retention | Tiny budget share (<0.2% GDP) makes cuts (`coalition_2024_shocks`) look harmless in static ledgers while destroying a **24.3x** conversion multiplier. |
+| **5. 6-Gate Fiscal Architecture (`Table14`)** | Aggregate social outlays across all 6 lifecycle gates | Developmental plasticity window ($`\partial \Theta_s / \partial I_{s,k}`$) | Adult human capital $`H_k`$ & net fiscal solvency (`LTFM`) | Static ledgers treat NZD 1 of early preventative investment and NZD 1 of late-stage acute remediation (`Exits 1, 2, & 4`) as equivalent outlays. |
 
-### 4.1 Housing Subsidies and Residential Thermal Efficiency
+### 5.1 Housing Subsidies and Residential Thermal Efficiency
 
-In New Zealand, low-income and present-biased ($\beta\text{-}\delta$, liquidity-constrained $a \ge 0$) households disproportionately rent poorly insulated dwellings equipped with resistive electric heaters ($\varepsilon_{\text{housing}}$ low) rather than insulated envelopes with heat pumps ($\varepsilon_{\text{housing}}$ $3\times\text{--}4\times$ higher).
+Low-asset and present-biased ($`\beta_{\mathrm{hyp}} = 0.72`$, borrowing-constrained $`a^{\prime} \ge 0`$) households disproportionately occupy poorly insulated rentals heated by resistive electric appliances ($`\varepsilon_{\mathrm{housing}}`$ low) rather than insulated dwellings with high-COP heat pumps ($`\varepsilon_{\mathrm{housing}}`$ `3x–4x` higher).
 
-* Household biological health and child retention in the *Thriving* Markov state depend on **delivered indoor thermal comfort** $u_{\text{heat}} = \varepsilon_{\text{housing}} e_{\text{heat}}$ exceeding a Stone–Geary subsistence threshold $\bar{u}_{\text{heat}}$, not on nominal kilowatt-hours purchased.
-* Cash rent subsidies (such as New Zealand's Accommodation Supplement in supply-inelastic urban markets) or temporary winter energy payments alter nominal budget flows without lifting $\varepsilon_{\text{housing}}$. By contrast, capital standards and envelope/heat-pump retrofits directly raise $\varepsilon_{\text{housing}}$, lowering the shadow price of domestic thermal comfort $p_U = p_E / \varepsilon_{\text{housing}}$ permanently and reducing childhood respiratory and housing-instability transitions into *Stunted*, *Care/Housing*, and *Health/Addiction*.
+* Child retention on the thriving developmental trajectory—avoiding downward transitions into struggling/hardship states, state care, and avoidable hospitalization—depends on **delivered indoor thermal comfort** and compressed subsistence energy burdens ($`\Delta \bar{e}_{\mathrm{elec},k}`$), not nominal kilowatt-hours billed.
+* Passive rent transfers in supply-inelastic urban markets (`L06` / un-reformed `AS`) get capitalized into rents ($`d \ln P_k > 0`$), whereas LVR/whānau tenure access (`L07_WEDGE2`) and *Rewiring Aotearoa* electrification upgrades raise $`\varepsilon_{\mathrm{housing}}`$ directly, cutting the shadow price of domestic comfort permanently.
 
-### 4.2 The Civic & Arts Cost-Share Fallacy (`Document 1E` & `coalition_2024_shocks`)
+### 5.2 Flow-Network Accounting: Conserved Headcount vs. Non-Conserved Fiscal Potential
 
-Keen’s critique of the 5% energy cost share applies with equal force to grassroots community, arts, and youth sport ecosystems analyzed in **Document 1E** and modeled in the `coalition_2024_shocks` branch:
+In `IGWelfare`'s cohort and fiscal Sankey visualizations (`Plot_ChildFates_SSankey.m`, `Plot_ChildFiscal_SSankey.m`, `Table14`, and `Table15`), separating conserved population mass from productive human-capital potential explains why timing dominates fiscal solvency:
 
-* In central and local government budgets (e.g., `Vote Arts`, Creative NZ, Sport NZ, and Wellington City Council civic grants), public seed funding represents a tiny fraction of total expenditure.
-* A conventional fiscal audit assumes removing $10M–$50M of civic grants yields clean fiscal savings with negligible macroeconomic cost.
-* Structurally, those modest public grants maintain physical venues, coordinator roles, and institutional scaffolding (such as community hubs, youth clubs, and music spaces) that mobilize unpaid volunteer hours and peer networks—an institutional conversion multiplier $\varepsilon_{\text{civic}} \gg 1$. Defunding the seed conduit collapses the volunteer conversion structure, pushing at-risk adolescents across developmental thresholds into high-cost downstream fiscal gates (`Table 19E` additionality).
-
-### 4.3 Flow-Network Accounting: Headcount Sankeys vs. Value-Potential Sankeys
-
-In `IGWelfare`’s visual and actuarial reporting (`Plot_ChildFates_SSankey.m`, `Plot_ChildFiscal_SSankey.m`, and `Table14`), distinguishing conserved headcount flows from productive potential clarifies why timing governs fiscal solvency:
-
-* **Population Headcount Conservation:** Across lifecycle stages $j \in \{1, \dots, J\}$, cohort population mass $\sum_{z=1}^5 \mu_{j,z} = 1$ is conserved (modulo mortality). Every child appears somewhere on the right-hand side of the Sankey diagram.
-* **Productive & Fiscal Potential:** Effective human capital $h(j, z, \theta)$ and net lifecycle fiscal contribution (`net_fisc_30`, `DebtSink_50_CR`) are **not** conserved. Because Cunha–Heckman skill formation exhibits declining plasticity with age and strong dynamic complementarity, downward transitions out of *Thriving* during early windows permanently forfeit compounding skill gains. Late-stage outlays in acute gates (*Care*, *Health/Addiction*, *Justice*) operate as **remedial maintenance expenditure**—necessary to prevent deeper social harm, yet structurally unable to restore early-life developmental trajectories at comparable cost.
+* **Population Headcount Conservation:** Cohort mass $`\sum_{i} p_{g,i} = 1`$ is conserved across lifecycle gates.
+* **Non-Conserved Human-Capital & Fiscal Potential:** Because Cunha–Heckman skill formation exhibits declining plasticity with age and strong cross-stage complementarity (`L03_WEDGE1` + `L08_WEDGE3` = `9.01%` CE in NZ, `9.22%` CE in Finland), allowing children to slip into struggling/skill-loss trajectories forfeits compounding skill gains permanently. Downstream spending in acute remediation gates (`Exits 1, 2, & 4`: Care, Avoidable Hospitalization/CAMHS, Benefit/LOPE/Justice) acts as high-cost containment rather than human-capital creation—driving the baseline `LTFM_Annual_Deficit_Flow` sinkhole (`-6.24%` CE in NZ vs. `-3.48%` CE in Finland by Year 60) while distorting `Tier 1` input-cost `SNA` GDP (**Document 2A**, Section `2.5.1`, Proposition `[2A-Prop-Civic1]`).
 
 ---
 
-## 5. Implementation Architecture: Keeping the Bellman Solver Lean
+## 6. Non-Invasive Implementation Architecture
 
-A core engineering principle of `IGWelfare` and its `VFIToolkit-matlab` (`UFHorz`) solver layer is **non-invasive parsimony**: never add continuous state variables to the 4D/5D household Bellman array when structural factor decomposition can be resolved cleanly in the **profile pre-processing layer**, **aggregate regional production equilibrium**, or **post-hoc actuarial ledger**.
+In keeping with `IGWelfare` and `VFIToolkit-matlab` (`MixHorz` / `UFHorz`) design standards, every factor-vs.-outlay decomposition is implemented **without adding endogenous state variables to the 4D/5D household Bellman array**:
 
-1. **Zero-State-Bloat Teacher Wage & Intensity Split (Profile & Ledger Layer):**
-   * Decompose `G_ece_s` inside `regions.csv` and `Apply_Policy_Regime.m` by specifying baseline regional educator wage indices (`w_teach_rel`, anchored to `nu_col_index`), retention elasticity, and real instructional input intensity (`fte_intensity_mult`).
-   * Pass **only** the converted real instructional intensity into the Cunha–Heckman / `daruich_mult` skill operator during VFI/distribution iteration, while recording both the wage bill ($W_{\text{teach},k} \cdot \mathrm{FTE}_k$) and non-wage outlays in the fiscal/actuarial ledger tables.
-2. **Macro Regional Exergy Block (GE Equilibrium Layer Only):**
-   * Evaluate $U_r = \varepsilon_r E_r$ inside the regional firm's first-order conditions in `NZ_4Region_Master.m` when solving for equilibrium $(w_r, r)$ under energy-price or `ndc` decarbonization counterfactuals. From the household VFI solver's perspective, this requires **zero extra grid dimensions**—households simply face the resulting general-equilibrium factor prices $(w_r, r)$ and, where modeled, a scalar regional Stone–Geary subsistence floor $\bar{c}_{\text{heat}, r}(p_E, \varepsilon_{\text{housing}, r})$ in the period budget constraint.
+1. **Diagnostic Audit Layer (`src/models/Compute_Wedge_Additionality_Table.m`):** Post-processes exported `Table19E`, `Table20`, and `Table5` CSVs across `NZ_Dunedin1972` and `FI_FBC1987` in `<0.2 s` to report scale-free Hulten Leverage Ratios ($`\Lambda_k`$) and regional conversion contrasts.
+2. **Profile & Ledger Teacher-Wage Split (`regions.csv` & `Apply_Policy_Regime.m`):** Decomposes `G_ece_s` into a regional cost-of-living educator wage index ($`W_{\mathrm{teach},k}(Q_k)`$, linked to `nu_col_index`) and real converted mentoring intensity (`fte_intensity_mult`), passing only real converted intensity into `HumanCapital_Lifecycle_aprimeFn.m` / `daruich_mult` while reporting the wage/overhead split in the actuarial tables.
+3. **Outer-Loop 5-Sector Exergy & Household Subsistence Conditioning (`Compute_5Sector_Exergy_Equilibrium.m` & `ReturnFn_SpatialHH_Compact4D.m`):** Evaluates dual-fuel exergy $`X_{s,k}(e_N N_{s,k}, e_F F_{s,k})`$ in the outer general-equilibrium price block and maps household electrification into the regional Stone–Geary subsistence floor $`\bar{e}_k`$ (`1.0x` Bellman state-space multiplier).
 
 ---
 
-## 6. Proof & Specification Routing Ledger
+## 7. Formal Proof & Specification Routing Ledger
 
-To preserve separation of concerns across the `IGWelfare` documentation suite, formal mathematical derivations and calibration schemas derived from this framework are routed as follows:
+### 7.1 Routed to **[Document 2A](../Document%202A.md)** (Micro-Foundations, Core Agent Problems, & Sectoral Operators)
 
-### 6.1 Routing to **Document 2A** (Theoretical & Analytical Foundations)
+* **Section `2.4.1` — Proposition `[2A-Prop-Factor1]` (Putty-Clay Exergy Bottlenecks, Dual-Fuel Electrification Leverage, and Small-Open-Economy Sovereign Spread Closure):** Proves why short-run putty-clay complementarity ($`\sigma_{KL,X} \to 0`$) invalidates the ~4% `KLE` cost-share approximation, derives regional real-wage compression under price-only carbon shocks, and establishes the triple small-open-economy dividend ($`e_N / e_F = 2.93\times`$, `NDC` liability elimination, and `NFA` sovereign spread compression).
+* **Section `2.5.1` — Proposition `[2A-Prop-Civic1]` (Polycentric Volunteer Co-Production Gearing, `SNA` Input-Cost Blindness, and Asymmetric Disinvestment Sinkholes):** Proves why statutory civic seed grants crowd in `76–79 kFTE` of Ostrom–Waring volunteer co-production (`24.3x` leverage), why `Vote Arts` / `C15` cuts and `Super Age 70` trigger nonlinear reactive remediation sinkholes, and why `Tier 1` input-cost `SNA` accounting mis-signs `~65,000 FTE` reactive-to-capacitating labor release.
+* **Section `3.3.1` — Proposition `[2A-Prop-Factor2]` (Observational Equivalence Failure in Aggregate Public Skill Outlays — Metropolitan Cost-of-Living Deflation vs. Frontier Saturation):** Proves non-identifiability of nominal `B_edu,s,k` under metropolitan `Q_k` *Kaiako* cost-of-living absorption (`Auckland` vs. `Helsinki` in `P1P2_Late_6to17`) and derives the concave Stage-1 saturation threshold explaining why standalone tax-financed `P0_Early_0to5` is strongly welfare-positive in `NZ_Dunedin1972` (`+0.83%` to `+0.89%` CE) yet slightly negative in saturated `FI_FBC1987` (`-0.04%` to `-0.05%` CE).
 
-* **`[2A-Prop-Factor1]` Breakdown of Cost-Share Sufficiency under $\sigma_{KU} \ll 1$:** Formal derivation showing why small nominal expenditure shares ($s_U = p_U U / Y \ll 1$) coexist with large output and wage elasticities $\frac{d \ln Y_r}{d \ln U_r}$ in nested regional OLG general equilibrium (building on Keen, Ayres & Standish).
-* **`[2A-Prop-Factor2]` Observational Equivalence Failure in Public Skill Outlays:** Proof that two fiscal regimes with identical per-child real-GDP-deflated expenditure $G_{\text{ece\_s}}$ generate strictly divergent steady-state human-capital variance $\mathrm{Var}(\ln h)$ and intergenerational persistence $T_{\text{IGE}}$ when regional cost-of-living premia (`nu_col_index`) or turnover thresholds create wedges between nominal spend and converted instructional intensity $I_{\text{edu}}$.
-* **`[2A-Prop-Factor3]` In-Kind Conversion Upgrades vs. Cash Transfers under $\beta\text{-}\delta$ Borrowing Constraints:** Proof that when households face $a_{j+1} \ge 0$ and present bias $\beta < 1$, raising durable residential conversion efficiency ($\Delta \varepsilon_{\text{housing}} > 0$) strictly dominates fiscally equivalent unconditional utility/rent transfers in lowering child downward Markov transition hazards.
+### 7.2 Routed to **[Document 2B](../Document%202B.md)** (Coupled General-Equilibrium Synthesis, Calibration, & Attribution)
 
-### 6.2 Routing to **Document 2B** (Quantitative Calibration & Computational Architecture)
+* **Section `7.4.1` — Proposition `[2B-Prop-Wedge1]` (Breakdown of Hulten Cost-Share Sufficiency and the Wedge Additionality Identity):** Master derivation of $`\Lambda_k^Y = (\eta_k / s_{B,k})\lbrack 1 + (d\ln\varepsilon_k - d\ln P_k)/d\ln B_k \rbrack`$ and off-diagonal Topkis Hessian positivity ($`\propto 1/\sigma`$), explaining why Constructive Synergy Wedges generate `>54%` of steady-state welfare across both `NZ_Dunedin1972` and `FI_FBC1987`.
+* **Section `9` (`[Ref 9]` & `[Ref 33]`) — Master Reference Anchors:** Integrates Hulten (1978) and Baqaee & Farhi (2019) alongside Keen, Ayres, & Standish (2019) in `[Ref 9]`, and Hendren & Sprung-Keyser (2020) alongside NZ Treasury `CBAx` Circular 2024/15 guidance in `[Ref 33]`.
+* **Queued Calibration Extension `[2B-Spec-Edu1]`:** Non-invasive profile/ledger schema splitting `G_ece_s` into regional educator wage indexation (`nu_col_index` / `Q_k`) versus converted instructional `FTE` across `profiles/*/regions.csv` and `Apply_Policy_Regime.m`.
 
-* **`[2B-Spec-Edu1]` Non-Invasive `G_ece_s` Wage vs. Intensity Schema:** Column definitions for `profiles/*/regions.csv`, regime-switching logic in `src/config/Apply_Policy_Regime.m`, and sub-column actuarial reporting for NZ (`NZ_4Region_Master`, `NZ_Dunedin1972`) and Finland (`FI_FBC1987`).
-* **`[2B-Spec-Exergy1]` NZ 4-Region Useful Exergy & Housing Efficiency Calibration:** Empirical mapping of EECA end-use energy/useful-work balances and BRANZ housing thermal-envelope parameters onto `Rural`, `Small`, `Large`, and `Auckland`, aligned with `ndc` branch shock scenarios.
-* **`[2B-Spec-Sankey1]` Actuarial Potential vs. Headcount Accounting in `Table14`:** Exact accounting definitions separating conserved cohort headcount flows from net fiscal/human-capital loss wedges in `Plot_ChildFiscal_SSankey.m` and `Plot_ChildFates_SSankey.m`.
+---
+
+## References
+
+* Ayres, R. U., & Warr, B. (2005). Accounting for growth: The role of physical work. *Structural Change and Economic Dynamics*, 16(2), 181–209.
+* Ayres, R. U., & Warr, B. (2009). *The Economic Growth Engine: How Energy and Work Drive Material Prosperity*. Edward Elgar.
+* Bachmann, R., Baqaee, D., Bayer, C., Kuhn, M., Löschel, A., Moll, B., Peichl, A., Pittel, K., & Schularick, M. (2022). What if? The economic effects for Germany of a stop of energy imports from Russia. *Economica*, 91(363), 757–800.
+* Baqaee, D. R., & Farhi, E. (2019). The macroeconomic impact of microeconomic shocks: Beyond Hulten's Theorem. *Econometrica*, 87(4), 1155–1203.
+* Baumol, W. J. (1967). Macroeconomics of unbalanced growth: The anatomy of urban crisis. *American Economic Review*, 57(3), 415–426.
+* Brockway, P. E., Sorrell, S., Semieniuk, G., Heun, M. K., & Court, V. (2021). Energy efficiency and economy-wide rebound effects: A review of the evidence and its implications. *Renewable and Sustainable Energy Reviews*, 141, 110781.
+* Cunha, F., Heckman, J. J., & Schennach, S. M. (2010). Estimating the technology of cognitive and noncognitive skill formation. *Econometrica*, 78(3), 883–931.
+* Hendren, N., & Sprung-Keyser, B. (2020). A unified welfare analysis of government policies. *Quarterly Journal of Economics*, 135(3), 1209–1318.
+* Hulten, C. R. (1978). Growth accounting with intermediate inputs. *Review of Economic Studies*, 45(3), 511–518.
+* Keen, S., Ayres, R. U., & Standish, R. (2019). A note on the role of energy in production. *Ecological Economics*, 157, 40–46.
+* Labrousse, C., & Perdereau, Y. (2026). Geography versus income: The heterogeneous effects of carbon taxation. *Journal of Monetary Economics*, 161, 103962.
+* Ostrom, E. (1996). Crossing the great divide: Coproduction, synergy, and development. *World Development*, 24(6), 1073–1087.
+* Waring, M. (1988). *Counting for Nothing: What Men Value and What Women Are Worth*. Allen & Unwin.

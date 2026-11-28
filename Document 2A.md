@@ -105,6 +105,76 @@ $$
 
 2. **Macro External Closure (Fossil + Defence Imports):** Aggregate imported fossil fuel demand $`F_t = \sum_{k=1}^{4} \left(F_{h,k,t} + \sum_{s} F_{s,k,t}\right) + F_{N,t} + F_{D,t}`$—where $`F_{N,t}`$ captures Huntly dry-year coal/gas peaking [Ref 39] and $`F_{D,t}`$ captures military aviation/marine fuel—must be purchased from the Rest of the World at world price $`p_F^{\ast}`$ (plus shadow `NDC` carbon liability when domestic abatement falls short [Ref 40]), alongside imported defence procurement $`M_{D,t}^{\ast}`$ [Ref 59] and Net Foreign Asset ($`\mathrm{NFA}_t`$) service [Ref 10, 23].
 
+#### 2.4.1 Proposition `[2A-Prop-Factor1]`: Putty-Clay Exergy Bottlenecks, Dual-Fuel Electrification Leverage, and Small-Open-Economy Sovereign Spread Closure
+
+Consider sector $`s`$ in region $`k \in \lbrace 1, 2, 3, 4 \rbrace`$ where gross output $`Y_{s,k}`$ combines the composite capital-labor bundle $`V_{s,k} = K_{s,k}^{\alpha_k} H_{s,k}^{1 - \alpha_k}`$ with useful physical work (**exergy**) $`X_{s,k}`$ via a putty-clay CES operator with short-run elasticity $`\sigma_{KL,X} \in (0, 1)`$ [Ref 9, 10]:
+
+$$
+Y_{s,k} = Z_{s,k} \left\lbrack \left(1 - \omega_{X,s}\right) V_{s,k}^{\frac{\sigma_{KL,X} - 1}{\sigma_{KL,X}}} + \omega_{X,s} X_{s,k}^{\frac{\sigma_{KL,X} - 1}{\sigma_{KL,X}}} \right\rbrack^{\frac{\sigma_{KL,X}}{\sigma_{KL,X} - 1}}
+$$
+
+where useful exergy $`X_{s,k}`$ aggregates domestic renewable electricity $`N_{s,k}`$ (priced at $`p_N = M_{\mathrm{olig}} c_N`$ with Second-Law conversion efficiency $`e_N`$) and imported fossil fuel $`F_{s,k}`$ (priced at world price $`p_F^{\ast} + \tau_F`$ including shadow Paris `NDC` carbon liability $`\tau_F`$, with conversion efficiency $`e_F < e_N`$) under end-use substitution elasticity $`\epsilon_y > 1`$ [Ref 9, 23, 39, 40]:
+
+$$
+X_{s,k} = \left\lbrack \left(1 - \gamma_{s,k}\right)\left(e_N N_{s,k}\right)^{\frac{\epsilon_y - 1}{\epsilon_y}} + \gamma_{s,k}\left(e_F F_{s,k}\right)^{\frac{\epsilon_y - 1}{\epsilon_y}} \right\rbrack^{\frac{\epsilon_y}{\epsilon_y - 1}}
+$$
+
+Let $`s_{E,s,k} = \left(p_N N_{s,k} + (p_F^{\ast} + \tau_F) F_{s,k}\right) / Y_{s,k}`$ denote the observed nominal energy expenditure share, and let international borrowing clear via $`r_t = r_t^{\ast} + \psi \left(\exp\left(\mathrm{NFA}_t / Y_t - \bar{b}\right) - 1\right)`$ with $`\psi < 0`$ for net debtor positions ($`\mathrm{NFA}_t < \bar{b} Y_t`$) [Ref 10]. Then:
+
+1. **Failure of the KLE Cost-Share Approximation Under Physical Curtailment ($`\sigma_{KL,X} \to 0`$):** Under rationed firming capacity or acute fuel disruption ($`\Delta \ln X_{s,k} < 0`$) holding $`V_{s,k}`$ fixed in the short run, a finite fractional curtailment $`x = X_{s,k}^{\prime} / X_{s,k} \in (0, 1)`$ induces an exact nonlinear output loss:
+
+$$
+\frac{Y_{s,k}^{\prime}}{Y_{s,k}} = \left\lbrack \left(1 - \eta_{X,s,k}\right) + \eta_{X,s,k} \, x^{\frac{\sigma_{KL,X} - 1}{\sigma_{KL,X}}} \right\rbrack^{\frac{\sigma_{KL,X}}{\sigma_{KL,X} - 1}}
+$$
+
+   In the putty-clay Leontief limit $`\sigma_{KL,X} \to 0^{+} \implies \frac{\sigma_{KL,X} - 1}{\sigma_{KL,X}} \to -\infty`$, $`Y_{s,k}^{\prime} / Y_{s,k} \to x`$ regardless of how small the baseline nominal expenditure share $`s_{E,s,k} \approx 0.04`$ is—whereas a Cobb-Douglas `KLE` model ($`\sigma_{KL,X} = 1`$) understates output contraction by $`1 - x^{s_{E,s,k}} \ll 1 - x`$.
+2. **Asymmetric Regional Wage Compression Under Price-Only Carbon Taxation ($`\Delta \tau_F > 0, \Delta K_N = 0`$):** Let $`P_{X,s,k}`$ denote the dual unit cost of useful exergy. Raising carbon/fuel charges $`\Delta \tau_F > 0`$ or wholesale gentailer markups $`\Delta M_{\mathrm{olig}} > 0`$ without expanding firmed renewable capacity $`K_N`$ raises $`P_{X,s,k}`$ in proportion to fossil exergy cost share $`\theta_{F,s,k}`$, depressing regional labor demand and equilibrium real wages $`w_k`$ most severely in high-fossil-exposure regions (`Rural`, `Small`, where $`\gamma_{s,k}`$ and household subsistence $`\bar{e}(k)`$ are largest):
+
+$$
+\frac{\partial \ln w_k}{\partial \ln P_{X,s,k}}\bigg\vert_{K_{s,k}, H_{s,k}} = -\frac{\eta_{X,s,k}}{1 - \eta_{X,s,k}} \left(1 - \sigma_{KL,X}\right) < 0 \qquad \left(\mathrm{for}\ \sigma_{KL,X} < 1\right)
+$$
+
+3. **Triple Small-Open-Economy Dividend of Firmed Electrification ($`F_{s,k} \to N_{s,k}`$):** Shifting primary energy throughput at the margin from imported fossil fuel to firmed competitive domestic electricity ($`M_{\mathrm{olig}} \to 1`$) multiplies physical useful work per primary energy unit by the Second-Law factor $`e_N / e_F \approx 2.93`$ while simultaneously improving the external balance and sovereign interest rate via three additive channels:
+
+$$
+\Delta \mathrm{BoP}_t = -p_F^{\ast} \Delta F_t - \tau_F^{\mathrm{offshore}} \Delta E_{\mathrm{NDC},t} > 0 \implies \Delta \mathrm{NFA}_t > 0 \implies \Delta r_t < 0
+$$
+
+   lowering domestic capital rental rates $`r_t + \delta_k`$ across all four regions and lifting collateral-constrained firm equity returns $`R_k(z_{h,k})`$ without contracting gross energy services.
+
+---
+
+##### Proof of `[2A-Prop-Factor1]`
+
+**Part 1 (Nonlinear Putty-Clay Contraction Limit).**
+Factor baseline $`Y_{s,k}`$ out of the CES production operator at $`X_{s,k}^{\prime} = x X_{s,k}`$ and $`V_{s,k}^{\prime} = V_{s,k}`$, using $`\eta_{X,s,k} = Z_{s,k}^{\frac{\sigma_{KL,X}-1}{\sigma_{KL,X}}} \omega_{X,s} (X_{s,k} / Y_{s,k})^{\frac{\sigma_{KL,X}-1}{\sigma_{KL,X}}}`$ and $`1 - \eta_{X,s,k} = Z_{s,k}^{\frac{\sigma_{KL,X}-1}{\sigma_{KL,X}}} (1 - \omega_{X,s}) (V_{s,k} / Y_{s,k})^{\frac{\sigma_{KL,X}-1}{\sigma_{KL,X}}}`$. Setting $`\rho = \frac{\sigma_{KL,X} - 1}{\sigma_{KL,X}} < 0`$ for $`\sigma_{KL,X} \in (0, 1)`$ yields $`Y_{s,k}^{\prime} / Y_{s,k} = \left\lbrack (1 - \eta_{X,s,k}) + \eta_{X,s,k} x^{\rho} \right\rbrack^{1/\rho}`$. For any $`x \in (0, 1)`$ and $`\eta_{X,s,k} > 0`$, as $`\sigma_{KL,X} \to 0^{+}`$ ($`\rho \to -\infty`$), the dominant term inside brackets is $`\eta_{X,s,k} x^{\rho}`$, so:
+
+$$
+\lim_{\rho \to -\infty} \frac{1}{\rho} \ln\left\lbrack \left(1 - \eta_{X,s,k}\right) + \eta_{X,s,k} x^{\rho} \right\rbrack = \lim_{\rho \to -\infty} \left( \ln x + \frac{\ln \eta_{X,s,k}}{\rho} \right) = \ln x \implies \lim_{\sigma_{KL,X} \to 0^{+}} \frac{Y_{s,k}^{\prime}}{Y_{s,k}} = x
+$$
+
+By contrast, under Cobb-Douglas `KLE` ($`\sigma_{KL,X} = 1`$), $`Y_{s,k}^{\prime} / Y_{s,k} = x^{s_{E,s,k}}`$; at $`s_{E,s,k} = 0.04`$ and $`x = 0.90`$, Cobb-Douglas predicts a `0.42%` loss versus the physical `10.0%` putty-clay bound.
+
+**Part 2 (Dual Exergy Price Index & Regional Real Wage Incidence).**
+Minimizing primary expenditure $`p_N N_{s,k} + (p_F^{\ast} + \tau_F) F_{s,k}`$ subject to $`X_{s,k} = 1`$ yields the exact unit cost of useful exergy:
+
+$$
+P_{X,s,k} = \left\lbrack \left(1 - \gamma_{s,k}\right)^{\epsilon_y} \left(\frac{M_{\mathrm{olig}} c_N}{e_N}\right)^{1 - \epsilon_y} + \gamma_{s,k}^{\epsilon_y} \left(\frac{p_F^{\ast} + \tau_F}{e_F}\right)^{1 - \epsilon_y} \right\rbrack^{\frac{1}{1 - \epsilon_y}}
+$$
+
+By Shephard's Lemma, $`d \ln P_{X,s,k} = (1 - \theta_{F,s,k}) d \ln(M_{\mathrm{olig}} c_N / e_N) + \theta_{F,s,k} d \ln((p_F^{\ast} + \tau_F) / e_F)`$, which increases strictly with regional fossil weight $`\gamma_{s,k}`$. Under competitive regional labor demand $`w_k = \partial Y_{s,k} / \partial H_{s,k}`$ with unconstrained exergy choice $`\partial Y_{s,k} / \partial X_{s,k} = P_{X,s,k}`$, implicit differentiation of the CES marginal product schedule with fixed short-run $`(K_{s,k}, H_{s,k})`$ gives $`d \ln X_{s,k} = -\frac{\sigma_{KL,X}}{1 - \eta_{X,s,k}} d \ln P_{X,s,k}`$ and $`\partial \ln Y_{s,k} / \partial \ln X_{s,k} = \eta_{X,s,k}`$. Since $`w_k \propto Y_{s,k}^{1/\sigma_{KL,X}} V_{s,k}^{1 - 1/\sigma_{KL,X}}`$, holding $`(K_{s,k}, H_{s,k})`$ fixed yields:
+
+$$
+d \ln w_k = \frac{1}{\sigma_{KL,X}} d \ln Y_{s,k} - d \ln P_Y = \frac{1 - \sigma_{KL,X}}{\sigma_{KL,X}} \eta_{X,s,k} \, d \ln X_{s,k} = -\frac{\eta_{X,s,k}}{1 - \eta_{X,s,k}} \left(1 - \sigma_{KL,X}\right) d \ln P_{X,s,k} < 0
+$$
+
+for all $`\sigma_{KL,X} \in (0, 1)`$, while household disposable cash-on-hand (`Section 3.2`) simultaneously contracts via $`-\Delta \bar{e}_k`$.
+
+**Part 3 (Second-Law Work Multiplier & Sovereign Spread Compression).**
+Replacing one unit of primary fossil fuel ($`\Delta F = -1`$) with primary renewable electricity delivering identical useful work ($`\Delta X = 0`$) requires only $`\Delta N = e_F / e_N \approx 0.30 / 0.88 = 0.341`$ units of electrical energy ($`2.93\times`$ primary energy compression). In the small-open-economy current account (`Section 2.4–2.5`), eliminating imported fuel $`\Delta F_t < 0`$ and offshore `NDC` mitigation purchases $`\Delta E_{\mathrm{NDC},t} < 0`$ directly raises $`\Delta \mathrm{NFA}_t = \mathrm{Exports}_t - p_F^{\ast} F_t - \tau_F^{\mathrm{offshore}} E_{\mathrm{NDC},t} - M_{D,t}^{\ast} + r_t \mathrm{NFA}_{t-1}`$. Differentiating the debt-elastic interest schedule with respect to $`\mathrm{NFA}_t / Y_t`$ (where sovereign external debt is $`-\mathrm{NFA}_t > 0`$) confirms $`\partial r_t / \partial (\mathrm{NFA}_t / Y_t) < 0`$, lowering $`r_t`$ and raising $`R_k(z_{h,k})`$ in `ReturnFn_Firm.m` (`Section 2.1`). $`\blacksquare`$
+
+---
+
 ### 2.5 Structural Transformation in a 5-Sector Small Open Economy & Anti-Double-Counting Civic/Defence Ledger
 
 Outer-loop production (`Compute_5Sector_Exergy_Equilibrium.m`, parameterized via `profiles/<Profile_ID>/sectors/sectors_2026.csv` and `exergy_and_ndc.yaml`) partitions into **five explicit structural sectors**:
@@ -156,6 +226,58 @@ $$
 2. **The Ageing Volunteer Base Proof (Why Universal NZ Super at Age 64/65 Anchors `Sector 4A`):** The September 2026 *JBWere / University of Waikato For-Purpose Sector Report* [Ref 30] establishes that New Zealand's non-profit sector contributes **NZD 25.8B/yr (5.7% of GDP—larger than agriculture, forestry, and fishing at 5.1%)** once **165 million annual volunteer hours (79,000 FTEs)** are counted, *yet volunteer headcount fell 24%, concentrating volunteer workload onto a shrinking, ageing cohort*. Raising the NZ Superannuation eligibility age to 70 therefore liquidates both grandmother childcare (`K_whanau`) and the unpaid volunteer co-production base $`L_{u,\mathrm{civic},k}`$ of `Sector 4A`, forcing the Crown to replace lost community capacity with 3x to 5x more expensive state remediation [Ref 26, 29, 30, 58].
 3. **Internal Labor Release Within `Sector 4A` (`+65k` Reactive FTEs Freed Into Capacitating Care Without Wage Inflation):** `Sector 4A` produces both **Capacitating Investment ($`Y_{G,k}^{\mathrm{dev}}`$)** and **Reactive Remediation ($`Y_{G,k}^{\mathrm{rem}}`$, Gate 6 Exits 1, 2, and 4)** from the same domestic pool of clinical, educational, and social professionals. Compressing struggling youth launches from **22.0% to 1.5%** in `SS1 -> SS2` cuts demand for reactive hospital nights, state care, and corrections by over 75% [Ref 16, 37]—**internally releasing ~65,000 skilled `Sector 4A` FTEs** into preventative early learning, primary health, and `Sector 2` enterprises without overheating domestic wages.
 4. **Why a +150% Defence Expansion (`Sector 5`: 1.2% -> 3.0% of GDP) Requires Both Exergy Transition and Human-Capital Scaling:** Because defence procurement carries a foreign import share $`\theta_{M,\mathrm{def}} \in \lbrack 0.55, 0.70 \rbrack`$ (`~NZD 4.5B–5.6B/yr` in direct new FX outflows) plus military fuel $`F_{D,t}`$ and technical `h_4`–`h_7` labor demand, an unfunded `+NZD 8.0B/yr` defence uplift sinks `SS0` welfare to **-21.69% CE**, whereas slashing `~NZD 19.5B/yr` of civilian fossil imports via Keen–Labrousse electrification (`-> ~NZD 5.5B/yr`) and expanding thriving youth launches (`23.5% -> 65.0%`) sustains the full `3.0% GDP` posture at **+21.18% CE** ([Document 3](Document%203.md), `Table A.3`).
+
+#### 2.5.1 Proposition `[2A-Prop-Civic1]`: Polycentric Volunteer Co-Production Gearing, SNA Input-Cost Blindness, and Asymmetric Disinvestment Sinkholes
+
+In `Sector 4A` (`Section 2.5`), regional capacitating civic output $`Y_{G,k}^{\mathrm{dev}}`$ combines paid public/NGO staff $`H_{G,k}^{\mathrm{dev}}`$ (funded by statutory seed/operating outlay $`B_{\mathrm{seed},k} = w_k H_{G,k}^{\mathrm{dev}}`$, with GDP budget share $`s_{\mathrm{seed},k} = B_{\mathrm{seed},k} / Y_k^{\mathrm{SNA}} \ll 0.01`$) with unpaid community volunteer and extended *whānau* co-production $`U_{\mathrm{civic},k} \equiv L_{u,\mathrm{civic},k} + K_{\mathrm{whanau},k}^{\mathrm{eff}}`$ under Ostrom–Waring complementarity $`\rho_g < 0`$ ($`\sigma_g = \frac{1}{1 - \rho_g} \in (0, 1)`$) [Ref 29, 30, 47]:
+
+$$
+Y_{G,k}^{\mathrm{dev}} = A_{\mathrm{poly}}(S_t) \left\lbrack \omega_G \left(H_{G,k}^{\mathrm{dev}}\right)^{\rho_g} + \left(1 - \omega_G\right) U_{\mathrm{civic},k}^{\rho_g} \right\rbrack^{\frac{1}{\rho_g}}
+$$
+
+Suppose volunteer and *whānau* mobilization responds endogenously to physical/institutional civic venues ($`H_{G,k}^{\mathrm{dev}}`$, e.g., community halls, arts/sport coordinators, *Joiner Passport* seed grants) and statutory pension time availability $`\Phi_{\mathrm{time}}(A_{\mathrm{super}})`$ (`Section 3.3`) via $`U_{\mathrm{civic},k} = \Phi_{\mathrm{time}}(A_{\mathrm{super}}) \, \mathcal{M}(H_{G,k}^{\mathrm{dev}})`$, with crowding-in elasticity $`\zeta_{\mathrm{crowd}} = \frac{\partial \ln \mathcal{M}}{\partial \ln H_{G,k}^{\mathrm{dev}}} > 0`$. Let downstream reactive state remediation $`Y_{G,k}^{\mathrm{rem}}`$ (`Exits 1, 2, & 4`, booked at paid input cost $`B_{\mathrm{rem},k} = w_k H_{G,k}^{\mathrm{rem}}`$) satisfy $`\frac{\partial Y_{G,k}^{\mathrm{rem}}}{\partial Y_{G,k}^{\mathrm{dev}}} = -\chi_{\mathrm{prev}} < 0`$ [Ref 16, 58]. Then:
+
+1. **Super-Unitary Polycentric Seed Gearing (`24x+` Leverage on Tiny `s_B`):** Define the paid-to-co-produced output shares $`\theta_{H,k} \in (0, 1)`$ and $`1 - \theta_{H,k}`$ inside $`Y_{G,k}^{\mathrm{dev}}`$. A marginal statutory seed expansion $`d \ln B_{\mathrm{seed},k} > 0`$ (at fixed $`w_k`$) expands real capacitating output with amplified elasticity:
+
+$$
+\frac{d \ln Y_{G,k}^{\mathrm{dev}}}{d \ln B_{\mathrm{seed},k}} = \theta_{H,k} + \left(1 - \theta_{H,k}\right) \zeta_{\mathrm{crowd}} > \theta_{H,k}
+$$
+
+   Even though `Tier 1` conventional `SNA` accounting (`Document 2B, Section 5.6`) books zero market value for $`U_{\mathrm{civic},k}`$ (`79,000 FTEs`) and scores $`B_{\mathrm{seed},k}`$ solely at paid input cost $`s_{\mathrm{seed},k}`$, the realized `Tier 3` welfare leverage ratio scales inversely with $`s_{\mathrm{seed},k}`$:
+
+$$
+\Lambda_{\mathrm{civic},k} = \frac{d Y_k^{\mathrm{eff}} / d B_{\mathrm{seed},k}}{1} = \frac{\eta_{\mathrm{dev},k}}{s_{\mathrm{seed},k}} \left\lbrack \theta_{H,k} + \left(1 - \theta_{H,k}\right) \zeta_{\mathrm{crowd}} \right\rbrack \gg 1
+$$
+
+2. **Asymmetric Retrenchment & Elder-Austerity Sinkhole (`Vote Arts` / `C15` Cuts & `A_super -> 70`):** Because $`\rho_g < 0`$ ($`\sigma_g < 1`$), paid venue coordination $`H_{G,k}^{\mathrm{dev}}`$ and unpaid volunteer/*kuia* time $`U_{\mathrm{civic},k}`$ are strict complements ($`\frac{\partial^2 Y_{G,k}^{\mathrm{dev}}}{\partial H_{G,k}^{\mathrm{dev}} \partial U_{\mathrm{civic},k}} > 0`$). Consequently:
+   * **Venue Liquidation Cliff:** Cutting nominal seed grants ($`H_{G,k}^{\mathrm{dev}} \to 0`$) strands unpaid community capacity: for $`\rho_g < 0`$, $`\lim_{H_{G,k}^{\mathrm{dev}} \to 0^{+}} Y_{G,k}^{\mathrm{dev}} = 0`$ regardless of latent volunteer willingness, triggering a nonlinear jump in downstream reactive remediation outlays $`\Delta B_{\mathrm{rem},k} = w_k \chi_{\mathrm{prev}} \vert \Delta Y_{G,k}^{\mathrm{dev}} \vert \gg \vert \Delta B_{\mathrm{seed},k} \vert`$.
+   * **Pension-Age Volunteer Liquidation (`A_super > 65`):** Raising the pension age ($`\partial \Phi_{\mathrm{time}} / \partial A_{\mathrm{super}} = -\eta_{\mathrm{elder}} \Phi_{\mathrm{time}} < 0`$) contracts $`U_{\mathrm{civic},k}`$ directly, lowering the marginal product of paid `Sector 4A` staff and forcing the Crown to substitute paid reactive labor $`H_{G,k}^{\mathrm{rem}}`$ at multiple times the fiscal savings.
+3. **Perverse `Tier 1` `SNA` GDP Sign Inversion vs. Internal `Sector 4A` Labor Release:** When preventative expansion $`\Delta Y_{G,k}^{\mathrm{dev}} > 0`$ eliminates reactive remediation demand by $`\Delta H_{G,k}^{\mathrm{rem}} = -\chi_{\mathrm{prev}} \Delta Y_{G,k}^{\mathrm{dev}} / \varepsilon_{\mathrm{rem}}`$, holding paid public headcount fixed releases $`\vert \Delta H_{G,k}^{\mathrm{rem}} \vert - \Delta H_{G,k}^{\mathrm{dev}} > 0`$ skilled domestic workers (`~65,000 FTEs`) into capacitating care and `Sector 2` tradables without wage inflation—whereas input-cost public `SNA` accounting mechanically records the vanished prison and acute-ward payroll ($`-w_k \vert \Delta H_{G,k}^{\mathrm{rem}} \vert`$) as a contraction in government output unless audited via `Tier 2` Atkinson–Waring (`Y_AW`) or `Tier 3` `CE%`.
+
+---
+
+##### Proof of `[2A-Prop-Civic1]`
+
+**Part 1 (Volunteer Crowding-In Amplification).**
+Logarithmically differentiating the CES operator $`Y_{G,k}^{\mathrm{dev}}`$ at fixed $`S_t`$ and $`A_{\mathrm{super}}`$, with paid input share $`\theta_{H,k} = \omega_G \left(A_{\mathrm{poly}}(S_t) H_{G,k}^{\mathrm{dev}} / Y_{G,k}^{\mathrm{dev}}\right)^{\rho_g}`$ and volunteer share $`1 - \theta_{H,k} = (1 - \omega_G)\left(A_{\mathrm{poly}}(S_t) U_{\mathrm{civic},k} / Y_{G,k}^{\mathrm{dev}}\right)^{\rho_g}`$, gives:
+
+$$
+d \ln Y_{G,k}^{\mathrm{dev}} = \theta_{H,k} \, d \ln H_{G,k}^{\mathrm{dev}} + \left(1 - \theta_{H,k}\right) d \ln U_{\mathrm{civic},k} = \left\lbrack \theta_{H,k} + \left(1 - \theta_{H,k}\right) \zeta_{\mathrm{crowd}} \right\rbrack d \ln B_{\mathrm{seed},k}
+$$
+
+Applying `[2B-Prop-Wedge1]` with converted factor $`X_{\mathrm{civic},k} = Y_{G,k}^{\mathrm{dev}}`$ and effective conversion multiplier $`\varepsilon_{\mathrm{civic},k} = Y_{G,k}^{\mathrm{dev}} / H_{G,k}^{\mathrm{dev}}`$ yields $`1 + \frac{d \ln \varepsilon_{\mathrm{civic},k}}{d \ln B_{\mathrm{seed},k}} = \theta_{H,k} + (1 - \theta_{H,k})\zeta_{\mathrm{crowd}}`$, and dividing by the small input-cost budget weight $`s_{\mathrm{seed},k}`$ (`0.140%` `CE` on `MirrorInv2E` vs. `76.0–79.0 kFTE` volunteer labor) produces $`\Lambda_{\mathrm{civic},k} \gg 1`$ (`24.29x` in `NZ_Dunedin1972`; `24.04x` in `FI_FBC1987`).
+
+**Part 2 (Essentiality Under `rho_g < 0` and Fiscal Remediation Backfire).**
+Because $`\rho_g < 0`$, as $`H_{G,k}^{\mathrm{dev}} \to 0^{+}`$ we have $`(H_{G,k}^{\mathrm{dev}})^{\rho_g} \to +\infty`$, so $`\left\lbrack \omega_G (H_{G,k}^{\mathrm{dev}})^{\rho_g} + (1 - \omega_G) U_{\mathrm{civic},k}^{\rho_g} \right\rbrack^{1/\rho_g} \le \omega_G^{1/\rho_g} H_{G,k}^{\mathrm{dev}} \to 0`$. Cross-differentiation yields:
+
+$$
+\frac{\partial^2 Y_{G,k}^{\mathrm{dev}}}{\partial H_{G,k}^{\mathrm{dev}} \partial U_{\mathrm{civic},k}} = \left(1 - \rho_g\right) \frac{\theta_{H,k}\left(1 - \theta_{H,k}\right) Y_{G,k}^{\mathrm{dev}}}{H_{G,k}^{\mathrm{dev}} U_{\mathrm{civic},k}} > 0
+$$
+
+Hence cutting either $`B_{\mathrm{seed},k}`$ (`C15`) or elder time $`\Phi_{\mathrm{time}}(A_{\mathrm{super}})`$ (`A_super -> 70`) degrades the marginal productivity of the remaining input and induces net Crown cash deterioration whenever $`w_k \chi_{\mathrm{prev}} \frac{\partial Y_{G,k}^{\mathrm{dev}}}{\partial B_{\mathrm{seed},k}} > 1`$, even though 4-year `OBEGALx` (`Lens 1`) books only the immediate savings $`-\Delta B_{\mathrm{seed},k} > 0`$ before cohort transition lags mature.
+
+**Part 3 (`SNA` Input-Cost Distortion vs. `Y_AW` Accounting).**
+Under `Tier 1` input-cost `SNA` rules (`Document 2B, Section 5.6`), `Sector 4A` value added is $`V_{4A,k}^{\mathrm{SNA}} = w_k (H_{G,k}^{\mathrm{dev}} + H_{G,k}^{\mathrm{rem}})`$. Whenever upstream prevention satisfies $`\vert \Delta H_{G,k}^{\mathrm{rem}} \vert > \Delta H_{G,k}^{\mathrm{dev}}`$, $`\Delta V_{4A,k}^{\mathrm{SNA}} < 0`$ at fixed sector boundaries despite strictly releasing $`\Delta L_{\mathrm{free},k} = \vert \Delta H_{G,k}^{\mathrm{rem}} \vert - \Delta H_{G,k}^{\mathrm{dev}} > 0`$ workers to productive sectors and strictly raising `Tier 2` Atkinson–Waring output $`\Delta Y_{k}^{\mathrm{AW}} = p_{\mathrm{shadow}} \Delta Y_{G,k}^{\mathrm{dev}} - w_k \Delta H_{G,k}^{\mathrm{rem}} > 0`$ [Ref 47, 58]. $`\blacksquare`$
 
 ---
 
@@ -277,6 +399,67 @@ S_t = 100.0 + \zeta_{\mathrm{hardship}} (0.220 - \mathrm{Frac}_{\mathrm{struggli
 $$
 
 - *Empirical CPI Anchor:* Empirically, $`S_t`$ is anchored to New Zealand's sovereign **Transparency International Corruption Perceptions Index (CPI)** ("Social Credit Rating"), which declined from **96/100** (2004 peak) and **88/100** (#1 equal globally in 2021) to a 30-year low of **81/100** (#4 equal in the 2025/2026 release, behind **#1 Denmark at 89, #2 Finland at 88, and #3 Singapore at 84**; Office of the Controller and Auditor-General, *New Zealand's Integrity Inheritance*, 2026; TI-NZ *National Integrity System Gap Analysis*, 2026). Compressing $`\mathrm{Frac}_{\mathrm{struggling}}`$ from 0.220 to 0.015 and cutting $`\mathrm{Emig}_{\mathrm{Nat}}`$ from 10.93% to 7.60% lifts $`S_t`$ from 100.0 (*SS0*) to 118.4 (*SS1*) and 126.0 (*SS2*).
+
+#### 3.3.1 Proposition `[2A-Prop-Factor2]`: Observational Equivalence Failure in Aggregate Public Skill Outlays — Metropolitan Cost-of-Living Deflation vs. Frontier Saturation
+
+In the two-stage Cunha–Heckman–Schennach skill operator (`Section 3.3`), childhood human capital in stage $`s \in \lbrace 1, 2 \rbrace`$ evolves via:
+
+$$
+\Theta_s\left(\tilde{\theta}_c\right) = \left\lbrack \gamma_{s,\mathrm{self}} \tilde{\theta}_c^{\varphi_s} + \gamma_{s,\mathrm{inv}} I_{s,k}^{\varphi_s} + \gamma_{s,\mathrm{par}} \bar{h}_p^{\varphi_s} \right\rbrack^{\frac{1}{\varphi_s}}, \qquad I_{s,k} = i_c + G_{\mathrm{ECE},s}^{\mathrm{eff}}(k) + \bar{g}_{\mathrm{ECE}}
+$$
+
+with Stage-1 substitutability $`\varphi_1 \in (0, 1)`$ ($`\sigma_1 = \frac{1}{1 - \varphi_1} > 1`$), Stage-2 complementarity $`\varphi_2 < 0`$ ($`\sigma_2 = \frac{1}{1 - \varphi_2} \in (0, 1)`$), and unbanked Stage-1 skill fade-out $`\theta_{c,\mathrm{ret}} = \theta_c - \delta_{\theta,\mathrm{fade}}(1 - M_{\mathrm{mentor}})\max(0, \theta_c - \theta_{\mathrm{base}})`$ [Ref 11, 15]. Suppose region $`k`$ allocates nominal per-child public education expenditure $`B_{\mathrm{edu},s,k}`$ financed by working-age labor tax $`\tau_l`$, decomposed into educator wage cost $`W_{\mathrm{teach},k}(Q_k) = w_{\mathrm{base}} \left(Q_k / Q_{\mathrm{ref}}\right)^{\nu_Q}`$ (with housing cost-of-living pass-through $`\nu_Q > 0`$ and commercial lease/overhead share $`\xi_{\mathrm{ovh},k} \in \lbrack 0, 1)`$) times real educator throughput $`\mathrm{FTE}_{s,k}`$, augmented by pedagogical/mentoring conversion efficiency $`\varepsilon_{\mathrm{ped},s,k} > 0`$ (`daruich_mult` and $`1 + \kappa_{\mathrm{down}} M_{\mathrm{mentor}} \bar{\theta}_{J=5}`$):
+
+$$
+B_{\mathrm{edu},s,k} = \frac{W_{\mathrm{teach},k}(Q_k) \cdot \mathrm{FTE}_{s,k}}{1 - \xi_{\mathrm{ovh},k}} \implies G_{\mathrm{ECE},s}^{\mathrm{eff}}(k) = \varepsilon_{\mathrm{ped},s,k} \, \mathrm{FTE}_{s,k} = \frac{\varepsilon_{\mathrm{ped},s,k} \left(1 - \xi_{\mathrm{ovh},k}\right)}{w_{\mathrm{base}} \left(Q_k / Q_{\mathrm{ref}}\right)^{\nu_Q}} B_{\mathrm{edu},s,k}
+$$
+
+Then nominal expenditure $`B_{\mathrm{edu},s,k}`$ fails observational equivalence as a sufficient statistic for human-capital formation across three structural regimes:
+
+1. **Non-Identifiability of Equal Nominal Outlays:** Two jurisdictions or reform paths with identical statutory per-child spending ($`B_{\mathrm{edu},s,A} = B_{\mathrm{edu},s,B}`$) generate divergent real skill increments ($`\Delta \Theta_{s,A} \neq \Delta \Theta_{s,B}`$) whenever metropolitan land overvaluation ($`Q_k`$), overhead leakage ($`\xi_{\mathrm{ovh},k}`$), or pedagogical autonomy ($`\varepsilon_{\mathrm{ped},s,k}`$) differ.
+2. **Primate-City *Kaiako* Cost-of-Living Attenuation (`Auckland` vs. `Helsinki`):** Under uniform national nominal capitation ($`\bar{B}_{\mathrm{edu},s}`$) without regional land-value cooling ($`Q_{\mathrm{Auckland}} \gg Q_{\mathrm{Rural}}`$), real delivered instructional input decays strictly with $`Q_k`$:
+
+$$
+\frac{\partial \ln G_{\mathrm{ECE},s}^{\mathrm{eff}}(k)}{\partial \ln Q_k}\bigg\vert_{B_{\mathrm{edu},s,k} = \bar{B}_{\mathrm{edu},s}} = -\nu_Q < 0
+$$
+
+   Simultaneously, high $`Q_k`$ pushes liquidity-constrained renter parents onto the $`i_c = 0`$ corner (`Section 3.2`), starving $`I_{2,k}`$ inside the Stage-2 bottleneck ($`\varphi_2 < 0`$) and compressing metropolitan long-run earnings elasticities relative to provincial regions unless coupled with land-tax cooling ($`\tau_a > 0 \implies \Delta Q_k < 0`$).
+3. **Concave Stage-1 Frontier Saturation vs. Starved Bottlenecks (`FI_FBC1987` vs. `NZ_Dunedin1972` on `P0_Early_0to5`):** Let $`\mathrm{MVPF}_{s,k}`$ denote the net welfare change of a tax-financed increment $`d B_{\mathrm{edu},1,k} > 0`$ holding Stage-2 mentoring fixed ($`M_{\mathrm{mentor}} = 0`$), where $`\mathrm{MCF}(\tau_l) > 1`$ is the marginal cost of public funds at labor wedge $`\tau_l`$. The marginal Stage-1 skill yield with respect to nominal spending is:
+
+$$
+\frac{\partial \Theta_1}{\partial B_{\mathrm{edu},1,k}} = \gamma_{1,\mathrm{inv}} \left(\frac{\Theta_1}{I_{1,k}}\right)^{1 - \varphi_1} \frac{\partial G_{\mathrm{ECE},1}^{\mathrm{eff}}(k)}{\partial B_{\mathrm{edu},1,k}}, \qquad \text{retained at Gate 3 by } \left(1 - \delta_{\theta,\mathrm{fade}}\right)
+$$
+
+   * **Starved Baseline (`NZ_Dunedin1972`):** When baseline $`G_{\mathrm{ECE},1,0}`$ is low and a large birth share sits at $`i_c = 0`$ ($`I_{1,k} \to \bar{g}_{\mathrm{ECE}}`$ small) with moderate $`\tau_l = 0.220`$, $`(\Theta_1 / I_{1,k})^{1 - \varphi_1}`$ is large and net welfare $`d \mathrm{CE}_{\mathrm{LR}} / d B_{\mathrm{edu},1,k} > 0`$.
+   * **Saturated Stage-1 Frontier (`FI_FBC1987`):** Because $`1 - \varphi_1 > 0`$, $`\partial \Theta_1 / \partial I_{1,k}`$ is strictly decreasing in $`I_{1,k}`$ ($`\partial^2 \Theta_1 / \partial I_{1,k}^2 < 0`$). When universal *Neuvola* and Nordic `ECEC` already situate $`I_{1,k}`$ near the concave frontier while unmentored Stage-2 fade-out ($`1 - \delta_{\theta,\mathrm{fade}}`$) and a high baseline labor tax wedge ($`\tau_l = 0.325 \implies \mathrm{MCF}(\tau_l)`$ high) remain binding, there exists a finite saturation threshold $`I_1^{\star}(\tau_l, \delta_{\theta,\mathrm{fade}})`$ above which standalone tax-financed Stage-1 spending reduces net welfare ($`d \mathrm{CE}_{\mathrm{LR}} / d B_{\mathrm{edu},1,k} < 0`$) unless coupled with Stage-2 mentoring (`C22`) and `Aspects 2 & 3` tax/land rebalancing.
+
+---
+
+##### Proof of `[2A-Prop-Factor2]`
+
+**Parts 1 and 2 (Observational Non-Equivalence & Regional `Q_k` Deflation).**
+Substituting $`G_{\mathrm{ECE},s}^{\mathrm{eff}}(k) = \varepsilon_{\mathrm{ped},s,k} (1 - \xi_{\mathrm{ovh},k}) w_{\mathrm{base}}^{-1} (Q_k / Q_{\mathrm{ref}})^{-\nu_Q} B_{\mathrm{edu},s,k}`$ into $`I_{s,k}`$ shows directly that the mapping $`B_{\mathrm{edu},s,k} \mapsto I_{s,k}`$ is non-injective over $`(\varepsilon_{\mathrm{ped},s,k}, \xi_{\mathrm{ovh},k}, Q_k)`$. Taking logs at fixed $`B_{\mathrm{edu},s,k} = \bar{B}_{\mathrm{edu},s}`$ gives $`\partial \ln G_{\mathrm{ECE},s}^{\mathrm{eff}}(k) / \partial \ln Q_k = -\nu_Q < 0`$. In Stage 2 (`Section 3.3`), because $`\varphi_2 = -0.95 < 0`$, differentiating $`\Theta_2`$ yields:
+
+$$
+\frac{\partial \Theta_2}{\partial G_{\mathrm{ECE},2}^{\mathrm{eff}}(k)} = \gamma_{2,\mathrm{inv}} \left(\frac{\Theta_2}{I_{2,k}}\right)^{1 - \varphi_2} = \gamma_{2,\mathrm{inv}} \left(\frac{\Theta_2}{i_c(Q_k) + G_{\mathrm{ECE},2}^{\mathrm{eff}}(k) + \bar{g}_{\mathrm{ECE}}}\right)^{1.95}
+$$
+
+In a primate city with uncooled $`Q_{\mathrm{Auckland}} = 3.10`$, a nominal schooling increment $`\Delta B_{\mathrm{edu},2,\mathrm{Akl}}`$ delivers only fraction $`(Q_{\mathrm{Akl}} / Q_{\mathrm{Rural}})^{-\nu_Q} < 1`$ of real `FTE` mentoring relative to `Rural`, attenuating $`\Delta \Theta_2`$ (`+1.38%` `Ebar_LR` in `Auckland` vs. `+2.04%` in `Rural` in `Table 5`), whereas uniform national *peruskoulu* conversion with moderated regional dispersion in `FI_FBC1987` yields near-uniform regional `Ebar_LR` (`+1.67%` to `+1.76%` across all four Finnish regions).
+
+**Part 3 (Stage-1 Concavity and Tax-Financed Saturation Sign Flip).**
+Differentiating $`\Theta_1`$ twice with respect to total Stage-1 investment $`I_{1,k}`$ for $`\varphi_1 \in (0, 1)`$:
+
+$$
+\frac{\partial \Theta_1}{\partial I_{1,k}} = \gamma_{1,\mathrm{inv}} \left(\frac{\Theta_1}{I_{1,k}}\right)^{1 - \varphi_1} > 0, \qquad \frac{\partial^2 \Theta_1}{\partial I_{1,k}^2} = -\left(1 - \varphi_1\right) \frac{\gamma_{1,\mathrm{inv}}}{I_{1,k}} \left(\frac{\Theta_1}{I_{1,k}}\right)^{1 - \varphi_1} \left(1 - \eta_{I,1,k}\right) < 0
+$$
+
+where $`\eta_{I,1,k} = \gamma_{1,\mathrm{inv}} (I_{1,k} / \Theta_1)^{\varphi_1} \in (0, 1)`$, confirming strict concavity and $`\lim_{I_{1,k} \to \infty} \partial \Theta_1 / \partial I_{1,k} = \gamma_{1,\mathrm{inv}}^{1/\varphi_1}`$ (or $`0`$ on marginal gain relative to self/parental anchors). Propagating $`d I_{1,k}`$ through Stage-2 fade-out ($`M_{\mathrm{mentor}} = 0`$) and adult discounted earnings PV $`\Pi_w`$ yields social marginal benefit per dollar of nominal `P0` spend:
+
+$$
+\mathrm{MB}_{1,k}\left(I_{1,k}\right) = \Pi_w \left(1 - \delta_{\theta,\mathrm{fade}}\right) \frac{\partial \Theta_2}{\partial \theta_{c,\mathrm{ret}}} \frac{\partial \Theta_1\left(I_{1,k}\right)}{\partial I_{1,k}} \frac{\partial G_{\mathrm{ECE},1}^{\mathrm{eff}}(k)}{\partial B_{\mathrm{edu},1,k}}
+$$
+
+which decreases strictly and continuously with baseline $`I_{1,k}`$, whereas the marginal welfare cost of labor-tax financing $`\mathrm{MCF}(\tau_l) = \frac{1}{1 - \tau_l - \tau_l \varepsilon_{\mathrm{ETI}} / (1 - \tau_l)}`$ increases strictly and convexly with $`\tau_l`$ [Ref 6]. Define $`I_1^{\star}(\tau_l, \delta_{\theta,\mathrm{fade}})`$ by $`\mathrm{MB}_{1,k}(I_1^{\star}) = \mathrm{MCF}(\tau_l)`$. For `NZ_Dunedin1972` ($`I_{1,0} < I_1^{\star}`$, $`\tau_l = 0.220`$), $`\mathrm{MB}_{1,k} > \mathrm{MCF}(\tau_l) \implies \Delta \mathrm{CE}_{\mathrm{LR}} > 0`$ (`+0.83%` to `+0.89%`). For `FI_FBC1987` ($`I_{1,0} > I_1^{\star}`$, $`\tau_l = 0.325`$), $`\mathrm{MB}_{1,k} < \mathrm{MCF}(\tau_l) \implies \Delta \mathrm{CE}_{\mathrm{LR}} < 0`$ (`-0.04%` to `-0.05%`), until Stage-2 mentoring (`M_mentor -> 1`) and `Grant E` / `tau_a` rebalancing lift $`\partial \Theta_2 / \partial \theta_{c,\mathrm{ret}}`$ and lower $`\tau_l`$ (`P0_Plus_GrantE` = `+3.61%` to `+4.81%` CE). $`\blacksquare`$
 
 ---
 
