@@ -46,4 +46,19 @@ for k = 1:numel(docs)
     assert(isempty(strfind(txt, '<sub>')) && isempty(strfind(txt, '<sup>')), ...
         sprintf('%s contains raw HTML <sub>/<sup> tags.', nm));
 end
+
+%% 4. Retired Compact4D Codebase Elimination Guard
+assert(exist(fullfile(repoRoot, 'src', 'models', 'ReturnFn_SpatialHH_Compact4D.m'), 'file') == 0, ...
+    'Retired ReturnFn_SpatialHH_Compact4D.m must not exist on disk.');
+for sub = {'src', 'pipelines', 'plots'}
+    mfiles = dir(fullfile(repoRoot, sub{1}, '**', '*.m'));
+    if isempty(mfiles)
+        mfiles = dir(fullfile(repoRoot, sub{1}, '*.m'));
+    end
+    for i = 1:numel(mfiles)
+        fp = fullfile(mfiles(i).folder, mfiles(i).name);
+        assert(isempty(strfind(fileread(fp), 'ReturnFn_SpatialHH_Compact4D')), ...
+            sprintf('%s still references retired ReturnFn_SpatialHH_Compact4D.', fp));
+    end
+end
 end

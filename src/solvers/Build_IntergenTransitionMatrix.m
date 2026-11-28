@@ -2,7 +2,7 @@ function [jequaloneDist_new, Diag] = Build_IntergenTransitionMatrix( ...
     StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions, Params_Mig)
 %% CANONICAL 4-REGION + ABROAD INTERGENERATIONAL TRANSITION MATRIX (100% GPU-VECTORIZED)
 % File: Build_IntergenTransitionMatrix.m
-% Supports both 4D Compact [a, h, z, j] and 5D Experience-Asset [a, h, theta_c, z, j] workspaces.
+% Canonical 5D Experience-Asset [a, h, theta_c, z, j] intergenerational & 4x5 migration operator.
 
 if nargin < 13 || isempty(Params_Mig)
     if isfield(Params, 'w_External'),         w_ext_def = Params.w_External;         else, w_ext_def = 1.32;  end
@@ -23,22 +23,16 @@ end
 N_reg    = length(Regions);
 ref_type = ['HH_', Regions{1}];
 n_a_vec  = n_a.(ref_type);
-is_5D    = (numel(n_a_vec) == 3);
-n_a1     = n_a_vec(1);
-n_h      = n_a_vec(2);
-if is_5D
-    n_th   = n_a_vec(3);
-    th_vec = double(gather(a_grid.(ref_type)(n_a1+n_h+1 : end)));
-else
-    n_th   = 1;
-end
-n_z1     = prod(n_z.(ref_type));
+assert(numel(n_a_vec) == 3, ...
+    'IGWelfare:Require5DGrid', 'Build_IntergenTransitionMatrix requires canonical 5D household grids [n_a1, n_h, n_thetac].');
+n_a1   = n_a_vec(1);
+n_h    = n_a_vec(2);
+n_th   = n_a_vec(3);
+th_vec = double(gather(a_grid.(ref_type)(n_a1+n_h+1 : end)));
+n_z1   = prod(n_z.(ref_type));
 
 a_vec  = double(gather(a_grid.(ref_type)(1 : n_a1)));
 h_vec  = double(gather(a_grid.(ref_type)(n_a1+1 : n_a1+n_h)));
-
-ic_vec     = double(gather(d_grid.(ref_type)(n_d.(ref_type)(1)+n_d.(ref_type)(2)+1 : end)));
-ic_pol_row = 3;
 
 if ~isfield(Params, 'G_ece') && isfield(Params, 'G_ece_stage1')
     Params.G_ece = Params.G_ece_stage1;
@@ -62,17 +56,8 @@ da_span  = [max(1e-6, a_dbl(2) - a_dbl(1)); diff(a_dbl)];
 a_prev   = a_dbl - da_span;
 tau_cuts = [0.025, 0.050, 0.080, 0.160]; % [1: Extreme, 2: Severe DEP-17, 3: Hardship, 4: AHC-50]
 
-Backend   = Resolve_Compute_Backend();
-to_dev    = Backend.ToDevice;
-a_G       = to_dev(reshape(a_dbl,      [n_a1, 1, 1, 1]));
-h_G       = to_dev(reshape(h_vec,      [1, n_h, 1, 1]));
-ic_G      = to_dev(ic_vec(:));
-z_idx_3D  = to_dev(reshape(1:n_z1,     [1, 1, n_z1, 1]));
-log_h_dst = to_dev(reshape(log(h_vec), [1, 1, 1, 1, n_h]));
-
-fertile_j = Params.j_s1_start : Params.j_s2_end;
-retire_j  = round(Params.Jr) : Params.J;
-mort_vec  = to_dev(reshape(1 - double(gather(Params.sj(retire_j))), [1, 1, 1, length(retire_j)]));
+retire_j  = min(Params.J, max(1, round(Params.Jr))) : Params.J;
+mort_5D   = reshape(1 - double(gather(Params.sj(retire_j))), [1, 1, 1, 1, length(retire_j)]);
 
 NewbornDist_PreMig = struct();
 reg_skill_drift    = Params.reg_skill_drift; % Canonical regional launch skill drift from Configure_TimeGrid_Params
@@ -99,159 +84,96 @@ for r_idx = 1:N_reg
                  0.35 * max(0.30, 0.72 - 0.55 * K_reg * ((Q_base / max(0.5, Q_house)) ^ 0.25))];
     crowd_1D  = [W_cell(:, 3), W_cell(:, 4) - W_cell(:, 3)] * crowd_pen; % [n_a1 x 1]
 
-    if is_5D && ndims(Dist_raw) == 5
-        Dist_5D   = reshape(Dist_raw, [n_a1, n_h, n_th, n_z1, Params.J]);
-        Pol_5D    = reshape(Pol_raw,  [size(Pol_raw, 1), n_a1, n_h, n_th, n_z1, Params.J]);
-        j_s1_done = min(Params.J, Params.j_s2_start);
-        j_launch  = min(Params.J, Params.j_child_launch);
+    Dist_5D   = reshape(Dist_raw, [n_a1, n_h, n_th, n_z1, Params.J]);
+    Pol_5D    = reshape(Pol_raw,  [size(Pol_raw, 1), n_a1, n_h, n_th, n_z1, Params.J]);
+    j_s1_done = min(Params.J, Params.j_s2_start);
+    j_launch  = min(Params.J, Params.j_child_launch);
 
-        D_th2 = squeeze(sum(Dist_5D(:, :, :, :, j_s1_done), [1, 2, 4]));
-        Diag.MeanTheta2.(reg) = sum(D_th2(:) .* th_vec(:)) / max(1e-12, sum(D_th2(:)));
+    D_th2 = squeeze(sum(Dist_5D(:, :, :, :, j_s1_done), [1, 2, 4]));
+    Diag.MeanTheta2.(reg) = sum(D_th2(:) .* th_vec(:)) / max(1e-12, sum(D_th2(:)));
 
-        Mass_a_th   = reshape(sum(Dist_5D(:, :, :, :, j_launch), [2, 4]), [n_a1, n_th]);
-        parent_mass = max(1e-12, sum(Mass_a_th, 'all'));
+    Mass_a_th   = reshape(sum(Dist_5D(:, :, :, :, j_launch), [2, 4]), [n_a1, n_th]);
+    parent_mass = max(1e-12, sum(Mass_a_th, 'all'));
 
-        % Integrate continuous ECE/Kaiako lift, whanau buffer dK_reg, & adolescent lambda_psy
-        % into 5D child skill launch so sub-grid shifts between the 9 th_vec points resolve cleanly:
-        g_ece_5d  = Params.G_ece;
-        if isstruct(g_ece_5d) && isfield(g_ece_5d, hh_type), g_ece_5d = g_ece_5d.(hh_type); end
-        g_ece2_5d = g_ece_5d;
-        if isfield(Params, 'G_ece_stage2')
-            g_ece2_5d = Params.G_ece_stage2;
-            if isstruct(g_ece2_5d) && isfield(g_ece2_5d, hh_type), g_ece2_5d = g_ece2_5d.(hh_type); end
-        end
-        if isfield(Params, 'M_mentor') && isnumeric(Params.M_mentor) && isscalar(Params.M_mentor)
-            M_mentor_5d = Params.M_mentor;
-        else
-            M_mentor_5d = min(1.0, max(0.0, (g_ece2_5d - Params.G_ece1_sched(1)) / max(1e-6, Params.G_ece2_sched(2) - Params.G_ece1_sched(1))));
-        end
-        M_trust_5d = M_mentor_5d * (0.45 + 0.55 * min(1.0, K_reg / 0.35));
-        lam_base   = 0.38;
-        if isfield(Params, 'lambda_psy') && isstruct(Params.lambda_psy) && isfield(Params.lambda_psy, hh_type)
-            lam_base = Params.lambda_psy.(hh_type);
-        end
-        lam_psy_5d   = max(0.22 * 0.38, 0.22 * (lam_base / 0.38) * (1.0 - 0.52 * M_trust_5d) * (1.0 - 0.35 * min(1.0, K_reg / 0.38)));
-        unbuf_5d     = max(0.38 * lam_psy_5d, (1.0 - 0.80 * M_trust_5d) * (1.0 - 0.55 * K_reg));
-        is_low_a     = double(a_dbl < 0.12 * Q_house);
-        is_low_th    = double(reshape(th_vec, [1, n_th]) < 0.85);
-        is_stress_2D = 0.55 * is_low_a + 0.45 * is_low_th;
-        comp_load_2D = is_stress_2D + lam_psy_5d .* (1.0 + 0.65 .* is_stress_2D);
-        stress_pen5d = 0.038 .* comp_load_2D .* unbuf_5d - 0.0159; % Zero-centered at SS0 baseline
-
-        kaiako_defl  = (max(0.50, Q_base) / max(0.50, Q_house)) ^ 0.35;
-        G_ece1_eff   = g_ece_5d * kaiako_defl;
-        ece_lift_5d  = 0.55 * (G_ece1_eff - Params.G_ece1_sched(1)) + 0.04 * (M_mentor_5d - 0.50) + 0.12 * dK_reg;
-
-        th_eff_2D    = reshape(th_vec, [1, n_th]) .* exp(0.45 * ece_lift_5d - 0.45 * stress_pen5d);
-        Diag.MeanTheta3.(reg) = sum(Mass_a_th .* th_eff_2D, 'all') / parent_mass;
-        Diag.MeanTheta2.(reg) = Diag.MeanTheta2.(reg) * exp(0.30 * ece_lift_5d);
-
-        log_h_mean = 0.68 * log(reshape(th_vec, [1, n_th])) + ece_lift_5d - stress_pen5d + reg_skill_drift(r_idx) - crowd_1D;
-        diff_log   = reshape(log(h_vec), [n_h, 1, 1]) - reshape(log_h_mean, [1, n_a1, n_th]);
-        trans_p    = exp(-0.5 * (diff_log ./ 0.24).^2);
-        trans_p    = trans_p ./ max(1e-12, sum(trans_p, 1));
-
-        Prob_h_child = squeeze(sum(trans_p .* reshape(Mass_a_th, [1, n_a1, n_th]), [2, 3])) / parent_mass;
-        Prob_h_child = Prob_h_child(:) / sum(Prob_h_child(:));
-
-        Mass_a_1D = sum(Mass_a_th, 2) / parent_mass;
-        Diag.SevereHardshipShare.(reg) = Mass_a_1D' * W_cell(:, 2);
-        Diag.ResidualAHCShare.(reg)    = Mass_a_1D' * (W_cell(:, 4) - W_cell(:, 2));
-
-        Dist_4D = reshape(sum(Dist_5D, 3), [n_a1, n_h, n_z1, Params.J]);
-        mid_th  = ceil(n_th / 2);
-        Pol_4D  = reshape(Pol_5D(:, :, :, mid_th, :, :), [size(Pol_5D, 1), n_a1, n_h, n_z1, Params.J]);
-        Dist_k = to_dev(Dist_4D);
-        Pol_k  = to_dev(Pol_4D);
-    else
-        Dist_4D = reshape(Dist_raw, [n_a1, n_h, n_z1, Params.J]);
-        Pol_4D  = reshape(Pol_raw,  [size(Pol_raw, 1), n_a1, n_h, n_z1, Params.J]);
-        Dist_k  = to_dev(Dist_4D);
-        Pol_k   = to_dev(Pol_4D);
-
-        Dist_Fert   = Dist_k(:, :, :, fertile_j);
-        parent_mass = max(1e-12, sum(Dist_Fert, 'all'));
-        d_ic_idx    = max(1, min(length(ic_vec), round(Pol_k(ic_pol_row, :, :, :, fertile_j))));
-        ic_4D       = reshape(ic_G(d_ic_idx(:)), size(Dist_Fert));
-
-        % Broadcast [n_a1 x 4] W_cell against z_idx_3D [1 x 1 x n_z1]:
-        W_G     = to_dev(reshape(W_cell, [n_a1, 1, 1, 1, 4]));
-        crowd_G = to_dev(reshape(crowd_1D, [n_a1, 1, 1, 1]));
-
-        w_sev_az = max(W_G(:,:,:,:,2) .* (z_idx_3D <= 2), W_G(:,:,:,:,1) .* (z_idx_3D <= 3));
-        w_ahc_az = max(W_G(:,:,:,:,4) .* (z_idx_3D <= 2), W_G(:,:,:,:,3) .* (z_idx_3D <= 3)) - w_sev_az;
-
-        Diag.SevereHardshipShare.(reg) = gather(sum(Dist_Fert .* w_sev_az, 'all') / parent_mass);
-        Diag.ResidualAHCShare.(reg)    = gather(sum(Dist_Fert .* w_ahc_az, 'all') / parent_mass);
-
-        % 4D Compact Skill Transition: two-tier convex d_grid_ic stress & Adolescent lambda_psy hazard
-        % Supports exact non-linear [Waiter vs. Active Participant] cohort mixing for 13-Wave Te Kāhui Waka:
-        g_ece_k      = Params.G_ece.(hh_type);
-        g_ece2_k     = Params.G_ece_stage2.(hh_type);
-        s_act_k      = 1.0;
-        if isfield(Params, 's_active_ece') && isfield(Params.s_active_ece, hh_type)
-            s_act_k  = min(1.0, max(0.0, Params.s_active_ece.(hh_type)));
-        end
-
-        % --- A. Active Participant Cohort Transition (Share = s_act_k) ---
-        M_mentor     = min(1.0, max(0.0, (g_ece2_k - Params.G_ece1_sched(1)) / (Params.G_ece2_sched(2) - Params.G_ece1_sched(1))));
-        is_stress_4D = double(ic_4D < 0.005) + 0.55 .* double((ic_4D >= 0.005) & (ic_4D < 0.035));
-        M_trust_k    = M_mentor * (0.45 + 0.55 * min(1.0, K_reg / 0.35));
-        lam_base_4d  = 0.38;
-        if isfield(Params, 'lambda_psy') && isstruct(Params.lambda_psy) && isfield(Params.lambda_psy, hh_type)
-            lam_base_4d = Params.lambda_psy.(hh_type);
-        end
-        lambda_psy_k = max(0.22 * 0.38, 0.22 * (lam_base_4d / 0.38) * (1.0 - 0.52 * M_trust_k) * (1.0 - 0.35 * min(1.0, K_reg / 0.38)));
-        comp_load_4D = is_stress_4D + lambda_psy_k .* (1.0 + 0.65 .* is_stress_4D);
-        unbuf_mult_k = max(0.38 * lambda_psy_k, (1.0 - 0.80 * M_trust_k) * (1.0 - 0.55 * K_reg));
-
-        stress_pen   = 0.038 .* comp_load_4D .* unbuf_mult_k;
-        ece_lift     = 0.55 * (g_ece_k - Params.G_ece1_sched(1)) + 0.04 * (M_mentor - 0.50) + 0.12 * dK_reg;
-        hp_eff_4D    = h_G .* (1.0 + 0.15 * dK_reg);
-
-        log_h_act    = Params.rho_hc_ig .* log(hp_eff_4D) ...
-            + Params.gamma_ic .* log(0.82 + 1.15 * (ic_4D + g_ece_k + 0.020 * dK_reg)) ...
-            + ece_lift - stress_pen + reg_skill_drift(r_idx) - crowd_G;
-
-        pdf_5D_act   = exp(-0.5 .* ((log_h_dst - log_h_act) ./ 0.24).^2);
-        pdf_5D_act   = pdf_5D_act ./ sum(pdf_5D_act, 5);
-
-        if s_act_k < 0.999
-            % --- B. Waiter Cohort Transition (Share = 1 - s_act_k, at baseline G_ece_SS0) ---
-            g_ece0       = Params.G_ece1_sched(1);
-            M_trust_0    = 0.173 * (0.45 + 0.55 * min(1.0, K_reg / 0.35));
-            lam_psy_0    = max(0.22 * 0.38, 0.22 * (1.0 - 0.52 * M_trust_0) * (1.0 - 0.35 * min(1.0, K_reg / 0.38)));
-            comp_load_0  = is_stress_4D + lam_psy_0 .* (1.0 + 0.65 .* is_stress_4D);
-            unbuf_mult_0 = max(0.38 * lam_psy_0, (1.0 - 0.80 * M_trust_0) * (1.0 - 0.55 * K_reg));
-            stress_pen_0 = 0.038 .* comp_load_0 .* unbuf_mult_0;
-            ece_lift_0   = 0.04 * (0.173 - 0.50) + 0.12 * dK_reg;
-
-            log_h_wait   = Params.rho_hc_ig .* log(hp_eff_4D) ...
-                + Params.gamma_ic .* log(0.82 + 1.15 * (ic_4D + g_ece0 + 0.020 * dK_reg)) ...
-                + ece_lift_0 - stress_pen_0 + reg_skill_drift(r_idx) - crowd_G;
-            pdf_5D_wait  = exp(-0.5 .* ((log_h_dst - log_h_wait) ./ 0.24).^2);
-            pdf_5D_wait  = pdf_5D_wait ./ sum(pdf_5D_wait, 5);
-
-            pdf_5D       = s_act_k .* pdf_5D_act + (1.0 - s_act_k) .* pdf_5D_wait;
-        else
-            pdf_5D       = pdf_5D_act;
-        end
-
-        Prob_h_child = squeeze(gather(sum(Dist_Fert .* pdf_5D, [1, 2, 3, 4]))) / gather(parent_mass);
-        Prob_h_child = Prob_h_child(:) / sum(Prob_h_child(:));
-        Diag.MeanTheta3.(reg) = Prob_h_child(:)' * h_vec(:);
-        Diag.MeanTheta2.(reg) = 0.92 * Diag.MeanTheta3.(reg);
+    % Integrate continuous ECE/Kaiako lift, whanau buffer dK_reg, adolescent lambda_psy,
+    % & 13-Wave [Waiter vs. Active Participant] convex mixing (s_active_ece) in 5D launch:
+    g_ece_5d  = Params.G_ece;
+    if isstruct(g_ece_5d) && isfield(g_ece_5d, hh_type), g_ece_5d = g_ece_5d.(hh_type); end
+    g_ece2_5d = g_ece_5d;
+    if isfield(Params, 'G_ece_stage2')
+        g_ece2_5d = Params.G_ece_stage2;
+        if isstruct(g_ece2_5d) && isfield(g_ece2_5d, hh_type), g_ece2_5d = g_ece2_5d.(hh_type); end
     end
+    s_act_k = 1.0;
+    if isfield(Params, 's_active_ece') && isstruct(Params.s_active_ece) && isfield(Params.s_active_ece, hh_type)
+        s_act_k = min(1.0, max(0.0, Params.s_active_ece.(hh_type)));
+    elseif isfield(Params, 's_active_ece_vec') && numel(Params.s_active_ece_vec) >= r_idx
+        s_act_k = min(1.0, max(0.0, Params.s_active_ece_vec(r_idx)));
+    end
+
+    if isfield(Params, 'M_mentor') && isnumeric(Params.M_mentor) && isscalar(Params.M_mentor)
+        M_mentor_5d = Params.M_mentor;
+    else
+        M_mentor_5d = min(1.0, max(0.0, (g_ece2_5d - Params.G_ece1_sched(1)) / max(1e-6, Params.G_ece2_sched(2) - Params.G_ece1_sched(1))));
+    end
+    M_trust_5d = M_mentor_5d * (0.45 + 0.55 * min(1.0, K_reg / 0.35));
+    lam_base   = 0.38;
+    if isfield(Params, 'lambda_psy') && isstruct(Params.lambda_psy) && isfield(Params.lambda_psy, hh_type)
+        lam_base = Params.lambda_psy.(hh_type);
+    end
+    lam_psy_5d   = max(0.22 * 0.38, 0.22 * (lam_base / 0.38) * (1.0 - 0.52 * M_trust_5d) * (1.0 - 0.35 * min(1.0, K_reg / 0.38)));
+    unbuf_5d     = max(0.38 * lam_psy_5d, (1.0 - 0.80 * M_trust_5d) * (1.0 - 0.55 * K_reg));
+    is_low_a     = double(a_dbl < 0.12 * Q_house);
+    is_low_th    = double(reshape(th_vec, [1, n_th]) < 0.85);
+    is_stress_2D = 0.55 * is_low_a + 0.45 * is_low_th;
+    comp_load_2D = is_stress_2D + lam_psy_5d .* (1.0 + 0.65 .* is_stress_2D);
+    stress_pen5d = 0.038 .* comp_load_2D .* unbuf_5d - 0.0159; % Zero-centered at SS0 baseline
+
+    kaiako_defl  = (max(0.50, Q_base) / max(0.50, Q_house)) ^ 0.35;
+    G_ece1_eff   = g_ece_5d * kaiako_defl;
+    ece_lift_5d  = 0.55 * (G_ece1_eff - Params.G_ece1_sched(1)) + 0.04 * (M_mentor_5d - 0.50) + 0.12 * dK_reg;
+
+    log_h_act   = 0.68 * log(reshape(th_vec, [1, n_th])) + ece_lift_5d - stress_pen5d + reg_skill_drift(r_idx) - crowd_1D;
+    diff_act    = reshape(log(h_vec), [n_h, 1, 1]) - reshape(log_h_act, [1, n_a1, n_th]);
+    trans_p_act = exp(-0.5 * (diff_act ./ 0.24).^2);
+    trans_p_act = trans_p_act ./ max(1e-12, sum(trans_p_act, 1));
+
+    if s_act_k < 0.999
+        M_trust_0    = 0.173 * (0.45 + 0.55 * min(1.0, K_reg / 0.35));
+        lam_psy_0    = max(0.22 * 0.38, 0.22 * (1.0 - 0.52 * M_trust_0) * (1.0 - 0.35 * min(1.0, K_reg / 0.38)));
+        unbuf_0      = max(0.38 * lam_psy_0, (1.0 - 0.80 * M_trust_0) * (1.0 - 0.55 * K_reg));
+        comp_load_0  = is_stress_2D + lam_psy_0 .* (1.0 + 0.65 .* is_stress_2D);
+        stress_pen_0 = 0.038 .* comp_load_0 .* unbuf_0 - 0.0159;
+        ece_lift_0   = 0.04 * (0.173 - 0.50) + 0.12 * dK_reg;
+
+        log_h_wait   = 0.68 * log(reshape(th_vec, [1, n_th])) + ece_lift_0 - stress_pen_0 + reg_skill_drift(r_idx) - crowd_1D;
+        diff_wait    = reshape(log(h_vec), [n_h, 1, 1]) - reshape(log_h_wait, [1, n_a1, n_th]);
+        trans_p_wait = exp(-0.5 * (diff_wait ./ 0.24).^2);
+        trans_p_wait = trans_p_wait ./ max(1e-12, sum(trans_p_wait, 1));
+
+        trans_p      = s_act_k .* trans_p_act + (1.0 - s_act_k) .* trans_p_wait;
+        ece_lift_mix = s_act_k * ece_lift_5d + (1.0 - s_act_k) * ece_lift_0;
+        stress_mix   = s_act_k .* stress_pen5d + (1.0 - s_act_k) .* stress_pen_0;
+    else
+        trans_p      = trans_p_act;
+        ece_lift_mix = ece_lift_5d;
+        stress_mix   = stress_pen5d;
+    end
+
+    th_eff_2D = reshape(th_vec, [1, n_th]) .* exp(0.45 * ece_lift_mix - 0.45 * stress_mix);
+    Diag.MeanTheta3.(reg) = sum(Mass_a_th .* th_eff_2D, 'all') / parent_mass;
+    Diag.MeanTheta2.(reg) = Diag.MeanTheta2.(reg) * exp(0.30 * ece_lift_mix);
+
+    Prob_h_child = squeeze(sum(trans_p .* reshape(Mass_a_th, [1, n_a1, n_th]), [2, 3])) / parent_mass;
+    Prob_h_child = Prob_h_child(:) / sum(Prob_h_child(:));
+
+    Mass_a_1D = sum(Mass_a_th, 2) / parent_mass;
+    Diag.SevereHardshipShare.(reg) = Mass_a_1D' * W_cell(:, 2);
+    Diag.ResidualAHCShare.(reg)    = Mass_a_1D' * (W_cell(:, 4) - W_cell(:, 2));
 
     % --- B. VECTORIZED $1.6T PROPERTY BEQUEST TRANSITION (Dying Retirees j >= Jr) ---
-    if is_5D && ndims(Dist_raw) == 5
-        mort_5D      = reshape(double(gather(mort_vec)), [1, 1, 1, 1, length(retire_j)]);
-        Dist_Ret_cpu = Dist_5D(:, :, :, :, retire_j) .* mort_5D;
-        ap_flat_cpu  = max(1, min(n_a1, round(reshape(Pol_5D(4, :, :, :, :, retire_j), [], 1))));
-    else
-        Dist_Ret_cpu = double(gather(Dist_k(:, :, :, retire_j) .* mort_vec));
-        ap_flat_cpu  = max(1, min(n_a1, round(double(gather(reshape(Pol_k(4, :, :, :, retire_j), [], 1))))));
-    end
+    Dist_Ret_cpu = Dist_5D(:, :, :, :, retire_j) .* mort_5D;
+    ap_flat_cpu  = max(1, min(n_a1, round(reshape(Pol_5D(4, :, :, :, :, retire_j), [], 1))));
     dist_ret_cpu = Dist_Ret_cpu(:);
     beq_mass     = max(1e-12, sum(dist_ret_cpu));
     ap_val_flat  = a_vec(ap_flat_cpu);
@@ -298,14 +220,9 @@ end
 V_j1_all  = zeros(n_a1, n_h, n_z1, N_reg);
 V_mean_j1 = zeros(N_reg, 1);
 for r_d = 1:N_reg
-    V_raw = double(gather(V.(['HH_', Regions{r_d}])));
-    if is_5D && ndims(V_raw) == 5
-        mid_th = ceil(n_th / 2);
-        V_slice = reshape(V_raw(:, :, mid_th, :, 1), [n_a1, n_h, n_z1]);
-    else
-        V_raw_4D = reshape(V_raw, [n_a1, n_h, n_z1, Params.J]);
-        V_slice  = V_raw_4D(:, :, :, 1);
-    end
+    V_raw   = reshape(double(gather(V.(['HH_', Regions{r_d}]))), [n_a1, n_h, n_th, n_z1, Params.J]);
+    mid_th  = ceil(n_th / 2);
+    V_slice = reshape(V_raw(:, :, mid_th, :, 1), [n_a1, n_h, n_z1]);
     V_j1_all(:, :, :, r_d) = V_slice;
     fin_mask = isfinite(V_slice);
     V_mean_j1(r_d) = sum(V_slice(fin_mask) .* NewbornDist_PreMig.(Regions{r_d})(fin_mask)) ...
@@ -407,16 +324,12 @@ for r_dest = 1:N_reg
     end
     dist_3d = dist_3d / max(1e-12, sum(dist_3d(:)));
 
-    if is_5D
-        dist_4d = zeros(n_a1, n_h, n_th, n_z1);
-        for ih = 1:n_h
-            ith_init = min(n_th, max(1, ih + 1));
-            dist_4d(:, ih, ith_init, :) = reshape(dist_3d(:, ih, :), [n_a1, 1, 1, n_z1]);
-        end
-        jequaloneDist_new.(dest_type) = dist_4d / max(1e-12, sum(dist_4d(:)));
-    else
-        jequaloneDist_new.(dest_type) = dist_3d;
+    dist_4d = zeros(n_a1, n_h, n_th, n_z1);
+    for ih = 1:n_h
+        ith_init = min(n_th, max(1, ih + 1));
+        dist_4d(:, ih, ith_init, :) = reshape(dist_3d(:, ih, :), [n_a1, 1, 1, n_z1]);
     end
+    jequaloneDist_new.(dest_type) = dist_4d / max(1e-12, sum(dist_4d(:)));
 end
 
 %% STORE DIAGNOSTICS

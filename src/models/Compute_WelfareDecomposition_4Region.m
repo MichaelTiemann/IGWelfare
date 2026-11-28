@@ -1,7 +1,7 @@
-function DecompOut = Compute_WelfareDecomposition_4Region(Params, Grids4D, jDist_Init, Opts)
+function DecompOut = Compute_WelfareDecomposition_4Region(Params, Grids5D, jDist_Init, Opts)
 %% PURE MATHEMATICAL CONTRACT: MULTIPHASE 4-REGION WELFARE & SPATIAL DECOMPOSITION (SS0 -> SS1 -> ... -> SSm)
 % File: src/models/Compute_WelfareDecomposition_4Region.m
-% Dynamically solves M >= 1 reform phases relative to Baseline SS0 on the 4D grid:
+% Dynamically solves M >= 1 reform phases relative to Baseline SS0 on the canonical 5D grid:
 %   - Stage 1: Short-Run PE (policy levers of Phase m, prior prices & jDist)
 %   - Stage 2: Long-Run GE with Exogenous Skills (price shifts of Phase m, prior jDist)
 %   - Stage 3: Long-Run GE with Endogenous 4x5 Intergenerational Matrix (jDist_SSm)
@@ -30,56 +30,71 @@ n_igm_iters = 12;
 if isfield(Opts, 'MaxIGIter_SS0') && ~isempty(Opts.MaxIGIter_SS0), n_ig0_iters = Opts.MaxIGIter_SS0; end
 if isfield(Opts, 'MaxIGIter_SSm') && ~isempty(Opts.MaxIGIter_SSm), n_igm_iters = Opts.MaxIGIter_SSm; end
 
-n_d                      = Grids4D.n_d;
-n_a                      = Grids4D.n_a;
-n_z                      = Grids4D.n_z;
-N_j                      = Grids4D.N_j;
-Names_i                  = Grids4D.Names_i;
-d_grid                   = Grids4D.d_grid;
-a_grid                   = Grids4D.a_grid;
-z_grid                   = Grids4D.z_grid;
-pi_z                     = Grids4D.pi_z;
-ReturnFn                 = Grids4D.ReturnFn;
-DiscountFactorParamNames = Grids4D.DiscountFactorParamNames;
-AgeWeightsParamNames     = Grids4D.AgeWeightsParamNames;
-PTypeDistParamNames      = Grids4D.PTypeDistParamNames;
-vfoptions                = Grids4D.vfoptions;
-simoptions               = Grids4D.simoptions;
+n_d                      = Grids5D.n_d;
+n_a                      = Grids5D.n_a;
+n_z                      = Grids5D.n_z;
+N_j                      = Grids5D.N_j;
+Names_i                  = Grids5D.Names_i;
+d_grid                   = Grids5D.d_grid;
+a_grid                   = Grids5D.a_grid;
+z_grid                   = Grids5D.z_grid;
+pi_z                     = Grids5D.pi_z;
+ReturnFn                 = Grids5D.ReturnFn;
+DiscountFactorParamNames = Grids5D.DiscountFactorParamNames;
+AgeWeightsParamNames     = Grids5D.AgeWeightsParamNames;
+PTypeDistParamNames      = Grids5D.PTypeDistParamNames;
+vfoptions                = Grids5D.vfoptions;
+simoptions               = Grids5D.simoptions;
 
-%% 1. SOLVE CLEAN 4D BASELINE ANCHOR (SS0) ON IDENTICAL RETURN FUNCTION
+%% 1. SOLVE OR REUSE CANONICAL 5D BASELINE ANCHOR (SS0) ON IDENTICAL RETURN FUNCTION
 Params_SS0_Solve       = Params;
-Params_SS0_Solve.G_ece = Params_SS0_Solve.G_ece_stage1; % Ensure 4D G_ece matches SS0 stage-1 baseline (0.045)
+Params_SS0_Solve.G_ece = Params_SS0_Solve.G_ece_stage1;
 Backend = Resolve_Compute_Backend();
 if ~isfield(vfoptions, 'parallel') || isempty(vfoptions.parallel)
     if Backend.UseGPU
         vfoptions.parallel = 2;
     end
 end
-t_w0 = tic;
-[V_SS0, Policy_SS0] = Solve_VFI_PhaseSplit(n_d, n_a, n_z, N_j, d_grid, a_grid, z_grid, pi_z, ...
-    ReturnFn, Params_SS0_Solve, DiscountFactorParamNames, vfoptions, Regions);
-if verbose_log
-    fprintf('  [DIAG Step6] SS0 VFI (n_a=%s): %.2fs\n', mat2str(n_a.(ref_hh_0)), toc(t_w0));
-end
 
-jDist_SS0 = jDist_Init;
-ig0_resid = Inf;
-t_w0 = tic;
-for ig0_it = 1:n_ig0_iters
-    StatDist_SS0 = StationaryDist_MixHorz_PType(jDist_SS0, AgeWeightsParamNames, ...
-        PTypeDistParamNames, Policy_SS0, n_d, n_a, n_z, N_j, Names_i, ...
-        pi_z, Params_SS0_Solve, simoptions);
-    [jDist_SS0_new, IG_Diag_SS0_solved] = Build_IntergenTransitionMatrix(StatDist_SS0, Policy_SS0, V_SS0, ...
-        n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params_SS0_Solve, Regions);
-    ig0_resid = max(cellfun(@(r) max(abs(jDist_SS0_new.(['HH_', r])(:) - jDist_SS0.(['HH_', r])(:))), Regions));
-    jDist_SS0 = jDist_SS0_new;
-end
-if verbose_log
-    fprintf('  [DIAG Step6] SS0 IG Loop (%d iters): %.2fs\n', n_ig0_iters, toc(t_w0));
-end
-if ~(ig0_resid < 1e-5) && n_ig0_iters >= 6
-    IGW_Log('IGW:NoConvergence', 'Compute_WelfareDecomposition_4Region SS0 intergenerational fixed point: %d iterations, residual %.3g', ...
-        ig0_it, double(gather(ig0_resid)));
+if isfield(Opts, 'Precomputed_SS0') && isstruct(Opts.Precomputed_SS0) && isfield(Opts.Precomputed_SS0, 'V')
+    V_SS0              = Opts.Precomputed_SS0.V;
+    Policy_SS0         = Opts.Precomputed_SS0.Policy;
+    StatDist_SS0       = Opts.Precomputed_SS0.StatDist;
+    jDist_SS0          = Opts.Precomputed_SS0.jDist;
+    IG_Diag_SS0_solved = Opts.Precomputed_SS0.IG_Diag;
+    if verbose_log
+        fprintf('  [DIAG Step6] Reusing precomputed Step 1 5D SS0 baseline (n_a=%s)\n', mat2str(n_a.(ref_hh_0)));
+    end
+else
+    t_w0 = tic;
+    [V_SS0, Policy_SS0] = Solve_VFI_PhaseSplit(n_d, n_a, n_z, N_j, d_grid, a_grid, z_grid, pi_z, ...
+        ReturnFn, Params_SS0_Solve, DiscountFactorParamNames, vfoptions, Regions);
+    if verbose_log
+        fprintf('  [DIAG Step6] SS0 VFI (n_a=%s): %.2fs\n', mat2str(n_a.(ref_hh_0)), toc(t_w0));
+    end
+
+    t_w0       = tic;
+    HH_Cache_0 = Precompute_HH_StationaryCache(Policy_SS0, n_d, n_a, n_z, N_j, d_grid, a_grid, pi_z, Params_SS0_Solve, simoptions, Regions);
+    jDist_SS0  = jDist_Init;
+    StatDist_SS0 = struct();
+    ig0_resid  = Inf;
+    for ig0_it = 1:n_ig0_iters
+        StatDist_SS0 = PushForward_HH_Dist(StatDist_SS0, jDist_SS0, HH_Cache_0, Regions);
+        [jDist_SS0_new, IG_Diag_SS0_solved] = Build_IntergenTransitionMatrix(StatDist_SS0, Policy_SS0, V_SS0, ...
+            n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params_SS0_Solve, Regions);
+        ig0_resid = max(cellfun(@(r) max(abs(jDist_SS0_new.(['HH_', r])(:) - jDist_SS0.(['HH_', r])(:))), Regions));
+        jDist_SS0 = jDist_SS0_new;
+        if ig0_resid < 1e-5
+            break;
+        end
+    end
+    if verbose_log
+        fprintf('  [DIAG Step6] SS0 IG Loop (%d iters): %.2fs\n', ig0_it, toc(t_w0));
+    end
+    if ~(ig0_resid < 1e-5) && n_ig0_iters >= 6
+        IGW_Log('IGW:NoConvergence', 'Compute_WelfareDecomposition_4Region SS0 intergenerational fixed point: %d iterations, residual %.3g', ...
+            ig0_it, double(gather(ig0_resid)));
+    end
 end
 Params_SS0 = Params;
 if isfield(Opts, 'IG_Diagnostics_SS0') && ~isempty(Opts.IG_Diagnostics_SS0)
@@ -163,12 +178,12 @@ for m = 1:M_reforms
     end
 
     % 3C. Stage C: Long-Run GE with Endogenous 4x5 Intergenerational Matrix (jDist_SSm)
-    jDist_m  = jDist_prev;
-    ig_resid = Inf;
+    HH_Cache_m = Precompute_HH_StationaryCache(Policy_GE_Exo_m, n_d, n_a, n_z, N_j, d_grid, a_grid, pi_z_m, P_GE, simoptions, Regions);
+    jDist_m    = jDist_prev;
+    StatDist_m = struct();
+    ig_resid   = Inf;
     for ig_it = 1:n_igm_iters
-        StatDist_m = StationaryDist_MixHorz_PType(jDist_m, AgeWeightsParamNames, ...
-            PTypeDistParamNames, Policy_GE_Exo_m, n_d, n_a, n_z, N_j, Names_i, ...
-            pi_z_m, P_GE, simoptions);
+        StatDist_m = PushForward_HH_Dist(StatDist_m, jDist_m, HH_Cache_m, Regions);
         [jDist_m_new, IG_Diag_m] = Build_IntergenTransitionMatrix(StatDist_m, Policy_GE_Exo_m, V_GE_Exo_m, ...
             n_d, n_a, n_z, d_grid, a_grid, z_grid_m, pi_z_m, P_GE, Regions);
         ig_resid = max(cellfun(@(r) max(abs(jDist_m_new.(['HH_', r])(:) - jDist_m.(['HH_', r])(:))), Regions));

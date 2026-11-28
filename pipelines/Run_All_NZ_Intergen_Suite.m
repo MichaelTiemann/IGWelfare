@@ -6,7 +6,7 @@
 %   Step 1: Baseline 4-Region Steady State (NZ_4Region_Master.m)
 %   Step 2: Multi-Stage Childhood Counterfactuals (PolicyExperiment_LeeSeshadri_4Region.m)
 %   Step 3: Endogenous Fertility & Bargaining Module (FertilityBargaining_Module.m)
-%   Step 4: 5D -> 4D Compact Projection across 4 Regions
+%   Step 4: Canonical 5D Workspace Restore for Downstream Modules (Compact4D Retired)
 %   Step 5: Optional SMM Calibration & In-Kind Imputation Check (Calibrate_NZ_Moments.m)
 %   Step 6: 4-Region Welfare Decomposition (WelfareDecomposition_4Region.m)
 %   Step 7: 60-Year Non-Linear Transition Path (TransPath_4Region_Master.m) and other trans path plots (Opportunity Index, Actuarial Continuation Valuation)
@@ -222,69 +222,21 @@ if Use_ExpAsset_Pipeline && Run_Fertility_Module && exist('FertilityBargaining_M
     fprintf('    Step 3 completed in %.2f seconds.\n\n', toc(step3_timer));
 end
 
-%% STEP 4: 5D -> 4D COMPACT PROJECTION ACROSS ALL 4 REGIONS (FOR DECOMPOSITION & TRANSITION)
-if Use_ExpAsset_Pipeline && exist('ReturnFn_SpatialHH_Compact4D.m', 'file')
-    fprintf('>>> [STEP 4/7] Projecting 5D Experience-Asset State Space to Compact 4D across %d Regions...\n', N_reg);
-    step4_timer = tic;
-    Cache_Step4 = fullfile(CacheDir, sprintf('Cache_Step4_Compact4D_dt%d.mat', Params.dt));
-
-    if isfield(vfoptions, 'aprimeFn');  vfoptions  = rmfield(vfoptions, 'aprimeFn');  end
-    if isfield(simoptions, 'aprimeFn'); simoptions = rmfield(simoptions, 'aprimeFn'); end
-
-    for r_idx = 1:N_reg
-        hh_type = ['HH_', Regions{r_idx}];
-        vfoptions.experienceasset.(hh_type)  = 0;
-        vfoptions.vectorized                 = 1;
-        simoptions.experienceasset.(hh_type) = 0;
-
-        n_d.(hh_type)    = [4, 3, 7];
-        d_grid.(hh_type) = [[0; 0.5; 0.8; 1.0]; linspace(0, 0.30, 3)'; linspace(0, 0.50, 7)'];
-        n_a.(hh_type)    = [n_a_5D.(hh_type)(1), n_a_5D.(hh_type)(2)];
-        a_grid.(hh_type) = a_grid_5D.(hh_type)(1 : sum(n_a.(hh_type)));
-
-        ReturnFn.(hh_type) = @(l, Ih, ic, aprime, hprime, a, h, z, ...
-            w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
-            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, K_whanau, omega_ic, ...
-            delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
-            tau_l, tau_c, tau_k, tau_a, tau_b, agej, Jr, sj, dt, ...
-            j_s1_start, j_s2_end) ...
-            ReturnFn_SpatialHH_Compact4D(l, Ih, ic, aprime, hprime, a, h, z, ...
-            w_reg, r, Q_reg, G_reg, phi_nd, mu_maint, upsilon_h, chi_bar, ebar_energy, ...
-            Transfer_Geo, p_super, c_floor, G_ece, gbar_ece, K_whanau, omega_ic, ...
-            delta_hc, alpha_I, alpha_H, b1_beq, b2_beq, YouthGrant, ...
-            tau_l, tau_c, tau_k, tau_a, tau_b, agej, Jr, sj, dt, ...
-            j_s1_start, j_s2_end);
-
-        jequaloneDist.(hh_type) = squeeze(sum(jequaloneDist_5D_BM.(hh_type), 3));
-        jequaloneDist.(hh_type) = jequaloneDist.(hh_type) / sum(jequaloneDist.(hh_type)(:));
-    end
-
-    Params.G_ece     = Params.G_ece_stage1;
-    Params.rho_hc_ig = 0.40;
-    Params.gamma_ic  = 0.35;
-
-    simoptions.d_grid = d_grid;
-    simoptions.a_grid = a_grid;
-
-    if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step4, 'file') && Validate_CacheConfig(Cache_Step4, Cache_CfgHash)
-        fprintf('    [CACHE HIT] Loading Step 4 Compact 4D Baseline from %s...\n', Cache_Step4);
-        load(Cache_Step4, 'V', 'Policy', 'StationaryDist', 'jequaloneDist', 'IG_Diagnostics');
-    else
-        [V, Policy] = ValueFnIter_MixHorz_PType(n_d, n_a, n_z, N_j, Names_i, ...
-            d_grid, a_grid, z_grid, pi_z, ReturnFn, Params, DiscountFactorParamNames, vfoptions);
-        StationaryDist = StationaryDist_MixHorz_PType(jequaloneDist, AgeWeightsParamNames, ...
-            PTypeDistParamNames, Policy, n_d, n_a, n_z, N_j, Names_i, ...
-            pi_z, Params, simoptions);
-        [jequaloneDist, IG_Diagnostics] = Build_IntergenTransitionMatrix( ...
-            StationaryDist, Policy, V, n_d, n_a, n_z, d_grid, a_grid, z_grid, pi_z, Params, Regions);
-        old_warn = warning('query', 'all');
-        warning('off', 'all');
-        save(Cache_Step4, 'V', 'Policy', 'StationaryDist', 'jequaloneDist', 'IG_Diagnostics', 'Cache_CfgHash');
-        warning(old_warn);
-        fprintf('    [CACHE SAVED] Saved Step 4 checkpoint to %s\n', Cache_Step4);
-    end
-    fprintf('    Step 4 completed in %.2f seconds.\n\n', toc(step4_timer));
-end
+%% STEP 4: RESTORE CANONICAL 5D WORKSPACE FOR DECOMPOSITION & TRANSITION (COMPACT4D RETIRED)
+fprintf('>>> [STEP 4/7] Restoring Canonical 5D Experience-Asset State Space across %d Regions...\n\n', N_reg);
+V              = V_5D_BM;
+Policy         = Policy_5D_BM;
+StationaryDist = StationaryDist_5D_BM;
+jequaloneDist  = jequaloneDist_5D_BM;
+n_d            = n_d_5D;
+n_a            = n_a_5D;
+d_grid         = d_grid_5D;
+a_grid         = a_grid_5D;
+ReturnFn       = ReturnFn_5D;
+vfoptions      = vfoptions_5D;
+simoptions     = simoptions_5D;
+IG_Diagnostics = IG_Diag_5D_BM;
+Params.G_ece   = Params.G_ece_stage1;
 
 %% STEP 5: OPTIONAL SMM CALIBRATION & FERRIERE ET AL. IMPUTATION WEIGHTS
 if Run_SMM_Calibration && exist('Calibrate_NZ_Moments.m', 'file')
@@ -301,7 +253,7 @@ end
 if exist('WelfareDecomposition_4Region.m', 'file')
     fprintf('>>> [STEP 6/7] Running WelfareDecomposition_4Region.m...\n');
     step6_timer = tic;
-    Cache_Step6 = fullfile(CacheDir, sprintf('Cache_Step6_Decomposition_%s_dt%d.mat', Params.Rollout_Mode, Params.dt));
+    Cache_Step6 = fullfile(CacheDir, sprintf('Cache_Step6_Decomposition5D_%s_dt%d.mat', Params.Rollout_Mode, Params.dt));
     if Use_Saved_Cache && ~Force_Recompute_All && exist(Cache_Step6, 'file') && Validate_CacheConfig(Cache_Step6, Cache_ReformCfgHash)
         fprintf('    [CACHE HIT] Loading Step 6 Welfare Decomposition from %s...\n', Cache_Step6);
         load(Cache_Step6);
