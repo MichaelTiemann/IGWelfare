@@ -10,19 +10,25 @@ function F = ReturnFn_SpatialHH(l, Ih, ic, aprime, hprime, a, h, theta_c, z, ...
 %% CANONICAL 5D HOUSEHOLD RETURN FUNCTION (STATE-CONTINGENT SUB-MANIFOLD PARAMETERIZATION)
 % Dual-compatible elementwise arithmetic for MATLAB gpuArray/arrayfun and GNU Octave vectorization.
 
-scale_dt = dt / 5;
+scale_dt      = dt / 5;
+age_start_yrs = 20 + (agej - 1) * dt;
+age_end_yrs   = age_start_yrs + dt;
+super_age_yrs = 20 + (Jr - 1) * dt; % Exact continuous statutory retirement age (e.g. 60, 64, 65, 70, 75)
+is_post_65    = (age_start_yrs >= 65.0 - 1e-4);
+super_share_j = min(1.0, max(0.0, (age_end_yrs - super_age_yrs) / dt));
+is_full_ret   = is_post_65 && (super_share_j >= 0.999);
 
 %% 1. FULL-LIFECYCLE ADULT BEN-PORATH HUMAN CAPITAL LAW OF MOTION (h -> hprime)
 % Grid spacing on a_grid_hc = [0.45, 0.65, 0.85, 1.00, 1.20, 1.45, 1.80] reaches 0.35 at top;
 % setting tol_hc = max(0.21, 0.18 .* h) guarantees at least one feasible hprime even under elevated health delta_hc:
 tol_hc = max(0.21, 0.18 .* h);
-if agej < Jr
+if ~is_post_65
     h_expected = (1 - delta_hc) .* h + double(l > 0) .* (0.14 * scale_dt) .* (Ih .^ alpha_I) .* (h .^ alpha_H);
     valid_hc   = ~((l == 0) & (Ih > 0)) ...
                & ~((abs(hprime - h_expected) > tol_hc) & (abs(hprime - h) > 0.01) & ~((h > 1.75) & (hprime > 1.75)));
 else
     h_expected = (1 - 0.5 * delta_hc) .* h;
-    valid_hc   = ~((l > 0) | (Ih > 0) | (ic > 0)) ...
+    valid_hc   = ~((Ih > 0) | (ic > 0) | (is_full_ret & (l > 0))) ...
                & ~((abs(hprime - h_expected) > 0.22) & (abs(hprime - h) > 0.18));
 end
 
@@ -47,14 +53,13 @@ xi_hh            = min(1.0, xi_reg * (0.94 + 0.10 * lvr_access));
 is_evict_tail    = double(a < 0.08 .* Q_reg) .* double(z < 0.85);
 transience_wedge = 1.0 + 0.04 * is_evict_tail;
 
-if agej < Jr
+if ~is_post_65
     p_H = (xi_hh .* rh_reg + (1 - xi_hh) .* (rr_reg / (0.5 * chi_bar))) .* transience_wedge;
 else
     p_H = rh_reg;
 end
 
 %% 3. TAUCHEN- & ASSET-CONDITIONED WHANAU CARE K_whanau_net(z, a, Jr) & KAIAKO SUPPLY DEFLATOR
-super_age_yrs = 20 + (Jr - 1) * dt;
 is_super_cut  = double(super_age_yrs > 65.5);
 is_distress_z = double(z < 0.80) .* double(a < 0.12 * Q_reg);
 K_whanau_net  = K_whanau - 0.28 .* is_super_cut .* is_distress_z;
@@ -74,14 +79,15 @@ gross_earn       = w_reg .* h .* z .* l;
 T_geo            = Transfer_Geo .* exp(-xk_geo .* gross_earn);
 ebar_eff         = ebar_energy .* (1.0 + 0.15 .* double(a < 0.12 .* Q_reg)); % Credit-constrained fossil/exergy lock-in
 wealth_after_tax = ((1 - tau_a) .^ dt) .* a + r .* (1 - tau_k) .* a;
-youth_endow      = (agej == 1) .* YouthGrant;
-pension_inc      = (agej >= Jr) .* p_super;
+youth_endow        = (agej == 1) .* YouthGrant;
+unpensioned_post65 = max(0.0, 1.0 - super_share_j) .* double(is_post_65);
+pension_inc        = (super_share_j + 0.55 .* unpensioned_post65) .* p_super;
 
 c_budget = wealth_after_tax - aprime + youth_endow ...
     + scale_dt .* ((1 - tau_l) .* gross_earn + T_geo + pension_inc - (1 - s_sub) .* ic - ebar_eff - sandwich_drag);
 c_eff    = max(scale_dt * c_floor, c_budget ./ (1 + tau_c)) ./ scale_dt;
 
-if agej < Jr
+if ~is_full_ret
     valid_budg = ~((c_budget <= 0) & ((aprime > 0) | (ic > 0)));
 else
     valid_budg = true;
@@ -94,8 +100,9 @@ cobb_mult = ((phi_nd .^ phi_nd) .* ((1 - phi_nd) .^ (1 - phi_nd))) .* (p_H .^ (p
 u_comp    = c_eff .* cobb_mult;
 eta_c     = 2.0;
 
-age_yrs          = 20 + (agej - 1) * dt;
-manual_wear_mult = 1.0 + 0.35 * double(age_yrs >= 65) * double(agej < Jr) .* max(0.0, (1.00 - h) ./ 0.55);
+early_relief     = 0.38 * super_share_j * double(~is_post_65);
+post65_wear      = 0.35 * double(is_post_65) * double(~is_full_ret) .* max(0.0, (1.00 - h) ./ 0.55);
+manual_wear_mult = max(0.55, 1.0 - early_relief + post65_wear);
 
 u_flow = scale_dt .* ((-1.0 ./ u_comp) - 0.85 .* manual_wear_mult .* ((l + Ih) .^ 1.6) ./ 1.6);
 
@@ -114,7 +121,7 @@ end
 
 %% 6. END-OF-LIFE WARM-GLOW BEQUEST (WITH SKILL-MANIFOLD MORTALITY GRADIENT sj_eff(h, j))
 u_beq = 0;
-if agej >= Jr
+if is_post_65 || (super_share_j > 0)
     mort_grad  = exp(0.05 .* (1.05 - h));
     mort_prob  = min(0.99, max(0.01, (1 - sj) .* mort_grad));
     net_estate = (1 - tau_b) .* max(0, aprime);
